@@ -524,7 +524,7 @@
         {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
         <a href="/helpdesk"><i class="fa-solid fa-headset"></i> Comunicaciones</a>
         {% endif %}
-        <a href="/chat"><i class="fa-solid fa-comments"></i> Chat</a>
+
         {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
         <a href="/reportes" class="active"><i class="fa-solid fa-chart-pie"></i> Reportes</a>
         {% endif %}
@@ -537,6 +537,7 @@
         {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
         <a href="/integracion"><i class="fa-solid fa-network-wired"></i> Integración</a>
         {% endif %}
+        <a href="/historico"><i class="fa-solid fa-history"></i> Histórico</a>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -1299,5 +1300,6 @@
             } catch (e) {}
         }
     </script>
+{% include 'global_chat.html' %}
 </body>
 </html>

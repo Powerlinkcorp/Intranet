@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Clientes - Intranet Powerlink</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ESTILOS CORPORATIVOS GLOBALES (NAVBAR) */
+        :root {
+            --fondo-principal: #ffffff;
+            --blanco: #ffffff;
+            --cabeceras: #1A1A1A;
+            --acento: #FFC107;
+            --acento-hover: #F5C71D;
+            --texto-negro: #1A1A1A;
+            --texto-gris: #4A4A4A;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #ffffff;
+            color: #1e293b;
+        }
+
+        /* NAVBAR (IDÉNTICO A INTRANET.HTML) */
+        .navbar {
+            background-color: var(--cabeceras);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar .logo span {
+            color: var(--acento);
+        }
+        
+        .navbar .admin-badge {
+            background-color: var(--acento);
+            color: var(--texto-negro) !important;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: 700;
+            vertical-align: middle;
+        }
+
+        .navbar .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        /* FAST LINKS */
+        .fast-links {
+            background-color: var(--cabeceras);
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 16px;
+            border-bottom: 3px solid var(--acento);
+        }
+
+        .fast-links a {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+
+        .fast-links a:hover, .fast-links a.active {
+            color: var(--acento);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
+
+    {% if not embed %}
+    <!-- NAVBAR CORPORATIVO -->
+    <nav class="navbar">
+        <a href="/" class="logo" style="text-decoration:none; color:inherit;">
+            POWER LINK <span>CORP</span> <span class="admin-badge">Histórico</span>
+        </a>
+        <div class="user-menu">
+            <span style="font-size: 13px;">Hola, {{ user.full_name }}</span>
+            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </nav>
+
+    <!-- ENLACES RÁPIDOS GLOBALES -->
+    <div class="fast-links">
+        <a href="/"><i class="fa-solid fa-house"></i> Inicio</a>
+        <a href="#"><i class="fa-solid fa-briefcase"></i> Proyectos</a>
+        {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
+        <a href="/directorio"><i class="fa-solid fa-address-book"></i> Directorio</a>
+        {% endif %}
+        {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
+        <a href="/helpdesk"><i class="fa-solid fa-headset"></i> Comunicaciones</a>
+        {% endif %}
+        {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
+        <a href="/reportes"><i class="fa-solid fa-chart-bar"></i> Reportes</a>
+        {% endif %}
+        {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
+        <a href="/admin"><i class="fa-solid fa-users"></i> RRHH</a>
+        {% endif %}
+        {% if user.role == 'admin' %}
+        <a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
+        {% endif %}
+        {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
+        <a href="/integracion"><i class="fa-solid fa-network-wired"></i> Integración</a>
+        {% endif %}
+        <a href="/historico" class="active"><i class="fa-solid fa-history"></i> Histórico</a>
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Histórico de Clientes</h1>
+            <p class="text-gray-500 mt-2">Consulta los cambios de estatus y planes por cliente a lo largo del tiempo.</p>
+        </div>
+
+        <!-- Buscador -->
+        <div class="glass-panel rounded-2xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div class="relative w-full max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input type="text" id="cedulaInput" placeholder="Ingrese la cédula del cliente (ej. V-12345678)" class="pl-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4 border outline-none transition-all">
+            </div>
+            <button onclick="buscarCliente()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-colors flex items-center justify-center">
+                <i class="fas fa-search mr-2"></i> Buscar
+            </button>
+        </div>
+
+        <div id="loader" class="hidden flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+
+        <div id="errorMessage" class="hidden bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-3 text-lg"></i>
+                <p id="errorText" class="text-red-700"></p>
+            </div>
+        </div>
+
+        <!-- Previsualización / Historial Reciente -->
+        <div id="recentEventsContainer" class="glass-panel rounded-2xl p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
+                <i class="fas fa-list text-indigo-500 mr-2"></i> Últimos Movimientos
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
+                    <thead class="bg-gray-50 text-gray-500 uppercase font-medium">
+                        <tr>
+                            <th class="px-4 py-3">ID Servicio</th>
+                            <th class="px-4 py-3">Cédula</th>
+                            <th class="px-4 py-3">Cliente</th>
+                            <th class="px-4 py-3">Plan</th>
+                            <th class="px-4 py-3 text-center">Estado Anterior</th>
+                            <th class="px-4 py-3 text-center">Estado Nuevo</th>
+                            <th class="px-4 py-3 text-center">Evento</th>
+                            <th class="px-4 py-3">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for ev in recent_events %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-semibold text-gray-900">{{ ev.service_id }}</td>
+                            <td class="px-4 py-4">{{ ev.cedula }}</td>
+                            <td class="px-4 py-4">{{ ev.client_name }}</td>
+                            <td class="px-4 py-4 text-gray-600">{{ ev.plan }}</td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">{{ ev.old_value or '-' }}</span>
+                            </td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">{{ ev.new_value or '-' }}</span>
+                            </td>
+                            <td class="px-4 py-4 text-center font-bold">
+                                {{ ev.event_type }}
+                            </td>
+                            <td class="px-4 py-4 text-gray-500">{{ ev.date }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not recent_events %}
+                        <tr><td colspan="8" class="text-center py-4 text-gray-500">Aún no hay movimientos registrados.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div id="resultsContainer" class="hidden space-y-6">
+            <!-- Datos del Cliente -->
+            <div class="glass-panel rounded-2xl p-6 overflow-hidden relative">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full -z-10 opacity-50"></div>
+                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
+                    <i class="fas fa-user-circle text-indigo-500 mr-2"></i> Datos del Cliente
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Nombre</p>
+                        <p id="cName" class="text-gray-900 font-semibold text-lg">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Cédula</p>
+                        <p id="cCedula" class="text-gray-900 font-semibold">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">ID Servicio</p>
+                        <p id="cServiceId" class="text-gray-900 font-semibold">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Estatus Actual</p>
+                        <p id="cStatus" class="font-bold">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Plan Actual</p>
+                        <p id="cPlan" class="text-gray-900 font-semibold">-</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Tipo</p>
+                        <p id="cType" class="text-gray-900 font-semibold">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial de Cambios -->
+            <div class="glass-panel rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center">
+                    <i class="fas fa-history text-indigo-500 mr-2"></i> Historial de Cambios
+                </h2>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de Registro</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Anterior</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Nuevo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Filas dinámicas -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noHistoryMsg" class="hidden text-center py-8 text-gray-500">
+                    <i class="fas fa-info-circle text-2xl mb-2 text-gray-400"></i>
+                    <p>No se encontraron registros históricos para este cliente.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function logout() {
+            try {
+                const res = await fetch('/api/auth/logout', { method: 'POST' });
+                if(res.ok) window.location.href = '/login';
+            } catch (e) { console.error(e); }
+        }
+
+        // Permitir buscar al presionar Enter
+        document.getElementById('cedulaInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                buscarCliente();
+            }
+        });
+
+        function getStatusColor(status) {
+            const s = (status || '').toUpperCase();
+            if (s.includes('ACT')) return 'text-green-600 bg-green-100 px-2 py-1 rounded text-sm';
+            if (s.includes('SUSP')) return 'text-red-600 bg-red-100 px-2 py-1 rounded text-sm';
+            if (s.includes('EXO')) return 'text-blue-600 bg-blue-100 px-2 py-1 rounded text-sm';
+            if (s.includes('RET')) return 'text-gray-600 bg-gray-100 px-2 py-1 rounded text-sm';
+            return 'text-gray-800 font-semibold';
+        }
+
+        function formatEventBadge(evt) {
+            if (evt === 'CAMBIO_ESTATUS') return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Cambio de Estatus</span>';
+            if (evt === 'CAMBIO_PLAN') return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">Cambio de Plan</span>';
+            if (evt === 'NUEVO_CLIENTE') return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Nuevo Cliente</span>';
+            return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">${evt}</span>`;
+        }
+
+        async function buscarCliente() {
+            const cedula = document.getElementById('cedulaInput').value.trim();
+            if (!cedula) return;
+
+            const loader = document.getElementById('loader');
+            const results = document.getElementById('resultsContainer');
+            const errorBox = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+
+            loader.classList.remove('hidden');
+            results.classList.add('hidden');
+            errorBox.classList.add('hidden');
+            const recentContainer = document.getElementById('recentEventsContainer');
+            if (recentContainer) recentContainer.classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/historico/${encodeURIComponent(cedula)}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Error al buscar el cliente.');
+                }
+
+                // Poblar datos del cliente
+                document.getElementById('cName').innerText = data.client.name;
+                document.getElementById('cCedula').innerText = data.client.cedula || 'N/A';
+                document.getElementById('cServiceId').innerText = data.client.service_id;
+                document.getElementById('cPlan').innerText = data.client.current_plan || 'N/A';
+                document.getElementById('cType').innerText = data.client.client_type;
+                
+                const statusEl = document.getElementById('cStatus');
+                statusEl.innerText = data.client.status || 'N/A';
+                statusEl.className = getStatusColor(data.client.status);
+
+                // Poblar historial
+                const tbody = document.getElementById('historyTableBody');
+                const noHistory = document.getElementById('noHistoryMsg');
+                tbody.innerHTML = '';
+
+                if (data.history && data.history.length > 0) {
+                    noHistory.classList.add('hidden');
+                    data.history.forEach(h => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-gray-50 transition-colors";
+                        
+                        // Formatear fecha
+                        const dateStr = new Date(h.record_date).toLocaleDateString('es-ES', {
+                            year: 'numeric', month: 'short', day: 'numeric',
+                            hour: '2-digit', minute:'2-digit'
+                        });
+
+                        tr.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${dateStr}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${formatEventBadge(h.event_type)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 line-through">${h.old_value || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${h.new_value || '-'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    noHistory.classList.remove('hidden');
+                }
+
+                results.classList.remove('hidden');
+
+            } catch (err) {
+                errorText.innerText = err.message;
+                errorBox.classList.remove('hidden');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+    </script>
+{% include 'global_chat.html' %}
+</body>
+</html>

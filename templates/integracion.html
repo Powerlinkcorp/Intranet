@@ -244,6 +244,7 @@
         {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
         <a href="/integracion"><i class="fa-solid fa-network-wired"></i> Integración</a>
         {% endif %}
+        <a href="/historico"><i class="fa-solid fa-history"></i> Histórico</a>
     </div>
     {% endif %}
 
@@ -369,6 +370,57 @@
                             <p id="resumenExonEmp" class="text-2xl font-bold text-sky-900">0</p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Nuevo Cuadro Resumen en Forma de Lista -->
+                <div class="max-w-3xl mx-auto overflow-hidden rounded-xl border border-gray-200 shadow-xs bg-white mb-6 w-full">
+                    <div class="flex items-center justify-between border-b border-gray-100 p-4 bg-gray-50/50">
+                        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-list-ul text-blue-600"></i> Resumen de Clientes (Lista)
+                        </h3>
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            <tr>
+                                <th class="py-3 px-4 text-left">Segmento / Estatus</th>
+                                <th class="py-3 px-4 text-right">Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 font-mono">
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="py-2.5 px-4 text-left font-sans font-medium text-emerald-700">Clientes Activos residenciales</td>
+                                <td class="py-2.5 px-4 text-right font-bold text-emerald-900" id="listaActivos">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="py-2.5 px-4 text-left font-sans font-medium text-emerald-700">Clientes corporativos</td>
+                                <td class="py-2.5 px-4 text-right font-bold text-emerald-900" id="listaActivosCorp">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos residenciales</td>
+                                <td class="py-2.5 px-4 text-right font-bold text-amber-900" id="listaSuspendidos">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos corporativos</td>
+                                <td class="py-2.5 px-4 text-right font-bold text-amber-900" id="listaSuspendidosCorp">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados Regulares</td>
+                                <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonReg">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados corporativos</td>
+                                <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonRegCorp">0</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/30 transition-colors">
+                                <td class="py-2.5 px-4 text-left font-sans font-medium text-sky-700">Exonerados Empleados (emp)</td>
+                                <td class="py-2.5 px-4 text-right font-bold text-sky-900" id="listaExonEmp">0</td>
+                            </tr>
+                            <tr class="bg-indigo-50/60 font-bold border-t-2 border-indigo-200 transition-colors">
+                                <td class="py-3 px-4 text-left font-sans text-indigo-900 text-base uppercase">Sumatoria Total</td>
+                                <td class="py-3 px-4 text-right font-bold text-indigo-900 text-base" id="listaTotalGeneral">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="flex items-center justify-center my-2">
@@ -550,9 +602,9 @@
                                 <td class="py-2.5 px-4 text-right font-semibold" id="fin-downgrades">-$0.00</td>
                                 <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-downgrades">0</td>
                             </tr>
-                            <!-- Retiros -->
+                            <!-- Suspendidos -->
                             <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans">(-) Retiros</td>
+                                <td class="py-2.5 px-4 text-left font-sans">(-) Suspendidos</td>
                                 <td class="py-2.5 px-4 text-right font-semibold" id="fin-retiros">-$0.00</td>
                                 <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-retiros">0</td>
                             </tr>
@@ -602,7 +654,7 @@
                             <button onclick="filtrarDetalleConciliacion('Upgrades de Plan')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Upgrades de Plan">Upgrades (<span id="count-cf-upg">0</span>)</button>
                             <button onclick="filtrarDetalleConciliacion('Cambios 3 Meses Beneficio a otro Plan')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Cambios 3 Meses Beneficio a otro Plan">3 Meses Beneficio (<span id="count-cf-ben">0</span>)</button>
                             <button onclick="filtrarDetalleConciliacion('Downgrades de Plan')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Downgrades de Plan">Downgrades (<span id="count-cf-down">0</span>)</button>
-                            <button onclick="filtrarDetalleConciliacion('Retiros')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Retiros">Retiros (<span id="count-cf-ret">0</span>)</button>
+                            <button onclick="filtrarDetalleConciliacion('Retiros')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Retiros">Suspendidos (<span id="count-cf-ret">0</span>)</button>
                         </div>
                         <!-- Buscador -->
                         <div class="relative w-full lg:w-72">
@@ -1143,6 +1195,18 @@
                 document.getElementById('resumenExonEmp').innerText = t.exonEmp;
                 document.getElementById('resumenExonReg').innerText = t.exonReg;
                 document.getElementById('resumenExonRegCorp').innerText = t.exonRegCorp || 0;
+
+                // Actualizar la vista en lista
+                if(document.getElementById('listaActivos')) document.getElementById('listaActivos').innerText = t.activos;
+                if(document.getElementById('listaActivosCorp')) document.getElementById('listaActivosCorp').innerText = t.activos_corp || 0;
+                if(document.getElementById('listaSuspendidos')) document.getElementById('listaSuspendidos').innerText = t.suspendidos;
+                if(document.getElementById('listaSuspendidosCorp')) document.getElementById('listaSuspendidosCorp').innerText = t.suspendidos_corp || 0;
+                if(document.getElementById('listaExonEmp')) document.getElementById('listaExonEmp').innerText = t.exonEmp;
+                if(document.getElementById('listaExonReg')) document.getElementById('listaExonReg').innerText = t.exonReg;
+                if(document.getElementById('listaExonRegCorp')) document.getElementById('listaExonRegCorp').innerText = t.exonRegCorp || 0;
+
+                let sumListaTotal = (t.activos || 0) + (t.activos_corp || 0) + (t.suspendidos || 0) + (t.suspendidos_corp || 0) + (t.exonEmp || 0) + (t.exonReg || 0) + (t.exonRegCorp || 0);
+                if(document.getElementById('listaTotalGeneral')) document.getElementById('listaTotalGeneral').innerText = sumListaTotal;
 
                 // Lógica de Variación / Conciliación
                 const seccionCF = document.getElementById('seccionConciliacionFinanciera');
@@ -1902,5 +1966,6 @@
             XLSX.writeFile(wb, `Reporte_Consolidado_Planes_Completo_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
     </script>
+{% include 'global_chat.html' %}
 </body>
 </html>

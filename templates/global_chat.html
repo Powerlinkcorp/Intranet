@@ -1,0 +1,505 @@
+<!-- BUBBLE CHAT GLOBAL -->
+<style>
+    /* VARIABLES (Si no están definidas por la plantilla base) */
+    :root {
+        --chat-acento: #FFC107;
+        --chat-acento-hover: #F5C71D;
+        --chat-fondo: #ffffff;
+        --chat-texto-negro: #1A1A1A;
+        --chat-texto-gris: #4A4A4A;
+        --chat-borde: #e2e8f0;
+    }
+
+    /* BOTÓN FLOTANTE (FAB) */
+    .global-chat-fab {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background-color: var(--chat-acento);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer;
+        z-index: 9999;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+    .global-chat-fab:hover {
+        transform: scale(1.05);
+        background-color: var(--chat-acento-hover);
+    }
+    .global-chat-fab i {
+        font-size: 24px;
+        color: var(--chat-texto-negro);
+    }
+    .global-chat-fab .unread-badge-total {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        background: #ef4444;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid white;
+    }
+
+    /* WIDGET VENTANA */
+    .global-chat-widget {
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        width: 360px;
+        height: 520px;
+        background: var(--chat-fondo);
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        border: 1px solid var(--chat-borde);
+        display: none; /* Oculto por defecto */
+        flex-direction: column;
+        z-index: 9998;
+        overflow: hidden;
+    }
+
+    /* HEADER */
+    .global-chat-header {
+        background: var(--chat-texto-negro);
+        color: white;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .global-chat-header .title {
+        font-weight: 600;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .global-chat-header .title img {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: none;
+    }
+    .global-chat-header .actions {
+        display: flex;
+        gap: 12px;
+    }
+    .global-chat-header .actions i {
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+    .global-chat-header .actions i:hover {
+        opacity: 1;
+    }
+
+    /* PANTALLA DE DIRECTORIO */
+    .global-chat-directory {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    .global-chat-dept {
+        background: #f8fafc;
+        padding: 8px 15px;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--chat-texto-gris);
+        font-weight: 700;
+        border-bottom: 1px solid var(--chat-borde);
+    }
+    .global-chat-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .global-chat-list li {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        gap: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s;
+    }
+    .global-chat-list li:hover {
+        background: #f8fafc;
+    }
+    .global-chat-list li img {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .global-chat-list li .name {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--chat-texto-negro);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .global-chat-list li .badge {
+        width: 10px;
+        height: 10px;
+        background: #ef4444;
+        border-radius: 50%;
+        display: none;
+    }
+
+    /* PANTALLA ACTIVA */
+    .global-chat-active {
+        flex: 1;
+        display: none;
+        flex-direction: column;
+        background: #f8fafc;
+        height: 100%;
+    }
+    .global-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .gc-msg {
+        background: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--chat-borde);
+        max-width: 85%;
+        font-size: 13px;
+        align-self: flex-start;
+    }
+    .gc-msg.mine {
+        align-self: flex-end;
+        background: #fef3c7;
+        border-color: #fde68a;
+    }
+    .gc-msg strong {
+        display: block;
+        font-size: 11px;
+        color: var(--chat-texto-gris);
+        margin-bottom: 2px;
+    }
+    .global-chat-input {
+        background: white;
+        padding: 12px;
+        border-top: 1px solid var(--chat-borde);
+        display: flex;
+        gap: 8px;
+    }
+    .global-chat-input input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 20px;
+        outline: none;
+        font-size: 13px;
+    }
+    .global-chat-input button {
+        background: var(--chat-acento);
+        color: var(--chat-texto-negro);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<div class="global-chat-fab" id="gcFab" onclick="toggleGlobalChat()">
+    <i class="fa-solid fa-comments"></i>
+    <div class="unread-badge-total" id="gcFabBadge">0</div>
+</div>
+
+<div class="global-chat-widget" id="gcWidget">
+    <div class="global-chat-header">
+        <div class="title" id="gcHeaderTitle">
+            <i class="fa-solid fa-users" id="gcHeaderIcon"></i>
+            <img id="gcHeaderImg" src="">
+            <span id="gcHeaderName">Directorio de Chat</span>
+        </div>
+        <div class="actions">
+            <i class="fa-solid fa-arrow-left" id="gcBackBtn" style="display:none;" onclick="showDirectory()"></i>
+            <i class="fa-solid fa-xmark" onclick="toggleGlobalChat()"></i>
+        </div>
+    </div>
+
+    <!-- DIRECTORIO -->
+    <div class="global-chat-directory" id="gcDirectory">
+        <ul class="global-chat-list" id="gcListGeneral">
+            <li onclick="openGChat(null, '#General', 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png')">
+                <img src="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png" alt="General">
+                <div class="name"># General</div>
+                <div class="badge" id="gc_badge_general"></div>
+            </li>
+        </ul>
+        <div id="gcDynamicUsers"></div>
+    </div>
+
+    <!-- CHAT ACTIVO -->
+    <div class="global-chat-active" id="gcActive">
+        <div class="global-chat-messages" id="gcMessages"></div>
+        <div class="global-chat-input">
+            <input type="text" id="gcInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key === 'Enter') sendGChat()">
+            <button onclick="sendGChat()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<span id="gcMyEmail" style="display:none;">{{ user.email if user else '' }}</span>
+<span id="gcMyName" style="display:none;">{{ user.full_name if user else '' }}</span>
+
+<script>
+    let gcWs = null;
+    let gcRecipientEmail = null;
+    let gcCurrentChannel = null;
+    let totalUnread = 0;
+
+    function toggleGlobalChat() {
+        const widget = document.getElementById('gcWidget');
+        if (widget.style.display === 'flex') {
+            widget.style.display = 'none';
+        } else {
+            widget.style.display = 'flex';
+            if(!gcCurrentChannel) {
+                showDirectory();
+            } else {
+                scrollGCMessages();
+            }
+        }
+    }
+
+    function showDirectory() {
+        document.getElementById('gcActive').style.display = 'none';
+        document.getElementById('gcDirectory').style.display = 'flex';
+        document.getElementById('gcBackBtn').style.display = 'none';
+        document.getElementById('gcHeaderName').textContent = 'Directorio de Chat';
+        document.getElementById('gcHeaderIcon').style.display = 'inline-block';
+        document.getElementById('gcHeaderImg').style.display = 'none';
+        gcRecipientEmail = null;
+        gcCurrentChannel = null;
+    }
+
+    async function openGChat(email, name, avatar) {
+        document.getElementById('gcDirectory').style.display = 'none';
+        document.getElementById('gcActive').style.display = 'flex';
+        document.getElementById('gcBackBtn').style.display = 'inline-block';
+        
+        document.getElementById('gcHeaderName').textContent = name;
+        document.getElementById('gcHeaderIcon').style.display = 'none';
+        
+        if (avatar) {
+            document.getElementById('gcHeaderImg').src = avatar;
+            document.getElementById('gcHeaderImg').style.display = 'inline-block';
+        }
+
+        gcRecipientEmail = email;
+        const myEmail = document.getElementById('gcMyEmail').textContent;
+
+        let badgeId = 'gc_badge_general';
+        if (email) {
+            const emails = [myEmail, email].sort();
+            gcCurrentChannel = `private_${emails[0]}_${emails[1]}`;
+            badgeId = 'gc_badge_' + email.replace(/[@.]/g, '_');
+        } else {
+            gcCurrentChannel = '#General';
+        }
+
+        // Limpiar unread badge para este canal
+        const b = document.getElementById(badgeId);
+        if(b && b.style.display === 'inline-block') {
+            b.style.display = 'none';
+            totalUnread = Math.max(0, totalUnread - 1);
+            updateGCTotalBadge();
+        }
+
+        const msgContainer = document.getElementById('gcMessages');
+        msgContainer.innerHTML = '<div style="text-align:center; padding: 20px; font-size:12px; color:#888;">Cargando mensajes...</div>';
+
+        try {
+            const res = await fetch(`/api/chat?channel=${encodeURIComponent(gcCurrentChannel)}`);
+            const messages = await res.json();
+            msgContainer.innerHTML = '';
+            messages.forEach(msg => appendGCMsg(msg));
+            scrollGCMessages();
+        } catch (e) { console.error(e); }
+    }
+
+    function appendGCMsg(msg) {
+        const msgContainer = document.getElementById('gcMessages');
+        const myName = document.getElementById('gcMyName').textContent;
+        const isMine = msg.user_name === myName;
+        
+        const div = document.createElement('div');
+        div.className = `gc-msg ${isMine ? 'mine' : ''}`;
+        div.innerHTML = `<strong>${msg.user_name}</strong> ${msg.message}`;
+        msgContainer.appendChild(div);
+    }
+
+    function scrollGCMessages() {
+        const msgContainer = document.getElementById('gcMessages');
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+
+    function sendGChat() {
+        const input = document.getElementById('gcInput');
+        const val = input.value.trim();
+        if (!val) return;
+
+        if (gcWs && gcWs.readyState === WebSocket.OPEN) {
+            const payload = { message: val, channel: gcCurrentChannel };
+            if(gcCurrentChannel !== '#General') {
+                payload.recipient_email = gcRecipientEmail;
+            }
+            gcWs.send(JSON.stringify(payload));
+            input.value = '';
+        } else {
+            alert("Chat desconectado. Intentando reconectar...");
+            connectGCWs();
+        }
+    }
+
+    function updateGCTotalBadge() {
+        const fab = document.getElementById('gcFabBadge');
+        if (totalUnread > 0) {
+            fab.textContent = totalUnread;
+            fab.style.display = 'flex';
+        } else {
+            fab.style.display = 'none';
+        }
+    }
+
+    function connectGCWs() {
+        if (gcWs) return;
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // Buscamos cookie
+        let token = "";
+        const match = document.cookie.match(new RegExp('(^| )access_token=([^;]+)'));
+        if (match) token = match[2];
+        else return;
+
+        gcWs = new WebSocket(`${protocol}//${window.location.host}/api/ws/chat?token=${encodeURIComponent(token)}`);
+        
+        gcWs.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const myEmail = document.getElementById('gcMyEmail').textContent;
+            
+            const isPrivateMatch = gcRecipientEmail && (data.user_email === gcRecipientEmail || data.user_email === myEmail);
+            const isGeneralMatch = !gcRecipientEmail && data.channel === '#General' && gcCurrentChannel === '#General';
+            
+            const widgetVisible = document.getElementById('gcWidget').style.display === 'flex';
+            
+            if (widgetVisible && (isPrivateMatch || isGeneralMatch)) {
+                appendGCMsg(data);
+                scrollGCMessages();
+            } else {
+                // Notificar!
+                let badgeId = 'gc_badge_general';
+                if (data.channel !== '#General') {
+                    if (data.user_email && data.user_email !== myEmail) {
+                        badgeId = 'gc_badge_' + data.user_email.replace(/[@.]/g, '_');
+                    }
+                }
+                const b = document.getElementById(badgeId);
+                if (b && b.style.display !== 'inline-block') {
+                    b.style.display = 'inline-block';
+                    totalUnread++;
+                    updateGCTotalBadge();
+                }
+
+                if (Notification.permission === 'granted') {
+                    new Notification(`Nuevo mensaje de ${data.user_name || 'Alguien'}`, {
+                        body: data.message,
+                        icon: '/static/img/favicon.ico'
+                    });
+                }
+            }
+        };
+
+        gcWs.onclose = () => {
+            gcWs = null;
+            setTimeout(connectGCWs, 5000);
+        };
+    }
+
+    async function loadGCDirectory() {
+        try {
+            const myEmail = document.getElementById('gcMyEmail').textContent;
+            const res = await fetch('/api/users/chat_directory');
+            const depts = await res.json();
+            let html = '';
+            for (const [dept, users] of Object.entries(depts)) {
+                html += `<div class="global-chat-dept">${dept}</div><ul class="global-chat-list">`;
+                users.forEach(u => {
+                    if(u.email !== myEmail) {
+                        const bId = 'gc_badge_' + u.email.replace(/[@.]/g, '_');
+                        html += `
+                        <li onclick="openGChat('${u.email}', '${u.full_name}', '${u.avatar_url || '/static/img/default-avatar.png'}')">
+                            <img src="${u.avatar_url || '/static/img/default-avatar.png'}">
+                            <div class="name">${u.full_name}</div>
+                            <div class="badge" id="${bId}"></div>
+                        </li>`;
+                    }
+                });
+                html += `</ul>`;
+            }
+            document.getElementById('gcDynamicUsers').innerHTML = html;
+        } catch(e) { console.error("Error cargando directorio chat", e); }
+    }
+
+    async function loadGCUnread() {
+        try {
+            const res = await fetch('/api/chat/unread');
+            if (res.ok) {
+                const data = await res.json();
+                const myEmail = document.getElementById('gcMyEmail').textContent;
+                data.unread.forEach(channel => {
+                    let badgeId = 'gc_badge_general';
+                    if (channel !== '#General') {
+                        let otherEmail = channel.replace('private_', '').replace(myEmail, '').replace('_', '');
+                        badgeId = 'gc_badge_' + otherEmail.replace(/[@.]/g, '_');
+                    }
+                    const b = document.getElementById(badgeId);
+                    if(b) {
+                        b.style.display = 'inline-block';
+                        totalUnread++;
+                    }
+                });
+                updateGCTotalBadge();
+            }
+        } catch (e) {}
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        // Request Notification permission
+        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+        
+        if(document.getElementById('gcMyEmail').textContent) {
+            await loadGCDirectory();
+            await loadGCUnread();
+            connectGCWs();
+        }
+    });
+</script>

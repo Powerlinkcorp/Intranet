@@ -1209,7 +1209,7 @@ async def procesar_auditoria_api(
         except:
             costoDelPlanNew = 0.0
             
-        if planNew.upper() == 'IPTV' or tipoServicioNew == 'IPTV':
+        if planNew.upper() in ['IPTV', 'TV'] or tipoServicioNew in ['IPTV', 'TV']:
             continue
             
         estadoServicioNew = str(row['Estado servicio']).strip().upper()
@@ -1230,7 +1230,7 @@ async def procesar_auditoria_api(
         estado_dt = datetime.min
         inst_p_current = None
         if raw_estado:
-            date_only = str(raw_estado).split("T")[0]
+            date_only = str(raw_estado).split("T")[0].split(" ")[0][:10]
             try:
                 estado_dt = datetime.strptime(date_only, "%Y-%m-%d")
                 fechaEstadoFormat = estado_dt.strftime("%d/%m/%Y")
@@ -1238,7 +1238,7 @@ async def procesar_auditoria_api(
                 pass
 
         if raw_inst:
-            date_only = str(raw_inst).split("T")[0]
+            date_only = str(raw_inst).split("T")[0].split(" ")[0][:10]
             try:
                 inst_p_current = datetime.strptime(date_only, "%Y-%m-%d")
                 fechaInstalacionFormat = inst_p_current.strftime("%d/%m/%Y")
@@ -1246,7 +1246,7 @@ async def procesar_auditoria_api(
                 pass
                  
         if raw_plan:
-             date_only = str(raw_plan).split("T")[0]
+             date_only = str(raw_plan).split("T")[0].split(" ")[0][:10]
              try:
                  plan_p = datetime.strptime(date_only, "%Y-%m-%d")
                  fechaPlanDesdeFormat = plan_p.strftime("%d/%m/%Y")
@@ -1254,9 +1254,9 @@ async def procesar_auditoria_api(
                  pass
                 
         if estadoServicioNew == 'ACT.':
-            if row.get('is_natural') is False:
+            if tipoServicioNew in ['PYME', 'CORPORATIVO']:
                 totalActivosCorp += 1
-            else:
+            elif tipoServicioNew == 'RESIDENCIAL':
                 totalActivos += 1
             ingreso_hoy += costoDelPlanNew
             datosClientesActivos.append({
@@ -1273,22 +1273,32 @@ async def procesar_auditoria_api(
                 'Urbanismo': row['Urbanismo']
             })
         elif estadoServicioNew == 'SUSP.':
-            if row.get('is_natural') is False:
-                totalSuspendidosFechaCorp += 1
-            
-            if estado_dt >= corte_dt:
-                if row.get('is_natural') is not False:
+            try:
+                corte_res = corte_dt.replace(day=6)
+            except ValueError:
+                corte_res = corte_dt
+                
+            try:
+                corte_corp = corte_dt.replace(day=10)
+            except ValueError:
+                corte_corp = corte_dt
+
+            if tipoServicioNew in ['PYME', 'CORPORATIVO']:
+                if estado_dt >= corte_corp:
+                    totalSuspendidosFechaCorp += 1
+            elif tipoServicioNew == 'RESIDENCIAL':
+                if estado_dt >= corte_res:
                     totalSuspendidosFecha += 1
         elif estadoServicioNew == 'EXO.':
             plan_lower = planNew.lower()
-            if 'iptv' not in plan_lower:
+            if 'iptv' not in plan_lower and 'tv' not in plan_lower:
                 nombre_lower = str(row.get('Nombres', '')).lower().strip()
                 if '(emp)' in nombre_lower:
                     totalExoneradosEmp += 1
                 else:
-                    if row.get('is_natural') is False:
+                    if tipoServicioNew in ['PYME', 'CORPORATIVO']:
                         totalExoneradosRegCorp += 1
-                    else:
+                    elif tipoServicioNew == 'RESIDENCIAL':
                         totalExoneradosReg += 1
                 
         is_missing_in_old = (sid not in old_dict)
@@ -1636,7 +1646,7 @@ def build_plan_aggregates(users):
             service_type = str(item.get('service_type', '')).strip().upper()
             
             # Omitir IPTV si corresponde
-            if plan.upper() == 'IPTV' or service_type == 'IPTV':
+            if plan.upper() in ['IPTV', 'TV'] or service_type in ['IPTV', 'TV']:
                 continue
                 
             try:
@@ -1824,7 +1834,7 @@ def get_metricas_crecimiento(request: Request, db: Session = Depends(get_db)):
         service_type = str(item.get('service_type', '')).strip().upper()
         
         if status == 'ACTIVO':
-            if plan == 'IPTV' or service_type == 'IPTV':
+            if plan in ['IPTV', 'TV'] or service_type in ['IPTV', 'TV']:
                 activos_iptv += 1
             else:
                 activos_power += 1
@@ -2016,6 +2026,74 @@ async def edit_user(user_id: int, user_data: UserUpdateWithSMTP, db: Session = D
 
     return {"message": "Usuario actualizado y correo enviado correctamente."}
 
+@app.get("/historico", response_class=HTMLResponse)
+async def view_historico(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+        embed = request.query_params.get("embed") == "1"
+        
+        # Obtener los 50 últimos cambios históricos
+        recent_history_query = db.query(models.ClientHistory, models.Client).join(
+            models.Client, models.ClientHistory.client_id == models.Client.id
+        ).order_by(models.ClientHistory.record_date.desc()).limit(50).all()
+        
+        recent_events = []
+        for h, c in recent_history_query:
+            recent_events.append({
+                "service_id": c.service_id,
+                "cedula": c.cedula,
+                "client_name": c.name,
+                "plan": c.current_plan,
+                "event_type": h.event_type,
+                "old_value": h.old_value,
+                "new_value": h.new_value,
+                "date": h.record_date.strftime("%d/%m/%Y %H:%M") if h.record_date else "-"
+            })
+
+        return templates.TemplateResponse(request, "historico.html", {"user": user, "embed": embed, "recent_events": recent_events})
+    except HTTPException:
+        return RedirectResponse(url="/login")
+
+@app.get("/api/historico/{cedula}")
+async def api_get_historico(cedula: str, db: Session = Depends(get_db)):
+    cedula_clean = cedula.strip().lower()
+    
+    # Búsqueda flexible por cédula (ej. "12345678" coincide con "V-12345678")
+    client = db.query(models.Client).filter(models.Client.cedula.ilike(f"%{cedula_clean}%")).first()
+    
+    if not client:
+        # Intento de buscar por ID de servicio si la cédula no dio resultado
+        client = db.query(models.Client).filter(models.Client.service_id.ilike(f"%{cedula_clean}%")).first()
+        if not client:
+            raise HTTPException(status_code=404, detail=f"No se encontró cliente con la búsqueda: {cedula}")
+
+    history = db.query(models.ClientHistory).filter(
+        models.ClientHistory.client_id == client.id
+    ).order_by(models.ClientHistory.record_date.desc()).all()
+    
+    return {
+        "client": {
+            "name": client.name,
+            "cedula": client.cedula,
+            "service_id": client.service_id,
+            "current_plan": client.current_plan,
+            "status": client.status,
+            "client_type": client.client_type,
+            "installation_date": client.installation_date,
+        },
+        "history": [
+            {
+                "record_date": h.record_date,
+                "event_type": h.event_type,
+                "old_value": h.old_value,
+                "new_value": h.new_value
+            } for h in history
+        ]
+    }
+
 def scheduled_snapshot_job():
     try:
         data = fetch_powerlink_data(is_natural=None)
@@ -2049,3 +2127,23 @@ def shutdown_event():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
+
+@app.get("/api/users/chat_directory")
+async def api_get_chat_directory(db: Session = Depends(get_db)):
+    all_users = db.query(models.User).filter(models.User.is_active == True).all()
+    employees = db.query(models.Employee).all()
+    emp_map = {emp.name: emp.department for emp in employees}
+    
+    departments = {}
+    for u in all_users:
+        dept = emp_map.get(u.full_name, "General")
+        if dept not in departments:
+            departments[dept] = []
+        departments[dept].append({
+            "email": u.email,
+            "full_name": u.full_name,
+            "avatar_url": u.avatar_url
+        })
+    return departments
+

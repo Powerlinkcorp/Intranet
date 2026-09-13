@@ -116,3 +116,33 @@ class PhoneExtension(Base):
     name = Column(String)
     extension = Column(String)
     is_group = Column(Boolean, default=False)
+
+class Client(Base):
+    __tablename__ = "clients"
+
+    id = Column(Integer, primary_key=True, index=True)
+    service_id = Column(String, index=True, nullable=False, unique=True)
+    cedula = Column(String, index=True, nullable=True)
+    name = Column(String, nullable=False)
+    client_type = Column(String, default="Residencial") # Residencial, Corporativo
+    current_plan = Column(String, nullable=True)
+    status = Column(String, nullable=True)
+    installation_date = Column(String, nullable=True)
+    last_status_change_date = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    histories = relationship("ClientHistory", back_populates="client")
+
+class ClientHistory(Base):
+    __tablename__ = "client_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
+    record_date = Column(DateTime, nullable=False, index=True) # The date of the excel file or sweep
+    event_type = Column(String, nullable=False) # e.g. STATUS_CHANGE, PLAN_CHANGE
+    old_value = Column(String, nullable=True)
+    new_value = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    client = relationship("Client", back_populates="histories")
