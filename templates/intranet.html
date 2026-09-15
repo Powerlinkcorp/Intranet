@@ -33,116 +33,7 @@
             padding-bottom: 60px;
         }
 
-        /* NAVBAR */
-        .navbar {
-            background-color: var(--cabeceras);
-            color: var(--blanco);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .navbar .logo span {
-            color: var(--acento);
-        }
-
-        .navbar .search-bar {
-            width: 35%;
-        }
-
-        .navbar .search-bar input {
-            width: 100%;
-            padding: 9px 18px;
-            border-radius: 20px;
-            border: 1px solid #334155;
-            background: #1e293b;
-            color: #fff;
-            outline: none;
-            font-size: 13px;
-        }
-
-        .navbar .search-bar input::placeholder {
-            color: #94a3b8;
-        }
-
-        .navbar .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 14px;
-        }
-
-        .navbar .user-menu i {
-            font-size: 18px;
-            cursor: pointer;
-            color: #cbd5e1;
-            transition: color 0.2s;
-        }
-
-        .navbar .user-menu i:hover {
-            color: var(--acento);
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--acento);
-        }
-
-        .btn-admin-nav {
-            background: var(--acento);
-            color: var(--texto-negro);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 700;
-            text-decoration: none;
-            font-size: 12px;
-            transition: background 0.2s;
-        }
-
-        .btn-admin-nav:hover {
-            background: var(--acento-hover);
-        }
-
-        .btn-logout {
-            background: transparent;
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            padding: 5px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-logout:hover {
-            background: #ef4444;
-            color: #fff;
-        }
-
+        
         /* HERO BANNER */
         .hero {
             background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/Gemini_Generated_Image_glf24lglf24lglf2.png') center/cover;
@@ -172,31 +63,6 @@
         .hero button:hover {
             background-color: var(--acento-hover);
             transform: translateY(-2px);
-        }
-
-        /* FAST LINKS */
-        .fast-links {
-            background-color: var(--cabeceras);
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 16px;
-            border-bottom: 3px solid var(--acento);
-        }
-
-        .fast-links a {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s;
-        }
-
-        .fast-links a:hover {
-            color: var(--acento);
         }
 
         /* MAIN LAYOUT */
@@ -616,60 +482,18 @@
 </head>
 
 <body>
-    {% if not embed %}
-    <nav class="navbar">
-        <a href="/" class="logo" style="text-decoration:none; color:inherit;">POWER LINK <span>CORP.</span></div>
-        <div class="search-bar">
-            <input type="text" id="globalSearch" placeholder="Buscar documentos, personas, recursos..."
-                oninput="filterResources()">
-        </a>
-        <div class="user-menu">
-            <a href="/chat" style="color: inherit; text-decoration: none;"><i class="fa-solid fa-comment-dots"
-                    title="Abrir Chat Interno"></i></a>
-            <i class="fa-solid fa-bell" title="Notificaciones"></i>
-            <div class="user-badge">
-                <img id="userNavAvatar" class="user-avatar"
-                    src="{{ user.avatar_url or 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png' }}"
-                    alt="Usuario">
-                <span id="userNavName">Cargando...</span>
-            </div>
-            <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:none;">⚙️ Panel RRHH</a>
-            <button class="btn-logout" onclick="logout()">Salir</button>
-        </div>
-    </nav>
-    {% endif %}
+    
+    {% include 'sidebar.html' %}
+
+    <div class="content-wrapper" id="contentWrapper">
+
 
     <header class="hero" id="heroBanner">
         <h1 id="heroTitle">Bienvenido a la Intranet Corporativa</h1>
         <button id="heroBtn">Leer más →</button>
     </header>
 
-    {% if not embed %}
-    <div class="fast-links">
-        <a href="/"><i class="fa-solid fa-house"></i> Inicio</a>
-        <a href="#"><i class="fa-solid fa-briefcase"></i> Proyectos</a>
-        {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
-        <a href="/directorio"><i class="fa-solid fa-address-book"></i> Directorio</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
-        <a href="/helpdesk"><i class="fa-solid fa-headset"></i> Comunicaciones</a>
-        {% endif %}
 
-        {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
-        <a href="/reportes"><i class="fa-solid fa-chart-bar"></i> Reportes</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
-        <a href="/admin"><i class="fa-solid fa-users"></i> RRHH</a>
-        {% endif %}
-        {% if user.role == 'admin' %}
-        <a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
-        <a href="/integracion"><i class="fa-solid fa-network-wired"></i> Integración</a>
-        {% endif %}
-        <a href="/historico"><i class="fa-solid fa-history"></i> Histórico</a>
-    </div>
-    {% endif %}
 
     <main class="main-container">
 
@@ -1087,8 +911,25 @@
             card.style.display = 'flex';
         }
 
+    
+        const submenu = document.getElementById(id);
+            const isOpen = submenu.classList.contains('open');
+            
+            // Cerrar otros submenús (opcional, comportamiento acordeón estricto)
+            document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            if (!isOpen) {
+                submenu.classList.add('open');
+                element.classList.add('active');
+            }
+        }
+
     </script>
+{% if not embed %}
 {% include 'global_chat.html' %}
+{% endif %}
+    </div>
 </body>
 
 </html>

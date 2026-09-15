@@ -121,39 +121,6 @@
             align-items: end;
         }
 
-        /* FAST LINKS */
-        .fast-links {
-            background-color: var(--cabeceras);
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 16px;
-            border-bottom: 3px solid var(--acento);
-        }
-
-        .fast-links a {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s;
-        }
-
-        .fast-links a:hover, .fast-links a.active {
-            color: var(--acento);
-        }
-
-        .subtab-content {
-            display: none;
-        }
-
-        .subtab-content.active {
-            display: block;
-        }
-
         /* FORMS */
         .form-group {
             display: flex;
@@ -327,6 +294,14 @@
             display: block;
         }
 
+        .subtab-content {
+            display: none;
+        }
+
+        .subtab-content.active {
+            display: block;
+        }
+
         .iframe-preview {
             width: 100%;
             height: calc(100vh - 120px);
@@ -418,53 +393,19 @@
     <div id="toast" class="toast"></div>
 
     <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="/" class="logo" style="text-decoration:none; color:inherit;">
-            POWER LINK <span>CORP.</span> <span class="admin-badge">Panel Gestor R.R.H.H.</span>
-        </div>
+    {% include 'sidebar.html' %}
+<div class="content-wrapper" id="contentWrapper">
 
-        <div class="tabs-nav-integrated">
-            <button class="tab-btn active" onclick="switchTab(event, 'tab-gestion')"><i class="fa-solid fa-gear"></i>
-                Gestión de Contenidos</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-vista')"><i class="fa-solid fa-eye"></i> Vista
-                Empleado</button>
-        </a>
-        <div class="user-menu">
-            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
-        </div>
-    </nav>
 
     <!-- TAB GESTION -->
     <div id="tab-gestion" class="tab-content active">
 
-        <div class="fast-links">
-            <a href="/" class="subtab-btn"><i class="fa-solid fa-house"></i> Inicio</a>
-            <a href="javascript:void(0)" onclick="switchSubTab(event, 'subtab-proyectos')" class="subtab-btn"><i class="fa-solid fa-briefcase"></i> Proyectos</a>
-            {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
-            <a href="javascript:void(0)" onclick="switchSubTab(event, 'subtab-directorio')" class="subtab-btn"><i class="fa-solid fa-address-book"></i> Directorio</a>
-            {% endif %}
-            {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
-            <a href="/helpdesk" class="subtab-btn"><i class="fa-solid fa-headset"></i> Comunicaciones</a>
-            {% endif %}
-            {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
-            <a href="/reportes" class="subtab-btn"><i class="fa-solid fa-chart-bar"></i> Reportes</a>
-            {% endif %}
-            {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
-            <a href="javascript:void(0)" onclick="switchSubTab(event, 'subtab-rrhh')" class="subtab-btn active"><i class="fa-solid fa-users"></i> RRHH</a>
-            {% endif %}
-            {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
-            <a href="javascript:void(0)" onclick="switchSubTab(event, 'subtab-integracion')" class="subtab-btn"><i class="fa-solid fa-network-wired"></i> Integración</a>
-            {% endif %}
-            {% if user.role == 'admin' %}
-            <a href="javascript:void(0)" onclick="switchSubTab(event, 'subtab-permisos')" class="subtab-btn"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
-            {% endif %}
-            <a href="/historico" class="subtab-btn"><i class="fa-solid fa-history"></i> Histórico</a>
-        </div>
+        
 
         <div id="subtab-rrhh" class="subtab-content active">
 
-        <!-- CONTENEDOR DE ANUNCIOS (HERO) -->
-        <section class="hero-container">
+        <!-- CONTENEDOR DE ANUNCIOS (HERO) - OCULTO TEMPORALMENTE -->
+        <section class="hero-container" style="display: none;">
             <div class="hero-header">
                 <h2>Gestión de Anuncios y Comunicados</h2>
                 <button class="btn-create-announcement" onclick="openAnnouncementModal()">
@@ -865,6 +806,19 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = new URLSearchParams(window.location.search);
+            const tabParam = params.get('tab');
+            if (tabParam) {
+                const targetId = 'subtab-' + tabParam;
+                const targetSubtab = document.getElementById(targetId);
+                if (targetSubtab) {
+                    document.querySelectorAll('.subtab-content').forEach(content => content.classList.remove('active'));
+                    targetSubtab.classList.add('active');
+                }
+            }
+        });
+
         function filterEmployees() {
             const query = document.getElementById('searchEmpInput').value.toLowerCase();
             const rows = document.querySelectorAll('#subtab-directorio tbody tr');
@@ -1499,7 +1453,10 @@
             }
         }
     </script>
+{% if not embed %}
 {% include 'global_chat.html' %}
+{% endif %}
+</div>
 </body>
 
 </html>

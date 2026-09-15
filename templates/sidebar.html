@@ -1,0 +1,406 @@
+
+<style>
+/* SIDEBAR & LAYOUT */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background-color: var(--cabeceras);
+    color: var(--blanco);
+    z-index: 1000;
+    transition: width 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--blanco);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 0.3s;
+}
+
+.sidebar.collapsed .logo {
+    opacity: 0;
+    width: 0;
+}
+
+.sidebar .logo span {
+    color: var(--acento);
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: var(--blanco);
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.toggle-btn:hover {
+    color: var(--acento);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 15px 0;
+    flex: 1;
+}
+
+.menu-section {
+    padding: 10px 20px 5px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .menu-section {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+}
+
+.menu-item {
+    display: block;
+    padding: 12px 20px;
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.menu-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--blanco);
+}
+
+.menu-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--acento);
+    color: var(--acento);
+}
+
+.menu-item i.icon-main {
+    width: 24px;
+    text-align: center;
+    font-size: 16px;
+    margin-right: 15px;
+}
+
+.sidebar.collapsed .menu-item span,
+.sidebar.collapsed .menu-item i.chevron {
+    display: none;
+}
+
+/* Submenús */
+.submenu {
+    list-style: none;
+    background: rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    max-height: 0; /* Colapsado por defecto */
+    transition: max-height 0.3s ease-out;
+}
+
+.submenu.open {
+    max-height: 500px; /* Suficiente para expandir */
+}
+
+.submenu a {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px 10px 55px; /* Indentación y padding-left */
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+}
+
+.submenu a:hover {
+    color: var(--acento);
+}
+
+.sidebar.collapsed .submenu {
+    display: none; /* En modo colapsado, ocultar los submenús */
+}
+
+/* User Profile in Sidebar */
+.sidebar-footer {
+    padding: 15px 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.1);
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.sidebar.collapsed .user-badge span {
+    display: none;
+}
+
+.sidebar.collapsed .btn-logout,
+.sidebar.collapsed .btn-admin-nav {
+    display: none !important;
+}
+
+.content-wrapper {
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper.expanded {
+    margin-left: 70px;
+}
+
+.search-bar-sidebar {
+    padding: 15px 20px;
+}
+
+.search-bar-sidebar input {
+    width: 100%;
+    padding: 9px 18px;
+    border-radius: 20px;
+    border: 1px solid #334155;
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    outline: none;
+    font-size: 13px;
+}
+
+.sidebar.collapsed .search-bar-sidebar {
+    display: none;
+}
+</style>
+
+
+{% if not embed %}
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header" style="align-items: flex-start; position: relative;">
+        <a href="/" class="logo" style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">
+            <img src="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png" alt="Power Link Corp" style="height: 105px; width: auto;">
+            <span style="font-size: 18px; text-align: center;">POWER LINK <span>CORP.</span></span>
+        </a>
+        <button class="toggle-btn" onclick="toggleSidebar()" style="position: absolute; right: 20px; top: 20px;"><i class="fa-solid fa-bars"></i></button>
+    </div>
+    
+    <div class="search-bar-sidebar">
+        <input type="text" id="globalSearch" placeholder="Buscar documentos..." oninput="filterResources()">
+    </div>
+
+    <ul class="sidebar-menu">
+        <div class="menu-section">Principal</div>
+        
+        <li>
+            <div class="menu-item active" onclick="toggleSubmenu('submenu-principal', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fa-solid fa-house icon-main"></i>
+                    <span>Inicio</span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <ul class="submenu open" id="submenu-principal">
+                <li><a href="/"><i class="fa-solid fa-house" style="margin-right: 8px;"></i> Dashboard</a></li>
+                {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
+                <li><a href="/directorio"><i class="fa-solid fa-address-book" style="margin-right: 8px;"></i> Directorio</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
+                <li><a href="/helpdesk"><i class="fa-solid fa-headset" style="margin-right: 8px;"></i> Comunicaciones</a></li>
+                {% endif %}
+            </ul>
+        </li>
+
+        <div class="menu-section">Soporte</div>
+        <li>
+            <div class="menu-item" onclick="toggleSubmenu('submenu-soporte', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fa-solid fa-life-ring icon-main"></i>
+                    <span>Soporte</span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <ul class="submenu" id="submenu-soporte">
+                <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas Nac</a></li>
+            </ul>
+        </li>
+
+        <div class="menu-section">Administración</div>
+        <li>
+            <div class="menu-item" onclick="toggleSubmenu('submenu-admin', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fa-solid fa-user-tie icon-main"></i>
+                    <span>Administración</span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <ul class="submenu" id="submenu-admin">
+                {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
+                <li><a href="/integracion"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Integración</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
+                <li><a href="/reportes"><i class="fa-solid fa-chart-line" style="margin-right: 8px;"></i> Reportes Admin</a></li>
+                {% endif %}
+                <li><a href="/historico"><i class="fa-solid fa-history" style="margin-right: 8px;"></i> Histórico</a></li>
+                {% if user.role == 'admin' %}
+                <li><a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
+                <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> RRHH</a></li>
+                {% endif %}
+            </ul>
+        </li>
+
+        <div class="menu-section">Proyecto</div>
+        <li>
+            <div class="menu-item" onclick="toggleSubmenu('submenu-proyecto', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fa-solid fa-briefcase icon-main"></i>
+                    <span>Proyectos</span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <ul class="submenu" id="submenu-proyecto">
+                <li><a href="#"><i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> Proyectos Nuevos</a></li>
+            </ul>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-badge">
+            <img id="userNavAvatar" class="user-avatar" src="{{ user.avatar_url or 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png' }}" alt="Usuario">
+            <span id="userNavName" style="font-size: 13px; font-weight:600;">Cargando...</span>
+            <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
+        </div>
+        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:none; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel RRHH</a>
+        <button class="btn-logout" onclick="logout()" style="width:100%;">Salir</button>
+    </div>
+</aside>
+{% endif %}
+
+
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('contentWrapper');
+    if(sidebar) {
+        sidebar.classList.toggle('collapsed');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('sidebar_collapsed', isCollapsed);
+        
+        if(content) {
+            if(isCollapsed) content.classList.add('expanded');
+            else content.classList.remove('expanded');
+        }
+        
+        // Close all submenus when collapsed
+        if (isCollapsed) {
+            document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
+        }
+    }
+}
+
+function toggleSubmenu(id, element) {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && sidebar.classList.contains('collapsed')) {
+        toggleSidebar();
+    }
+    
+    const submenu = document.getElementById(id);
+    const isOpen = submenu.classList.contains('open');
+    
+    document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
+    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+    
+    if (!isOpen) {
+        submenu.classList.add('open');
+        element.classList.add('active');
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('contentWrapper');
+    
+    // Restaurar estado de colapso del sidebar
+    const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+    if (isCollapsed) {
+        if(sidebar) sidebar.classList.add('collapsed');
+        if(content) content.classList.add('expanded');
+    }
+
+    // Limpiar clases active/open por defecto (ya que vienen hardcodeadas en HTML)
+    document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
+    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+
+    // Marcar activo según la URL actual
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.submenu a');
+    
+    let pathFound = false;
+
+    links.forEach(link => {
+        const linkUrl = new URL(link.href, window.location.origin).pathname;
+        
+        // Match path
+        if (linkUrl === currentPath || (currentPath === '/' && linkUrl === '/')) {
+            pathFound = true;
+            link.style.color = 'var(--acento)'; // Resaltar el texto del enlace
+            
+            const submenu = link.closest('.submenu');
+            if(submenu && (!sidebar || !sidebar.classList.contains('collapsed'))) {
+                submenu.classList.add('open');
+                
+                const parentMenuItem = submenu.previousElementSibling;
+                if(parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
+                    parentMenuItem.classList.add('active');
+                }
+            }
+        }
+    });
+    
+    // Si no encontramos un match (ej: sub-páginas), por fallback abrimos el inicio si es root
+    if (!pathFound && currentPath === '/') {
+        const principalSub = document.getElementById('submenu-principal');
+        if(principalSub && (!sidebar || !sidebar.classList.contains('collapsed'))) {
+            principalSub.classList.add('open');
+            principalSub.previousElementSibling.classList.add('active');
+        }
+    }
+});
+</script>

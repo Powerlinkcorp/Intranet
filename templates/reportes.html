@@ -42,101 +42,6 @@
             min-height: 100vh;
         }
 
-        /* NAVBAR */
-        .navbar {
-            background-color: var(--cabeceras);
-            color: var(--blanco);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-        }
-
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-decoration: none;
-            color: #fff;
-        }
-        .navbar .logo span { color: var(--acento); }
-
-        .navbar .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 14px;
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--acento);
-        }
-
-        .btn-admin-nav {
-            background: var(--acento);
-            color: var(--texto-negro);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 700;
-            text-decoration: none;
-            font-size: 12px;
-            transition: background 0.2s;
-        }
-        .btn-admin-nav:hover { background: var(--acento-hover); }
-
-        .btn-logout {
-            background: transparent;
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            padding: 5px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .btn-logout:hover { background: #ef4444; color: #fff; }
-
-        /* FAST LINKS */
-        .fast-links {
-            background-color: var(--cabeceras);
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            padding: 14px;
-            border-bottom: 3px solid var(--acento);
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-        .fast-links a {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s;
-        }
-        .fast-links a:hover, .fast-links a.active {
-            color: var(--acento);
-        }
-
         /* CONTAINER */
         .container {
             padding: 30px 20px;
@@ -500,45 +405,12 @@
 
 <body>
     <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="/" class="logo">POWER LINK <span>CORP.</span></a>
-        <div class="user-menu">
-            <div class="user-badge">
-                <img class="user-avatar" src="{{ user.avatar_url or '/static/img/default-avatar.png' }}" alt="Usuario">
-                <span id="currentUserName">{{ user.full_name }}</span>
-            </div>
-            {% if user.role == 'admin' %}
-            <a href="/admin" class="btn-admin-nav">⚙️ Panel RRHH</a>
-            {% endif %}
-            <button class="btn-logout" onclick="logout()">Salir</button>
-        </div>
-    </nav>
+    {% include 'sidebar.html' %}
+<div class="content-wrapper" id="contentWrapper">
+
 
     <!-- FAST LINKS -->
-    <div class="fast-links">
-        <a href="/"><i class="fa-solid fa-house"></i> Inicio</a>
-        <a href="#"><i class="fa-solid fa-briefcase"></i> Proyectos</a>
-        {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
-        <a href="/directorio"><i class="fa-solid fa-address-book"></i> Directorio</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
-        <a href="/helpdesk"><i class="fa-solid fa-headset"></i> Comunicaciones</a>
-        {% endif %}
-
-        {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
-        <a href="/reportes" class="active"><i class="fa-solid fa-chart-pie"></i> Reportes</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
-        <a href="/admin"><i class="fa-solid fa-users"></i> RRHH</a>
-        {% endif %}
-        {% if user.role == 'admin' %}
-        <a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
-        <a href="/integracion"><i class="fa-solid fa-network-wired"></i> Integración</a>
-        {% endif %}
-        <a href="/historico"><i class="fa-solid fa-history"></i> Histórico</a>
-    </div>
+    
 
     <!-- MAIN CONTENT -->
     <div class="container">
@@ -1300,6 +1172,9 @@
             } catch (e) {}
         }
     </script>
+{% if not embed %}
 {% include 'global_chat.html' %}
+{% endif %}
+</div>
 </body>
 </html>

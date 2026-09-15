@@ -1144,7 +1144,8 @@ async def procesar_auditoria_api(
     try:
         corte_dt = datetime.strptime(fechaCorte, "%Y-%m-%d")
     except:
-        corte_dt = datetime.min
+        hoy = datetime.now()
+        corte_dt = datetime(hoy.year, hoy.month, 1)
         
     try:
         inst_dt = datetime.strptime(fechaInstalaciones, "%Y-%m-%d")
@@ -1229,6 +1230,7 @@ async def procesar_auditoria_api(
         
         estado_dt = datetime.min
         inst_p_current = None
+        plan_p = None
         if raw_estado:
             date_only = str(raw_estado).split("T")[0].split(" ")[0][:10]
             try:
@@ -1300,6 +1302,9 @@ async def procesar_auditoria_api(
                         totalExoneradosRegCorp += 1
                     elif tipoServicioNew == 'RESIDENCIAL':
                         totalExoneradosReg += 1
+                        
+        if tipoServicioNew in ['PYME', 'CORPORATIVO']:
+            continue
                 
         is_missing_in_old = (sid not in old_dict)
         
@@ -1365,8 +1370,16 @@ async def procesar_auditoria_api(
                 ingreso_ayer += costoOld
                 count_activos_ayer += 1
                 
+            is_plan_in_range = True
+            if plan_p and corte_dt and inst_dt:
+                is_plan_in_range = (corte_dt <= plan_p <= inst_dt)
+                
+            is_estado_in_range = True
+            if estado_dt and corte_dt and inst_dt:
+                is_estado_in_range = (corte_dt <= estado_dt <= inst_dt)
+                
             # Finanzas - Bridge
-            if estatusOld != 'ACT.' and estatusNew == 'ACT.':
+            if estatusOld != 'ACT.' and estatusNew == 'ACT.' and is_estado_in_range:
                 impacto_reconexiones += costoDelPlanNew
                 count_reconexiones += 1
                 datosConciliacionDetalle.append({
@@ -1383,7 +1396,7 @@ async def procesar_auditoria_api(
                     'Variación': costoDelPlanNew,
                     'Fecha': fechaEstadoFormat
                 })
-            elif estatusOld == 'ACT.' and estatusNew != 'ACT.':
+            elif estatusOld == 'ACT.' and estatusNew != 'ACT.' and is_estado_in_range:
                 if estado_dt >= corte_dt:
                     impacto_retiros_post_corte += costoOld
                     count_retiros_post_corte += 1
@@ -1404,7 +1417,7 @@ async def procesar_auditoria_api(
                     'Variación': -costoOld,
                     'Fecha': fechaEstadoFormat
                 })
-            elif estatusOld == 'ACT.' and estatusNew == 'ACT.':
+            elif estatusOld == 'ACT.' and estatusNew == 'ACT.' and is_plan_in_range:
                 if costoDelPlanNew > costoOld:
                     if '3 MESES BENEFICIO' in planOld.upper() or '3 MESES BENEFICIO' in planNew.upper():
                         impacto_upgrades_beneficio += (costoDelPlanNew - costoOld)
@@ -1446,7 +1459,7 @@ async def procesar_auditoria_api(
                         'Fecha': fechaPlanDesdeFormat
                     })
             
-            if planOld != planNew:
+            if planOld != planNew and is_plan_in_range:
                 datosCambiosPlan.append({
                     'ID Servicio': sid,
                     'Cédula': row['Cédula'],
@@ -1462,7 +1475,7 @@ async def procesar_auditoria_api(
                     'Fecha Plan Actual Desde': fechaPlanDesdeFormat 
                 })
                 
-            if planOld != planNew or estatusOld != estatusNew:
+            if (planOld != planNew and is_plan_in_range) or (estatusOld != estatusNew and is_estado_in_range):
                 datosSeguimiento.append({
                     'ID Servicio': sid,
                     'Cédula': row['Cédula'],
@@ -1478,7 +1491,7 @@ async def procesar_auditoria_api(
                     'Fecha Plan Actual Desde': fechaPlanDesdeFormat
                 })
                 
-            if estatusOld != estatusNew:
+            if estatusOld != estatusNew and is_estado_in_range:
                 datosEstatus.append({
                     'ID Servicio': sid,
                     'Cédula': row['Cédula'],
@@ -1512,6 +1525,10 @@ async def procesar_auditoria_api(
 
     for sid, row_old in old_dict.items():
         if sid not in processed_sids:
+            tipoServicioOld = str(row_old.get('Tipo de servicio', '')).strip().upper()
+            if tipoServicioOld in ['PYME', 'CORPORATIVO']:
+                continue
+                
             estatusOld = str(row_old['Estado servicio']).strip().upper()
             try:
                 costoOld = float(row_old['Costo del plan'])

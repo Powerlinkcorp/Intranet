@@ -84,77 +84,18 @@
             color: #fff;
         }
 
-        /* FAST LINKS */
-        .fast-links {
-            background-color: var(--cabeceras);
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 16px;
-            border-bottom: 3px solid var(--acento);
-        }
-
-        .fast-links a {
-            color: #e2e8f0;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: color 0.2s;
-        }
-
-        .fast-links a:hover, .fast-links a.active {
-            color: var(--acento);
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-        }
-    </style>
+        </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col">
 
     {% if not embed %}
     <!-- NAVBAR CORPORATIVO -->
-    <nav class="navbar">
-        <a href="/" class="logo" style="text-decoration:none; color:inherit;">
-            POWER LINK <span>CORP</span> <span class="admin-badge">Histórico</span>
-        </a>
-        <div class="user-menu">
-            <span style="font-size: 13px;">Hola, {{ user.full_name }}</span>
-            <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
-        </div>
-    </nav>
+    {% include 'sidebar.html' %}
+<div class="content-wrapper" id="contentWrapper">
+
 
     <!-- ENLACES RÁPIDOS GLOBALES -->
-    <div class="fast-links">
-        <a href="/"><i class="fa-solid fa-house"></i> Inicio</a>
-        <a href="#"><i class="fa-solid fa-briefcase"></i> Proyectos</a>
-        {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
-        <a href="/directorio"><i class="fa-solid fa-address-book"></i> Directorio</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
-        <a href="/helpdesk"><i class="fa-solid fa-headset"></i> Comunicaciones</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
-        <a href="/reportes"><i class="fa-solid fa-chart-bar"></i> Reportes</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
-        <a href="/admin"><i class="fa-solid fa-users"></i> RRHH</a>
-        {% endif %}
-        {% if user.role == 'admin' %}
-        <a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
-        {% endif %}
-        {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
-        <a href="/integracion"><i class="fa-solid fa-network-wired"></i> Integración</a>
-        {% endif %}
-        <a href="/historico" class="active"><i class="fa-solid fa-history"></i> Histórico</a>
-    </div>
+    
     {% endif %}
 
     <!-- Main Content -->
@@ -404,6 +345,9 @@
             }
         }
     </script>
+{% if not embed %}
 {% include 'global_chat.html' %}
+{% endif %}
+</div>
 </body>
 </html>
