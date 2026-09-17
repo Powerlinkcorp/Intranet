@@ -182,6 +182,83 @@
         .data-table tr:hover td {
             background-color: #f8fafc;
         }
+    
+        /* ========================================================= */
+        /* RESPONSIVE DESIGN - INJECTED AUTOMATICALLY                */
+        /* ========================================================= */
+        @media screen and (max-width: 1024px) {
+            .main-container, .grid-container, .dashboard-grid, .layout-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding-bottom: 20px;
+            }
+            .main-container, .grid-container, .dashboard-grid, .layout-grid, 
+            .kpi-container, .resource-grid, .metrics-grid, .cards-grid {
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 10px;
+                gap: 15px;
+            }
+            
+            .hero {
+                padding: 30px 20px !important;
+                text-align: center;
+            }
+            
+            .hero h1 {
+                font-size: 28px !important;
+            }
+            
+            .sidebar {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                gap: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .content-area, .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 10px !important;
+            }
+            
+            .card {
+                padding: 15px !important;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .flex-container, .navbar, .top-bar {
+                flex-direction: column !important;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .login-container, .login-box {
+                width: 95% !important;
+                margin: 20px auto !important;
+            }
+            
+            .section-title {
+                font-size: 14px;
+            }
+        }
+
     </style>
 </head>
 <body class="min-h-screen">
@@ -229,16 +306,28 @@
             <div class="mt-6 border-t border-gray-200 pt-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Configurar Base Mensual -->
-                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm">
-                        <label class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
-                            <span><i class="fa-solid fa-calendar-check mr-2 text-indigo-700"></i> 1. Cargar Base del Mes (Día 1):</span>
-                            <span id="lblEstadoMensualBox1" class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
-                        </label>
-                        <input type="file" id="fileBaseMes" accept=".xlsx, .xls" class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
-                        <button id="btnGuardarBaseMes" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
-                            <i class="fa-solid fa-upload mr-1"></i> Guardar Base del Mes
-                        </button>
-                        <p class="text-xs text-indigo-700 mt-2 font-medium">Sube el archivo del día 1. Este archivo quedará guardado permanentemente para hacer las comparativas mensuales hasta que lo reemplaces.</p>
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm flex flex-col gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
+                                <span><i class="fa-solid fa-calendar-check mr-2 text-indigo-700"></i> 1A. Cargar Base Residencial (Día 1):</span>
+                                <span id="lblEstadoMensualBox1" class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
+                            </label>
+                            <input type="file" id="fileBaseMes" accept=".xlsx, .xls" class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
+                            <button id="btnGuardarBaseMes" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
+                                <i class="fa-solid fa-upload mr-1"></i> Guardar Base Residencial
+                            </button>
+                        </div>
+                        <div class="border-t border-indigo-200 pt-4">
+                            <label class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
+                                <span><i class="fa-solid fa-building mr-2 text-indigo-700"></i> 1B. Cargar Base Corporativa (Día 1):</span>
+                                <span id="lblEstadoMensualCorpBox" class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
+                            </label>
+                            <input type="file" id="fileBaseMesCorp" accept=".xlsx, .xls" class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
+                            <button id="btnGuardarBaseMesCorp" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
+                                <i class="fa-solid fa-upload mr-1"></i> Guardar Base Corporativa
+                            </button>
+                        </div>
+                        <p class="text-xs text-indigo-700 mt-2 font-medium">Sube los archivos del día 1. Estos quedarán guardados permanentemente para las comparativas mensuales hasta reemplazarlos.</p>
                     </div>
 
                     <!-- Seleccionar Comparativa -->
@@ -260,7 +349,8 @@
                         
                         <div class="mt-4 p-3 bg-white border border-blue-100 rounded-lg text-xs font-mono text-gray-600 space-y-1.5">
                             <p class="font-bold text-gray-700 mb-2 border-b border-gray-100 pb-1.5"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Fechas de Respaldos Guardados:</p>
-                            <p class="flex justify-between items-center"><span>Base Mensual (Día 1):</span> <span id="lblEstadoMensual" class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span></p>
+                            <p class="flex justify-between items-center"><span>Base Mensual (Residencial):</span> <span id="lblEstadoMensual" class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span></p>
+                            <p class="flex justify-between items-center"><span>Base Mensual (Corporativo):</span> <span id="lblEstadoMensualCorp" class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span></p>
                             <p class="flex justify-between items-center"><span>Diario (Residencial):</span> <span id="lblEstadoDiarioRes" class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span></p>
                             <p class="flex justify-between items-center"><span>Diario (Corporativo):</span> <span id="lblEstadoDiarioCorp" class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span></p>
                         </div>
@@ -503,81 +593,129 @@
                 </div>
                 <p class="text-sm text-gray-500 mb-5">Este desglose explica la diferencia matemática entre el ingreso facturado en la <b>Base Seleccionada (Ayer o Día 1)</b> y el monto total de <b>Hoy</b>.</p>
                 
-                <div class="max-w-3xl mx-auto overflow-hidden rounded-xl border border-gray-200 shadow-xs bg-white">
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
-                            <tr>
-                                <th class="py-3 px-4 text-left">Concepto</th>
-                                <th class="py-3 px-4 text-right">Monto</th>
-                                <th class="py-3 px-4 text-right">Cantidad</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 font-mono">
-                            <!-- 1. Ingreso Base -->
-                            <tr class="bg-gray-50/60 font-bold text-gray-800">
-                                <td class="py-3 px-4 text-left font-sans">1. Ingreso Base</td>
-                                <td class="py-3 px-4 text-right" id="fin-ingreso-ayer">$0.00</td>
-                                <td class="py-3 px-4 text-right text-gray-700" id="fin-cant-ayer">0</td>
-                            </tr>
-                            <!-- Nuevas Instalaciones -->
-                            <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans">(+) Nuevas Instalaciones</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-instalaciones">+$0.00</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-instalaciones">0</td>
-                            </tr>
-                            <!-- Reconexiones -->
-                            <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans">(+) Reconexiones</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-reconexiones">+$0.00</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-reconexiones">0</td>
-                            </tr>
-                            <!-- Upgrades de Plan -->
-                            <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans">(+) Upgrades de Plan</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades">+$0.00</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades">0</td>
-                            </tr>
-                            <!-- Cambios 3 Meses Beneficio -->
-                            <tr class="text-emerald-600 hover:bg-emerald-50/30 transition-colors font-medium">
-                                <td class="py-2.5 px-4 text-left font-sans">(+) Cambios 3 Meses Beneficio a otro Plan</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades-beneficio">+$0.00</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades-beneficio">0</td>
-                            </tr>
-                            <!-- Downgrades de Plan -->
-                            <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans">(-) Downgrades de Plan</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-downgrades">-$0.00</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-downgrades">0</td>
-                            </tr>
-                            <!-- Suspendidos -->
-                            <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans">(-) Suspendidos</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-retiros">-$0.00</td>
-                                <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-retiros">0</td>
-                            </tr>
-                            <!-- 2. Ingreso Total Hoy -->
-                            <tr class="bg-indigo-50/60 font-bold text-gray-900 border-t-2 border-indigo-200">
-                                <td class="py-3 px-4 text-left font-sans text-base">2. Ingreso Total Hoy</td>
-                                <td class="py-3 px-4 text-right text-indigo-700 text-base" id="fin-ingreso-hoy">$0.00</td>
-                                <td class="py-3 px-4 text-right text-indigo-700 text-base" id="fin-cant-hoy">0</td>
-                            </tr>
-                            <!-- 3. Diferencia Neta -->
-                            <tr class="bg-gray-50/70 font-bold border-t border-gray-200">
-                                <td class="py-3 px-4 text-left font-sans text-gray-700">3. Diferencia Neta (Hoy - Base)</td>
-                                <td class="py-3 px-4 text-right" id="fin-diferencia-neta">$0.00</td>
-                                <td class="py-3 px-4 text-right" id="fin-cant-diferencia-neta">0</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <div class="p-3 border-t border-gray-100 bg-gray-50/40">
-                        <div class="p-3 rounded-lg text-center text-xs font-semibold" id="fin-validacion">
-                            <!-- Validación matemática -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- CORPORATIVOS -->
+                    <div class="bg-white overflow-hidden rounded-xl border border-gray-200 shadow-xs h-fit">
+                        <div class="bg-gray-800 text-white p-3 text-center font-bold text-sm tracking-widest uppercase">
+                            Corporativos
+                        </div>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">Concepto</th>
+                                    <th class="py-3 px-4 text-right">Monto</th>
+                                    <th class="py-3 px-4 text-right">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 font-mono">
+                                <tr class="bg-gray-50/60 font-bold text-gray-800">
+                                    <td class="py-3 px-4 text-left font-sans">1. Ingreso Base</td>
+                                    <td class="py-3 px-4 text-right" id="fin-ingreso-ayer-corp">$0.00</td>
+                                    <td class="py-3 px-4 text-right text-gray-700" id="fin-cant-ayer-corp">0</td>
+                                </tr>
+                                <tr class="bg-indigo-50/30 font-bold text-indigo-900 border-t-2 border-indigo-100">
+                                    <td class="py-3 px-4 text-left font-sans">2. Ingreso Total Hoy</td>
+                                    <td class="py-3 px-4 text-right text-indigo-700" id="fin-ingreso-hoy-corp">$0.00</td>
+                                    <td class="py-3 px-4 text-right text-indigo-700" id="fin-cant-hoy-corp">0</td>
+                                </tr>
+                                <tr class="bg-white font-bold text-gray-800 border-t-2 border-gray-200">
+                                    <td class="py-3 px-4 text-left font-sans text-xs uppercase">3. Diferencia Neta (Hoy - Base)</td>
+                                    <td class="py-3 px-4 text-right" id="fin-dif-monto-corp">+$0.00</td>
+                                    <td class="py-3 px-4 text-right" id="fin-dif-cant-corp">+0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- RESIDENCIALES -->
+                    <div class="bg-white overflow-hidden rounded-xl border border-gray-200 shadow-xs">
+                        <div class="bg-indigo-600 text-white p-3 text-center font-bold text-sm tracking-widest uppercase">
+                            Residenciales
+                        </div>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">Concepto</th>
+                                    <th class="py-3 px-4 text-right">Monto</th>
+                                    <th class="py-3 px-4 text-right">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 font-mono">
+                                <!-- 1. Ingreso Base -->
+                                <tr class="bg-gray-50/60 font-bold text-gray-800">
+                                    <td class="py-3 px-4 text-left font-sans">1. Ingreso Base</td>
+                                    <td class="py-3 px-4 text-right" id="fin-ingreso-ayer">$0.00</td>
+                                    <td class="py-3 px-4 text-right text-gray-700" id="fin-cant-ayer">0</td>
+                                </tr>
+                                <!-- Nuevas Instalaciones -->
+                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Nuevas Instalaciones</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-instalaciones">+$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-instalaciones">0</td>
+                                </tr>
+                                <!-- Reconexiones -->
+                                <tr class="hidden text-green-600 hover:bg-green-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">(+) Reconexiones</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-reconexiones">+$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-reconexiones">0</td>
+                                </tr>
+
+                                <!-- Cambios 3 Meses Beneficio -->
+                                <tr class="hidden text-emerald-600 hover:bg-emerald-50/30 transition-colors font-medium">
+                                    <td class="py-2.5 px-4 text-left font-sans">(+) Cambios 3 Meses Beneficio a otro Plan</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades-beneficio">+$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades-beneficio">0</td>
+                                </tr>
+                                <!-- Ajustes / Fuera de Rango -->
+                                <tr class="hidden text-purple-600 hover:bg-purple-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">(±) Ajustes Manuales / Fuera de Rango</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-otros">+$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-otros">0</td>
+                                </tr>
+
+                                <!-- Suspendidos -->
+                                <tr class="hidden text-red-500 hover:bg-red-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">(-) Suspendidos</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-retiros">-$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-retiros">0</td>
+                                </tr>
+                                <!-- 2. Ingreso Total Hoy -->
+                                <tr class="bg-indigo-50/60 font-bold text-gray-900 border-t-2 border-indigo-200">
+                                    <td class="py-3 px-4 text-left font-sans text-base">2. Ingreso Total Hoy</td>
+                                    <td class="py-3 px-4 text-right text-indigo-700 text-base" id="fin-ingreso-hoy">$0.00</td>
+                                    <td class="py-3 px-4 text-right text-indigo-700 text-base" id="fin-cant-hoy">0</td>
+                                </tr>
+                                <!-- 3. Diferencia Neta -->
+                                <tr class="bg-gray-50/70 font-bold border-t border-gray-200">
+                                    <td class="py-3 px-4 text-left font-sans text-gray-700">3. Diferencia Neta (Hoy - Base)</td>
+                                    <td class="py-3 px-4 text-right" id="fin-dif-monto">$0.00</td>
+                                    <td class="py-3 px-4 text-right" id="fin-dif-cant">0</td>
+                                </tr>
+                                <!-- Detalle Variaciones: Upgrades de Plan -->
+                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Subieron de Plan (Upgrades)</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades">+$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades">0</td>
+                                </tr>
+                                <!-- Detalle Variaciones: Downgrades de Plan -->
+                                <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Bajaron de Plan (Downgrades)</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-downgrades">-$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-downgrades">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="p-3 border-t border-gray-100 bg-gray-50/40">
+                            <div class="p-3 rounded-lg text-center text-xs font-semibold" id="fin-validacion">
+                                <!-- Validación matemática -->
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Listado Detallado de Clientes para Validación del Sistema -->
+            </div>
+            
+            <!-- Listado Detallado de Clientes para Validación del Sistema -->
                 <div class="mt-8 border-t border-gray-200 pt-6">
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4 flex-wrap gap-2">
                         <div>
@@ -943,7 +1081,7 @@
         document.getElementById('btnGuardarBaseMes').addEventListener('click', async () => {
             const fileInput = document.getElementById('fileBaseMes');
             if (fileInput.files.length === 0) {
-                alert('Por favor, selecciona un archivo Excel del día 1.');
+                alert('Por favor, selecciona un archivo Excel del día 1 (Residencial).');
                 return;
             }
 
@@ -964,10 +1102,49 @@
                 const result = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(result.detail || 'Error al guardar la base mensual');
+                    throw new Error(result.detail || 'Error al guardar la base mensual residencial');
                 }
 
-                alert('¡Base mensual guardada exitosamente!\n\nAhora puedes elegir la comparativa "Mensual" al procesar.');
+                alert('¡Base mensual residencial guardada exitosamente!');
+                fileInput.value = '';
+                cargarEstadoRespaldos();
+            } catch (error) {
+                console.error(error);
+                alert('Ocurrió un error: ' + error.message);
+            } finally {
+                btn.innerHTML = origText;
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('btnGuardarBaseMesCorp').addEventListener('click', async () => {
+            const fileInput = document.getElementById('fileBaseMesCorp');
+            if (fileInput.files.length === 0) {
+                alert('Por favor, selecciona un archivo Excel del día 1 (Corporativo).');
+                return;
+            }
+
+            const btn = document.getElementById('btnGuardarBaseMesCorp');
+            const origText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Guardando...';
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file_base', fileInput.files[0]);
+
+                const response = await fetch('/api/integracion/guardar_base_mensual_corporativo', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.detail || 'Error al guardar la base mensual corporativa');
+                }
+
+                alert('¡Base mensual corporativa guardada exitosamente!');
                 fileInput.value = '';
                 cargarEstadoRespaldos();
             } catch (error) {
@@ -1045,11 +1222,17 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('lblEstadoMensual').innerText = data.base_mensual;
                     
+                    document.getElementById('lblEstadoMensual').innerText = data.base_mensual;
                     const box1 = document.getElementById('lblEstadoMensualBox1');
                     if(box1) {
                         box1.innerText = data.base_mensual !== "No disponible" ? "Actualizado: " + data.base_mensual : "Sin registro";
+                    }
+
+                    document.getElementById('lblEstadoMensualCorp').innerText = data.base_mensual_corporativo || "No disponible";
+                    const boxCorp = document.getElementById('lblEstadoMensualCorpBox');
+                    if(boxCorp) {
+                        boxCorp.innerText = (data.base_mensual_corporativo && data.base_mensual_corporativo !== "No disponible") ? "Actualizado: " + data.base_mensual_corporativo : "Sin registro";
                     }
 
                     document.getElementById('lblEstadoDiarioRes').innerText = data.diario_residencial;
@@ -1058,8 +1241,11 @@
             } catch (e) {
                 console.error("Error cargando estado de respaldos:", e);
                 document.getElementById('lblEstadoMensual').innerText = "Error";
+                document.getElementById('lblEstadoMensualCorp').innerText = "Error";
                 const box1 = document.getElementById('lblEstadoMensualBox1');
                 if(box1) box1.innerText = "Error";
+                const boxCorp = document.getElementById('lblEstadoMensualCorpBox');
+                if(boxCorp) boxCorp.innerText = "Error";
                 document.getElementById('lblEstadoDiarioRes').innerText = "Error";
                 document.getElementById('lblEstadoDiarioCorp').innerText = "Error";
             }
@@ -1157,8 +1343,8 @@
 
                 // Lógica de Variación / Conciliación
                 const seccionCF = document.getElementById('seccionConciliacionFinanciera');
-                if (result.conciliacion_financiera && result.conciliacion_financiera.has_excel) {
-                    const cf = result.conciliacion_financiera;
+                if (result.conciliacion_financiera_res && result.conciliacion_financiera_res.has_excel) {
+                    const cf = result.conciliacion_financiera_res;
                     
                     // Formatear Moneda y Cantidad
                     const formatM = (num) => '$' + (num || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -1182,6 +1368,10 @@
                     document.getElementById('fin-upgrades-beneficio').innerText = '+' + formatM(cf.upgrades_beneficio);
                     document.getElementById('fin-cant-upgrades-beneficio').innerText = formatC(cf.cant_upgrades_beneficio);
                     
+                    const otrosImpacto = cf.otros_impacto || 0;
+                    document.getElementById('fin-otros').innerText = (otrosImpacto >= 0 ? '+' : '') + formatM(otrosImpacto);
+                    document.getElementById('fin-cant-otros').innerText = formatC(cf.cant_otros || 0);
+                    
                     document.getElementById('fin-downgrades').innerText = '-' + formatM(cf.downgrades);
                     document.getElementById('fin-cant-downgrades').innerText = formatC(cf.cant_downgrades);
 
@@ -1191,17 +1381,17 @@
                     
                     const upgradesBeneficio = cf.upgrades_beneficio || 0;
                     const sumaCalculada = cf.ingreso_ayer + cf.instalaciones + cf.reconexiones + cf.upgrades + upgradesBeneficio
-                                          - cf.downgrades - totalRetiros;
+                                          + otrosImpacto - cf.downgrades - totalRetiros;
                     
                     const neta = cf.ingreso_hoy - cf.ingreso_ayer;
-                    const elNeta = document.getElementById('fin-diferencia-neta');
+                    const elNeta = document.getElementById('fin-dif-monto');
                     if (elNeta) {
                         elNeta.innerText = (neta >= 0 ? '+' : '') + formatM(neta);
                         elNeta.className = neta >= 0 ? 'text-green-600' : 'text-red-600';
                     }
 
                     const cantNeta = cf.cant_diferencia_neta != null ? cf.cant_diferencia_neta : (cf.cant_hoy - cf.cant_ayer);
-                    const elCantNeta = document.getElementById('fin-cant-diferencia-neta');
+                    const elCantNeta = document.getElementById('fin-dif-cant');
                     if (elCantNeta) {
                         elCantNeta.innerText = (cantNeta >= 0 ? '+' : '') + formatC(cantNeta);
                         elCantNeta.className = cantNeta >= 0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold';
@@ -1216,6 +1406,30 @@
                     } else {
                         valBox.className = "p-3 rounded-lg text-center text-xs font-semibold bg-red-50 text-red-700 border border-red-200";
                         valBox.innerText = `Atención: Diferencia matemática de ${formatM(diff)}. Puede deberse a registros incompletos.`;
+                    }
+                    
+                    // Lógica Corporativa
+                    const cf_corp = result.conciliacion_financiera_corp;
+                    if (cf_corp) {
+                        document.getElementById('fin-ingreso-ayer-corp').innerText = formatM(cf_corp.ingreso_ayer);
+                        document.getElementById('fin-cant-ayer-corp').innerText = formatC(cf_corp.cant_ayer);
+
+                        document.getElementById('fin-ingreso-hoy-corp').innerText = formatM(cf_corp.ingreso_hoy);
+                        document.getElementById('fin-cant-hoy-corp').innerText = formatC(cf_corp.cant_hoy);
+                        
+                        const netaCorp = cf_corp.ingreso_hoy - cf_corp.ingreso_ayer;
+                        const elNetaCorp = document.getElementById('fin-dif-monto-corp');
+                        if (elNetaCorp) {
+                            elNetaCorp.innerText = (netaCorp >= 0 ? '+' : '') + formatM(netaCorp);
+                            elNetaCorp.className = netaCorp >= 0 ? 'text-green-600 py-3 px-4 text-right' : 'text-red-600 py-3 px-4 text-right';
+                        }
+                        
+                        const cantNetaCorp = cf_corp.cant_diferencia_neta;
+                        const elCantNetaCorp = document.getElementById('fin-dif-cant-corp');
+                        if (elCantNetaCorp) {
+                            elCantNetaCorp.innerText = (cantNetaCorp >= 0 ? '+' : '') + formatC(cantNetaCorp);
+                            elCantNetaCorp.className = cantNetaCorp >= 0 ? 'text-green-600 font-bold py-3 px-4 text-right' : 'text-red-600 font-bold py-3 px-4 text-right';
+                        }
                     }
 
                     // Actualizar contadores de las pastillas / pills de clientes de conciliación

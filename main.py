@@ -957,7 +957,8 @@ def estado_respaldos(request: Request):
     return {
         "diario_residencial": get_file_info("last_snapshot.json"),
         "diario_corporativo": get_file_info("last_snapshot_corporativo.json"),
-        "base_mensual": get_file_info("base_mensual.xlsx")
+        "base_mensual": get_file_info("base_mensual.xlsx"),
+        "base_mensual_corporativo": get_file_info("base_mensual_corporativo.xlsx")
     }
 
 @app.post("/api/integracion/guardar_base_mensual")
@@ -972,6 +973,21 @@ async def guardar_base_mensual(request: Request, file_base: UploadFile = File(..
         with open(file_path, "wb") as f:
             f.write(content)
         return {"message": "Base mensual guardada exitosamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/integracion/guardar_base_mensual_corporativo")
+async def guardar_base_mensual_corporativo(request: Request, file_base: UploadFile = File(...)):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+    
+    try:
+        content = await file_base.read()
+        file_path = os.path.join(UPLOAD_DIR, "base_mensual_corporativo.xlsx")
+        with open(file_path, "wb") as f:
+            f.write(content)
+        return {"message": "Base mensual corporativa guardada exitosamente"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1025,37 +1041,45 @@ async def procesar_auditoria_api(
                 }
     elif tipoComparativa == "mensual":
         # Modo: Comparar con Base Mensual (Excel guardado)
-        base_path = os.path.join(UPLOAD_DIR, "base_mensual.xlsx")
-        if not os.path.exists(base_path):
-            raise HTTPException(status_code=400, detail="No existe una base mensual guardada. Por favor, carga el archivo del día 1 primero.")
+        is_todos = (tipoCliente.lower() == "todos")
+        base_paths = []
+        if is_todos or tipoCliente.lower() == "residencial":
+            base_paths.append(os.path.join(UPLOAD_DIR, "base_mensual.xlsx"))
+        if is_todos or tipoCliente.lower() == "corporativo":
+            base_paths.append(os.path.join(UPLOAD_DIR, "base_mensual_corporativo.xlsx"))
             
-        try:
-            df_old = pd.read_excel(base_path)
-            df_old = df_old.fillna("")
-            for idx, row in df_old.iterrows():
-                sid = str(row.get('ID Servicio', '')).strip()
-                if sid:
-                    raw_st = str(row.get('Estado servicio', '')).strip().upper()
-                    if raw_st in ('EXONERADO', 'EXO.'): mapped_st = 'Exo.'
-                    elif raw_st in ('SUSPENDIDO', 'SUSP.'): mapped_st = 'Susp.'
-                    elif raw_st in ('POR RETIRAR', 'POR RET.'): mapped_st = 'Por Ret.'
-                    elif raw_st in ('TRANSFERIDO', 'TRANS.'): mapped_st = 'Trans.'
-                    elif raw_st in ('RETIRADO', 'RET.'): mapped_st = 'Ret.'
-                    elif raw_st in ('ACTIVO', 'ACT.'): mapped_st = 'Act.'
-                    else: mapped_st = raw_st.title() if raw_st else ''
-                    
-                    # Filtering by is_corp inside this loop is hard because Excel might not have doc_type easily separated
-                    # We will store all of them, and later processing will match by sid.
-                    old_dict[sid] = {
-                        'ID Servicio': sid,
-                        'Cédula': str(row.get('Cédula', '')).strip(),
-                        'Nombres': str(row.get('Nombres', '')).strip(),
-                        'Plan': row.get('Plan', ''),
-                        'Estado servicio': mapped_st,
-                        'Costo del plan': row.get('Costo del plan', 0)
-                    }
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error leyendo la base mensual: {str(e)}")
+        found_any = False
+        for path in base_paths:
+            if os.path.exists(path):
+                found_any = True
+                try:
+                    df_old = pd.read_excel(path)
+                    df_old = df_old.fillna("")
+                    for idx, row in df_old.iterrows():
+                        sid = str(row.get('ID Servicio', '')).strip()
+                        if sid:
+                            raw_st = str(row.get('Estado servicio', '')).strip().upper()
+                            if raw_st in ('EXONERADO', 'EXO.'): mapped_st = 'Exo.'
+                            elif raw_st in ('SUSPENDIDO', 'SUSP.'): mapped_st = 'Susp.'
+                            elif raw_st in ('POR RETIRAR', 'POR RET.'): mapped_st = 'Por Ret.'
+                            elif raw_st in ('TRANSFERIDO', 'TRANS.'): mapped_st = 'Trans.'
+                            elif raw_st in ('RETIRADO', 'RET.'): mapped_st = 'Ret.'
+                            elif raw_st in ('ACTIVO', 'ACT.'): mapped_st = 'Act.'
+                            else: mapped_st = raw_st.title() if raw_st else ''
+                            
+                            old_dict[sid] = {
+                                'ID Servicio': sid,
+                                'Cédula': str(row.get('Cédula', '')).strip(),
+                                'Nombres': str(row.get('Nombres', '')).strip(),
+                                'Plan': row.get('Plan', ''),
+                                'Estado servicio': mapped_st,
+                                'Costo del plan': row.get('Costo del plan', 0)
+                            }
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=f"Error leyendo la base mensual en {path}: {str(e)}")
+        
+        if not found_any:
+            raise HTTPException(status_code=400, detail="No existen bases mensuales guardadas para la selección actual. Por favor, carga el archivo del día 1 primero.")
     else:
         # Modo: Comparar con Snapshot Local Diaria
         is_todos = (tipoCliente.lower() == "todos")
@@ -1164,6 +1188,7 @@ async def procesar_auditoria_api(
     totalExoneradosReg = 0
     totalExoneradosRegCorp = 0
     
+    # Variables Conciliación Residencial
     ingreso_ayer = 0.0
     ingreso_hoy = 0.0
     impacto_instalaciones = 0.0
@@ -1173,6 +1198,7 @@ async def procesar_auditoria_api(
     impacto_downgrades = 0.0
     impacto_retiros_post_corte = 0.0
     impacto_retiros_pre_corte = 0.0
+    impacto_otros = 0.0
 
     count_activos_ayer = 0
     count_instalaciones = 0
@@ -1182,6 +1208,15 @@ async def procesar_auditoria_api(
     count_downgrades = 0
     count_retiros_post_corte = 0
     count_retiros_pre_corte = 0
+    count_otros = 0
+    
+    # Variables Conciliación Corporativa
+    ingreso_ayer_corp = 0.0
+    ingreso_hoy_corp = 0.0
+    count_activos_ayer_corp = 0
+    count_activos_hoy_corp = 0
+    
+    fechaCorte = datetime.now().strftime("%Y-%m-01")
 
     processed_sids = set()
     
@@ -1258,9 +1293,12 @@ async def procesar_auditoria_api(
         if estadoServicioNew == 'ACT.':
             if tipoServicioNew in ['PYME', 'CORPORATIVO']:
                 totalActivosCorp += 1
+                ingreso_hoy_corp += costoDelPlanNew
+                count_activos_hoy_corp += 1
             elif tipoServicioNew == 'RESIDENCIAL':
-                totalActivos += 1
-            ingreso_hoy += costoDelPlanNew
+                if 'tv' not in planNew.lower() and 'iptv' not in planNew.lower():
+                    totalActivos += 1
+                    ingreso_hoy += costoDelPlanNew
             datosClientesActivos.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
@@ -1304,6 +1342,16 @@ async def procesar_auditoria_api(
                         totalExoneradosReg += 1
                         
         if tipoServicioNew in ['PYME', 'CORPORATIVO']:
+            row_old_corp = old_dict.get(sid)
+            if row_old_corp is not None:
+                estatusOldCorp = str(row_old_corp['Estado servicio']).strip().upper()
+                if estatusOldCorp == 'ACT.':
+                    try:
+                        costoOldCorp = float(row_old_corp['Costo del plan'])
+                    except:
+                        costoOldCorp = 0.0
+                    ingreso_ayer_corp += costoOldCorp
+                    count_activos_ayer_corp += 1
             continue
                 
         is_missing_in_old = (sid not in old_dict)
@@ -1352,6 +1400,18 @@ async def procesar_auditoria_api(
                 'Teléfono 1': row['Teléfono 1']
             })
             
+        is_plan_in_range = True
+        if plan_p and corte_dt and inst_dt:
+            is_plan_in_range = (corte_dt <= plan_p <= inst_dt)
+            
+        is_estado_in_range = True
+        if estado_dt and corte_dt and inst_dt:
+            is_estado_in_range = (corte_dt <= estado_dt <= inst_dt)
+            
+        is_instalacion_in_range = True
+        if inst_p_current and corte_dt and inst_dt:
+            is_instalacion_in_range = (corte_dt <= inst_p_current <= inst_dt)
+            
         row_old = old_dict.get(sid)
         if row_old is not None:
             planOld = str(row_old['Plan']).strip()
@@ -1370,32 +1430,42 @@ async def procesar_auditoria_api(
                 ingreso_ayer += costoOld
                 count_activos_ayer += 1
                 
-            is_plan_in_range = True
-            if plan_p and corte_dt and inst_dt:
-                is_plan_in_range = (corte_dt <= plan_p <= inst_dt)
-                
-            is_estado_in_range = True
-            if estado_dt and corte_dt and inst_dt:
-                is_estado_in_range = (corte_dt <= estado_dt <= inst_dt)
-                
             # Finanzas - Bridge
             if estatusOld != 'ACT.' and estatusNew == 'ACT.' and is_estado_in_range:
-                impacto_reconexiones += costoDelPlanNew
-                count_reconexiones += 1
-                datosConciliacionDetalle.append({
-                    'ID Servicio': sid,
-                    'Cédula': row['Cédula'],
-                    'Nombres': row['Nombres'],
-                    'Concepto': 'Reconexiones',
-                    'Plan Anterior': planOld,
-                    'Plan Actual': planNew,
-                    'Estado Anterior': estatusOld,
-                    'Estado Actual': estatusNew,
-                    'Costo Anterior': costoOld,
-                    'Costo Actual': costoDelPlanNew,
-                    'Variación': costoDelPlanNew,
-                    'Fecha': fechaEstadoFormat
-                })
+                if is_instalacion_in_range and '3 MESES' in planNew.upper():
+                    impacto_instalaciones += costoDelPlanNew
+                    count_instalaciones += 1
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row['Cédula'],
+                        'Nombres': row['Nombres'],
+                        'Concepto': 'Nuevas Instalaciones (3 Meses Beneficio)',
+                        'Plan Anterior': planOld,
+                        'Plan Actual': planNew,
+                        'Estado Anterior': estatusOld,
+                        'Estado Actual': estatusNew,
+                        'Costo Anterior': costoOld,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': costoDelPlanNew,
+                        'Fecha': fechaInstalacionFormat
+                    })
+                else:
+                    impacto_reconexiones += costoDelPlanNew
+                    count_reconexiones += 1
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row['Cédula'],
+                        'Nombres': row['Nombres'],
+                        'Concepto': 'Reconexiones',
+                        'Plan Anterior': planOld,
+                        'Plan Actual': planNew,
+                        'Estado Anterior': estatusOld,
+                        'Estado Actual': estatusNew,
+                        'Costo Anterior': costoOld,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': costoDelPlanNew,
+                        'Fecha': fechaEstadoFormat
+                    })
             elif estatusOld == 'ACT.' and estatusNew != 'ACT.' and is_estado_in_range:
                 if estado_dt >= corte_dt:
                     impacto_retiros_post_corte += costoOld
@@ -1458,6 +1528,61 @@ async def procesar_auditoria_api(
                         'Variación': -(costoOld - costoDelPlanNew),
                         'Fecha': fechaPlanDesdeFormat
                     })
+            else:
+                if estatusOld == 'ACT.' and estatusNew == 'ACT.' and costoOld != costoDelPlanNew:
+                    # Ajuste manual de precio (mismo plan o fuera de rango)
+                    impacto_otros += (costoDelPlanNew - costoOld)
+                    count_otros += 1
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row['Cédula'],
+                        'Nombres': row['Nombres'],
+                        'Concepto': 'Ajuste Manual / Cambio Fuera de Rango',
+                        'Plan Anterior': planOld,
+                        'Plan Actual': planNew,
+                        'Estado Anterior': estatusOld,
+                        'Estado Actual': estatusNew,
+                        'Costo Anterior': costoOld,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': costoDelPlanNew - costoOld,
+                        'Fecha': fechaPlanDesdeFormat if planOld != planNew else 'N/A'
+                    })
+                elif estatusOld != 'ACT.' and estatusNew == 'ACT.':
+                    # Reactivación fuera de rango
+                    impacto_otros += costoDelPlanNew
+                    count_otros += 1
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row['Cédula'],
+                        'Nombres': row['Nombres'],
+                        'Concepto': 'Reactivación Fuera de Rango',
+                        'Plan Anterior': planOld,
+                        'Plan Actual': planNew,
+                        'Estado Anterior': estatusOld,
+                        'Estado Actual': estatusNew,
+                        'Costo Anterior': costoOld,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': costoDelPlanNew,
+                        'Fecha': fechaEstadoFormat
+                    })
+                elif estatusOld == 'ACT.' and estatusNew != 'ACT.':
+                    # Retiro fuera de rango
+                    impacto_otros -= costoOld
+                    count_otros += 1
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row['Cédula'],
+                        'Nombres': row['Nombres'],
+                        'Concepto': 'Retiro Fuera de Rango',
+                        'Plan Anterior': planOld,
+                        'Plan Actual': planNew,
+                        'Estado Anterior': estatusOld,
+                        'Estado Actual': estatusNew,
+                        'Costo Anterior': costoOld,
+                        'Costo Actual': 0.0,
+                        'Variación': -costoOld,
+                        'Fecha': fechaEstadoFormat
+                    })
             
             if planOld != planNew and is_plan_in_range:
                 datosCambiosPlan.append({
@@ -1506,22 +1631,40 @@ async def procesar_auditoria_api(
                 })
         else:
             if estadoServicioNew == 'ACT.':
-                impacto_instalaciones += costoDelPlanNew
-                count_instalaciones += 1
-                datosConciliacionDetalle.append({
-                    'ID Servicio': sid,
-                    'Cédula': row['Cédula'],
-                    'Nombres': row['Nombres'],
-                    'Concepto': 'Nuevas Instalaciones',
-                    'Plan Anterior': '-',
-                    'Plan Actual': planNew,
-                    'Estado Anterior': '-',
-                    'Estado Actual': estadoServicioNew,
-                    'Costo Anterior': 0.0,
-                    'Costo Actual': costoDelPlanNew,
-                    'Variación': costoDelPlanNew,
-                    'Fecha': fechaInstalacionFormat
-                })
+                if is_instalacion_in_range:
+                    impacto_instalaciones += costoDelPlanNew
+                    count_instalaciones += 1
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row['Cédula'],
+                        'Nombres': row['Nombres'],
+                        'Concepto': 'Nuevas Instalaciones',
+                        'Plan Anterior': '-',
+                        'Plan Actual': planNew,
+                        'Estado Anterior': '-',
+                        'Estado Actual': estadoServicioNew,
+                        'Costo Anterior': 0.0,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': costoDelPlanNew,
+                        'Fecha': fechaInstalacionFormat
+                    })
+                else:
+                    impacto_otros += costoDelPlanNew
+                    count_otros += 1
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row['Cédula'],
+                        'Nombres': row['Nombres'],
+                        'Concepto': 'Instalación Fuera de Rango',
+                        'Plan Anterior': '-',
+                        'Plan Actual': planNew,
+                        'Estado Anterior': '-',
+                        'Estado Actual': estadoServicioNew,
+                        'Costo Anterior': 0.0,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': costoDelPlanNew,
+                        'Fecha': fechaInstalacionFormat
+                    })
 
     for sid, row_old in old_dict.items():
         if sid not in processed_sids:
@@ -1618,7 +1761,7 @@ async def procesar_auditoria_api(
             "exonReg": totalExoneradosReg,
             "exonRegCorp": totalExoneradosRegCorp
         },
-        "conciliacion_financiera": {
+        "conciliacion_financiera_res": {
             "has_excel": True,
             "ingreso_ayer": ingreso_ayer,
             "cant_ayer": count_activos_ayer,
@@ -1637,6 +1780,14 @@ async def procesar_auditoria_api(
             "retiros": impacto_retiros_post_corte + impacto_retiros_pre_corte,
             "cant_retiros": count_retiros_post_corte + count_retiros_pre_corte,
             "cant_diferencia_neta": totalActivos - count_activos_ayer
+        },
+        "conciliacion_financiera_corp": {
+            "has_excel": True,
+            "ingreso_ayer": ingreso_ayer_corp,
+            "cant_ayer": count_activos_ayer_corp,
+            "ingreso_hoy": ingreso_hoy_corp,
+            "cant_hoy": count_activos_hoy_corp,
+            "cant_diferencia_neta": count_activos_hoy_corp - count_activos_ayer_corp
         },
         "conciliacion_detalle": datosConciliacionDetalle,
         "resumen": resumen_list,

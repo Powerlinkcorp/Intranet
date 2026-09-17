@@ -207,7 +207,84 @@
 .sidebar.collapsed .search-bar-sidebar {
     display: none;
 }
-</style>
+
+        /* ========================================================= */
+        /* RESPONSIVE DESIGN - INJECTED AUTOMATICALLY                */
+        /* ========================================================= */
+        @media screen and (max-width: 1024px) {
+            .main-container, .grid-container, .dashboard-grid, .layout-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding-bottom: 20px;
+            }
+            .main-container, .grid-container, .dashboard-grid, .layout-grid, 
+            .kpi-container, .resource-grid, .metrics-grid, .cards-grid {
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 10px;
+                gap: 15px;
+            }
+            
+            .hero {
+                padding: 30px 20px !important;
+                text-align: center;
+            }
+            
+            .hero h1 {
+                font-size: 28px !important;
+            }
+            
+            .sidebar {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                gap: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .content-area, .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 10px !important;
+            }
+            
+            .card {
+                padding: 15px !important;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .flex-container, .navbar, .top-bar {
+                flex-direction: column !important;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .login-container, .login-box {
+                width: 95% !important;
+                margin: 20px auto !important;
+            }
+            
+            .section-title {
+                font-size: 14px;
+            }
+        }
+
+    </style>
 
 
 {% if not embed %}
@@ -246,6 +323,7 @@
             </ul>
         </li>
 
+        {% if user.role == 'admin' or 'ver_cajas_nac' in (user.permissions or '') %}
         <div class="menu-section">Soporte</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-soporte', this)">
@@ -259,6 +337,7 @@
                 <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas Nac</a></li>
             </ul>
         </li>
+        {% endif %}
 
         <div class="menu-section">Administración</div>
         <li>
@@ -303,7 +382,6 @@
 
     <div class="sidebar-footer">
         <div class="user-badge">
-            <img id="userNavAvatar" class="user-avatar" src="{{ user.avatar_url or 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png' }}" alt="Usuario">
             <span id="userNavName" style="font-size: 13px; font-weight:600;">Cargando...</span>
             <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
         </div>
