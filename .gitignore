@@ -1,1 +1,9 @@
 .env
+__pycache__/
+*.pyc
+venv/
+scratch/
+db.json
+static/uploads/*.json
+*.db
+intranet_local.db
