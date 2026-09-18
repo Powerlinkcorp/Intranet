@@ -1,0 +1,997 @@
+{
+  "reports": [
+    {
+      "caja_nap": "12321",
+      "cedula": "28015238",
+      "coordenadas": "2131",
+      "created_at": "2026-09-14T20:11:22.272Z",
+      "id": 1789416682272,
+      "motivo": "ONU LOS",
+      "onu": "TPLG31958C90",
+      "precinto": "2132",
+      "telefono1": "+58 412-6915549",
+      "telefono2": null,
+      "ubicacion": "alto verde",
+      "updated_at": "2026-09-14T20:11:22.272Z",
+      "zona": "LOS TEQUES"
+    },
+    {
+      "caja_nap": "jyu98",
+      "cedula": "67695965",
+      "coordenadas": "123456789",
+      "created_at": "2026-09-14T20:10:12.194Z",
+      "id": 1789416612194,
+      "motivo": "ONU LOS",
+      "onu": "564645",
+      "precinto": "097r56",
+      "telefono1": "0126748964",
+      "telefono2": null,
+      "ubicacion": "Los teques, florida",
+      "updated_at": "2026-09-14T20:10:12.194Z",
+      "zona": "DISTRITO CAPITAL"
+    },
+    {
+      "caja_nap": "V.PERRO-VAL-01",
+      "cedula": "18491106",
+      "coordenadas": "10.331463,-67.044356",
+      "created_at": "2026-09-08T00:31:23.914Z",
+      "id": 1788827483914,
+      "motivo": "ONU LOS",
+      "onu": "V.PERRO-VAL-01",
+      "precinto": "58656109",
+      "telefono1": "+58 424-1334643",
+      "telefono2": "+58 412-5028534",
+      "ubicacion": "DttCap, Caracas, El Valle, El Valle, El 70 la vuelta del perro, Casa sin numero",
+      "updated_at": "2026-09-08T00:31:23.914Z",
+      "zona": "EL VALLE"
+    },
+    {
+      "caja_nap": null,
+      "cedula": "22667802",
+      "coordenadas": null,
+      "created_at": "2026-09-07T12:39:50.920Z",
+      "id": 1788784790920,
+      "motivo": "VERIFICACION DE RED",
+      "onu": "VSOL001218D1",
+      "precinto": null,
+      "telefono1": "584143901828",
+      "telefono2": null,
+      "ubicacion": "San Antonio de los Altos, Los Castores, SECT CALLE LAS ACACIAS",
+      "updated_at": "2026-09-07T12:39:50.920Z",
+      "zona": "CARRIZAL"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "VILLA-COL-787",
+      "cedula": "25579684",
+      "coordenadas": "10.364578,-66.980125",
+      "created_at": "2026-09-06T14:53:10.989Z",
+      "estatus": "PENDIENTE",
+      "id": 1788706390989,
+      "motivo": "ONU LOS",
+      "onu": "TPLG0DC36C74",
+      "precinto": "46956008",
+      "telefono1": "+584129082998",
+      "telefono2": null,
+      "ubicacion": "Res. Rosaleda, Edif. Villacoa, piso PB-A",
+      "updated_at": "2026-09-06T14:53:10.989Z",
+      "zona": "CARRIZAL"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "Rincón-cmdp-04",
+      "cedula": "13599744",
+      "coordenadas": "10.339919673416754, -67.04713566228747",
+      "created_at": "2026-09-06T13:39:33.973Z",
+      "estatus": "PENDIENTE",
+      "id": 1788701973973,
+      "motivo": "ONU LOS",
+      "onu": "VSOL00E45D51",
+      "precinto": "58631196",
+      "telefono1": "584141419880",
+      "telefono2": null,
+      "ubicacion": "Los Teques, El Rincon, Calle la libertad, Casa número 11 piso 1",
+      "updated_at": "2026-09-06T13:39:33.973Z",
+      "zona": "LOS TEQUES"
+    },
+    {
+      "assigned": true,
+      "caja_nap": null,
+      "cedula": "15519532",
+      "coordenadas": null,
+      "created_at": "2026-09-06T13:03:28.684Z",
+      "estatus": "PENDIENTE",
+      "id": 1788699808684,
+      "motivo": "ONU LOS",
+      "onu": "TPLGF9620FAA",
+      "precinto": null,
+      "telefono1": "04129801178",
+      "telefono2": null,
+      "ubicacion": "Trabuco, calle principal, al frente del colegio Nicolas",
+      "updated_at": "2026-09-06T13:03:28.684Z",
+      "zona": "CUMBRE ROJA"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "Cajigal-val-03",
+      "cedula": "17977204",
+      "coordenadas": "10.46762328,-66.90584606",
+      "created_at": "2026-09-06T12:18:40.931Z",
+      "estatus": "PENDIENTE",
+      "id": 1788697120931,
+      "motivo": "ONU LOS",
+      "onu": "TPLG0DEC97B0",
+      "precinto": "46920791",
+      "telefono1": "04129885223",
+      "telefono2": null,
+      "ubicacion": "El valle, calle Cajigal. Av. Principal",
+      "updated_at": "2026-09-06T12:18:40.931Z",
+      "zona": "EL VALLE"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "Gallo rojo vall 01",
+      "cedula": "36915031",
+      "coordenadas": "10.516526707954958, -66.92750545218587",
+      "created_at": "2026-09-06T12:11:47.852Z",
+      "estatus": "PENDIENTE",
+      "id": 1788696707852,
+      "motivo": "ONU LOS",
+      "onu": "VSOL00B9166E",
+      "precinto": "58631674",
+      "telefono1": "+584242388155",
+      "telefono2": null,
+      "ubicacion": "El Valle, , El 70 gallo rojo",
+      "updated_at": "2026-09-06T12:11:47.852Z",
+      "zona": "EL VALLE"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "Chorrito2-Cmdp-01",
+      "cedula": "6858859",
+      "coordenadas": "10.360894,-67.031020",
+      "created_at": "2026-09-05T19:15:48.789Z",
+      "estatus": "PENDIENTE",
+      "id": 1788635748789,
+      "motivo": "VERIFICACION DE ONU",
+      "onu": "TDTC35A0F1B8",
+      "precinto": "44690168",
+      "telefono1": "+58 412-0287403",
+      "telefono2": null,
+      "ubicacion": "Carretera vieja sect el ayacucho",
+      "updated_at": "2026-09-05T19:15:48.789Z",
+      "zona": "LOS TEQUES"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "LAMORAN-PRO-02",
+      "cedula": "12641638",
+      "coordenadas": "10.4998115,-66.9456856",
+      "created_at": "2026-09-05T15:17:16.679Z",
+      "estatus": "PENDIENTE",
+      "id": 1788621436679,
+      "motivo": "ONU LOS",
+      "onu": "VSOL00E3FCC9",
+      "precinto": "58618087",
+      "telefono1": "+58 422-6447561",
+      "telefono2": null,
+      "ubicacion": "Tercer plan de la silsa",
+      "updated_at": "2026-09-05T15:17:16.679Z",
+      "zona": "PROPATRIA"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "PLACITA-CMDP-02",
+      "cedula": "13727933",
+      "coordenadas": "10.359272,-67.028539",
+      "created_at": "2026-09-05T14:17:38.665Z",
+      "estatus": "PENDIENTE",
+      "id": 1788617858665,
+      "motivo": "ONU LOS",
+      "onu": "TDTC358B7E30",
+      "precinto": "39801831",
+      "telefono1": "+58 424-2321318",
+      "telefono2": null,
+      "ubicacion": "Los Teques, El Nacional",
+      "updated_at": "2026-09-05T14:17:38.665Z",
+      "zona": "LOS TEQUES"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "rom cmdp 04",
+      "cedula": "22785464",
+      "coordenadas": "10.34311038,-67.08438052",
+      "created_at": "2026-09-05T13:24:42.494Z",
+      "estatus": "PENDIENTE",
+      "id": 1788614682494,
+      "motivo": "ONU LOS",
+      "onu": "TPLGD0921EC0",
+      "precinto": "37809921",
+      "telefono1": "+58 412-7849619",
+      "telefono2": null,
+      "ubicacion": "Lagunetica, Rómulo abajo calle la hoyada",
+      "updated_at": "2026-09-05T13:24:42.494Z",
+      "zona": "LOS TEQUES"
+    },
+    {
+      "assigned": true,
+      "caja_nap": null,
+      "cedula": "29850985",
+      "coordenadas": null,
+      "created_at": "2026-09-05T13:07:24.417Z",
+      "estatus": "PENDIENTE",
+      "id": 1788613644417,
+      "motivo": "ONU LOS",
+      "onu": "VSOL00E46A79",
+      "precinto": null,
+      "telefono1": null,
+      "telefono2": null,
+      "ubicacion": "TEJERIAS, CAÑAOTE.",
+      "updated_at": "2026-09-05T13:07:24.417Z",
+      "zona": "TEJERIAS"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "caña-cr-04",
+      "cedula": "19310714",
+      "coordenadas": "10.267688,-67.123544",
+      "created_at": "2026-09-05T13:00:41.014Z",
+      "estatus": "PENDIENTE",
+      "id": 1788613241014,
+      "motivo": "ONU LOS",
+      "onu": "TDTC35A0D558",
+      "precinto": "46964195",
+      "telefono1": "+58 412-5748359",
+      "telefono2": "+58 412-5748359",
+      "ubicacion": "Cañaote calle principal escaleras Mario Noguera preguntar por Carolina guía",
+      "updated_at": "2026-09-05T13:00:41.014Z",
+      "zona": "TEJERIAS"
+    },
+    {
+      "assigned": true,
+      "caja_nap": "Papel.torres-vall-08",
+      "cedula": "84415103",
+      "coordenadas": "10.4596891665359, -66.93332148715854",
+      "created_at": "2026-09-05T12:56:39.431Z",
+      "estatus": "PENDIENTE",
+      "id": 1788612999431,
+      "motivo": "VERIFICACION DE RED",
+      "onu": "VSOL00E4A079",
+      "precinto": "58589432",
+      "telefono1": "04241859406",
+      "telefono2": "04127422907",
+      "ubicacion": "Parte alta, callejón la esperanza , Casa n 38",
+      "updated_at": "2026-09-05T12:56:39.431Z",
+      "zona": "DISTRITO CAPITAL"
+    }
+  ],
+  "afectaciones": [
+    {
+      "assigned": true,
+      "caja_nap": "PARAMO-COL-01",
+      "coordenadas": "10.373485,-66.974880",
+      "created_at": "2026-09-05T13:14:42.977Z",
+      "estatus": "CAJA NAP LLENA",
+      "id": 1788614082977,
+      "olt": "PRIN",
+      "port": "7",
+      "potencia": "-19.01",
+      "puertos": "8",
+      "referencias": "10276682 || 58656917 || E49C79 || -21.74 dBm",
+      "tarjeta": "1",
+      "tipo": "ACTIVIDAD",
+      "ubicacion": "Edif. Paramo, piso 1, última ala",
+      "updated_at": "2026-09-05T13:14:42.977Z",
+      "zona": "RES. EL PARAMO"
+    }
+  ],
+  "techs": [
+    {
+      "area": "AFECTACIONES",
+      "for_afectaciones": true,
+      "id": 1788573010002,
+      "name": "A",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "GABRIEL HERNANDEZ",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": "WENSESLAO MUJICA",
+        "telefono": null
+      }
+    },
+    {
+      "area": "SOPORTE TECNICO",
+      "for_afectaciones": false,
+      "id": 1788572969402,
+      "name": "H",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "HERNAN LEAL",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": null,
+        "telefono": null
+      }
+    },
+    {
+      "area": "SOPORTE TECNICO",
+      "for_afectaciones": false,
+      "id": 1788572959335,
+      "name": "F",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "CESAR GOMEZ",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": null,
+        "telefono": null
+      }
+    },
+    {
+      "area": "SOPORTE TECNICO",
+      "for_afectaciones": false,
+      "id": 1788572944791,
+      "name": "J",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "JOBER DUGARTE",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": null,
+        "telefono": null
+      }
+    },
+    {
+      "area": "SOPORTE DE CAMPO",
+      "for_afectaciones": false,
+      "id": 1788572917231,
+      "name": "xd",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "ERNESTO DELGADO",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": "DAVID PEREIRA",
+        "telefono": null
+      }
+    },
+    {
+      "area": "SOPORTE DE CAMPO",
+      "for_afectaciones": false,
+      "id": 1788572887644,
+      "name": "V",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "JESUS ROMERO",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": null,
+        "telefono": null
+      }
+    },
+    {
+      "area": "SOPORTE TECNICO",
+      "for_afectaciones": false,
+      "id": 1788572983554,
+      "name": "Y",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "JUNIOR ORTA",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": null,
+        "telefono": null
+      }
+    },
+    {
+      "area": "AFECTACIONES",
+      "for_afectaciones": true,
+      "id": 1788573035262,
+      "name": "U",
+      "t1": {
+        "cedula": "",
+        "email": "",
+        "name": "ANGEL HIDALGO",
+        "telefono": ""
+      },
+      "t2": {
+        "cedula": null,
+        "email": null,
+        "name": "Luis Meléndez",
+        "telefono": null
+      }
+    }
+  ],
+  "assignments": [
+    {
+      "created_at": "2026-09-05T12:58:03.647Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788613083647,
+      "itemType": "SOPORTE",
+      "reason": "Cambio de ONU",
+      "reportId": 1788612999431,
+      "status": "REALIZADA",
+      "teamId": 1788572887644,
+      "updated_at": "2026-09-05T19:12:59.637Z"
+    },
+    {
+      "created_at": "2026-09-05T13:03:40.832Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788613420832,
+      "itemType": "SOPORTE",
+      "reason": "",
+      "reportId": 1788613241014,
+      "status": "PENDIENTES",
+      "teamId": 1788572983554
+    },
+    {
+      "created_at": "2026-09-05T13:07:58.279Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788613678279,
+      "itemType": "SOPORTE",
+      "reason": "Conector",
+      "reportId": 1788613644417,
+      "status": "REALIZADA",
+      "teamId": 1788572983554,
+      "updated_at": "2026-09-05T19:14:21.940Z"
+    },
+    {
+      "created_at": "2026-09-05T13:15:23.528Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788614123528,
+      "itemType": "AFECTACION",
+      "reason": "Amerita segmentación",
+      "reportId": 1788614082977,
+      "status": "REALIZADA",
+      "teamId": 1788573035262,
+      "updated_at": "2026-09-05T19:14:44.910Z"
+    },
+    {
+      "created_at": "2026-09-05T13:38:43.255Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788615523255,
+      "itemType": "SOPORTE",
+      "reason": "",
+      "reportId": 1788614682494,
+      "status": "PENDIENTES",
+      "teamId": 1788572959335
+    },
+    {
+      "created_at": "2026-09-05T14:35:12.492Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788618912492,
+      "itemType": "SOPORTE",
+      "reason": "",
+      "reportId": 1788617858665,
+      "status": "PENDIENTES",
+      "teamId": 1788572959335
+    },
+    {
+      "created_at": "2026-09-05T16:35:26.856Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788626126856,
+      "itemType": "SOPORTE",
+      "reason": "se realizó cambio de conectores dejando el servicio activo",
+      "reportId": 1788621436679,
+      "status": "REALIZADA",
+      "teamId": 1788572887644,
+      "updated_at": "2026-09-05T19:13:31.396Z"
+    },
+    {
+      "created_at": "2026-09-05T19:16:16.444Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788635776444,
+      "itemType": "SOPORTE",
+      "reason": "",
+      "reportId": 1788635748789,
+      "status": "PENDIENTES",
+      "teamId": 1788572959335
+    },
+    {
+      "created_at": "2026-09-06T20:59:57.657Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788728397657,
+      "itemType": "SOPORTE",
+      "reason": "CONECTOR",
+      "reportId": 1788706390989,
+      "status": "REALIZADA",
+      "teamId": 1788572944791,
+      "updated_at": "2026-09-06T21:00:16.113Z"
+    },
+    {
+      "created_at": "2026-09-06T21:09:29.747Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788728969747,
+      "itemType": "SOPORTE",
+      "reason": "FFFF",
+      "reportId": 1788696707852,
+      "status": "REALIZADA",
+      "teamId": 1788572944791,
+      "updated_at": "2026-09-06T21:09:41.161Z"
+    },
+    {
+      "created_at": "2026-09-06T21:10:21.344Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788729021344,
+      "itemType": "SOPORTE",
+      "reason": "FFFF",
+      "reportId": 1788697120931,
+      "status": "REALIZADA",
+      "teamId": 1788572944791,
+      "updated_at": "2026-09-06T21:10:28.329Z"
+    },
+    {
+      "created_at": "2026-09-06T21:13:58.992Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788729238992,
+      "itemType": "SOPORTE",
+      "reason": "FFF",
+      "reportId": 1788699808684,
+      "status": "REALIZADA",
+      "teamId": 1788572983554,
+      "updated_at": "2026-09-06T21:14:17.273Z"
+    },
+    {
+      "created_at": "2026-09-06T21:16:55.914Z",
+      "fueraCoordinacion": false,
+      "genCoordinado": true,
+      "id": 1788729415914,
+      "itemType": "SOPORTE",
+      "reason": "FF",
+      "reportId": 1788701973973,
+      "status": "REALIZADA",
+      "teamId": 1788572969402,
+      "updated_at": "2026-09-06T21:17:21.032Z"
+    }
+  ],
+  "motivos": [
+    {
+      "desc": "FALLA FISICA",
+      "id": 1788572149228,
+      "name": "ONU LOS"
+    },
+    {
+      "desc": "LENTITUD E INTERMITENCIA",
+      "id": 1788572638016,
+      "name": "VERIFICACION DE RED"
+    },
+    {
+      "desc": "POSIBLE TENDIDO AFECTADO",
+      "id": 1788572649864,
+      "name": "VERIFICACION DE TENDIDO"
+    },
+    {
+      "desc": "ONU DEFECTUOSA O ONU DE PRUEBA",
+      "id": 1788572659617,
+      "name": "CAMBIO DE ONU"
+    },
+    {
+      "desc": "POSIBLE ONU DEFECTUOSA",
+      "id": 1788572680884,
+      "name": "VERIFICACION DE ONU"
+    },
+    {
+      "desc": "REMPLAZO DE TENDIDO DE FIBRA",
+      "id": 1788572716363,
+      "name": "SUSTITUCION DE TENDIDO"
+    },
+    {
+      "desc": "POTENCIA ATENUADA",
+      "id": 1788572751286,
+      "name": "CORRECION DE POTENCIA"
+    },
+    {
+      "desc": "A SOLICITUD DEL ABONADO",
+      "id": 1788572771880,
+      "name": "REUBICACION DE TENDIDO"
+    },
+    {
+      "desc": "SOLICITUD",
+      "id": 1788572796241,
+      "name": "CAMBIO DE ONU ROUTER A ONU"
+    },
+    {
+      "desc": "SOLICITUD",
+      "id": 1788572804299,
+      "name": "CAMBIO DE ONU A ONU ROUTER"
+    },
+    {
+      "desc": "POSIBLE CAJA AFECTADA",
+      "id": 1788572837269,
+      "name": "VERIFICACION DE CAJA NAP"
+    }
+  ],
+  "zonas": [
+    {
+      "id": 1,
+      "name": "DISTRITO CAPITAL"
+    },
+    {
+      "id": 1788572473240,
+      "name": "LOS TEQUES"
+    },
+    {
+      "id": 1788572531053,
+      "name": "CARRIZAL"
+    },
+    {
+      "id": 1788572534924,
+      "name": "SAN JOSE"
+    },
+    {
+      "id": 1788572545356,
+      "name": "CUMBRE ROJA"
+    },
+    {
+      "id": 1788572557792,
+      "name": "TEJERIAS"
+    },
+    {
+      "id": 1788572578139,
+      "name": "EL VALLE"
+    },
+    {
+      "id": 1788572581998,
+      "name": "PROPATRIA"
+    },
+    {
+      "id": 1788572593339,
+      "name": "PARAISO"
+    },
+    {
+      "id": 1788827292363,
+      "name": "SAN ANTONIO"
+    }
+  ],
+  "users": [
+    {
+      "created_at": "2026-09-08T00:27:11.163Z",
+      "id": 1788827231163,
+      "name": "Gabriel Esqueda",
+      "password": "12345",
+      "permissions": {
+        "afectaciones": {
+          "read": true,
+          "write": true
+        },
+        "coordinacion": {
+          "assign": true,
+          "read": true
+        },
+        "dashboard": {
+          "read": true,
+          "write": true
+        },
+        "logs": {
+          "read": false
+        },
+        "motivos": {
+          "read": true,
+          "write": true
+        },
+        "techs": {
+          "read": true,
+          "write": true
+        },
+        "users": {
+          "read": false,
+          "write": false
+        }
+      },
+      "role": "OPERADOR",
+      "updated_at": "2026-09-08T00:27:11.163Z",
+      "username": "gesqueda"
+    },
+    {
+      "created_at": "2026-09-05T01:53:18.483Z",
+      "id": 1788573198483,
+      "name": "Miguel Lara",
+      "password": "12345",
+      "permissions": {
+        "afectaciones": {
+          "read": true,
+          "write": true
+        },
+        "coordinacion": {
+          "assign": true,
+          "read": true
+        },
+        "dashboard": {
+          "read": true,
+          "write": true
+        },
+        "logs": {
+          "read": false
+        },
+        "motivos": {
+          "read": true,
+          "write": true
+        },
+        "techs": {
+          "read": true,
+          "write": true
+        },
+        "users": {
+          "read": false,
+          "write": false
+        }
+      },
+      "role": "OPERADOR",
+      "updated_at": "2026-09-05T01:53:18.483Z",
+      "username": "mlara"
+    },
+    {
+      "created_at": "2026-09-05T01:53:06.873Z",
+      "id": 1788573186873,
+      "name": "Javier Chacon",
+      "password": "12345",
+      "permissions": {
+        "afectaciones": {
+          "read": true,
+          "write": true
+        },
+        "coordinacion": {
+          "assign": true,
+          "read": true
+        },
+        "dashboard": {
+          "read": true,
+          "write": true
+        },
+        "logs": {
+          "read": false
+        },
+        "motivos": {
+          "read": true,
+          "write": true
+        },
+        "techs": {
+          "read": true,
+          "write": true
+        },
+        "users": {
+          "read": false,
+          "write": false
+        }
+      },
+      "role": "OPERADOR",
+      "updated_at": "2026-09-05T01:53:06.873Z",
+      "username": "jchacon"
+    },
+    {
+      "created_at": "2026-09-05T01:52:55.538Z",
+      "id": 1788573175538,
+      "name": "Carlos Segovia",
+      "password": "12345",
+      "permissions": {
+        "afectaciones": {
+          "read": true,
+          "write": true
+        },
+        "coordinacion": {
+          "assign": true,
+          "read": true
+        },
+        "dashboard": {
+          "read": true,
+          "write": true
+        },
+        "logs": {
+          "read": false
+        },
+        "motivos": {
+          "read": true,
+          "write": true
+        },
+        "techs": {
+          "read": true,
+          "write": true
+        },
+        "users": {
+          "read": false,
+          "write": false
+        }
+      },
+      "role": "OPERADOR",
+      "updated_at": "2026-09-05T01:52:55.538Z",
+      "username": "segovia"
+    },
+    {
+      "created_at": "2026-09-05T01:52:43.505Z",
+      "id": 1788573163505,
+      "name": "Jesus Algara",
+      "password": "12345",
+      "permissions": {
+        "afectaciones": {
+          "read": true,
+          "write": true
+        },
+        "coordinacion": {
+          "assign": true,
+          "read": true
+        },
+        "dashboard": {
+          "read": true,
+          "write": true
+        },
+        "logs": {
+          "read": false
+        },
+        "motivos": {
+          "read": true,
+          "write": true
+        },
+        "techs": {
+          "read": true,
+          "write": true
+        },
+        "users": {
+          "read": false,
+          "write": false
+        }
+      },
+      "role": "OPERADOR",
+      "updated_at": "2026-09-05T01:52:43.505Z",
+      "username": "algara"
+    },
+    {
+      "created_at": "2026-09-05T01:52:12.913Z",
+      "id": 1788573132913,
+      "name": "Carlos rivas",
+      "password": "12345",
+      "permissions": {
+        "afectaciones": {
+          "read": true,
+          "write": true
+        },
+        "coordinacion": {
+          "assign": true,
+          "read": true
+        },
+        "dashboard": {
+          "read": true,
+          "write": true
+        },
+        "logs": {
+          "read": false
+        },
+        "motivos": {
+          "read": true,
+          "write": true
+        },
+        "techs": {
+          "read": true,
+          "write": true
+        },
+        "users": {
+          "read": false,
+          "write": false
+        }
+      },
+      "role": "OPERADOR",
+      "updated_at": "2026-09-05T01:52:12.913Z",
+      "username": "calo"
+    },
+    {
+      "created_at": "2026-09-05T01:51:54.248Z",
+      "id": 1788573114248,
+      "name": "Roberto Santos",
+      "password": "12345",
+      "permissions": null,
+      "role": "ADMIN",
+      "updated_at": "2026-09-05T01:51:54.248Z",
+      "username": "rsantos"
+    },
+    {
+      "created_at": "2026-09-05T01:51:38.103Z",
+      "id": 1788573098103,
+      "name": "Laura garrido",
+      "password": "12345",
+      "permissions": null,
+      "role": "ADMIN",
+      "updated_at": "2026-09-05T01:51:38.103Z",
+      "username": "lgarrido"
+    },
+    {
+      "created_at": "2026-09-05T01:51:25.847Z",
+      "id": 1788573085847,
+      "name": "cesar cedres",
+      "password": "12345",
+      "permissions": null,
+      "role": "ADMIN",
+      "updated_at": "2026-09-05T01:51:25.847Z",
+      "username": "ccedres"
+    },
+    {
+      "created_at": "2026-09-04T21:35:38.182870",
+      "id": 1,
+      "name": "Administrador Principal",
+      "password": "admin123",
+      "role": "ADMIN",
+      "username": "admin"
+    }
+  ],
+  "logs": [
+    {
+      "id": 1789665248276,
+      "timestamp": "2026-09-17T17:14:08.276Z",
+      "username": "algara",
+      "action": "REPORTE_OPERACIONAL",
+      "module": "COORDINACION",
+      "details": "Generó Reporte Operacional de Cierre"
+    },
+    {
+      "action": "REPORTE_OPERACIONAL",
+      "details": "Generó Reporte Operacional de Cierre",
+      "id": 1789665226524,
+      "module": "COORDINACION",
+      "timestamp": "2026-09-17T17:13:46.524Z",
+      "username": "algara"
+    },
+    {
+      "action": "INICIO_SESION",
+      "details": "El usuario algara inició sesión",
+      "id": 1789665207528,
+      "module": "LOGIN",
+      "timestamp": "2026-09-17T17:13:27.528Z",
+      "username": "algara"
+    },
+    {
+      "action": "LOGIN_EXTENSION",
+      "details": "Usuario algara inició sesión desde la extensión",
+      "id": 1789665103554,
+      "module": "EXTENSION",
+      "timestamp": "2026-09-17T17:11:43.554Z",
+      "username": "algara"
+    },
+    {
+      "action": "REPORTE_CONTROL",
+      "details": "Generó reporte de Control de Soportes y Actividades",
+      "id": 1789651341442,
+      "module": "REPORTES",
+      "timestamp": "2026-09-17T13:22:21.442Z",
+      "username": "admin"
+    }
+  ]
+}
