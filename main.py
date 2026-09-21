@@ -1199,6 +1199,7 @@ async def procesar_auditoria_api(
     impacto_retiros_post_corte = 0.0
     impacto_retiros_pre_corte = 0.0
     impacto_otros = 0.0
+    impacto_exclusion_tv = 0.0
 
     count_activos_ayer = 0
     count_instalaciones = 0
@@ -1209,6 +1210,7 @@ async def procesar_auditoria_api(
     count_retiros_post_corte = 0
     count_retiros_pre_corte = 0
     count_otros = 0
+    count_exclusion_tv = 0
     
     # Variables Conciliación Corporativa
     ingreso_ayer_corp = 0.0
@@ -1299,6 +1301,9 @@ async def procesar_auditoria_api(
                 if 'tv' not in planNew.lower() and 'iptv' not in planNew.lower():
                     totalActivos += 1
                     ingreso_hoy += costoDelPlanNew
+                else:
+                    impacto_exclusion_tv += costoDelPlanNew
+                    count_exclusion_tv += 1
             datosClientesActivos.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
@@ -1779,6 +1784,10 @@ async def procesar_auditoria_api(
             "cant_downgrades": count_downgrades,
             "retiros": impacto_retiros_post_corte + impacto_retiros_pre_corte,
             "cant_retiros": count_retiros_post_corte + count_retiros_pre_corte,
+            "otros_impacto": impacto_otros,
+            "cant_otros": count_otros,
+            "exclusion_tv": impacto_exclusion_tv,
+            "cant_exclusion_tv": count_exclusion_tv,
             "cant_diferencia_neta": totalActivos - count_activos_ayer
         },
         "conciliacion_financiera_corp": {

@@ -653,31 +653,47 @@
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-instalaciones">+$0.00</td>
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-instalaciones">0</td>
                                 </tr>
+                                <!-- Detalle Variaciones: Upgrades de Plan -->
+                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Subieron de Plan (Upgrades)</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades">+$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades">0</td>
+                                </tr>
                                 <!-- Reconexiones -->
-                                <tr class="hidden text-green-600 hover:bg-green-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">(+) Reconexiones</td>
+                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Reconexiones</td>
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-reconexiones">+$0.00</td>
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-reconexiones">0</td>
                                 </tr>
-
+                                <!-- Detalle Variaciones: Downgrades de Plan -->
+                                <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Bajaron de Plan (Downgrades)</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-downgrades">-$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-downgrades">0</td>
+                                </tr>
+                                <!-- Suspendidos -->
+                                <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Suspendidos</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-retiros">-$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-retiros">0</td>
+                                </tr>
                                 <!-- Cambios 3 Meses Beneficio -->
-                                <tr class="hidden text-emerald-600 hover:bg-emerald-50/30 transition-colors font-medium">
-                                    <td class="py-2.5 px-4 text-left font-sans">(+) Cambios 3 Meses Beneficio a otro Plan</td>
+                                <tr class="text-emerald-600 hover:bg-emerald-50/30 transition-colors font-medium">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Cambios 3 Meses Beneficio</td>
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades-beneficio">+$0.00</td>
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades-beneficio">0</td>
                                 </tr>
+                                <!-- Exclusión Servicios TV / IPTV -->
+                                <tr class="text-orange-500 hover:bg-orange-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Exclusión Servicios TV / IPTV</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-exclusion-tv">-$0.00</td>
+                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-exclusion-tv">0</td>
+                                </tr>
                                 <!-- Ajustes / Fuera de Rango -->
-                                <tr class="hidden text-purple-600 hover:bg-purple-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">(±) Ajustes Manuales / Fuera de Rango</td>
+                                <tr class="text-purple-600 hover:bg-purple-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans">↳ Por definir</td>
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-otros">+$0.00</td>
                                     <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-otros">0</td>
-                                </tr>
-
-                                <!-- Suspendidos -->
-                                <tr class="hidden text-red-500 hover:bg-red-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">(-) Suspendidos</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-retiros">-$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-retiros">0</td>
                                 </tr>
                                 <!-- 2. Ingreso Total Hoy -->
                                 <tr class="bg-indigo-50/60 font-bold text-gray-900 border-t-2 border-indigo-200">
@@ -690,18 +706,6 @@
                                     <td class="py-3 px-4 text-left font-sans text-gray-700">3. Diferencia Neta (Hoy - Base)</td>
                                     <td class="py-3 px-4 text-right" id="fin-dif-monto">$0.00</td>
                                     <td class="py-3 px-4 text-right" id="fin-dif-cant">0</td>
-                                </tr>
-                                <!-- Detalle Variaciones: Upgrades de Plan -->
-                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Subieron de Plan (Upgrades)</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades">+$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades">0</td>
-                                </tr>
-                                <!-- Detalle Variaciones: Downgrades de Plan -->
-                                <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Bajaron de Plan (Downgrades)</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-downgrades">-$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-downgrades">0</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1372,6 +1376,10 @@
                     document.getElementById('fin-otros').innerText = (otrosImpacto >= 0 ? '+' : '') + formatM(otrosImpacto);
                     document.getElementById('fin-cant-otros').innerText = formatC(cf.cant_otros || 0);
                     
+                    const exclusionTv = cf.exclusion_tv || 0;
+                    document.getElementById('fin-exclusion-tv').innerText = '-' + formatM(exclusionTv);
+                    document.getElementById('fin-cant-exclusion-tv').innerText = formatC(cf.cant_exclusion_tv || 0);
+                    
                     document.getElementById('fin-downgrades').innerText = '-' + formatM(cf.downgrades);
                     document.getElementById('fin-cant-downgrades').innerText = formatC(cf.cant_downgrades);
 
@@ -1381,7 +1389,7 @@
                     
                     const upgradesBeneficio = cf.upgrades_beneficio || 0;
                     const sumaCalculada = cf.ingreso_ayer + cf.instalaciones + cf.reconexiones + cf.upgrades + upgradesBeneficio
-                                          + otrosImpacto - cf.downgrades - totalRetiros;
+                                          + otrosImpacto - cf.downgrades - totalRetiros - exclusionTv;
                     
                     const neta = cf.ingreso_hoy - cf.ingreso_ayer;
                     const elNeta = document.getElementById('fin-dif-monto');
