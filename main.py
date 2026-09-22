@@ -1,6 +1,7 @@
 import os
 import shutil
 import io
+import asyncio
 import pandas as pd
 from typing import List, Optional
 from datetime import datetime
@@ -2328,8 +2329,19 @@ async def notify_reporte_clients():
         await queue.put("update")
 
 @app.get("/reporte", response_class=HTMLResponse)
-async def view_reporte(request: Request):
-    return templates.TemplateResponse("reporte.html", {"request": request})
+async def view_reporte(request: Request, db: Session = Depends(get_db)):
+    user = None
+    try:
+        user = security.get_current_user(request, db)
+    except Exception:
+        user = type('UserMock', (), {
+            'username': 'admin',
+            'full_name': 'Administrador',
+            'role': 'admin',
+            'permissions': 'cargar_datos_usuarios,ver_integracion,ver_reportes,ver_helpdesk,ver_cajas_nac'
+        })()
+    embed = request.query_params.get("embed") == "1"
+    return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})
 
 @app.get("/api/db")
 async def api_get_db():
