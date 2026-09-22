@@ -36,9 +36,9 @@
     <meta name="twitter:description"
         content="Plataforma profesional para la gestión de incidencias, asignación de técnicos y métricas de soporte en tiempo real.">
 
-    <!-- Favicon SVG Integrado -->
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z'/%3E%3C/svg%3E">
+    <!-- Favicon Corporativo -->
+    <link rel="icon" type="image/png"
+        href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
 
     <!-- Schema.org JSON-LD Datos Estructurados -->
     <script type="application/ld+json">
@@ -57,35 +57,133 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
     <script>
-        if (localStorage.getItem('dark_mode') === '1' || localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('dark_mode') && !localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: ['"Outfit"', '"Segoe UI"', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a', 950: '#172554' }
+                        brand: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#FFC107',
+                            600: '#eab308',
+                            700: '#d97706',
+                            800: '#b45309',
+                            900: '#78350f',
+                            950: '#451a03'
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
+        :root {
+            --fondo-principal: #f8fafc;
+            --blanco: #ffffff;
+            --cabeceras: #1A1A1A;
+            --acento: #FFC107;
+            --acento-hover: #F5C71D;
+            --texto-negro: #1A1A1A;
+            --texto-gris: #4A4A4A;
+            --borde: #e2e8f0;
+        }
+
+        * {
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+        }
+
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            background-color: var(--fondo-principal);
+            color: var(--texto-negro);
+            min-height: 100vh;
+        }
+
+        .btn-action-gold {
+            background-color: var(--acento);
+            color: var(--texto-negro);
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn-action-gold:hover {
+            background-color: var(--acento-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-action-light {
+            background-color: #ffffff;
+            color: #334155;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--borde);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .btn-action-light:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .subnav-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .subnav-tab:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #94a3b8;
+        }
+        .subnav-tab.active {
+            background: var(--cabeceras) !important;
+            color: var(--acento) !important;
+            border-color: var(--cabeceras) !important;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .subnav-tab.active i {
+            color: var(--acento) !important;
         }
 
         .glass {
@@ -264,281 +362,81 @@
     </style>
 </head>
 
-<body
-    class="bg-slate-50 dark:bg-[#070a12] text-slate-800 dark:text-slate-100 font-sans antialiased overflow-hidden h-screen transition-colors duration-300">
-    <!-- Mobile Drawer Overlay / Backdrop -->
-    <div id="sidebarBackdrop" onclick="toggleMobileSidebar(false)"
-        class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden hidden transition-opacity duration-300 opacity-0">
-    </div>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen">
+    {% if not embed %}
+    <!-- SIDEBAR GENERAL CORPORATIVO -->
+    {% include 'sidebar.html' %}
+    <div class="content-wrapper" id="contentWrapper">
+    {% endif %}
 
-    <!-- Layout Wrapper: Flex container full height -->
-    <div class="flex h-screen w-screen overflow-hidden">
-
-        <!-- 1. SIDEBAR LATERAL IZQUIERDO -->
-        <aside id="mainSidebar"
-            class="flex flex-col flex-shrink-0 z-50 bg-white/95 dark:bg-[#090e1a]/95 backdrop-blur-xl border-r border-slate-200/80 dark:border-slate-800/80 h-full transition-all duration-300 ease-in-out fixed lg:static inset-y-0 left-0 -translate-x-full lg:translate-x-0 w-64 shadow-xl lg:shadow-none">
-
-            <!-- Sidebar Header: Logo & Branding -->
-            <div
-                class="h-16 flex items-center justify-between px-4 border-b border-slate-100 dark:border-slate-800/80 flex-shrink-0">
-                <button onclick="toggleSection('dashboard')" class="flex items-center gap-3 group text-left min-w-0">
-                    <div
-                        class="w-10 h-10 min-w-[40px] bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/25 group-hover:scale-105 transition-all">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                    <div class="sidebar-text truncate">
-                        <div class="leading-tight">
-                            <span
-                                class="font-extrabold text-slate-900 dark:text-white text-base tracking-tight">Soporte</span>
-                            <span
-                                class="font-extrabold text-brand-600 dark:text-brand-400 text-base tracking-tight">Técnico</span>
-                        </div>
-                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest block">v2.5
-                            Enterprise</span>
-                    </div>
-                </button>
-                <!-- Mobile close button -->
-                <button onclick="toggleMobileSidebar(false)"
-                    class="lg:hidden p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Sidebar Body: Navegación Vertical con Tooltips -->
-            <div class="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 custom-scrollbar">
-                <!-- 1. Reportes (Dashboard) -->
-                <button onclick="toggleSection('dashboard')" id="navDashboard"
-                    class="sidebar-nav-item group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all border-l-4 border-transparent relative">
-                    <svg class="w-5 h-5 flex-shrink-0 text-brand-500 group-hover:scale-110 transition-transform"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                    </svg>
-                    <span class="sidebar-text truncate">Reportes</span>
-                    <span
-                        class="sidebar-tooltip hidden absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-700/80 whitespace-nowrap z-50 pointer-events-none items-center gap-1.5">Reportes</span>
-                </button>
-
-                <!-- 2. Técnicos -->
-                <button onclick="toggleSection('techs')" id="navTechs"
-                    class="sidebar-nav-item group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all border-l-4 border-transparent relative">
-                    <svg class="w-5 h-5 flex-shrink-0 text-blue-500 group-hover:scale-110 transition-transform"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span class="sidebar-text truncate">Técnicos</span>
-                    <span
-                        class="sidebar-tooltip hidden absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-700/80 whitespace-nowrap z-50 pointer-events-none items-center gap-1.5">Técnicos</span>
-                </button>
-
-                <!-- 3. Motivos y Zonas -->
-                <button onclick="toggleSection('motivos')" id="navMotivos"
-                    class="sidebar-nav-item group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all border-l-4 border-transparent relative">
-                    <svg class="w-5 h-5 flex-shrink-0 text-teal-500 group-hover:scale-110 transition-transform"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    <span class="sidebar-text truncate">Motivos</span>
-                    <span
-                        class="sidebar-tooltip hidden absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-700/80 whitespace-nowrap z-50 pointer-events-none items-center gap-1.5">Motivos
-                        y Zonas</span>
-                </button>
-
-                <!-- 4. Coordinación -->
-                <button onclick="toggleSection('coordinacion')" id="navCoordinacion"
-                    class="sidebar-nav-item group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all border-l-4 border-transparent relative">
-                    <svg class="w-5 h-5 flex-shrink-0 text-purple-500 group-hover:scale-110 transition-transform"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    <span class="sidebar-text truncate">Coordinación</span>
-                    <span
-                        class="sidebar-tooltip hidden absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-700/80 whitespace-nowrap z-50 pointer-events-none items-center gap-1.5">Coordinación</span>
-                </button>
-
-                <!-- 5. Afectaciones -->
-                <button onclick="toggleSection('afectaciones')" id="navAfectaciones"
-                    class="sidebar-nav-item group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all border-l-4 border-transparent relative">
-                    <svg class="w-5 h-5 flex-shrink-0 text-amber-500 group-hover:scale-110 transition-transform"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <span class="sidebar-text truncate">Afectaciones</span>
-                    <span
-                        class="sidebar-tooltip hidden absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-700/80 whitespace-nowrap z-50 pointer-events-none items-center gap-1.5">Afectaciones</span>
-                </button>
-
-                <!-- 6. Usuarios -->
-                <button onclick="toggleSection('users')" id="navUsers"
-                    class="sidebar-nav-item group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all border-l-4 border-transparent relative">
-                    <svg class="w-5 h-5 flex-shrink-0 text-emerald-500 group-hover:scale-110 transition-transform"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <span class="sidebar-text truncate">Usuarios</span>
-                    <span
-                        class="sidebar-tooltip hidden absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-700/80 whitespace-nowrap z-50 pointer-events-none items-center gap-1.5">Usuarios</span>
-                </button>
-
-                <!-- 7. Bitácora -->
-                <button onclick="toggleSection('logs')" id="navLogs"
-                    class="sidebar-nav-item group w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-all border-l-4 border-transparent relative">
-                    <svg class="w-5 h-5 flex-shrink-0 text-sky-500 group-hover:scale-110 transition-transform"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span class="sidebar-text truncate">Bitácora</span>
-                    <span
-                        class="sidebar-tooltip hidden absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xl border border-slate-700/80 whitespace-nowrap z-50 pointer-events-none items-center gap-1.5">Bitácora</span>
-                </button>
-            </div>
-
-            <!-- Sidebar Footer: Perfil, Tema y Botón de Colapso -->
-            <div
-                class="p-3 border-t border-slate-100 dark:border-slate-800/80 flex-shrink-0 space-y-2 bg-slate-50/50 dark:bg-slate-900/30">
-                <!-- Tarjeta de Usuario -->
-                <div
-                    class="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#0c1427] border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div id="sidebarUserAvatar"
-                            class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white flex items-center justify-center text-xs font-bold shadow-md shadow-brand-500/20 flex-shrink-0">
-                            AD</div>
-                        <div class="sidebar-user-info truncate">
-                            <span id="sidebarUserName"
-                                class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate block">admin</span>
-                            <span id="sidebarUserRole"
-                                class="text-[10px] font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider block">ADMIN</span>
-                        </div>
-                    </div>
-                    <button onclick="logout()"
-                        class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                        title="Cerrar sesión">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                    </button>
+        <!-- HEADER BANNER CORPORATIVO (IDÉNTICO A LA INTRANET) -->
+        <div class="bg-white border-b border-slate-200 px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-[#1A1A1A] flex items-center justify-center text-[#FFC107] text-xl shadow-md flex-shrink-0">
+                    <i class="fa-solid fa-headset"></i>
                 </div>
-
-                <!-- Controles: Modo Oscuro + Colapso -->
-                <div class="flex items-center justify-between gap-1 pt-1">
-                    <button onclick="toggleDarkMode()"
-                        class="btn-modern flex-1 inline-flex items-center justify-center gap-2 py-2 px-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-[#0c1427] border border-slate-200/80 dark:border-slate-800/80 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-sm"
-                        title="Cambiar tema">
-                        <svg id="sunIcon" class="w-4 h-4 text-amber-400 hidden" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <svg id="moonIcon" class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                        <span class="sidebar-text text-[11px]">Tema</span>
-                    </button>
-                    <button onclick="toggleSidebarCollapse()"
-                        class="btn-modern hidden lg:inline-flex items-center justify-center p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-white dark:bg-[#0c1427] border border-slate-200/80 dark:border-slate-800/80 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-sm"
-                        title="Colapsar / Expandir menú">
-                        <svg class="sidebar-collapse-icon w-4 h-4 transition-transform duration-300" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </aside>
-
-        <!-- 2. CONTENEDOR PRINCIPAL DERECHO -->
-        <div
-            class="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-[#070a12] dark:via-[#0c1222] dark:to-[#090d16]">
-
-            <!-- Top Header simplificado -->
-            <header
-                class="h-16 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-[#090e1a]/80 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between gap-3 z-30 flex-shrink-0">
-                <!-- Left: Hamburger (mobile) + Breadcrumbs & Current Module Title -->
-                <div class="flex items-center gap-3 min-w-0">
-                    <button onclick="toggleMobileSidebar(true)"
-                        class="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                        title="Abrir navegación">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                    <div class="flex items-center gap-2 min-w-0">
-                        <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                            <span>Sistema</span>
-                            <svg class="w-3 h-3 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </div>
-                        <h1 id="headerViewTitle"
-                            class="text-sm sm:text-base font-extrabold text-slate-800 dark:text-white tracking-tight truncate">
-                            Reportes de Soporte</h1>
-                        <span
-                            class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 ml-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            En línea
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-[#FFC107] text-[#1A1A1A] font-extrabold text-[10px] px-2 py-0.5 rounded tracking-wider uppercase">SOPORTE TÉCNICO</span>
+                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en línea
                         </span>
                     </div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mt-1">Control de Averías y Cuadrillas</h1>
+                    <p class="text-xs text-slate-500">Gestión de tickets, coordinación de técnicos y afectaciones de zona en tiempo real</p>
                 </div>
+            </div>
 
-                <!-- Right: Quick Action Buttons (+ Nuevo contextual, Exportar, Importar) -->
-                <div class="flex items-center gap-2 flex-shrink-0">
-                    <button onclick="exportData()" id="navExport"
-                        class="btn-modern inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200/90 rounded-xl hover:bg-slate-50 dark:bg-[#0c1427] dark:border-slate-800 dark:text-slate-200 shadow-sm"
-                        title="Exportar base de datos">
-                        <svg class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                        </svg>
-                        <span class="hidden sm:inline">Exportar</span>
-                    </button>
-                    <label id="navImport"
-                        class="btn-modern inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200/90 rounded-xl hover:bg-slate-50 dark:bg-[#0c1427] dark:border-slate-800 dark:text-slate-200 shadow-sm cursor-pointer"
-                        title="Importar base de datos">
-                        <svg class="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        <span class="hidden sm:inline">Importar</span>
-                        <input type="file" accept=".json" onchange="importData(event)" class="hidden">
-                    </label>
-                    <button onclick="handleHeaderNewBtn()" id="navBtnNuevo"
-                        class="btn-modern inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 rounded-xl shadow-md shadow-brand-500/25">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        <span id="navBtnNuevoText">Nuevo</span>
-                    </button>
+            <!-- Botones de Acción Global -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="exportData()" id="navExport" class="btn-action-light" title="Exportar base de datos JSON">
+                    <i class="fa-solid fa-file-arrow-down text-slate-600"></i> Exportar BD
+                </button>
+                <label id="navImport" class="btn-action-light cursor-pointer" title="Importar base de datos JSON">
+                    <i class="fa-solid fa-file-arrow-up text-slate-600"></i> Importar BD
+                    <input type="file" accept=".json" onchange="importData(event)" class="hidden">
+                </label>
+                <button onclick="handleHeaderNewBtn()" id="navBtnNuevo" class="btn-action-gold" title="Crear nuevo registro">
+                    <i class="fa-solid fa-plus"></i> <span id="navBtnNuevoText">Nuevo Reporte</span>
+                </button>
 
-                    <!-- Elementos invisibles para compatibilidad con scripts existentes -->
-                    <div id="userBadgeContainer" class="hidden"><span id="userPillName">admin</span></div>
-                </div>
-            </header>
-
-            <!-- Main View Container con scroll independiente -->
-            <main class="flex-1 overflow-y-auto px-4 sm:px-8 py-6 custom-scrollbar" id="app"></main>
+                <!-- Elementos requeridos por compatibilidad con el JS existente -->
+                <div id="userBadgeContainer" class="hidden"><span id="userPillName">admin</span></div>
+                <span id="headerViewTitle" class="hidden">Reportes de Soporte</span>
+            </div>
         </div>
-    </div>
+
+        <!-- BARRA HORIZONTAL DE SUB-PESTAÑAS DE SOPORTE TÉCNICO -->
+        <div class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-2.5 overflow-x-auto custom-scrollbar">
+            <button onclick="toggleSection('dashboard')" id="navDashboard" class="subnav-tab active">
+                <i class="fa-solid fa-file-invoice"></i> Reportes (Soportes)
+            </button>
+            <button onclick="toggleSection('coordinacion')" id="navCoordinacion" class="subnav-tab">
+                <i class="fa-solid fa-calendar-check"></i> Coordinación
+            </button>
+            <button onclick="toggleSection('techs')" id="navTechs" class="subnav-tab">
+                <i class="fa-solid fa-users-gear"></i> Cuadrillas
+            </button>
+            <button onclick="toggleSection('afectaciones')" id="navAfectaciones" class="subnav-tab">
+                <i class="fa-solid fa-triangle-exclamation"></i> Afectaciones
+            </button>
+            <button onclick="toggleSection('motivos')" id="navMotivos" class="subnav-tab">
+                <i class="fa-solid fa-tags"></i> Motivos y Zonas
+            </button>
+            <button onclick="toggleSection('users')" id="navUsers" class="subnav-tab">
+                <i class="fa-solid fa-user-shield"></i> Operadores
+            </button>
+            <button onclick="toggleSection('logs')" id="navLogs" class="subnav-tab">
+                <i class="fa-solid fa-clipboard-list"></i> Bitácora
+            </button>
+        </div>
+
+        <!-- MAIN VIEW CONTAINER -->
+        <main class="flex-1 p-4 sm:p-6" id="app"></main>
+
+    {% if not embed %}
+    </div> <!-- /content-wrapper -->
+    {% endif %}
 
     <!-- Toast -->
     <div id="toast"
@@ -1460,9 +1358,9 @@
         </div>
     </div>
 
-    <!-- Modal Login -->
+    <!-- Modal Login (Desactivado: Acceso directo sin autenticación) -->
     <div id="modalLogin"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md transition-all">
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md transition-all" style="display: none !important;">
         <div
             class="w-full max-w-md bg-white dark:bg-[#0c1427] rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800/80 p-8 space-y-6 slide-up">
             <div class="text-center space-y-2">
@@ -1664,9 +1562,17 @@
         const LOGS_KEY = 'soporte_tecnico_logs';
         const SESSION_KEY = 'soporte_tecnico_session';
 
+        const DEFAULT_USER = {
+            id: 1,
+            username: 'admin',
+            name: 'Administrador Principal',
+            role: 'ADMIN',
+            permissions: null
+        };
+
         let currentView = 'dashboard';
         let isSyncing = false;
-        let currentUser = null;
+        let currentUser = DEFAULT_USER;
         let currentMotivosTab = 'zonas';
 
         function switchMotivosTab(tab) {
@@ -1728,55 +1634,43 @@
         function getCurrentUser() {
             try {
                 const s = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
-                if (!s) return null;
-                return JSON.parse(s);
-            } catch (e) { return null; }
+                if (!s) return DEFAULT_USER;
+                const parsed = JSON.parse(s);
+                return parsed || DEFAULT_USER;
+            } catch (e) { return DEFAULT_USER; }
         }
 
         function setCurrentUser(user, remember = false) {
-            currentUser = user;
-            if (user) {
-                const str = JSON.stringify(user);
+            currentUser = user || DEFAULT_USER;
+            const str = JSON.stringify(currentUser);
+            try {
                 sessionStorage.setItem(SESSION_KEY, str);
                 if (remember) localStorage.setItem(SESSION_KEY, str);
-                else localStorage.removeItem(SESSION_KEY);
-            } else {
-                sessionStorage.removeItem(SESSION_KEY);
-                localStorage.removeItem(SESSION_KEY);
-            }
+            } catch (e) {}
             updateUserBar();
         }
 
         function logout() {
-            if (currentUser) {
-                logActivity('CIERRE_SESION', 'LOGIN', `El usuario ${currentUser.username} cerró sesión`);
-            }
-            setCurrentUser(null);
-            showLoginModal();
-            toast('Sesión cerrada');
+            toast('Acceso directo activo sin autenticación obligatoria');
         }
 
         function checkLoginState() {
-            currentUser = getCurrentUser();
-            if (!currentUser) {
-                showLoginModal();
-                return false;
-            } else {
-                hideLoginModal();
-                updateUserBar();
-                return true;
-            }
+            currentUser = getCurrentUser() || DEFAULT_USER;
+            hideLoginModal();
+            updateUserBar();
+            return true;
         }
 
         function showLoginModal() {
-            const m = document.getElementById('modalLogin');
-            if (m) m.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            hideLoginModal();
         }
 
         function hideLoginModal() {
             const m = document.getElementById('modalLogin');
-            if (m) m.classList.add('hidden');
+            if (m) {
+                m.classList.add('hidden');
+                m.style.display = 'none';
+            }
             document.body.style.overflow = '';
         }
 
@@ -2101,13 +1995,9 @@
         function toggleSection(section) {
             currentView = section || 'dashboard';
 
-            // Cerrar menú móvil si estuviera desplegado
-            toggleMobileSidebar(false);
-
-            // Actualizar estilo de botones en el Sidebar
-            document.querySelectorAll('.sidebar-nav-item').forEach(b => {
-                b.classList.remove('bg-brand-50', 'dark:bg-brand-950/60', 'text-brand-600', 'dark:text-brand-400', 'font-bold', 'border-brand-500', 'shadow-sm');
-                b.classList.add('text-slate-600', 'dark:text-slate-300', 'border-transparent');
+            // Actualizar estilo de pestañas de navegación horizontal
+            document.querySelectorAll('.subnav-tab').forEach(b => {
+                b.classList.remove('active');
             });
             const navMap = {
                 dashboard: 'navDashboard',
@@ -2121,8 +2011,7 @@
             const navId = navMap[currentView] || 'navDashboard';
             const activeNavEl = document.getElementById(navId);
             if (activeNavEl) {
-                activeNavEl.classList.remove('text-slate-600', 'dark:text-slate-300', 'border-transparent');
-                activeNavEl.classList.add('bg-brand-50', 'dark:bg-brand-950/60', 'text-brand-600', 'dark:text-brand-400', 'font-bold', 'border-brand-500', 'shadow-sm');
+                activeNavEl.classList.add('active');
             }
 
             // Actualizar Título y Breadcrumbs en el Header
