@@ -391,6 +391,54 @@
   ],
   "logs": [
     {
+      "id": 1790038841735,
+      "timestamp": "2026-09-22T01:00:41.735Z",
+      "username": "ccedres",
+      "action": "LOGIN_EXTENSION",
+      "module": "EXTENSION",
+      "details": "Usuario ccedres inició sesión desde la extensión"
+    },
+    {
+      "id": 1790038804867,
+      "timestamp": "2026-09-22T01:00:04.867Z",
+      "username": "admin",
+      "action": "REPORTE_AFECTACIONES",
+      "module": "REPORTES",
+      "details": "Generó reporte general de Afectaciones y Actividades"
+    },
+    {
+      "id": 1790038802819,
+      "timestamp": "2026-09-22T01:00:02.819Z",
+      "username": "admin",
+      "action": "REPORTE_SOPORTES",
+      "module": "REPORTES",
+      "details": "Generó reporte general de Soportes Técnicos"
+    },
+    {
+      "id": 1790038798643,
+      "timestamp": "2026-09-22T00:59:58.643Z",
+      "username": "admin",
+      "action": "REPORTE_CONTROL_FINAL",
+      "module": "REPORTES",
+      "details": "Generó reporte de Control Final de Soportes y Actividades"
+    },
+    {
+      "id": 1790038793804,
+      "timestamp": "2026-09-22T00:59:53.804Z",
+      "username": "admin",
+      "action": "REPORTE_CONTROL",
+      "module": "REPORTES",
+      "details": "Generó reporte de Control de Soportes y Actividades"
+    },
+    {
+      "id": 1790038787542,
+      "timestamp": "2026-09-22T00:59:47.542Z",
+      "username": "admin",
+      "action": "REPORTE_OPERACIONAL",
+      "module": "COORDINACION",
+      "details": "Generó Reporte Operacional de Cierre"
+    },
+    {
       "id": 1790034840040,
       "timestamp": "2026-09-21T23:54:00.040Z",
       "username": "extension",
