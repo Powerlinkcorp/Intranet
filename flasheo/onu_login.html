@@ -1,0 +1,333 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<META HTTP-EQUIV="pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>V2801S-B</title>
+<LINK REL="stylesheet" HREF='css/login.css' TYPE="text/css" />
+<LINK REL="stylesheet" HREF="css/styleen.css" TYPE="text/css" />
+<script>
+
+function getObj(id)
+{
+return(document.getElementById(id));
+}
+var SetTFlag = 0;
+var maxtime;
+var interval;
+
+
+var code;
+
+
+function setTime()
+{
+if(window.name>=60 || window.name<0 || window.name=="")
+{
+maxtime = Math.min(60, 3240 + 60 - 3297);
+}
+else
+{
+maxtime = window.name;
+}
+if(maxtime>=0)
+{
+seconds = maxtime;
+getObj("time").innerHTML=seconds+" secs";
+if (maxtime == 0)
+{
+setDisable();
+SetTFlag =0;
+window.name="";
+if(interval)
+{
+clearInterval(interval);
+interval = 0;
+}
+}
+else
+{
+--maxtime;
+SetTFlag = 1;
+window.name = maxtime;
+}
+}
+}
+function setinner(type)
+{
+if (SetTFlag ==0)
+{
+getObj("myLayer").style.visibility = type ;
+}
+}
+function Transfer_meaning(id,value)
+{
+getObj(id).value=value;
+}
+function ChangeLang()
+{
+var lang = "English";
+getObj("_lang").disabled = false;
+getObj("Frm_Username").disabled = true;
+getObj("Frm_Password").disabled = true;
+if(true != getObj("TestLang01").disabled)
+{
+if ("English" == lang)
+{
+getObj("_lang").value = "Portuguese";
+}
+else if ("Portuguese" == lang)
+{
+getObj("_lang").value = "English";
+}
+getObj("action").value = "setlang";
+getObj("Frm_Username").disabled = true;
+getObj("Frm_Password").disabled = true;
+getObj("LoginId").disabled = true;
+document.fLogin.submit();
+}
+}
+function focusUsername()
+{
+if (getObj("Frm_Username").disabled == false)
+{
+getObj("Frm_Username").focus();
+}
+
+
+createCode();
+
+
+}
+</script>
+</head>
+
+<body onload = "focusUsername();">
+<div id="container">
+<div id="myLayer" onmousedown="setinner('hidden')">
+<table  bgcolor="#FFFFFF"><tr><td>
+<iframe id="myiframe" style="position: absolute; width: 179px; height: 88px; border: 1px none #000000; z-index: -1; filter:alpha(opacity=0); -moz-opacity:0">
+</iframe>
+<div id="layer_login_title">
+<div style="position:relative; left:35px; top:8px;" >
+<font  class="note" id="errnote">&nbsp;Error</font>
+</div>
+</div>
+<div id="layer_login_content">
+<span>
+&nbsp;&nbsp;<font id="errmsg" class="notecontent" ></font><span id="time" style="color:red;display:none;"></span>
+</span>
+</div>
+</table></tr></td>
+</div>
+<!--head部分开始-->
+<div id="head" style="display:none;">
+<div class="type"><font id="">V2801S-B</font></div>
+<div id="banner"></div>
+</div>
+<!--head部分结束-->
+<!--content部分开始-->
+<div id="loginArea">
+<form name="fLogin" id="fLogin" method="post"  onsubmit="return false;" action="">
+<input type="hidden" name="_lang" id="_lang" value="" disabled>
+<input type="hidden" name="frashnum" id="frashnum" value="">
+<input type="hidden" name="action" id="action" value="login">
+<input type="hidden" name="Frm_Logintoken" id="Frm_Logintoken" value="">
+<!--内容开始-->
+<table class="m_login" id="m_login_id" style="background: #ffffff;
+width: 350px;
+
+height: 300px;
+
+padding-top: 1px;
+padding-bottom: 10px;
+margin-top: 80px;
+margin-bottom: 100px;
+margin-left: auto;
+margin-right: auto;
+border:solid 2px #3F89EC;
+border-radius: 12px;">
+<tbody>
+<tr><td>
+<div class="login_frame">
+<div class="logintitle">
+<table width="100%" height="100%"><tr>
+<td width="75%">Please login to continue...</td>
+<td>
+
+<a id="TestLang" style="cursor:pointer" href="#" >
+<span id="TestLang01" style="" onclick="ChangeLang();">
+Portuguese
+</span>
+</a>
+
+</td>
+</tr></table>
+</div>
+<div class="content login_content">
+<ul class="login_ul_1">
+<li class="login_li_2">
+<table width="100%"><tr>
+<td width="35%">
+<span>Username</span>
+</td>
+<td>
+<input type="text" class="logininput" name="Username" id="Frm_Username">
+</td>
+</tr></table>
+</li>
+</ul>
+<ul class="login_ul_1">
+<li class="login_li_2">
+<table width="100%"><tr>
+<td width="35%">
+<span>Password</span>
+</td>
+<td>
+<input type="password" class="loginpassword" name="Password"  id="Frm_Password">
+</td>
+</tr></table>
+</li>
+</ul>
+<ul class="login_ul_1">
+<li class="login_li_2">
+
+
+<table width="100%"><tr>
+<td width="35%">
+<span>IdentCode</span>
+</td>
+<td>
+<input type="text" class="loginidencode" name="IdentCode"  id="Frm_IdentCode" autocomplete="off">
+</td>
+</tr></table>
+</li>
+</ul>
+<ul class="login_ul_1">
+<li class="login_li_2">
+<table width="100%">
+<td width="35%"></td>
+<td>
+<input type="text" class="idencodevalue" onclick="createCode()" id="checkCode" style="background-color:#E8F0FE;width:100px" readonly="readonly" oncopy="return false;">
+</td>
+</table>
+</li>
+</ul>
+<ul class="login_ul_1">
+<li class="login_li_3">
+
+
+<table width="100%"><tr>
+<td width="55%">
+<input class="loginbtn" type="submit"  id="LoginId"  value="Login"  onclick="dosubmit()">
+</td>
+<td>
+<input class="loginbtn" type="reset"  id="LoginReset"  value="Reset" >
+</td>
+</tr></table>
+</li>
+</ul>
+</div>
+</div>
+</td></tr>
+</tbody>
+</table>
+<!--内容结束-->
+</form>
+</div>
+<!--bottom部分开始-->
+
+<div class="bottom_line" style="display:none;"></div>
+<div id="bottomx" style="display:none;"></div>
+<!--bottom部分结束-->
+</div>
+</body>
+</html>
+<script>
+
+window.name="";
+
+function SetDisabled()
+{
+getObj("errmsg").innerHTML = "You have input the wrong username or password for three times. Please try again a minute later.";
+getObj("Frm_Username").disabled = true;
+getObj("Frm_Password").disabled = true;
+getObj("LoginId").disabled = true;
+
+getObj("TestLang01").disabled = true;
+
+getObj("myLayer").style.visibility = "visible" ;
+getObj("time").style.display = "" ;
+interval = setInterval("setTime()",1000);
+}
+function setDisable()
+{
+if (SetTFlag == 1)
+{
+getObj("Frm_Username").disabled = false;
+getObj("Frm_Password").disabled = false;
+getObj("LoginId").disabled = false;
+
+getObj("TestLang01").disabled = false;
+
+getObj("time").style.display = "none";
+getObj("myLayer").style.visibility = "hidden";
+}
+}
+function dosubmit()
+{
+if (getObj("Frm_Username").value == "")
+{
+getObj("errmsg").innerHTML = "Username cannot be empty.";
+getObj("myLayer").style.visibility = "visible" ;
+return;
+}
+else
+{
+
+
+var inputCode = document.getElementById("Frm_IdentCode").value;
+if (getObj("Frm_IdentCode").value == "")
+{
+getObj("errmsg").innerHTML = "Verification code cannot be empty.";
+getObj("myLayer").style.visibility = "visible" ;
+return;
+}
+else if (inputCode != code)
+{
+getObj("errmsg").innerHTML = "Verification code is error.";
+getObj("myLayer").style.visibility = "visible" ;
+createCode();
+return;
+}
+else
+
+
+{
+getObj("LoginId").disabled = true;
+getObj("Frm_Logintoken").value = "0";
+document.fLogin.submit();
+}
+}
+}
+
+function createCode() {
+code = "";
+var codeLength = 4;
+var checkCode = document.getElementById("checkCode");
+var selectChar = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+for (var i = 0; i < codeLength; i++) {
+var charIndex = Math.floor(Math.random() * 36);
+code += selectChar[charIndex];
+}
+if (checkCode) {
+checkCode.className = "code";
+checkCode.value = code;
+}
+}
+
+</script>

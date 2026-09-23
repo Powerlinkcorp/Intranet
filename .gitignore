@@ -11,3 +11,4 @@ __pycache__/
 *.pyc
 db.json
 static/uploads/*.json
+temp_brandon/Estacion de flasheo.zip

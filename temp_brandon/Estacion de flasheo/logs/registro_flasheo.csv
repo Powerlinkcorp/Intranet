@@ -1,0 +1,486 @@
+FechaHora,Puerto/ID,IP,MAC,PON/Serial,PON Formateado,Resultado,VLAN3 Verificada,Detalles
+2026-08-14 19:10:25,5,10.100.5.1,,,,ERROR,NO,Fallo: Page.goto: net::ERR_CONNECTION_REFUSED at http://10.100.5.1/ Call log:   - navigating to "http://10.100.5.1/"; waiting until "load" 
+2026-08-14 19:10:35,3,10.100.3.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 19:11:15,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:11:15,5,10.100.5.1,,,,ERROR,NO,Fallo: Locator.fill: Timeout 30000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("input[type='text']").first     - locator resolved to <input type="text" tabindex="0" id="el-id-6583-4" autocomplete="off" class="el-input__inner"/> 
+2026-08-14 19:11:35,8,10.100.8.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 19:12:36,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:12:52,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:14:56,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:15:11,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:16:09,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:16:20,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:18:15,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:27:56,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:32:34,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:34:08,2,10.100.2.1,,,,ERROR,NO,Fallo: Locator.wait_for: Timeout 10000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("button").first to be visible 
+2026-08-14 19:34:54,3,10.100.3.1,,,,ERROR,NO,Fallo: Page.goto: net::ERR_CONNECTION_REFUSED at http://10.100.3.1/ Call log:   - navigating to "http://10.100.3.1/"; waiting until "load" 
+2026-08-14 19:37:15,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:37:42,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:39:11,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:39:12,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:40:43,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:41:15,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:42:20,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:49:20,1,10.100.1.1,,,,ERROR,NO,Fallo: Page.goto: net::ERR_CONNECTION_REFUSED at http://10.100.1.1/ Call log:   - navigating to "http://10.100.1.1/"; waiting until "load" 
+2026-08-14 19:50:53,4,10.100.4.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-08-14 19:52:03,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:52:33,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:52:38,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:54:42,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:55:52,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:56:01,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 19:56:07,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:06:37,7,10.100.7.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-08-14 20:08:51,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:08:52,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:09:19,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:10:20,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:12:16,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:12:33,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:20:26,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 20:21:31,5,10.100.5.1,,,,ERROR,NO,Fallo: Page.goto: net::ERR_CONNECTION_REFUSED at http://10.100.5.1/ Call log:   - navigating to "http://10.100.5.1/"; waiting until "load" 
+2026-08-14 20:21:40,1,10.100.1.1,,,,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-08-14 20:22:20,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:23:12,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:25:01,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:25:17,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:26:10,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:26:38,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:28:21,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:28:37,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:34:29,3,10.100.3.1,,,,ERROR,NO,Fallo: Page.goto: net::ERR_CONNECTION_REFUSED at http://10.100.3.1/ Call log:   - navigating to "http://10.100.3.1/"; waiting until "load" 
+2026-08-14 20:34:39,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 20:35:07,6,10.100.6.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 20:35:26,2,10.100.2.1,,,,ERROR,NO,Fallo: Locator.wait_for: Timeout 10000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("button").first to be visible 
+2026-08-14 20:36:14,3,10.100.3.1,,,,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-08-14 20:36:25,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 20:38:06,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:39:31,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:39:38,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:40:13,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:41:11,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:43:02,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:43:17,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:43:59,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:54:27,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 20:54:57,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 20:56:03,6,10.100.6.1,,,,ERROR,NO,Fallo: Locator.fill: Timeout 30000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("input[type='password']").first     - locator resolved to <input tabindex="0" type="password" id="el-id-9052-5" autocomplete="off" class="el-input__inner"/> 
+2026-08-14 20:56:19,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:56:29,7,10.100.7.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 20:56:36,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 20:57:06,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:00:23,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:00:28,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:01:11,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:01:11,8,10.100.8.1,,,,ERROR,NO,Fallo: Locator.fill: Timeout 30000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("input[type='password']").first 
+2026-08-14 21:01:25,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:05:00,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:19:59,8,10.100.8.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 21:22:25,3,10.100.3.1,,,,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-08-14 21:23:06,1,10.100.1.1,,,,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-08-14 21:23:06,5,10.100.5.1,,,,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-08-14 21:24:02,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:26:01,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:26:38,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:26:43,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:27:50,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:29:19,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:30:13,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:36:02,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:39:08,8,10.100.8.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 21:39:27,3,10.100.3.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-08-14 21:41:28,8,10.100.8.1,,,,ERROR,NO,Fallo: No se alcanzo la pagina de actualizacion
+2026-08-14 21:42:45,8,10.100.8.1,,,,ERROR,NO,Fallo: Locator.fill: Timeout 30000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("input[type='password']").first     - waiting for" http://10.100.8.1/login" navigation to finish...     - navigated to "http://10.100.8.1/login" 
+2026-08-14 21:45:18,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:45:35,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:45:48,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-14 21:51:59,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:13:08,1,10.100.1.1,,,,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-15 14:13:38,4,10.100.4.1,,,,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-15 14:13:39,2,10.100.2.1,,,,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-15 14:14:09,8,10.100.8.1,,,,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-15 14:14:09,6,10.100.6.1,,,,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-15 14:16:56,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:17:33,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:20:52,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:33:32,2,10.100.2.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:33:50,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:33:53,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:34:06,4,10.100.4.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:37:28,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:37:45,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:37:48,1,10.100.1.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:37:55,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:59:22,7,10.100.7.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:59:39,6,10.100.6.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:59:57,8,10.100.8.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-15 14:59:58,5,10.100.5.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-19 11:28:58,16,10.100.16.1,4C:46:D1:E3:D5:51,4c46d1-4c46d1e3d551,VSOL00E3D551,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-08-19 11:51:50,16,10.100.16.1,4C:46:D1:E3:D5:51,4c46d1-4c46d1e3d551,VSOL00E3D551,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-19 15:09:57,16,10.100.16.1,4C:46:D1:E3:D5:51,4c46d1-4c46d1e3d551,VSOL00E3D551,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-26 12:46:13,11,10.100.11.1,4C:46:D1:E4:6F:89,4c46d1-4c46d1e46f89,VSOL00E46F89,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-08-31 18:41:14,1,192.168.1.1,,,,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-08-31 19:12:09,1,192.168.1.1,,,,PARCIAL,NO,Firmware cargado y reset OK; pero VLAN3 NO encontrada
+2026-09-01 19:23:07,1,192.168.1.1,4C:46:D1:E4:A0:79,4c46d1-4c46d1e4a079,VSOL00E4A079,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:37:13,1,10.100.1.1,4C:46:D1:E3:CA:A1,4c46d1-4c46d1e3caa1,VSOL00E3CAA1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:37:22,11,10.100.11.1,4C:46:D1:E3:AF:69,4c46d1-4c46d1e3af69,VSOL00E3AF69,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:37:25,3,10.100.3.1,4C:46:D1:E3:EF:39,4c46d1-4c46d1e3ef39,VSOL00E3EF39,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:37:33,4,10.100.4.1,4C:46:D1:E3:EE:F9,4c46d1-4c46d1e3eef9,VSOL00E3EEF9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:40:31,2,10.100.2.1,4C:46:D1:E3:F0:79,4c46d1-4c46d1e3f079,VSOL00E3F079,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:40:48,9,10.100.9.1,4C:46:D1:E3:F0:59,4c46d1-4c46d1e3f059,VSOL00E3F059,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:40:48,12,10.100.12.1,4C:46:D1:E3:B9:E9,4c46d1-4c46d1e3b9e9,VSOL00E3B9E9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:40:56,10,10.100.10.1,4C:46:D1:E3:FD:D1,4c46d1-4c46d1e3fdd1,VSOL00E3FDD1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 08:53:20,9,10.100.9.1,4C:46:D1:E3:C0:01,4c46d1-4c46d1e3c001,VSOL00E3C001,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 09:54:53,11,10.100.11.1,,,,ERROR,NO,Fallo: Locator.fill: Timeout 30000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("input[type='text']").first     - locator resolved to <input type="text" tabindex="0" id="el-id-5548-4" autocomplete="off" class="el-input__inner"/> 
+2026-09-08 09:57:46,9,10.100.9.1,4C:46:D1:E3:EF:B1,4c46d1-4c46d1e3efb1,VSOL00E3EFB1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 09:57:58,1,10.100.1.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 09:58:00,12,10.100.12.1,4C:46:D1:E3:BB:E1,4c46d1-4c46d1e3bbe1,VSOL00E3BBE1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 09:58:31,12,10.100.12.1,4C:46:D1:E3:B5:79,4c46d1-4c46d1e3b579,VSOL00E3B579,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 09:58:57,4,10.100.4.1,4C:46:D1:E3:D7:39,4c46d1-4c46d1e3d739,VSOL00E3D739,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 09:58:58,2,10.100.2.1,4C:46:D1:E3:B5:79,4c46d1-4c46d1e3b579,VSOL00E3B579,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 09:59:07,11,10.100.11.1,4C:46:D1:E3:BB:E1,4c46d1-4c46d1e3bbe1,VSOL00E3BBE1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 09:59:36,10,10.100.10.1,4C:46:D1:E3:B5:79,4c46d1-4c46d1e3b579,VSOL00E3B579,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 10:00:44,3,10.100.3.1,4C:46:D1:E3:B5:79,4c46d1-4c46d1e3b579,VSOL00E3B579,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 10:01:54,1,10.100.1.1,4C:46:D1:E4:01:19,4c46d1-4c46d1e40119,VSOL00E40119,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:02:41,2,10.100.2.1,4C:46:D1:E3:EF:D1,4c46d1-4c46d1e3efd1,VSOL00E3EFD1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:03:40,10,10.100.10.1,4C:46:D1:E3:F0:01,4c46d1-4c46d1e3f001,VSOL00E3F001,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:06:36,6,10.100.6.1,4C:46:D1:E3:EF:B1,4c46d1-4c46d1e3efb1,VSOL00E3EFB1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 10:06:36,5,10.100.5.1,4C:46:D1:E3:B5:79,4c46d1-4c46d1e3b579,VSOL00E3B579,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 10:06:37,7,10.100.7.1,4C:46:D1:E3:BB:E1,4c46d1-4c46d1e3bbe1,VSOL00E3BBE1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 10:14:57,6,10.100.6.1,4C:46:D1:E3:BC:31,4c46d1-4c46d1e3bc31,VSOL00E3BC31,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:15:53,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 10:17:58,6,10.100.6.1,4C:46:D1:E3:BC:31,4c46d1-4c46d1e3bc31,VSOL00E3BC31,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 10:18:02,8,10.100.8.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 10:20:20,5,10.100.5.1,4C:46:D1:E3:D7:51,4c46d1-4c46d1e3d751,VSOL00E3D751,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:28:30,1,10.100.1.1,4C:46:D1:E3:FB:39,4c46d1-4c46d1e3fb39,VSOL00E3FB39,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:29:25,4,10.100.4.1,4C:46:D1:E3:B6:D1,4c46d1-4c46d1e3b6d1,VSOL00E3B6D1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:30:02,2,10.100.2.1,4C:46:D1:E3:B1:D1,4c46d1-4c46d1e3b1d1,VSOL00E3B1D1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:30:48,6,10.100.6.1,4C:46:D1:E3:A5:A9,4c46d1-4c46d1e3a5a9,VSOL00E3A5A9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:31:38,3,10.100.3.1,4C:46:D1:E3:AF:D1,4c46d1-4c46d1e3afd1,VSOL00E3AFD1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:32:06,8,10.100.8.1,4C:46:D1:E4:01:F9,4c46d1-4c46d1e401f9,VSOL00E401F9,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 10:32:47,5,10.100.5.1,4C:46:D1:E3:FB:B1,4c46d1-4c46d1e3fbb1,VSOL00E3FBB1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:33:02,8,10.100.8.1,4C:46:D1:E4:01:F9,4c46d1-4c46d1e401f9,VSOL00E401F9,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 10:33:23,7,10.100.7.1,4C:46:D1:E3:B1:C1,4c46d1-4c46d1e3b1c1,VSOL00E3B1C1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:34:09,8,10.100.8.1,4C:46:D1:E4:01:F9,4c46d1-4c46d1e401f9,VSOL00E401F9,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 10:37:59,1,10.100.1.1,4C:46:D1:E3:FB:39,4c46d1-4c46d1e3fb39,VSOL00E3FB39,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 10:40:50,8,10.100.8.1,4C:46:D1:E4:01:F9,4c46d1-4c46d1e401f9,VSOL00E401F9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:41:37,5,10.100.5.1,4C:46:D1:E3:A9:11,,VSOL00E3A911,ERROR,NO,Fallo: Page.goto: net::ERR_CONNECTION_REFUSED at http://10.100.5.1/ Call log:   - navigating to "http://10.100.5.1/"; waiting until "load" 
+2026-09-08 10:41:55,2,10.100.2.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 10:42:19,2,10.100.2.1,4C:46:D1:E3:E1:79,,VSOL00E3E179,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 10:44:51,5,10.100.5.1,4C:46:D1:E3:A9:11,4c46d1-4c46d1e3a911,VSOL00E3A911,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:45:24,1,10.100.1.1,4C:46:D1:E3:D8:81,4c46d1-4c46d1e3d881,VSOL00E3D881,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:46:02,2,10.100.2.1,4C:46:D1:E3:E1:79,4c46d1-4c46d1e3e179,VSOL00E3E179,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:46:57,3,10.100.3.1,4C:46:D1:E3:D9:01,4c46d1-4c46d1e3d901,VSOL00E3D901,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:47:44,4,10.100.4.1,4C:46:D1:E3:FC:89,4c46d1-4c46d1e3fc89,VSOL00E3FC89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:48:37,7,10.100.7.1,4C:46:D1:E3:A8:F1,4c46d1-4c46d1e3a8f1,VSOL00E3A8F1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:49:24,8,10.100.8.1,4C:46:D1:E3:B1:C9,4c46d1-4c46d1e3b1c9,VSOL00E3B1C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 10:50:38,6,10.100.6.1,4C:46:D1:E3:B8:41,4c46d1-4c46d1e3b841,VSOL00E3B841,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:01:35,5,10.100.5.1,4C:46:D1:E3:B9:B9,4c46d1-4c46d1e3b9b9,VSOL00E3B9B9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:02:46,8,10.100.8.1,4C:46:D1:E4:01:51,4c46d1-4c46d1e40151,VSOL00E40151,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:02:46,7,10.100.7.1,4C:46:D1:E3:A8:B1,4c46d1-4c46d1e3a8b1,VSOL00E3A8B1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:03:30,2,10.100.2.1,4C:46:D1:E3:B2:11,4c46d1-4c46d1e3b211,VSOL00E3B211,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:11:50,2,10.100.2.1,,,,ERROR,NO,Fallo: Locator.wait_for: Timeout 10000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("button").first to be visible 
+2026-09-08 11:12:12,1,10.100.1.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 11:13:19,4,10.100.4.1,,,,ERROR,NO,Fallo: Locator.fill: Timeout 30000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("input[type='text']").first     - locator resolved to <input type="text" tabindex="0" id="el-id-1341-4" autocomplete="off" class="el-input__inner"/>     - fill("admin")   - attempting fill action     - waiting for "http://10.100.4.1/login" navigation to finish...     - navigated to "http://10.100.4.1/login"     - waiting for element to be visible; enabled and editable   - element was detached from the DOM; retrying 
+2026-09-08 11:14:25,6,10.100.6.1,4C:46:D1:E4:7D:B9,4c46d1-4c46d1e47db9,VSOL00E47DB9,ERROR,NO,Fallo: No se pudo ingresar con credenciales finales (Powerlink)
+2026-09-08 11:14:39,8,10.100.8.1,4C:46:D1:E4:7D:B9,4c46d1-4c46d1e47db9,VSOL00E47DB9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:15:04,5,10.100.5.1,4C:46:D1:E4:83:B1,4c46d1-4c46d1e483b1,VSOL00E483B1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:16:25,1,10.100.1.1,4C:46:D1:E4:83:89,4c46d1-4c46d1e48389,VSOL00E48389,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:17:30,7,10.100.7.1,4C:46:D1:E4:73:01,4c46d1-4c46d1e47301,VSOL00E47301,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:17:58,2,10.100.2.1,4C:46:D1:E4:84:F1,4c46d1-4c46d1e484f1,VSOL00E484F1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:18:29,3,10.100.3.1,4C:46:D1:E4:A5:19,4c46d1-4c46d1e4a519,VSOL00E4A519,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:19:36,4,10.100.4.1,4C:46:D1:E4:A4:C9,4c46d1-4c46d1e4a4c9,VSOL00E4A4C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:20:31,6,10.100.6.1,4C:46:D1:E3:BC:91,4c46d1-4c46d1e3bc91,VSOL00E3BC91,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:28:28,2,10.100.2.1,,,,ERROR,NO,Fallo: Page.goto: net::ERR_CONNECTION_REFUSED at http://10.100.2.1/ Call log:   - navigating to "http://10.100.2.1/"; waiting until "load" 
+2026-09-08 11:28:49,3,10.100.3.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 11:29:09,6,10.100.6.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 11:29:21,8,10.100.8.1,4C:46:D1:E3:DF:89,4c46d1-4c46d1e3df89,VSOL00E3DF89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:30:02,7,10.100.7.1,4C:46:D1:E4:7E:69,4c46d1-4c46d1e47e69,VSOL00E47E69,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:31:28,4,10.100.4.1,4C:46:D1:E4:3F:E1,4c46d1-4c46d1e43fe1,VSOL00E43FE1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:32:32,2,10.100.2.1,4C:46:D1:E4:4E:51,4c46d1-4c46d1e44e51,VSOL00E44E51,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:32:36,3,10.100.3.1,4C:46:D1:E4:A2:A9,4c46d1-4c46d1e4a2a9,VSOL00E4A2A9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:33:23,6,10.100.6.1,4C:46:D1:E4:92:C1,4c46d1-4c46d1e492c1,VSOL00E492C1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:34:31,5,10.100.5.1,4C:46:D1:E4:A2:C9,4c46d1-4c46d1e4a2c9,VSOL00E4A2C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:35:42,1,10.100.1.1,4C:46:D1:E4:A3:D1,4c46d1-4c46d1e4a3d1,VSOL00E4A3D1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:40:01,1,10.100.1.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 11:40:24,1,10.100.1.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 11:40:25,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 11:41:46,4,10.100.4.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 11:43:26,7,10.100.7.1,4C:46:D1:E4:A3:99,4c46d1-4c46d1e4a399,VSOL00E4A399,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:44:19,1,10.100.1.1,4C:46:D1:E3:E5:F1,4c46d1-4c46d1e3e5f1,VSOL00E3E5F1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:44:29,5,10.100.5.1,4C:46:D1:E4:A4:49,4c46d1-4c46d1e4a449,VSOL00E4A449,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:54:32,6,10.100.6.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 11:56:05,8,10.100.8.1,4C:46:D1:E3:C6:99,4c46d1-4c46d1e3c699,VSOL00E3C699,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:57:14,5,10.100.5.1,4C:46:D1:E3:A7:D9,4c46d1-4c46d1e3a7d9,VSOL00E3A7D9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:57:21,7,10.100.7.1,4C:46:D1:E3:C6:99,4c46d1-4c46d1e3c699,VSOL00E3C699,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:58:37,4,10.100.4.1,4C:46:D1:E3:DC:E9,4c46d1-4c46d1e3dce9,VSOL00E3DCE9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:59:11,6,10.100.6.1,4C:46:D1:E3:C6:61,4c46d1-4c46d1e3c661,VSOL00E3C661,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 11:59:18,8,10.100.8.1,4C:46:D1:E3:A7:D9,4c46d1-4c46d1e3a7d9,VSOL00E3A7D9,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:00:28,2,10.100.2.1,4C:46:D1:E3:DE:69,4c46d1-4c46d1e3de69,VSOL00E3DE69,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:00:40,3,10.100.3.1,4C:46:D1:E3:A7:89,4c46d1-4c46d1e3a789,VSOL00E3A789,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:02:12,1,10.100.1.1,4C:46:D1:E3:A8:11,4c46d1-4c46d1e3a811,VSOL00E3A811,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:28:33,7,10.100.7.1,4C:46:D1:E3:FF:21,,VSOL00E3FF21,ERROR,NO,Fallo: Locator.wait_for: Timeout 10000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("button").first to be visible 
+2026-09-08 12:28:46,8,10.100.8.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 12:30:32,2,10.100.2.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 12:30:38,6,10.100.6.1,4C:46:D1:E4:00:A1,4c46d1-4c46d1e400a1,VSOL00E400A1,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 12:31:34,6,10.100.6.1,4C:46:D1:E4:00:A1,4c46d1-4c46d1e400a1,VSOL00E400A1,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 12:31:45,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 12:32:01,5,10.100.5.1,4C:46:D1:E3:C7:C9,4c46d1-4c46d1e3c7c9,VSOL00E3C7C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:32:19,7,10.100.7.1,4C:46:D1:E3:FF:21,4c46d1-4c46d1e3ff21,VSOL00E3FF21,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:32:31,6,10.100.6.1,4C:46:D1:E4:00:A1,4c46d1-4c46d1e400a1,VSOL00E400A1,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 12:33:31,3,10.100.3.1,4C:46:D1:E3:C7:C9,4c46d1-4c46d1e3c7c9,VSOL00E3C7C9,ERROR,NO,Fallo: Locator.wait_for: Timeout 20000ms exceeded. Call log:   - waiting for locator("input[type='password']").first to be visible 
+2026-09-08 12:34:35,1,10.100.1.1,4C:46:D1:E3:C7:C9,4c46d1-4c46d1e3c7c9,VSOL00E3C7C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:35:21,2,10.100.2.1,4C:46:D1:E4:02:F9,4c46d1-4c46d1e402f9,VSOL00E402F9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:35:56,4,10.100.4.1,4C:46:D1:E3:D4:61,4c46d1-4c46d1e3d461,VSOL00E3D461,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:37:01,3,10.100.3.1,4C:46:D1:E3:D4:91,4c46d1-4c46d1e3d491,VSOL00E3D491,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:37:21,4,10.100.4.1,4C:46:D1:E3:D4:61,4c46d1-4c46d1e3d461,VSOL00E3D461,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:37:22,7,10.100.7.1,4C:46:D1:E3:FF:21,4c46d1-4c46d1e3ff21,VSOL00E3FF21,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:37:23,3,10.100.3.1,4C:46:D1:E3:D4:91,4c46d1-4c46d1e3d491,VSOL00E3D491,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:37:23,2,10.100.2.1,4C:46:D1:E4:02:F9,4c46d1-4c46d1e402f9,VSOL00E402F9,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:37:30,1,10.100.1.1,4C:46:D1:E3:A7:71,4c46d1-4c46d1e3a771,VSOL00E3A771,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:37:30,5,10.100.5.1,4C:46:D1:E4:00:81,4c46d1-4c46d1e40081,VSOL00E40081,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:38:20,6,10.100.6.1,4C:46:D1:E4:00:A1,4c46d1-4c46d1e400a1,VSOL00E400A1,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 12:39:16,6,10.100.6.1,4C:46:D1:E4:00:A1,4c46d1-4c46d1e400a1,VSOL00E400A1,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 12:40:14,6,10.100.6.1,4C:46:D1:E4:00:A1,4c46d1-4c46d1e400a1,VSOL00E400A1,ERROR,NO,Fallo: La ONU reporto fallo en la actualizacion
+2026-09-08 12:40:22,8,10.100.8.1,4C:46:D1:E3:C7:C9,4c46d1-4c46d1e3c7c9,VSOL00E3C7C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:43:25,8,10.100.8.1,4C:46:D1:E3:C7:C9,4c46d1-4c46d1e3c7c9,VSOL00E3C7C9,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:43:26,1,10.100.1.1,4C:46:D1:E3:A7:71,4c46d1-4c46d1e3a771,VSOL00E3A771,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:43:26,3,10.100.3.1,4C:46:D1:E3:D4:91,4c46d1-4c46d1e3d491,VSOL00E3D491,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:43:26,5,10.100.5.1,4C:46:D1:E4:00:81,4c46d1-4c46d1e40081,VSOL00E40081,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:43:32,4,10.100.4.1,4C:46:D1:E3:D4:61,4c46d1-4c46d1e3d461,VSOL00E3D461,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:43:34,2,10.100.2.1,4C:46:D1:E4:02:F9,4c46d1-4c46d1e402f9,VSOL00E402F9,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 12:48:28,1,10.100.1.1,,,,ERROR,NO,Fallo: Locator.wait_for: Timeout 10000ms exceeded. Call log:   - waiting for locator("form.login-form").locator("button").first to be visible     - waiting for "http://10.100.1.1/login" navigation to finish... 
+2026-09-08 12:50:47,2,10.100.2.1,4C:46:D1:E4:00:A1,4c46d1-4c46d1e400a1,VSOL00E400A1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:51:59,1,10.100.1.1,4C:46:D1:E3:AE:19,4c46d1-4c46d1e3ae19,VSOL00E3AE19,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:52:31,4,10.100.4.1,4C:46:D1:E3:A7:C1,4c46d1-4c46d1e3a7c1,VSOL00E3A7C1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:52:44,3,10.100.3.1,4C:46:D1:E4:03:69,4c46d1-4c46d1e40369,VSOL00E40369,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:53:49,7,10.100.7.1,4C:46:D1:E3:A9:39,4c46d1-4c46d1e3a939,VSOL00E3A939,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 12:55:24,1,10.100.1.1,4C:46:D1:E3:AE:19,4c46d1-4c46d1e3ae19,VSOL00E3AE19,YA_CONFIGURADA,SI,ONU ya posee VLAN 3 activa y firmware configurado
+2026-09-08 13:22:41,1,10.100.1.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 13:24:38,8,10.100.8.1,4C:46:D1:E4:36:29,4c46d1-4c46d1e43629,VSOL00E43629,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:24:45,5,10.100.5.1,4C:46:D1:E4:68:39,4c46d1-4c46d1e46839,VSOL00E46839,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:24:45,6,10.100.6.1,4C:46:D1:E4:B7:59,4c46d1-4c46d1e4b759,VSOL00E4B759,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:26:18,7,10.100.7.1,4C:46:D1:E4:21:99,4c46d1-4c46d1e42199,VSOL00E42199,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:27:58,4,10.100.4.1,4C:46:D1:E4:BF:11,4c46d1-4c46d1e4bf11,VSOL00E4BF11,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:28:07,3,10.100.3.1,4C:46:D1:E4:39:59,4c46d1-4c46d1e43959,VSOL00E43959,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:28:11,2,10.100.2.1,4C:46:D1:E4:B8:81,4c46d1-4c46d1e4b881,VSOL00E4B881,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:32:02,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 13:32:32,7,10.100.7.1,4C:46:D1:E4:C7:59,,VSOL00E4C759,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 13:32:35,3,10.100.3.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 13:32:35,8,10.100.8.1,4C:46:D1:E3:F2:19,,VSOL00E3F219,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 13:36:26,8,10.100.8.1,4C:46:D1:E3:F2:19,4c46d1-4c46d1e3f219,VSOL00E3F219,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:36:31,7,10.100.7.1,4C:46:D1:E4:C7:59,4c46d1-4c46d1e4c759,VSOL00E4C759,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:36:36,3,10.100.3.1,4C:46:D1:E4:39:91,4c46d1-4c46d1e43991,VSOL00E43991,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:36:43,6,10.100.6.1,4C:46:D1:E4:32:A1,4c46d1-4c46d1e432a1,VSOL00E432A1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:39:40,1,10.100.1.1,4C:46:D1:E4:BE:19,4c46d1-4c46d1e4be19,VSOL00E4BE19,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:39:44,5,10.100.5.1,4C:46:D1:E4:30:E9,4c46d1-4c46d1e430e9,VSOL00E430E9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:39:58,4,10.100.4.1,4C:46:D1:E4:BA:A1,4c46d1-4c46d1e4baa1,VSOL00E4BAA1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:40:08,2,10.100.2.1,4C:46:D1:E4:BC:81,4c46d1-4c46d1e4bc81,VSOL00E4BC81,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:43:40,8,10.100.8.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 13:44:53,4,10.100.4.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 13:45:13,1,10.100.1.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 13:47:42,8,10.100.8.1,4C:46:D1:E4:38:F9,4c46d1-4c46d1e438f9,VSOL00E438F9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:47:59,7,10.100.7.1,4C:46:D1:E4:21:C1,4c46d1-4c46d1e421c1,VSOL00E421C1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:54:29,8,10.100.8.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 13:54:40,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 13:57:34,6,10.100.6.1,4C:46:D1:E3:B1:79,,VSOL00E3B179,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:57:34,7,10.100.7.1,4C:46:D1:E3:E3:99,4c46d1-4c46d1e3e399,VSOL00E3E399,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:58:12,5,10.100.5.1,4C:46:D1:E4:7A:51,4c46d1-4c46d1e47a51,VSOL00E47A51,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 13:58:53,4,10.100.4.1,4C:46:D1:E4:6A:39,4c46d1-4c46d1e46a39,VSOL00E46A39,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:00:41,1,10.100.1.1,4C:46:D1:E4:76:F9,4c46d1-4c46d1e476f9,VSOL00E476F9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:00:44,2,10.100.2.1,4C:46:D1:E4:6E:01,4c46d1-4c46d1e46e01,VSOL00E46E01,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:01:29,3,10.100.3.1,4C:46:D1:E3:E3:59,4c46d1-4c46d1e3e359,VSOL00E3E359,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:05:48,8,10.100.8.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 14:06:28,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 14:09:24,7,10.100.7.1,4C:46:D1:E4:32:D1,4c46d1-4c46d1e432d1,VSOL00E432D1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:10:05,6,10.100.6.1,4C:46:D1:E4:6F:E9,4c46d1-4c46d1e46fe9,VSOL00E46FE9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:10:18,5,10.100.5.1,4C:46:D1:E4:77:39,4c46d1-4c46d1e47739,VSOL00E47739,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:10:29,2,10.100.2.1,4C:46:D1:E3:DA:59,4c46d1-4c46d1e3da59,VSOL00E3DA59,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:12:36,8,10.100.8.1,4C:46:D1:E4:77:39,4c46d1-4c46d1e47739,VSOL00E47739,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:13:24,1,10.100.1.1,4C:46:D1:E4:6F:D1,4c46d1-4c46d1e46fd1,VSOL00E46FD1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:13:38,4,10.100.4.1,4C:46:D1:E4:6E:49,4c46d1-4c46d1e46e49,VSOL00E46E49,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:13:50,3,10.100.3.1,4C:46:D1:E4:69:39,4c46d1-4c46d1e46939,VSOL00E46939,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:18:09,7,10.100.7.1,4C:46:D1:E4:24:F1,,VSOL00E424F1,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 14:21:36,3,10.100.3.1,4C:46:D1:E4:6C:89,4c46d1-4c46d1e46c89,VSOL00E46C89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:22:24,7,10.100.7.1,4C:46:D1:E4:24:F1,4c46d1-4c46d1e424f1,VSOL00E424F1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:22:38,2,10.100.2.1,4C:46:D1:E4:A5:89,4c46d1-4c46d1e4a589,VSOL00E4A589,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:22:47,8,10.100.8.1,4C:46:D1:E3:F8:C9,4c46d1-4c46d1e3f8c9,VSOL00E3F8C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 14:32:16,2,10.100.2.1,4C:46:D1:E3:CA:A1,4c46d1-4c46d1e3caa1,VSOL00E3CAA1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 14:34:57,2,10.100.2.1,4C:46:D1:E3:BC:91,4c46d1-4c46d1e3bc91,VSOL00E3BC91,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 14:37:01,2,10.100.2.1,4C:46:D1:E4:4E:51,4c46d1-4c46d1e44e51,VSOL00E44E51,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 14:38:52,4,10.100.4.1,4C:46:D1:E3:EF:B1,4c46d1-4c46d1e3efb1,VSOL00E3EFB1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 14:40:17,2,10.100.2.1,4C:46:D1:E3:BB:E1,4c46d1-4c46d1e3bbe1,VSOL00E3BBE1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 14:40:29,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 14:40:50,4,10.100.4.1,4C:46:D1:E3:B5:79,4c46d1-4c46d1e3b579,VSOL00E3B579,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 15:16:53,4,10.100.4.1,4C:46:D1:E3:A7:71,4c46d1-4c46d1e3a771,VSOL00E3A771,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 15:17:08,1,10.100.1.1,4C:46:D1:E4:00:81,4c46d1-4c46d1e40081,VSOL00E40081,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 15:17:24,3,10.100.3.1,,,,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 15:17:30,2,10.100.2.1,4C:46:D1:E4:35:81,4c46d1-4c46d1e43581,VSOL00E43581,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 15:21:10,5,10.100.5.1,4C:46:D1:E4:BC:79,4c46d1-4c46d1e4bc79,VSOL00E4BC79,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 15:26:03,5,10.100.5.1,4C:46:D1:E4:B5:11,4c46d1-4c46d1e4b511,VSOL00E4B511,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 15:26:16,1,10.100.1.1,4C:46:D1:E4:39:21,4c46d1-4c46d1e43921,VSOL00E43921,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 15:28:45,4,10.100.4.1,4C:46:D1:E3:B1:79,4c46d1-4c46d1e3b179,VSOL00E3B179,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 15:28:50,5,10.100.5.1,4C:46:D1:E4:6C:51,4c46d1-4c46d1e46c51,VSOL00E46C51,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 15:32:01,2,10.100.2.1,4C:46:D1:E4:1C:D9,4c46d1-4c46d1e41cd9,VSOL00E41CD9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 15:59:57,6,10.100.6.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:00:18,8,10.100.8.1,4C:46:D1:E4:BA:D9,,VSOL00E4BAD9,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:00:38,7,10.100.7.1,4C:46:D1:E4:4C:51,,VSOL00E44C51,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:03:23,5,10.100.5.1,4C:46:D1:E4:81:11,4c46d1-4c46d1e48111,VSOL00E48111,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:04:25,6,10.100.6.1,4C:46:D1:E4:4C:79,4c46d1-4c46d1e44c79,VSOL00E44C79,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:04:33,8,10.100.8.1,4C:46:D1:E4:BA:D9,4c46d1-4c46d1e4bad9,VSOL00E4BAD9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:04:39,2,10.100.2.1,4C:46:D1:E4:BA:D9,4c46d1-4c46d1e4bad9,VSOL00E4BAD9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:06:32,7,10.100.7.1,4C:46:D1:E4:4C:51,4c46d1-4c46d1e44c51,VSOL00E44C51,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:07:46,1,10.100.1.1,4C:46:D1:E4:A2:71,4c46d1-4c46d1e4a271,VSOL00E4A271,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:08:01,4,10.100.4.1,4C:46:D1:E4:4E:71,4c46d1-4c46d1e44e71,VSOL00E44E71,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:08:01,3,10.100.3.1,4C:46:D1:E4:3D:91,4c46d1-4c46d1e43d91,VSOL00E43D91,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:11:40,2,10.100.2.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:11:49,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:11:53,7,10.100.7.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:12:10,6,10.100.6.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:12:40,8,10.100.8.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 16:12:50,6,10.100.6.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:13:45,1,10.100.1.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 16:15:37,5,10.100.5.1,4C:46:D1:E4:7D:11,4c46d1-4c46d1e47d11,VSOL00E47D11,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:15:41,7,10.100.7.1,4C:46:D1:E4:66:31,4c46d1-4c46d1e46631,VSOL00E46631,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:16:09,2,10.100.2.1,4C:46:D1:E4:74:C9,4c46d1-4c46d1e474c9,VSOL00E474C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:17:10,4,10.100.4.1,4C:46:D1:E4:B9:61,4c46d1-4c46d1e4b961,VSOL00E4B961,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:18:44,6,10.100.6.1,4C:46:D1:E4:74:A9,4c46d1-4c46d1e474a9,VSOL00E474A9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:18:50,3,10.100.3.1,4C:46:D1:E3:BC:89,4c46d1-4c46d1e3bc89,VSOL00E3BC89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:21:58,4,10.100.4.1,4C:46:D1:E4:A2:91,,VSOL00E4A291,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:25:56,8,10.100.8.1,4C:46:D1:E4:A3:C1,4c46d1-4c46d1e4a3c1,VSOL00E4A3C1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:26:11,4,10.100.4.1,4C:46:D1:E4:A2:91,4c46d1-4c46d1e4a291,VSOL00E4A291,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:26:12,5,10.100.5.1,4C:46:D1:E4:62:51,4c46d1-4c46d1e46251,VSOL00E46251,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:26:21,2,10.100.2.1,4C:46:D1:E4:31:69,4c46d1-4c46d1e43169,VSOL00E43169,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:31:29,2,10.100.2.1,4C:46:D1:E4:4B:71,,VSOL00E44B71,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:31:30,8,10.100.8.1,4C:46:D1:E4:26:51,,VSOL00E42651,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:35:31,6,10.100.6.1,4C:46:D1:E3:F9:69,,VSOL00E3F969,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:35:38,5,10.100.5.1,4C:46:D1:E4:1C:A9,4c46d1-4c46d1e41ca9,VSOL00E41CA9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:35:46,7,10.100.7.1,4C:46:D1:E3:E0:01,4c46d1-4c46d1e3e001,VSOL00E3E001,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:35:51,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:38:57,2,10.100.2.1,4C:46:D1:E4:4B:71,4c46d1-4c46d1e44b71,VSOL00E44B71,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:39:00,8,10.100.8.1,4C:46:D1:E4:26:51,4c46d1-4c46d1e42651,VSOL00E42651,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:39:06,1,10.100.1.1,4C:46:D1:E4:6E:99,4c46d1-4c46d1e46e99,VSOL00E46E99,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:39:14,4,10.100.4.1,4C:46:D1:E4:43:61,4c46d1-4c46d1e44361,VSOL00E44361,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:43:44,7,10.100.7.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:44:50,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 16:47:52,7,10.100.7.1,4C:46:D1:E3:E5:49,4c46d1-4c46d1e3e549,VSOL00E3E549,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:48:02,6,10.100.6.1,4C:46:D1:E4:75:89,4c46d1-4c46d1e47589,VSOL00E47589,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:48:44,5,10.100.5.1,4C:46:D1:E3:CC:59,4c46d1-4c46d1e3cc59,VSOL00E3CC59,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:48:56,3,10.100.3.1,4C:46:D1:E4:79:E1,4c46d1-4c46d1e479e1,VSOL00E479E1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:51:04,1,10.100.1.1,4C:46:D1:E4:47:49,4c46d1-4c46d1e44749,VSOL00E44749,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:51:16,2,10.100.2.1,4C:46:D1:E3:EC:F1,4c46d1-4c46d1e3ecf1,VSOL00E3ECF1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:52:05,4,10.100.4.1,4C:46:D1:E4:70:19,4c46d1-4c46d1e47019,VSOL00E47019,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:52:19,8,10.100.8.1,4C:46:D1:E4:0E:89,4c46d1-4c46d1e40e89,VSOL00E40E89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 16:56:33,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 17:00:17,7,10.100.7.1,4C:46:D1:E4:49:69,4c46d1-4c46d1e44969,VSOL00E44969,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:00:21,3,10.100.3.1,4C:46:D1:E4:45:09,4c46d1-4c46d1e44509,VSOL00E44509,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:00:43,1,10.100.1.1,4C:46:D1:E4:4A:49,4c46d1-4c46d1e44a49,VSOL00E44A49,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:00:50,5,10.100.5.1,4C:46:D1:E4:48:F9,4c46d1-4c46d1e448f9,VSOL00E448F9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:13:37,7,10.100.7.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 17:16:48,5,10.100.5.1,4C:46:D1:E4:19:C9,4c46d1-4c46d1e419c9,VSOL00E419C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:17:08,7,10.100.7.1,4C:46:D1:E4:91:91,4c46d1-4c46d1e49191,VSOL00E49191,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:17:14,6,10.100.6.1,4C:46:D1:E4:3E:71,4c46d1-4c46d1e43e71,VSOL00E43E71,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:17:30,2,10.100.2.1,4C:46:D1:E4:94:49,,VSOL00E49449,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:20:07,1,10.100.1.1,4C:46:D1:E4:67:E1,4c46d1-4c46d1e467e1,VSOL00E467E1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:20:22,8,10.100.8.1,4C:46:D1:E4:65:81,4c46d1-4c46d1e46581,VSOL00E46581,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:20:41,4,10.100.4.1,4C:46:D1:E4:82:C9,4c46d1-4c46d1e482c9,VSOL00E482C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:20:50,3,10.100.3.1,4C:46:D1:E4:C2:D1,4c46d1-4c46d1e4c2d1,VSOL00E4C2D1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:29:04,1,10.100.1.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 17:32:06,2,10.100.2.1,4C:46:D1:E4:A0:E1,4c46d1-4c46d1e4a0e1,VSOL00E4A0E1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:32:12,3,10.100.3.1,4C:46:D1:E4:89:C1,4c46d1-4c46d1e489c1,VSOL00E489C1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:32:49,4,10.100.4.1,4C:46:D1:E4:AC:51,4c46d1-4c46d1e4ac51,VSOL00E4AC51,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:33:25,7,10.100.7.1,4C:46:D1:E4:8E:B9,4c46d1-4c46d1e48eb9,VSOL00E48EB9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:35:19,1,10.100.1.1,4C:46:D1:E4:82:21,4c46d1-4c46d1e48221,VSOL00E48221,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:35:20,6,10.100.6.1,4C:46:D1:E4:9D:11,4c46d1-4c46d1e49d11,VSOL00E49D11,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:36:02,8,10.100.8.1,4C:46:D1:E4:3E:31,4c46d1-4c46d1e43e31,VSOL00E43E31,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:36:46,5,10.100.5.1,4C:46:D1:E4:62:01,4c46d1-4c46d1e46201,VSOL00E46201,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:45:41,2,10.100.2.1,4C:46:D1:E4:C2:71,,VSOL00E4C271,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 17:46:01,2,10.100.2.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 17:49:47,3,10.100.3.1,4C:46:D1:E4:C8:49,4c46d1-4c46d1e4c849,VSOL00E4C849,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:49:55,2,10.100.2.1,4C:46:D1:E4:C2:71,4c46d1-4c46d1e4c271,VSOL00E4C271,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:50:09,4,10.100.4.1,4C:46:D1:E4:9D:31,4c46d1-4c46d1e49d31,VSOL00E49D31,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:50:49,1,10.100.1.1,4C:46:D1:E4:4B:C9,4c46d1-4c46d1e44bc9,VSOL00E44BC9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 17:57:34,3,10.100.3.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 17:58:48,1,10.100.1.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 18:01:42,2,10.100.2.1,4C:46:D1:E3:E0:99,4c46d1-4c46d1e3e099,VSOL00E3E099,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:01:56,3,10.100.3.1,4C:46:D1:E4:07:71,4c46d1-4c46d1e40771,VSOL00E40771,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:02:48,4,10.100.4.1,4C:46:D1:E4:39:01,4c46d1-4c46d1e43901,VSOL00E43901,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:03:10,5,10.100.5.1,4C:46:D1:E4:1F:69,4c46d1-4c46d1e41f69,VSOL00E41F69,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:04:57,1,10.100.1.1,4C:46:D1:E3:C1:C9,4c46d1-4c46d1e3c1c9,VSOL00E3C1C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:05:02,8,10.100.8.1,4C:46:D1:E4:1C:81,4c46d1-4c46d1e41c81,VSOL00E41C81,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:06:14,6,10.100.6.1,4C:46:D1:E3:C6:F9,4c46d1-4c46d1e3c6f9,VSOL00E3C6F9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:06:27,7,10.100.7.1,4C:46:D1:E4:1E:09,4c46d1-4c46d1e41e09,VSOL00E41E09,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:14:26,2,10.100.2.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 18:17:48,4,10.100.4.1,4C:46:D1:E4:34:81,4c46d1-4c46d1e43481,VSOL00E43481,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:18:33,1,10.100.1.1,4C:46:D1:E4:29:29,4c46d1-4c46d1e42929,VSOL00E42929,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:18:38,2,10.100.2.1,4C:46:D1:E4:6E:89,4c46d1-4c46d1e46e89,VSOL00E46E89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:19:21,8,10.100.8.1,4C:46:D1:E3:C0:D1,4c46d1-4c46d1e3c0d1,VSOL00E3C0D1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:21:01,7,10.100.7.1,4C:46:D1:E3:E8:19,4c46d1-4c46d1e3e819,VSOL00E3E819,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:21:52,5,10.100.5.1,4C:46:D1:E3:C2:61,4c46d1-4c46d1e3c261,VSOL00E3C261,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:21:57,3,10.100.3.1,4C:46:D1:E3:FD:F1,4c46d1-4c46d1e3fdf1,VSOL00E3FDF1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:22:40,6,10.100.6.1,4C:46:D1:E4:B1:C9,4c46d1-4c46d1e4b1c9,VSOL00E4B1C9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:30:04,1,10.100.1.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 18:32:34,4,10.100.4.1,4C:46:D1:E3:E0:A1,4c46d1-4c46d1e3e0a1,VSOL00E3E0A1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:32:34,2,10.100.2.1,4C:46:D1:E3:D7:69,4c46d1-4c46d1e3d769,VSOL00E3D769,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:32:49,3,10.100.3.1,,,,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:40:31,8,10.100.8.1,4C:46:D1:E3:E0:19,4c46d1-4c46d1e3e019,VSOL00E3E019,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:48:40,1,10.100.1.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 18:50:38,3,10.100.3.1,4C:46:D1:E3:BF:A9,4c46d1-4c46d1e3bfa9,VSOL00E3BFA9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:50:53,2,10.100.2.1,4C:46:D1:E3:F7:A9,4c46d1-4c46d1e3f7a9,VSOL00E3F7A9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:52:05,4,10.100.4.1,4C:46:D1:E4:0E:19,4c46d1-4c46d1e40e19,VSOL00E40E19,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:52:09,6,10.100.6.1,4C:46:D1:E4:06:81,4c46d1-4c46d1e40681,VSOL00E40681,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:53:45,5,10.100.5.1,4C:46:D1:E3:CD:E9,4c46d1-4c46d1e3cde9,VSOL00E3CDE9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:53:58,7,10.100.7.1,4C:46:D1:E3:D7:49,4c46d1-4c46d1e3d749,VSOL00E3D749,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 18:55:24,8,10.100.8.1,4C:46:D1:E3:BF:89,4c46d1-4c46d1e3bf89,VSOL00E3BF89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 19:06:52,6,10.100.6.1,4C:46:D1:E4:0A:A9,4c46d1-4c46d1e40aa9,VSOL00E40AA9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 19:10:19,2,10.100.2.1,4C:46:D1:E4:05:39,,VSOL00E40539,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 19:11:54,8,10.100.8.1,4C:46:D1:E3:C7:01,,VSOL00E3C701,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 19:13:40,4,10.100.4.1,4C:46:D1:E3:C7:99,4c46d1-4c46d1e3c799,VSOL00E3C799,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 19:13:43,3,10.100.3.1,4C:46:D1:E3:BF:B1,4c46d1-4c46d1e3bfb1,VSOL00E3BFB1,ERROR,NO,Fallo: No se pudo ingresar con credenciales finales (Powerlink)
+2026-09-08 19:14:21,5,10.100.5.1,4C:46:D1:E4:07:91,4c46d1-4c46d1e40791,VSOL00E40791,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 19:14:29,3,10.100.3.1,4C:46:D1:E3:BF:B1,4c46d1-4c46d1e3bfb1,VSOL00E3BFB1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 19:15:14,7,10.100.7.1,4C:46:D1:E3:CC:D1,4c46d1-4c46d1e3ccd1,VSOL00E3CCD1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 19:16:53,6,10.100.6.1,4C:46:D1:E3:E4:61,4c46d1-4c46d1e3e461,VSOL00E3E461,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 19:16:55,1,10.100.1.1,4C:46:D1:E3:BF:01,4c46d1-4c46d1e3bf01,VSOL00E3BF01,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:19:32,4,10.100.4.1,4C:46:D1:E3:BF:B1,4c46d1-4c46d1e3bfb1,VSOL00E3BFB1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 20:21:09,2,10.100.2.1,4C:46:D1:E3:BF:B1,4c46d1-4c46d1e3bfb1,VSOL00E3BFB1,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 20:22:39,1,10.100.1.1,4C:46:D1:E4:05:39,4c46d1-4c46d1e40539,VSOL00E40539,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:23:45,3,10.100.3.1,4C:46:D1:E3:C7:01,4c46d1-4c46d1e3c701,VSOL00E3C701,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:27:16,2,10.100.2.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 20:28:30,1,10.100.1.1,4C:46:D1:E3:EC:49,,VSOL00E3EC49,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 20:31:06,2,10.100.2.1,4C:46:D1:E3:CE:59,4c46d1-4c46d1e3ce59,VSOL00E3CE59,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:31:15,4,10.100.4.1,4C:46:D1:E3:EC:B9,4c46d1-4c46d1e3ecb9,VSOL00E3ECB9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:31:22,3,10.100.3.1,4C:46:D1:E3:E9:B9,4c46d1-4c46d1e3e9b9,VSOL00E3E9B9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:39:18,7,10.100.7.1,4C:46:D1:E3:EC:49,4c46d1-4c46d1e3ec49,VSOL00E3EC49,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:44:24,4,10.100.4.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 20:44:35,1,10.100.1.1,,,,EXITO_LOGIN_FINAL,NO,Login final OK pero VLAN3 no verificada (revisar)
+2026-09-08 20:46:09,2,10.100.2.1,4C:46:D1:E3:D7:F9,4c46d1-4c46d1e3d7f9,VSOL00E3D7F9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:48:00,4,10.100.4.1,4C:46:D1:E3:DE:81,4c46d1-4c46d1e3de81,VSOL00E3DE81,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:48:06,6,10.100.6.1,4C:46:D1:E3:AD:E1,4c46d1-4c46d1e3ade1,VSOL00E3ADE1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:48:35,8,10.100.8.1,4C:46:D1:E3:AB:59,4c46d1-4c46d1e3ab59,VSOL00E3AB59,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:49:34,3,10.100.3.1,4C:46:D1:E3:FD:89,4c46d1-4c46d1e3fd89,VSOL00E3FD89,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:51:16,7,10.100.7.1,4C:46:D1:E3:C5:29,4c46d1-4c46d1e3c529,VSOL00E3C529,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:51:25,5,10.100.5.1,4C:46:D1:E3:FE:A9,4c46d1-4c46d1e3fea9,VSOL00E3FEA9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 20:57:51,8,10.100.8.1,4C:46:D1:E3:FD:81,4c46d1-4c46d1e3fd81,VSOL00E3FD81,YA_CONFIGURADA,SI,ONU ya estaba en estado final con VLAN3 verificada
+2026-09-08 21:02:41,2,10.100.2.1,4C:46:D1:E3:C8:19,,VSOL00E3C819,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 21:03:03,5,10.100.5.1,,,,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 21:03:28,3,10.100.3.1,4C:46:D1:E4:03:11,,VSOL00E40311,SIN_ONU,NO,Sin respuesta HTTP (puerto vacio o ONU apagada)
+2026-09-08 21:06:24,4,10.100.4.1,4C:46:D1:E3:C8:29,4c46d1-4c46d1e3c829,VSOL00E3C829,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:06:42,1,10.100.1.1,4C:46:D1:E3:FE:19,4c46d1-4c46d1e3fe19,VSOL00E3FE19,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:06:47,2,10.100.2.1,4C:46:D1:E3:C8:19,4c46d1-4c46d1e3c819,VSOL00E3C819,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:07:07,7,10.100.7.1,4C:46:D1:E3:D2:A9,4c46d1-4c46d1e3d2a9,VSOL00E3D2A9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:09:51,8,10.100.8.1,4C:46:D1:E3:C7:F1,4c46d1-4c46d1e3c7f1,VSOL00E3C7F1,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:09:58,3,10.100.3.1,4C:46:D1:E4:03:11,4c46d1-4c46d1e40311,VSOL00E40311,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:10:13,5,10.100.5.1,4C:46:D1:E4:02:21,4c46d1-4c46d1e40221,VSOL00E40221,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:10:29,6,10.100.6.1,4C:46:D1:E3:D4:99,4c46d1-4c46d1e3d499,VSOL00E3D499,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:19:37,7,10.100.7.1,4C:46:D1:E4:02:91,4c46d1-4c46d1e40291,VSOL00E40291,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:19:48,6,10.100.6.1,4C:46:D1:E4:02:91,4c46d1-4c46d1e40291,VSOL00E40291,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:20:16,8,10.100.8.1,4C:46:D1:E3:E0:21,4c46d1-4c46d1e3e021,VSOL00E3E021,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-08 21:20:27,5,10.100.5.1,4C:46:D1:E3:D4:A9,4c46d1-4c46d1e3d4a9,VSOL00E3D4A9,EXITO,SI,Firmware cargado; reset completado; VLAN3 verificada
+2026-09-21 17:24:11,1,10.100.1.1,,,,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-09-21 17:32:06,1,10.100.1.1,4C:46:D1:B8:C6:3E,,VSOL00B8C63E,ERROR,NO,Fallo: Page.goto: Timeout 30000ms exceeded. Call log:   - navigating to "http://10.100.1.1/"; waiting until "load" 
+2026-09-21 21:08:58,1,10.100.1.1,4C:46:D1:B8:C6:3E,,VSOL00B8C63E,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-09-21 21:25:04,1,10.100.1.1,4C:46:D1:B8:C6:3E,,VSOL00B8C63E,ERROR,NO,Fallo: No se pudo autenticar (ningun juego de credenciales funciono)
+2026-09-22 19:59:14,1,192.168.1.1,,,,ERROR,NO,Fallo: ONU sin respuesta HTTP a tiempo
+2026-09-22 20:52:43,1,192.168.1.1,,,,ERROR,NO,Fallo: No se pudo autenticar como Administrador en la ONU (todas las credenciales fueron rechazadas). Para restaurar las credenciales de fábrica (admin / stdONU101); por favor mantén presionado el botón físico de RESET en la ONU durante 10 a 15 segundos con el equipo encendido.

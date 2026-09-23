@@ -70,6 +70,13 @@ async def add_security_headers(request: Request, call_next):
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# Import new routers
+from routers.flasheo_router import router as flasheo_app_router
+from routers.aprovisionamiento_router import router as aprov_app_router
+
+app.include_router(flasheo_app_router)
+app.include_router(aprov_app_router)
+
 # Pydantic Schemas
 class FeedbackCreate(BaseModel):
     content: str
