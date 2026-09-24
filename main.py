@@ -1199,32 +1199,38 @@ async def procesar_auditoria_api(
     # Variables Conciliación Residencial
     ingreso_ayer = 0.0
     ingreso_hoy = 0.0
-    impacto_instalaciones = 0.0
-    impacto_reconexiones = 0.0
-    impacto_upgrades = 0.0
-    impacto_upgrades_beneficio = 0.0
-    impacto_downgrades = 0.0
-    impacto_retiros_post_corte = 0.0
-    impacto_retiros_pre_corte = 0.0
-    impacto_otros = 0.0
-    impacto_exclusion_tv = 0.0
-
     count_activos_ayer = 0
-    count_instalaciones = 0
-    count_reconexiones = 0
-    count_upgrades = 0
-    count_upgrades_beneficio = 0
-    count_downgrades = 0
-    count_retiros_post_corte = 0
-    count_retiros_pre_corte = 0
-    count_otros = 0
-    count_exclusion_tv = 0
+    count_activos_hoy = 0
+    
+    emp_exo_qty = 0
+    emp_exo_mnt = 0.0
+    res_exo_qty = 0
+    res_exo_mnt = 0.0
+    upgrades_qty = 0
+    upgrades_mnt = 0.0
+    cambios_3m_qty = 0
+    cambios_3m_mnt = 0.0
+    reconex_qty = 0
+    reconex_mnt = 0.0
+    reconex_exo_qty = 0
+    reconex_exo_mnt = 0.0
+    inst_3m_qty = 0
+    inst_3m_mnt = 0.0
+    inst_norm_qty = 0
+    inst_norm_mnt = 0.0
+    downgrades_qty = 0
+    downgrades_mnt = 0.0
+    susp_qty = 0
+    susp_mnt = 0.0
     
     # Variables Conciliación Corporativa
     ingreso_ayer_corp = 0.0
     ingreso_hoy_corp = 0.0
     count_activos_ayer_corp = 0
     count_activos_hoy_corp = 0
+    
+    impacto_exclusion_tv = 0.0
+    count_exclusion_tv = 0
     
     fechaCorte = datetime.now().strftime("%Y-%m-01")
 
@@ -1239,6 +1245,20 @@ async def procesar_auditoria_api(
     datosConciliacionDetalle = []
     datosClientesActivos = []
     
+    def parse_amount(val):
+        if val is None: return 0.0
+        if isinstance(val, (int, float)): return float(val)
+        s = str(val).replace('$', '').replace(' ', '').strip()
+        if not s: return 0.0
+        s = s.replace(',', '.')
+        if s.count('.') > 1:
+            parts = s.rsplit('.', 1)
+            s = parts[0].replace('.', '') + '.' + parts[1]
+        try:
+            return float(s)
+        except:
+            return 0.0
+            
     for item in list_new:
         row = map_to_excel_format(item)
         sid = str(row['ID Servicio']).strip()
@@ -1251,17 +1271,17 @@ async def procesar_auditoria_api(
         tipoServicioNew = str(row['Tipo de servicio']).strip().upper()
         
         try:
-            costoDelPlanNew = float(row['Costo del plan'])
+            costoDelPlanNew = parse_amount(row['Costo del plan'])
         except:
             costoDelPlanNew = 0.0
             
-        if planNew.upper() in ['IPTV', 'TV'] or tipoServicioNew in ['IPTV', 'TV']:
+        if planNew.upper() == 'TV' or tipoServicioNew == 'IPTV':
             continue
             
         estadoServicioNew = str(row['Estado servicio']).strip().upper()
         
         try:
-            saldoActual = float(row['Saldo actual'])
+            saldoActual = parse_amount(row['Saldo actual'])
         except:
             saldoActual = 0.0
             
@@ -1306,7 +1326,7 @@ async def procesar_auditoria_api(
                 ingreso_hoy_corp += costoDelPlanNew
                 count_activos_hoy_corp += 1
             elif tipoServicioNew == 'RESIDENCIAL':
-                if 'tv' not in planNew.lower() and 'iptv' not in planNew.lower():
+                if planNew.upper() != 'TV':
                     totalActivos += 1
                     ingreso_hoy += costoDelPlanNew
                 else:
@@ -1360,7 +1380,7 @@ async def procesar_auditoria_api(
                 estatusOldCorp = str(row_old_corp['Estado servicio']).strip().upper()
                 if estatusOldCorp == 'ACT.':
                     try:
-                        costoOldCorp = float(row_old_corp['Costo del plan'])
+                        costoOldCorp = parse_amount(row_old_corp['Costo del plan'])
                     except:
                         costoOldCorp = 0.0
                     ingreso_ayer_corp += costoOldCorp
@@ -1431,7 +1451,7 @@ async def procesar_auditoria_api(
             estatusOld = str(row_old['Estado servicio']).strip().upper()
             estatusNew = estadoServicioNew
             try:
-                costoOld = float(row_old['Costo del plan'])
+                costoOld = parse_amount(row_old['Costo del plan'])
             except:
                 costoOld = 0.0
                 
@@ -1443,159 +1463,38 @@ async def procesar_auditoria_api(
                 ingreso_ayer += costoOld
                 count_activos_ayer += 1
                 
-            # Finanzas - Bridge
-            if estatusOld != 'ACT.' and estatusNew == 'ACT.' and is_estado_in_range:
-                if is_instalacion_in_range and '3 MESES' in planNew.upper():
-                    impacto_instalaciones += costoDelPlanNew
-                    count_instalaciones += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Nuevas Instalaciones (3 Meses Beneficio)',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaInstalacionFormat
-                    })
+            # Finanzas - Bridge (Conciliación Financiera)
+            if estatusOld != 'EXO.' and estatusNew == 'EXO.':
+                if 'EMP' in str(row.get('Nombres', '')).upper() or 'EMP' in row.get('Cédula', '').upper():
+                    emp_exo_qty += 1
+                    emp_exo_mnt += variacionNeta
                 else:
-                    impacto_reconexiones += costoDelPlanNew
-                    count_reconexiones += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Reconexiones',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaEstadoFormat
-                    })
-            elif estatusOld == 'ACT.' and estatusNew != 'ACT.' and is_estado_in_range:
-                if estado_dt >= corte_dt:
-                    impacto_retiros_post_corte += costoOld
-                    count_retiros_post_corte += 1
-                else:
-                    impacto_retiros_pre_corte += costoOld
-                    count_retiros_pre_corte += 1
-                datosConciliacionDetalle.append({
-                    'ID Servicio': sid,
-                    'Cédula': row['Cédula'],
-                    'Nombres': row['Nombres'],
-                    'Concepto': 'Retiros',
-                    'Plan Anterior': planOld,
-                    'Plan Actual': planNew,
-                    'Estado Anterior': estatusOld,
-                    'Estado Actual': estatusNew,
-                    'Costo Anterior': costoOld,
-                    'Costo Actual': 0.0,
-                    'Variación': -costoOld,
-                    'Fecha': fechaEstadoFormat
-                })
-            elif estatusOld == 'ACT.' and estatusNew == 'ACT.' and is_plan_in_range:
+                    res_exo_qty += 1
+                    res_exo_mnt += variacionNeta
+                    
+            elif estatusOld == 'ACT.' and estatusNew == 'ACT.':
                 if costoDelPlanNew > costoOld:
-                    if '3 MESES BENEFICIO' in planOld.upper() or '3 MESES BENEFICIO' in planNew.upper():
-                        impacto_upgrades_beneficio += (costoDelPlanNew - costoOld)
-                        count_upgrades_beneficio += 1
-                        concepto_upg = 'Cambios 3 Meses Beneficio a otro Plan'
+                    if '3 MESES BENEFICIO' in planOld.upper() and '3 MESES BENEFICIO' not in planNew.upper():
+                        cambios_3m_qty += 1
+                        cambios_3m_mnt += variacionNeta
                     else:
-                        impacto_upgrades += (costoDelPlanNew - costoOld)
-                        count_upgrades += 1
-                        concepto_upg = 'Upgrades de Plan'
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': concepto_upg,
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew - costoOld,
-                        'Fecha': fechaPlanDesdeFormat
-                    })
+                        upgrades_qty += 1
+                        upgrades_mnt += variacionNeta
                 elif costoDelPlanNew < costoOld:
-                    impacto_downgrades += (costoOld - costoDelPlanNew)
-                    count_downgrades += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Downgrades de Plan',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': -(costoOld - costoDelPlanNew),
-                        'Fecha': fechaPlanDesdeFormat
-                    })
-            else:
-                if estatusOld == 'ACT.' and estatusNew == 'ACT.' and costoOld != costoDelPlanNew:
-                    # Ajuste manual de precio (mismo plan o fuera de rango)
-                    impacto_otros += (costoDelPlanNew - costoOld)
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Ajuste Manual / Cambio Fuera de Rango',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew - costoOld,
-                        'Fecha': fechaPlanDesdeFormat if planOld != planNew else 'N/A'
-                    })
-                elif estatusOld != 'ACT.' and estatusNew == 'ACT.':
-                    # Reactivación fuera de rango
-                    impacto_otros += costoDelPlanNew
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Reactivación Fuera de Rango',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaEstadoFormat
-                    })
-                elif estatusOld == 'ACT.' and estatusNew != 'ACT.':
-                    # Retiro fuera de rango
-                    impacto_otros -= costoOld
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Retiro Fuera de Rango',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': 0.0,
-                        'Variación': -costoOld,
-                        'Fecha': fechaEstadoFormat
-                    })
+                    downgrades_qty += 1
+                    downgrades_mnt += variacionNeta
+                    
+            elif estatusOld in ['SUSP.', 'RET.', 'POR RET.', 'EXO.'] and estatusNew == 'ACT.':
+                if estatusOld == 'EXO.':
+                    reconex_exo_qty += 1
+                    reconex_exo_mnt += variacionNeta
+                else:
+                    reconex_qty += 1
+                    reconex_mnt += variacionNeta
+                
+            elif estatusOld == 'ACT.' and estatusNew in ['SUSP.', 'RET.', 'POR RET.']:
+                susp_qty += 1
+                susp_mnt += variacionNeta
             
             if planOld != planNew and is_plan_in_range:
                 datosCambiosPlan.append({
@@ -1643,59 +1542,32 @@ async def procesar_auditoria_api(
                     'Fecha Último Cambio Estado': fechaEstadoFormat
                 })
         else:
-            if estadoServicioNew == 'ACT.':
-                if is_instalacion_in_range:
-                    impacto_instalaciones += costoDelPlanNew
-                    count_instalaciones += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Nuevas Instalaciones',
-                        'Plan Anterior': '-',
-                        'Plan Actual': planNew,
-                        'Estado Anterior': '-',
-                        'Estado Actual': estadoServicioNew,
-                        'Costo Anterior': 0.0,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaInstalacionFormat
-                    })
+            if estadoServicioNew == 'ACT.' and is_missing_in_old:
+                if '3 MESES BENEFICIO' in planNew.upper():
+                    inst_3m_qty += 1
+                    inst_3m_mnt += costoDelPlanNew
                 else:
-                    impacto_otros += costoDelPlanNew
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Instalación Fuera de Rango',
-                        'Plan Anterior': '-',
-                        'Plan Actual': planNew,
-                        'Estado Anterior': '-',
-                        'Estado Actual': estadoServicioNew,
-                        'Costo Anterior': 0.0,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaInstalacionFormat
-                    })
+                    inst_norm_qty += 1
+                    inst_norm_mnt += costoDelPlanNew
 
     for sid, row_old in old_dict.items():
         if sid not in processed_sids:
             tipoServicioOld = str(row_old.get('Tipo de servicio', '')).strip().upper()
-            if tipoServicioOld in ['PYME', 'CORPORATIVO']:
+            planOld = str(row_old.get('Plan', '')).strip().upper()
+            if tipoServicioOld in ['PYME', 'CORPORATIVO', 'IPTV'] or planOld == 'TV':
                 continue
                 
             estatusOld = str(row_old['Estado servicio']).strip().upper()
             try:
-                costoOld = float(row_old['Costo del plan'])
+                costoOld = parse_amount(row_old['Costo del plan'])
             except:
                 costoOld = 0.0
                 
             if estatusOld == 'ACT.':
                 ingreso_ayer += costoOld
-                impacto_retiros_pre_corte += costoOld
                 count_activos_ayer += 1
-                count_retiros_pre_corte += 1
+                susp_qty += 1
+                susp_mnt -= costoOld
                 datosConciliacionDetalle.append({
                     'ID Servicio': sid,
                     'Cédula': row_old.get('Cédula', '') or '-',
@@ -1780,22 +1652,26 @@ async def procesar_auditoria_api(
             "cant_ayer": count_activos_ayer,
             "ingreso_hoy": ingreso_hoy,
             "cant_hoy": totalActivos,
-            "instalaciones": impacto_instalaciones,
-            "cant_instalaciones": count_instalaciones,
-            "reconexiones": impacto_reconexiones,
-            "cant_reconexiones": count_reconexiones,
-            "upgrades": impacto_upgrades,
-            "cant_upgrades": count_upgrades,
-            "upgrades_beneficio": impacto_upgrades_beneficio,
-            "cant_upgrades_beneficio": count_upgrades_beneficio,
-            "downgrades": impacto_downgrades,
-            "cant_downgrades": count_downgrades,
-            "retiros": impacto_retiros_post_corte + impacto_retiros_pre_corte,
-            "cant_retiros": count_retiros_post_corte + count_retiros_pre_corte,
-            "otros_impacto": impacto_otros,
-            "cant_otros": count_otros,
-            "exclusion_tv": impacto_exclusion_tv,
-            "cant_exclusion_tv": count_exclusion_tv,
+            "emp_exo_qty": emp_exo_qty,
+            "emp_exo_mnt": emp_exo_mnt,
+            "res_exo_qty": res_exo_qty,
+            "res_exo_mnt": res_exo_mnt,
+            "upgrades_qty": upgrades_qty,
+            "upgrades_mnt": upgrades_mnt,
+            "cambios_3m_qty": cambios_3m_qty,
+            "cambios_3m_mnt": cambios_3m_mnt,
+            "reconex_qty": reconex_qty,
+            "reconex_mnt": reconex_mnt,
+            "reconex_exo_qty": reconex_exo_qty,
+            "reconex_exo_mnt": reconex_exo_mnt,
+            "inst_3m_qty": inst_3m_qty,
+            "inst_3m_mnt": inst_3m_mnt,
+            "inst_norm_qty": inst_norm_qty,
+            "inst_norm_mnt": inst_norm_mnt,
+            "downgrades_qty": downgrades_qty,
+            "downgrades_mnt": downgrades_mnt,
+            "susp_qty": susp_qty,
+            "susp_mnt": susp_mnt,
             "cant_diferencia_neta": totalActivos - count_activos_ayer
         },
         "conciliacion_financiera_corp": {
@@ -1830,8 +1706,7 @@ def build_plan_aggregates(users):
             plan = str(item.get('plan', '')).strip() or 'Sin Plan'
             service_type = str(item.get('service_type', '')).strip().upper()
             
-            # Omitir IPTV si corresponde
-            if plan.upper() in ['IPTV', 'TV'] or service_type in ['IPTV', 'TV']:
+            if plan.upper() == 'TV' or service_type == 'IPTV':
                 continue
                 
             try:
