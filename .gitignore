@@ -1,1 +1,14 @@
 .env
+__pycache__/
+*.pyc
+venv/
+scratch/
+db.json
+static/uploads/*.json
+*.db
+intranet_local.db
+__pycache__/
+*.pyc
+db.json
+static/uploads/*.json
+temp_brandon/Estacion de flasheo.zip
