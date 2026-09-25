@@ -87,6 +87,18 @@ def get_engine():
     except Exception:
         pass # Column likely already exists
 
+    # Auto-migrate flasheo tables and columns
+    for col_def in [
+        "station_id VARCHAR(50) DEFAULT 'ESTACION-DEFAULT'",
+        "sync_status VARCHAR(20) DEFAULT 'SYNCED'",
+        "synced_at DATETIME"
+    ]:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE onus_flasheadas ADD COLUMN {col_def}"))
+        except Exception:
+            pass
+
     return engine
 
 

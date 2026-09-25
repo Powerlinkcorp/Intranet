@@ -6,9 +6,8 @@ scratch/
 db.json
 static/uploads/*.json
 *.db
+*.db-shm
+*.db-wal
 intranet_local.db
-__pycache__/
-*.pyc
-db.json
-static/uploads/*.json
+capturas/
 temp_brandon/Estacion de flasheo.zip
