@@ -117,8 +117,12 @@ class LoteCaja(Base):
     onus = relationship("ONU", back_populates="lote")
 
     def to_dict(self, include_clave=False):
+        synced_at_val = getattr(self, "synced_at", None)
         return {
             "id": self.id,
+            "station_id": getattr(self, "station_id", "ESTACION-GALPON-01") or "ESTACION-GALPON-01",
+            "sync_status": getattr(self, "sync_status", "SYNCED") or "SYNCED",
+            "synced_at": synced_at_val.strftime("%Y-%m-%d %H:%M:%S") if (synced_at_val and hasattr(synced_at_val, "strftime")) else "", 
             "codigo_lote": self.codigo_lote,
             "numero_caja": self.numero_caja,
             "descripcion": self.descripcion,
@@ -158,6 +162,9 @@ class ONU(Base):
     duracion_segundos = Column(Integer, default=0)
     captura_path = Column(String(255), default="")
     operador_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
+    station_id = Column(String(50), default="ESTACION-GALPON-1", index=True)
+    sync_status = Column(String(20), default="PENDING", index=True)
+    synced_at = Column(DateTime, nullable=True)
     fecha_hora = Column(DateTime, default=datetime.utcnow, index=True)
 
     # Relaciones
@@ -169,6 +176,9 @@ class ONU(Base):
         """Retorna diccionario serializable para la UI y la API externa."""
         return {
             "id": self.id,
+            "station_id": self.station_id or "ESTACION-GALPON-1",
+            "sync_status": self.sync_status or "PENDING",
+            "synced_at": self.synced_at.strftime("%Y-%m-%d %H:%M:%S") if self.synced_at else "", 
             "lote_id": self.lote_id,
             "codigo_lote": self.lote.codigo_lote if self.lote else None,
             "numero_caja": self.lote.numero_caja if self.lote else None,

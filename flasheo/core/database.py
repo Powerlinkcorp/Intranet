@@ -24,12 +24,12 @@ CORE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(CORE_DIR) if os.path.basename(CORE_DIR) == "core" else CORE_DIR
 CONFIG_DIR = os.path.join(PROJECT_ROOT, "config")
 LOGS_DIR = os.path.join(PROJECT_ROOT, "logs")
-DB_PATH = os.path.join(PROJECT_ROOT, "..", "intranet_local.db")
+DB_PATH = os.path.join(CONFIG_DIR, "estacion_flasheo.db")
 
 for d in [CONFIG_DIR, LOGS_DIR]:
     os.makedirs(d, exist_ok=True)
 
-from flasheo.core.models import Base, Usuario, ModeloONU, LoteCaja, ONU
+from core.models import Base, Usuario, ModeloONU, LoteCaja, ONU
 
 # Configuración del motor SQLAlchemy con SQLite
 engine = create_engine(
@@ -130,9 +130,20 @@ def _auto_migrate():
                 if col not in cols_l:
                     conn.exec_driver_sql(f"ALTER TABLE lotes_cajas ADD COLUMN {col} {ctype}")
 
+                        # Tabla onus_flasheadas
+            res_o = conn.exec_driver_sql("PRAGMA table_info(onus_flasheadas)").fetchall()
+            cols_o = [r[1] for r in res_o]
+            for col, ctype in [
+                ("station_id", "TEXT DEFAULT 'ESTACION-GALPON-01'"),
+                ("sync_status", "TEXT DEFAULT 'PENDING'"),
+                ("synced_at", "DATETIME"),
+            ]:
+                if col not in cols_o:
+                    conn.exec_driver_sql(f"ALTER TABLE onus_flasheadas ADD COLUMN {col} {ctype}")
+
             conn.commit()
         except Exception as ex:
-            print(f"[DB] Auto-migración nota: {ex}")
+            print(f"[DB] Auto-migracion nota: {ex}")
 
 
 def init_db():
@@ -452,6 +463,14 @@ def log_onu_flash(
         usuario_asignado = active_lote.usuario_asignado if active_lote else "Powerlink"
         firmware_usado = firmware or (active_lote.firmware_asignado if active_lote else "")
 
+        # Obtener station_id configurado para esta laptop
+        try:
+            from core.sync_client import StationSyncClient
+            st_cfg = StationSyncClient.load_config()
+            station_id = st_cfg.get("station_id", "ESTACION-GALPON-01")
+        except Exception:
+            station_id = "ESTACION-GALPON-01"
+
         onu = ONU(
             lote_id=lote_id,
             modelo_id=modelo_id,
@@ -469,6 +488,8 @@ def log_onu_flash(
             duracion_segundos=duracion_seg,
             captura_path=captura_path,
             operador_id=operador_id,
+            station_id=station_id,
+            sync_status="PENDING",
             fecha_hora=datetime.now(),
         )
         session.add(onu)
@@ -484,6 +505,14 @@ def log_onu_flash(
                 active_lote.estado = "COMPLETO"
 
         session.commit()
+
+        # Disparar sincronización asíncrona hacia el servidor Intranet
+        try:
+            from core.sync_client import StationSyncClient
+            StationSyncClient.sync_pending_async()
+        except Exception as ex_sync:
+            print(f"[SYNC] Aviso al sincronizar en background: {ex_sync}")
+
         return onu.to_dict(include_clave=True)
     except Exception as ex:
         session.rollback()

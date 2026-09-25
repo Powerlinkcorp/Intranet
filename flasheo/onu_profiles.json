@@ -57,6 +57,62 @@
       "badge_color": "#3b82f6",
       "box_default_qty": 20
     },
+    "V2801D-B": {
+      "id": "V2801D-B",
+      "name": "VSOL V2801D-B ONU 1GE",
+      "description": "G/EPON ONU 1GE (Bridge / Router)",
+      "firmware": "V2801D-B_all_V6.1.4-260914_powerlink_GPON.bin",
+      "default_user": "admin",
+      "default_pass": "stdONU101",
+      "admin_user": "admin",
+      "admin_pass": "stdONU101",
+      "candidate_credentials": [
+        [
+          "Powerlink",
+          "Powerlink2026*"
+        ],
+        [
+          "admin",
+          "stdONU101"
+        ],
+        [
+          "admin",
+          "admin"
+        ],
+        [
+          "admin",
+          "admin123"
+        ],
+        [
+          "admin",
+          "Redes2010"
+        ],
+        [
+          "admin",
+          "123456"
+        ],
+        [
+          "admin",
+          "Powerlink2026*"
+        ]
+      ],
+      "new_user": "admin",
+      "new_pass": "admin123",
+      "final_user": "Powerlink",
+      "final_pass": "Powerlink2026*",
+      "has_wizard": false,
+      "arch": "zte_cortina",
+      "upgrade_page": "/getpage.gch?pid=1002&nextpage=manager_dev_version_t.gch",
+      "config_page": "/getpage.gch?pid=1002&nextpage=manager_dev_conf_t.gch",
+      "upload_endpoint": "/getpage.gch?pid=100",
+      "target_wan_name": "1_TR069_INTERNET_R_VID_3",
+      "target_vlan_id": "3",
+      "commercial_name": "VSOL 1GE G/EPON (Bridge / Router)",
+      "hardware_type": "1GE G/EPON",
+      "icon": "⚡",
+      "badge_color": "#3b82f6",
+      "box_default_qty": 20
+    },
     "V2804AX30-H": {
       "id": "V2804AX30-H",
       "name": "VSOL V2804AX30-H / HG3232AXT-H",

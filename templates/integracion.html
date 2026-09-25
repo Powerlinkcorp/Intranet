@@ -581,197 +581,86 @@
                 </div>
             </div>
 
-            <!-- Conciliación Financiera Directa en Pestaña (Muestra la variación contra el registro base) -->
+            <!-- Variación / Conciliación Financiera -->
             <div id="seccionConciliacionFinanciera" class="bg-white rounded-xl shadow-xs border border-gray-200 p-6 mb-8 hidden">
-                <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
-                    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fa-solid fa-file-invoice-dollar text-indigo-600"></i> Variación / Conciliación Financiera
-                    </h3>
-                    <span class="text-xs font-semibold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-100">
-                        Base vs Hoy
-                    </span>
-                </div>
-                <p class="text-sm text-gray-500 mb-5">Este desglose explica la diferencia matemática entre el ingreso facturado en la <b>Base Seleccionada (Ayer o Día 1)</b> y el monto total de <b>Hoy</b>.</p>
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-chart-line text-emerald-500"></i> Variación Financiera (Día 1 vs Hoy)
+                </h3>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- CORPORATIVOS -->
-                    <div class="bg-white overflow-hidden rounded-xl border border-gray-200 shadow-xs h-fit">
-                        <div class="bg-gray-800 text-white p-3 text-center font-bold text-sm tracking-widest uppercase">
-                            Corporativos
-                        </div>
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
-                                <tr>
-                                    <th class="py-3 px-4 text-left">Concepto</th>
-                                    <th class="py-3 px-4 text-right">Monto</th>
-                                    <th class="py-3 px-4 text-right">Cantidad</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 font-mono">
-                                <tr class="bg-gray-50/60 font-bold text-gray-800">
-                                    <td class="py-3 px-4 text-left font-sans">1. Ingreso Base</td>
-                                    <td class="py-3 px-4 text-right" id="fin-ingreso-ayer-corp">$0.00</td>
-                                    <td class="py-3 px-4 text-right text-gray-700" id="fin-cant-ayer-corp">0</td>
-                                </tr>
-                                <tr class="bg-indigo-50/30 font-bold text-indigo-900 border-t-2 border-indigo-100">
-                                    <td class="py-3 px-4 text-left font-sans">2. Ingreso Total Hoy</td>
-                                    <td class="py-3 px-4 text-right text-indigo-700" id="fin-ingreso-hoy-corp">$0.00</td>
-                                    <td class="py-3 px-4 text-right text-indigo-700" id="fin-cant-hoy-corp">0</td>
-                                </tr>
-                                <tr class="bg-white font-bold text-gray-800 border-t-2 border-gray-200">
-                                    <td class="py-3 px-4 text-left font-sans text-xs uppercase">3. Diferencia Neta (Hoy - Base)</td>
-                                    <td class="py-3 px-4 text-right" id="fin-dif-monto-corp">+$0.00</td>
-                                    <td class="py-3 px-4 text-right" id="fin-dif-cant-corp">+0</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- RESIDENCIALES -->
-                    <div class="bg-white overflow-hidden rounded-xl border border-gray-200 shadow-xs">
-                        <div class="bg-indigo-600 text-white p-3 text-center font-bold text-sm tracking-widest uppercase">
-                            Residenciales
-                        </div>
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
-                                <tr>
-                                    <th class="py-3 px-4 text-left">Concepto</th>
-                                    <th class="py-3 px-4 text-right">Monto</th>
-                                    <th class="py-3 px-4 text-right">Cantidad</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 font-mono">
-                                <!-- 1. Ingreso Base -->
-                                <tr class="bg-gray-50/60 font-bold text-gray-800">
-                                    <td class="py-3 px-4 text-left font-sans">1. Ingreso Base</td>
-                                    <td class="py-3 px-4 text-right" id="fin-ingreso-ayer">$0.00</td>
-                                    <td class="py-3 px-4 text-right text-gray-700" id="fin-cant-ayer">0</td>
-                                </tr>
-                                <!-- Nuevas Instalaciones -->
-                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Nuevas Instalaciones</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-instalaciones">+$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-instalaciones">0</td>
-                                </tr>
-                                <!-- Detalle Variaciones: Upgrades de Plan -->
-                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Subieron de Plan (Upgrades)</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades">+$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades">0</td>
-                                </tr>
-                                <!-- Reconexiones -->
-                                <tr class="text-green-600 hover:bg-green-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Reconexiones</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-reconexiones">+$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-reconexiones">0</td>
-                                </tr>
-                                <!-- Detalle Variaciones: Downgrades de Plan -->
-                                <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Bajaron de Plan (Downgrades)</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-downgrades">-$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-downgrades">0</td>
-                                </tr>
-                                <!-- Suspendidos -->
-                                <tr class="text-red-500 hover:bg-red-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Suspendidos</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-retiros">-$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-retiros">0</td>
-                                </tr>
-                                <!-- Cambios 3 Meses Beneficio -->
-                                <tr class="text-emerald-600 hover:bg-emerald-50/30 transition-colors font-medium">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Cambios 3 Meses Beneficio</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-upgrades-beneficio">+$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-upgrades-beneficio">0</td>
-                                </tr>
-                                <!-- Exclusión Servicios TV / IPTV -->
-                                <tr class="text-orange-500 hover:bg-orange-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Exclusión Servicios TV / IPTV</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-exclusion-tv">-$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-exclusion-tv">0</td>
-                                </tr>
-                                <!-- Ajustes / Fuera de Rango -->
-                                <tr class="text-purple-600 hover:bg-purple-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans">↳ Por definir</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-otros">+$0.00</td>
-                                    <td class="py-2.5 px-4 text-right font-semibold" id="fin-cant-otros">0</td>
-                                </tr>
-                                <!-- 2. Ingreso Total Hoy -->
-                                <tr class="bg-indigo-50/60 font-bold text-gray-900 border-t-2 border-indigo-200">
-                                    <td class="py-3 px-4 text-left font-sans text-base">2. Ingreso Total Hoy</td>
-                                    <td class="py-3 px-4 text-right text-indigo-700 text-base" id="fin-ingreso-hoy">$0.00</td>
-                                    <td class="py-3 px-4 text-right text-indigo-700 text-base" id="fin-cant-hoy">0</td>
-                                </tr>
-                                <!-- 3. Diferencia Neta -->
-                                <tr class="bg-gray-50/70 font-bold border-t border-gray-200">
-                                    <td class="py-3 px-4 text-left font-sans text-gray-700">3. Diferencia Neta (Hoy - Base)</td>
-                                    <td class="py-3 px-4 text-right" id="fin-dif-monto">$0.00</td>
-                                    <td class="py-3 px-4 text-right" id="fin-dif-cant">0</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <div class="p-3 border-t border-gray-100 bg-gray-50/40">
-                            <div class="p-3 rounded-lg text-center text-xs font-semibold" id="fin-validacion">
-                                <!-- Validación matemática -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Listado Detallado de Clientes para Validación del Sistema -->
-                <div class="mt-8 border-t border-gray-200 pt-6">
-                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4 flex-wrap gap-2">
-                        <div>
-                            <h4 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-users-viewfinder text-indigo-600"></i> Listado de Clientes por Concepto (Validación con Sistema)
-                            </h4>
-                            <p class="text-xs text-gray-500 mt-1">Selecciona un concepto o busca para ver el desglose exacto de clientes involucrados en cada cálculo.</p>
-                        </div>
-                        <span id="badgeTotalCasosConciliacion" class="text-xs font-semibold bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full border border-indigo-100">
-                            0 Clientes
-                        </span>
-                    </div>
-
-                    <!-- Filtros y Búsqueda -->
-                    <div class="flex flex-col lg:flex-row gap-3 mb-4 justify-between items-stretch lg:items-center">
-                        <!-- Filtros por Concepto -->
-                        <div class="flex gap-1.5 flex-wrap" id="filtrosConceptoConciliacion">
-                            <button onclick="filtrarDetalleConciliacion('')" class="pill-cf-btn active px-3 py-1.5 text-xs font-semibold rounded-lg border bg-indigo-600 text-white border-indigo-600 cursor-pointer shadow-xs" data-concepto="">Todos (<span id="count-cf-todos">0</span>)</button>
-                            <button onclick="filtrarDetalleConciliacion('Nuevas Instalaciones')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Nuevas Instalaciones">Instalaciones (<span id="count-cf-inst">0</span>)</button>
-                            <button onclick="filtrarDetalleConciliacion('Reconexiones')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Reconexiones">Reconexiones (<span id="count-cf-reconex">0</span>)</button>
-                            <button onclick="filtrarDetalleConciliacion('Upgrades de Plan')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Upgrades de Plan">Upgrades (<span id="count-cf-upg">0</span>)</button>
-                            <button onclick="filtrarDetalleConciliacion('Cambios 3 Meses Beneficio a otro Plan')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Cambios 3 Meses Beneficio a otro Plan">3 Meses Beneficio (<span id="count-cf-ben">0</span>)</button>
-                            <button onclick="filtrarDetalleConciliacion('Downgrades de Plan')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Downgrades de Plan">Downgrades (<span id="count-cf-down">0</span>)</button>
-                            <button onclick="filtrarDetalleConciliacion('Retiros')" class="pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer" data-concepto="Retiros">Suspendidos (<span id="count-cf-ret">0</span>)</button>
-                        </div>
-                        <!-- Buscador -->
-                        <div class="relative w-full lg:w-72">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input type="text" id="searchConciliacionInput" oninput="renderTablaDetalleConciliacion()" placeholder="Buscar cliente, cédula o ID..." class="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
-                        </div>
-                    </div>
-
-                    <!-- Contenedor con Scroll de Tabla de Clientes -->
-                    <div class="overflow-x-auto rounded-xl border border-gray-200" style="max-height: 480px;">
-                        <table class="w-full data-table text-xs" id="tablaConciliacionDetalle">
-                            <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th class="py-2.5 px-3 text-left">ID Servicio</th>
-                                    <th class="py-2.5 px-3 text-left">Cédula</th>
-                                    <th class="py-2.5 px-3 text-left">Cliente</th>
-                                    <th class="py-2.5 px-3 text-left">Concepto</th>
-                                    <th class="py-2.5 px-3 text-left">Plan Anterior / Actual</th>
-                                    <th class="py-2.5 px-3 text-left">Estado Anterior / Actual</th>
-                                    <th class="py-2.5 px-3 text-right">Variación ($)</th>
-                                    <th class="py-2.5 px-3 text-center">Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyConciliacionDetalle">
-                                <!-- Filas Dinámicas -->
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 font-bold text-gray-900">Abonados</th>
+                                <th scope="col" class="px-6 py-3 text-center font-bold text-gray-900">Cantidad</th>
+                                <th scope="col" class="px-6 py-3 text-right font-bold text-gray-900">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Empleados exonerados</td>
+                                <td class="px-6 py-4 text-center" id="cf_emp_exo_qty">-</td>
+                                <td class="px-6 py-4 text-right" id="cf_emp_exo_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Residenciales exonerados</td>
+                                <td class="px-6 py-4 text-center" id="cf_res_exo_qty">-</td>
+                                <td class="px-6 py-4 text-right" id="cf_res_exo_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Subieron de Plan (Upgrades)</td>
+                                <td class="px-6 py-4 text-center" id="cf_upgrades_qty">-</td>
+                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_upgrades_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Cambios 3 Meses Beneficio</td>
+                                <td class="px-6 py-4 text-center" id="cf_cambios_3m_qty">-</td>
+                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_cambios_3m_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Reconexiones</td>
+                                <td class="px-6 py-4 text-center" id="cf_reconex_qty">-</td>
+                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_reconex_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (3 meses beneficio)</td>
+                                <td class="px-6 py-4 text-center" id="cf_inst_3m_qty">-</td>
+                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_3m_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (Normales)</td>
+                                <td class="px-6 py-4 text-center" id="cf_inst_norm_qty">-</td>
+                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_norm_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Bajaron de Plan (Downgrades)</td>
+                                <td class="px-6 py-4 text-center" id="cf_downgrades_qty">-</td>
+                                <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_downgrades_mnt">-</td>
+                            </tr>
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">Residenciales suspendidos</td>
+                                <td class="px-6 py-4 text-center" id="cf_susp_qty">-</td>
+                                <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_susp_mnt">-</td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
+                            <tr class="border-b border-gray-200">
+                                <td class="px-6 py-4 uppercase">Total a inicio de mes Residenciales activos</td>
+                                <td class="px-6 py-4 text-center font-mono" id="cf_tot_ini_qty">-</td>
+                                <td class="px-6 py-4 text-right font-mono" id="cf_tot_ini_mnt">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="px-6 py-4 uppercase">Total al día de hoy</td>
+                                <td class="px-6 py-4 text-center font-mono" id="cf_tot_hoy_qty">-</td>
+                                <td class="px-6 py-4 text-right font-mono" id="cf_tot_hoy_mnt">-</td>
+                            </tr>
+                            <tr class="bg-indigo-50 border-t border-indigo-200 text-indigo-900">
+                                <td class="px-6 py-4 text-lg font-black uppercase">Diferencia</td>
+                                <td class="px-6 py-4 text-center font-mono text-lg font-black" id="cf_dif_qty">-</td>
+                                <td class="px-6 py-4 text-right font-mono text-lg font-black" id="cf_dif_mnt">-</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
 
@@ -1345,124 +1234,43 @@
                 let sumListaTotal = (t.activos || 0) + (t.activos_corp || 0) + (t.suspendidos || 0) + (t.suspendidos_corp || 0) + (t.exonEmp || 0) + (t.exonReg || 0) + (t.exonRegCorp || 0);
                 if(document.getElementById('listaTotalGeneral')) document.getElementById('listaTotalGeneral').innerText = sumListaTotal;
 
-                // Lógica de Variación / Conciliación
+                // Lógica de Variación / Conciliación Financiera
                 const seccionCF = document.getElementById('seccionConciliacionFinanciera');
-                if (result.conciliacion_financiera_res && result.conciliacion_financiera_res.has_excel) {
-                    const cf = result.conciliacion_financiera_res;
+                const cf = result.conciliacion_financiera_res;
+                if (cf && seccionCF) {
+                    seccionCF.classList.remove('hidden');
                     
-                    // Formatear Moneda y Cantidad
-                    const formatM = (num) => '$' + (num || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                    const formatC = (num) => (num || 0).toLocaleString('en-US');
-                    
-                    document.getElementById('fin-ingreso-ayer').innerText = formatM(cf.ingreso_ayer);
-                    document.getElementById('fin-cant-ayer').innerText = formatC(cf.cant_ayer);
+                    const formatMnt = (val) => val === 0 ? '-' : val.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const formatQty = (val) => val === 0 ? '-' : val;
 
-                    document.getElementById('fin-ingreso-hoy').innerText = formatM(cf.ingreso_hoy);
-                    document.getElementById('fin-cant-hoy').innerText = formatC(cf.cant_hoy);
-                    
-                    document.getElementById('fin-instalaciones').innerText = '+' + formatM(cf.instalaciones);
-                    document.getElementById('fin-cant-instalaciones').innerText = formatC(cf.cant_instalaciones);
+                    document.getElementById('cf_emp_exo_qty').innerText = formatQty(cf.emp_exo_qty);
+                    document.getElementById('cf_emp_exo_mnt').innerText = '-';
+                    document.getElementById('cf_res_exo_qty').innerText = formatQty(cf.res_exo_qty);
+                    document.getElementById('cf_res_exo_mnt').innerText = '-';
+                    document.getElementById('cf_upgrades_qty').innerText = formatQty(cf.upgrades_qty);
+                    document.getElementById('cf_upgrades_mnt').innerText = formatMnt(cf.upgrades_mnt);
+                    document.getElementById('cf_cambios_3m_qty').innerText = formatQty(cf.cambios_3m_qty);
+                    document.getElementById('cf_cambios_3m_mnt').innerText = formatMnt(cf.cambios_3m_mnt);
+                    document.getElementById('cf_reconex_qty').innerText = formatQty(cf.reconex_qty);
+                    document.getElementById('cf_reconex_mnt').innerText = formatMnt(cf.reconex_mnt);
+                    document.getElementById('cf_inst_3m_qty').innerText = formatQty(cf.inst_3m_qty);
+                    document.getElementById('cf_inst_3m_mnt').innerText = formatMnt(cf.inst_3m_mnt);
+                    document.getElementById('cf_inst_norm_qty').innerText = formatQty(cf.inst_norm_qty);
+                    document.getElementById('cf_inst_norm_mnt').innerText = formatMnt(cf.inst_norm_mnt);
+                    document.getElementById('cf_downgrades_qty').innerText = formatQty(cf.downgrades_qty);
+                    document.getElementById('cf_downgrades_mnt').innerText = formatMnt(Math.abs(cf.downgrades_mnt));
+                    document.getElementById('cf_susp_qty').innerText = formatQty(cf.susp_qty);
+                    document.getElementById('cf_susp_mnt').innerText = formatMnt(Math.abs(cf.susp_mnt));
 
-                    document.getElementById('fin-reconexiones').innerText = '+' + formatM(cf.reconexiones);
-                    document.getElementById('fin-cant-reconexiones').innerText = formatC(cf.cant_reconexiones);
+                    document.getElementById('cf_tot_ini_qty').innerText = cf.cant_ayer.toLocaleString('es-ES');
+                    document.getElementById('cf_tot_ini_mnt').innerText = cf.ingreso_ayer.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById('cf_tot_hoy_qty').innerText = cf.cant_hoy.toLocaleString('es-ES');
+                    document.getElementById('cf_tot_hoy_mnt').innerText = cf.ingreso_hoy.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                    document.getElementById('fin-upgrades').innerText = '+' + formatM(cf.upgrades);
-                    document.getElementById('fin-cant-upgrades').innerText = formatC(cf.cant_upgrades);
-
-                    document.getElementById('fin-upgrades-beneficio').innerText = '+' + formatM(cf.upgrades_beneficio);
-                    document.getElementById('fin-cant-upgrades-beneficio').innerText = formatC(cf.cant_upgrades_beneficio);
-                    
-                    const otrosImpacto = cf.otros_impacto || 0;
-                    document.getElementById('fin-otros').innerText = (otrosImpacto >= 0 ? '+' : '') + formatM(otrosImpacto);
-                    document.getElementById('fin-cant-otros').innerText = formatC(cf.cant_otros || 0);
-                    
-                    const exclusionTv = cf.exclusion_tv || 0;
-                    document.getElementById('fin-exclusion-tv').innerText = '-' + formatM(exclusionTv);
-                    document.getElementById('fin-cant-exclusion-tv').innerText = formatC(cf.cant_exclusion_tv || 0);
-                    
-                    document.getElementById('fin-downgrades').innerText = '-' + formatM(cf.downgrades);
-                    document.getElementById('fin-cant-downgrades').innerText = formatC(cf.cant_downgrades);
-
-                    const totalRetiros = cf.retiros != null ? cf.retiros : ((cf.retiros_post_corte || 0) + (cf.retiros_pre_corte || 0));
-                    document.getElementById('fin-retiros').innerText = '-' + formatM(totalRetiros);
-                    document.getElementById('fin-cant-retiros').innerText = formatC(cf.cant_retiros);
-                    
-                    const upgradesBeneficio = cf.upgrades_beneficio || 0;
-                    const sumaCalculada = cf.ingreso_ayer + cf.instalaciones + cf.reconexiones + cf.upgrades + upgradesBeneficio
-                                          + otrosImpacto - cf.downgrades - totalRetiros - exclusionTv;
-                    
-                    const neta = cf.ingreso_hoy - cf.ingreso_ayer;
-                    const elNeta = document.getElementById('fin-dif-monto');
-                    if (elNeta) {
-                        elNeta.innerText = (neta >= 0 ? '+' : '') + formatM(neta);
-                        elNeta.className = neta >= 0 ? 'text-green-600' : 'text-red-600';
-                    }
-
-                    const cantNeta = cf.cant_diferencia_neta != null ? cf.cant_diferencia_neta : (cf.cant_hoy - cf.cant_ayer);
-                    const elCantNeta = document.getElementById('fin-dif-cant');
-                    if (elCantNeta) {
-                        elCantNeta.innerText = (cantNeta >= 0 ? '+' : '') + formatC(cantNeta);
-                        elCantNeta.className = cantNeta >= 0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold';
-                    }
-                    
-                    // Diferencia matemática de redondeos
-                    const diff = Math.abs(sumaCalculada - cf.ingreso_hoy);
-                    const valBox = document.getElementById('fin-validacion');
-                    if (diff < 0.1) {
-                        valBox.className = "p-3 rounded-lg text-center text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200";
-                        valBox.innerText = `Validación Matemática Correcta: 0.00 de diferencia.`;
-                    } else {
-                        valBox.className = "p-3 rounded-lg text-center text-xs font-semibold bg-red-50 text-red-700 border border-red-200";
-                        valBox.innerText = `Atención: Diferencia matemática de ${formatM(diff)}. Puede deberse a registros incompletos.`;
-                    }
-                    
-                    // Lógica Corporativa
-                    const cf_corp = result.conciliacion_financiera_corp;
-                    if (cf_corp) {
-                        document.getElementById('fin-ingreso-ayer-corp').innerText = formatM(cf_corp.ingreso_ayer);
-                        document.getElementById('fin-cant-ayer-corp').innerText = formatC(cf_corp.cant_ayer);
-
-                        document.getElementById('fin-ingreso-hoy-corp').innerText = formatM(cf_corp.ingreso_hoy);
-                        document.getElementById('fin-cant-hoy-corp').innerText = formatC(cf_corp.cant_hoy);
-                        
-                        const netaCorp = cf_corp.ingreso_hoy - cf_corp.ingreso_ayer;
-                        const elNetaCorp = document.getElementById('fin-dif-monto-corp');
-                        if (elNetaCorp) {
-                            elNetaCorp.innerText = (netaCorp >= 0 ? '+' : '') + formatM(netaCorp);
-                            elNetaCorp.className = netaCorp >= 0 ? 'text-green-600 py-3 px-4 text-right' : 'text-red-600 py-3 px-4 text-right';
-                        }
-                        
-                        const cantNetaCorp = cf_corp.cant_diferencia_neta;
-                        const elCantNetaCorp = document.getElementById('fin-dif-cant-corp');
-                        if (elCantNetaCorp) {
-                            elCantNetaCorp.innerText = (cantNetaCorp >= 0 ? '+' : '') + formatC(cantNetaCorp);
-                            elCantNetaCorp.className = cantNetaCorp >= 0 ? 'text-green-600 font-bold py-3 px-4 text-right' : 'text-red-600 font-bold py-3 px-4 text-right';
-                        }
-                    }
-
-                    // Actualizar contadores de las pastillas / pills de clientes de conciliación
-                    const countInst = datosConciliacionDetalle.filter(x => x.Concepto === 'Nuevas Instalaciones').length;
-                    const countReconex = datosConciliacionDetalle.filter(x => x.Concepto === 'Reconexiones').length;
-                    const countUpg = datosConciliacionDetalle.filter(x => x.Concepto === 'Upgrades de Plan').length;
-                    const countBen = datosConciliacionDetalle.filter(x => x.Concepto.includes('3 Meses Beneficio')).length;
-                    const countDown = datosConciliacionDetalle.filter(x => x.Concepto === 'Downgrades de Plan').length;
-                    const countRet = datosConciliacionDetalle.filter(x => x.Concepto.startsWith('Retiros')).length;
-
-                    document.getElementById('count-cf-todos').innerText = datosConciliacionDetalle.length;
-                    document.getElementById('count-cf-inst').innerText = countInst;
-                    document.getElementById('count-cf-reconex').innerText = countReconex;
-                    document.getElementById('count-cf-upg').innerText = countUpg;
-                    document.getElementById('count-cf-ben').innerText = countBen;
-                    document.getElementById('count-cf-down').innerText = countDown;
-                    document.getElementById('count-cf-ret').innerText = countRet;
-                    document.getElementById('badgeTotalCasosConciliacion').innerText = `${datosConciliacionDetalle.length} Clientes`;
-
-                    // Renderizar tabla de detalle de clientes
-                    renderTablaDetalleConciliacion();
-                    
-                    if (seccionCF) seccionCF.classList.remove('hidden');
-                } else {
-                    if (seccionCF) seccionCF.classList.add('hidden');
+                    document.getElementById('cf_dif_qty').innerText = cf.cant_diferencia_neta.toLocaleString('es-ES');
+                    document.getElementById('cf_dif_mnt').innerText = (cf.ingreso_hoy - cf.ingreso_ayer).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else if (seccionCF) {
+                    seccionCF.classList.add('hidden');
                 }
 
                 document.getElementById('countInstalaciones').innerText = datosInstalaciones.length;

@@ -28,3 +28,18 @@ async def websocket_status(websocket: WebSocket):
         pass
     except Exception:
         pass
+
+
+@router.websocket("/ws/logs")
+async def websocket_logs(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            logs_data = get_logs(max_lines=60)
+            await websocket.send_text(json.dumps({"logs": logs_data.get("logs", [])}))
+            await asyncio.sleep(1.5)
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+

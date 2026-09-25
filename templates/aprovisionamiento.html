@@ -3,640 +3,669 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aprovisionamiento Automático - Powerlink Corp</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <title>Aprovisionamiento Automático - POWER LINK CORP.</title>
+  <link rel="icon" type="image/png" href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/aprovisionamiento.css">
 </head>
 <body>
-  <div class="container">
-    
-    <!-- HEADER -->
-    <header class="app-header">
-      <div class="logo-area">
-        <div class="brand-icon">⚡</div>
-        <div>
-          <h1 class="brand-title">Aprovisionamiento Automático</h1>
-          <p class="brand-subtitle">Powerlink Corp • Gestión Inteligente de ONUs &amp; SmartOLT</p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <span class="badge badge-success">● Sistema En Línea</span>
-        <span id="userBadge" class="badge badge-step" style="display: none;">👤 <span id="lblUsername">admin</span> (<span id="lblUserRole">admin</span>)</span>
-        <button type="button" id="btnOpenAdminModal" class="btn btn-outline btn-sm" style="display: none;">🛡️ Panel Admin</button>
-        <button type="button" id="btnOpenSmartOltModal" class="btn btn-outline btn-sm" style="display: none;">🔑 SmartOLT API</button>
-        <a href="/api/export_excel" class="btn btn-outline btn-sm" download>📥 Exportar Excel</a>
-        <button type="button" id="btnLogout" class="btn btn-outline btn-sm" style="display: none;">🚪 Salir</button>
-      </div>
-    </header>
+  <!-- SIDEBAR CORPORATIVO DE LA INTRANET -->
+  {% include 'sidebar.html' %}
 
-    <!-- ALERTA DE SOLO LECTURA -->
-    <div id="readonlyAlert" class="readonly-banner" style="display: none;">
-      <span>👁️</span> <strong>Modo Solo Lectura:</strong> Ha iniciado sesión con un perfil de consulta. Las acciones de aprovisionamiento, configuración y liberación están deshabilitadas.
-    </div>
-
-    <!-- MAIN GRID -->
-    <div class="main-grid">
+  <div class="content-wrapper" id="contentWrapper">
+    <div class="aprov-container">
       
-      <!-- COLUMNA IZQUIERDA: FLUIDO WIZARD DE 3 PASOS -->
-      <div class="left-column">
+      <!-- HEADER DEL MÓDULO -->
+      <header class="app-header">
+        <div class="logo-area">
+          <div class="brand-icon">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <h1 class="brand-title">Aprovisionamiento Automático</h1>
+            <p class="brand-subtitle">Powerlink Corp • Gestión Inteligente de ONUs &amp; SmartOLT</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span class="badge badge-success">● Sistema En Línea</span>
+          <span id="userBadge" class="badge badge-step" style="display: none;">👤 <span id="lblUsername">{{ user.username if user else 'admin' }}</span> (<span id="lblUserRole">{{ user.role if user else 'admin' }}</span>)</span>
+          <button type="button" id="btnOpenAdminModal" class="btn btn-outline btn-sm" style="display: none;">
+            <i class="fa-solid fa-shield-halved"></i> Panel Admin
+          </button>
+          <button type="button" id="btnOpenSmartOltModal" class="btn btn-outline btn-sm" style="display: none;">
+            <i class="fa-solid fa-key"></i> SmartOLT API
+          </button>
+          <a href="/api/export_excel" class="btn btn-outline btn-sm" download>
+            <i class="fa-solid fa-file-excel"></i> Exportar Excel
+          </a>
+          <button type="button" id="btnLogout" class="btn btn-outline btn-sm" style="display: none;">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
+          </button>
+        </div>
+      </header>
+
+      <!-- ALERTA DE SOLO LECTURA -->
+      <div id="readonlyAlert" class="readonly-banner" style="display: none;">
+        <span>👁️</span> <strong>Modo Solo Lectura:</strong> Ha iniciado sesión con un perfil de consulta. Las acciones de aprovisionamiento, configuración y liberación están deshabilitadas.
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="main-grid">
         
-        <!-- NAVEGADOR DEL WIZARD (3 PASOS) -->
-        <nav class="wizard-nav" aria-label="Pasos de aprovisionamiento">
-          <button type="button" class="wizard-step-btn active" id="navStep1" data-step="1">
-            <span class="step-num">1</span>
-            <span class="step-text">
-              <span class="step-title">Paso 1: SmartOLT</span>
-              <span class="step-subtitle">Aceptación (VLAN 3)</span>
-            </span>
-          </button>
-          <button type="button" class="wizard-step-btn" id="navStep2" data-step="2" disabled>
-            <span class="step-num">2</span>
-            <span class="step-text">
-              <span class="step-title">Paso 2: Router ONU</span>
-              <span class="step-subtitle">Wi-Fi &amp; VLAN HUB</span>
-            </span>
-          </button>
-          <button type="button" class="wizard-step-btn" id="navStep3" data-step="3" disabled>
-            <span class="step-num">3</span>
-            <span class="step-text">
-              <span class="step-title">Paso 3: Liberación</span>
-              <span class="step-subtitle">Retorno a Rubpi</span>
-            </span>
-          </button>
-        </nav>
-
-        <!-- ============================================================= -->
-        <!-- PASO 1: ACEPTACIÓN EN EL SMARTOLT -->
-        <!-- ============================================================= -->
-        <div id="panelStep1" class="wizard-panel active card">
-          <div class="card-header">
-            <h2 class="card-title">🌐 Paso 1: Aceptación en SmartOLT</h2>
-            <span class="badge badge-step">VLAN 3 Inicial</span>
-          </div>
-
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
-            Identifique la ONU no configurada por su serial PON, asigne el nombre descriptivo y seleccione el perfil de velocidad. La ONU se autorizará obligatoriamente en <strong>VLAN 3</strong>.
-          </p>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="onuSn">Número de Serie PON (SN) *</label>
-              <div class="input-group">
-                <input type="text" id="onuSn" class="form-control" placeholder="Ej: VSOL00E4B181" required>
-                <button type="button" id="btnDetectUnconfigured" class="btn btn-outline btn-sm" title="Detectar en SmartOLT">📡 Detectar</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="onuName">Nombre de la ONU *</label>
-              <input type="text" id="onuName" class="form-control" value="Configurada manualmente" placeholder="Ej: Configurada manualmente" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="dbaSearchInput">Perfil DBA / Plan de Velocidad *</label>
-              <div class="dba-combobox-wrapper">
-                <div class="input-group">
-                  <input type="text" id="dbaSearchInput" class="form-control" placeholder="🔍 Buscar o seleccionar perfil..." autocomplete="off">
-                  <button type="button" id="btnToggleDbaList" class="btn btn-outline btn-sm">▼ Planes</button>
-                </div>
-                <div id="dbaDropdownList" class="dba-dropdown-list" style="display: none;">
-                  <!-- Opciones de planes generadas dinámicamente -->
-                </div>
-              </div>
-              <input type="hidden" id="dbaProfile" value="100M">
-              <div id="dbaSelectedBadge" style="font-size: 11px; color: #a5b4fc; margin-top: 4px;">
-                Seleccionado: <strong id="dbaSelectedText">100M</strong>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">VLAN Inicial en OLT</label>
-              <input type="text" class="form-control" value="VLAN 3 (Gestión Inicial / Router)" readonly style="background: rgba(15,23,42,0.6); color: #818cf8; font-weight: 700;">
-            </div>
-          </div>
-
-          <!-- Caja de información y estado del Paso 1 -->
-          <div id="step1StatusBox" style="margin: 12px 0; font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.02); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            💡 Presione <strong>📡 Detectar</strong> para buscar equipos pendientes o ingrese el SN manualmente.
-          </div>
-
-          <!-- Botón de acción Paso 1 -->
-          <div style="margin-top: 18px;">
-            <button type="button" id="btnStep1Accept" class="btn btn-primary btn-lg action-btn" style="width: 100%;">
-              ✅ Aceptar ONU
+        <!-- COLUMNA IZQUIERDA: FLUIDO WIZARD DE 3 PASOS -->
+        <div class="left-column">
+          
+          <!-- NAVEGADOR DEL WIZARD (3 PASOS) -->
+          <nav class="wizard-nav" aria-label="Pasos de aprovisionamiento">
+            <button type="button" class="wizard-step-btn active" id="navStep1" data-step="1">
+              <span class="step-num">1</span>
+              <span class="step-text">
+                <span class="step-title">Paso 1: SmartOLT</span>
+                <span class="step-subtitle">Aceptación (VLAN 3)</span>
+              </span>
             </button>
-          </div>
-
-          <!-- Banner de éxito tras validar Paso 1 -->
-          <div id="step1SuccessBanner" style="display: none; margin-top: 16px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-sm); padding: 14px; font-size: 13px; color: #a7f3d0;">
-            <div style="font-weight: 700; margin-bottom: 6px;">🟢 ¡ONU autorizada y confirmada en VLAN 3!</div>
-            <div id="step1SummaryText" style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;"></div>
-            
-            <button type="button" id="btnGoToStep2" class="btn btn-success btn-sm" style="width: 100%;">
-              Continuar al Paso 2: Configuración ONU Vsol ➔
+            <button type="button" class="wizard-step-btn" id="navStep2" data-step="2" disabled>
+              <span class="step-num">2</span>
+              <span class="step-text">
+                <span class="step-title">Paso 2: Router ONU</span>
+                <span class="step-subtitle">Wi-Fi &amp; VLAN HUB</span>
+              </span>
             </button>
-          </div>
-        </div>
+            <button type="button" class="wizard-step-btn" id="navStep3" data-step="3" disabled>
+              <span class="step-num">3</span>
+              <span class="step-text">
+                <span class="step-title">Paso 3: Liberación</span>
+                <span class="step-subtitle">Retorno a Rubpi</span>
+              </span>
+            </button>
+          </nav>
 
-        <!-- ============================================================= -->
-        <!-- PASO 2: CONFIGURACIÓN DE LA ONU VSOL -->
-        <!-- ============================================================= -->
-        <div id="panelStep2" class="wizard-panel card">
-          <div class="card-header">
-            <h2 class="card-title">📶 Paso 2: Configuración de la ONU VSOL</h2>
-            <span class="badge badge-step">Capa Router</span>
-          </div>
-
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
-            Conéctese a la ONU por su IP, defina la nueva VLAN según el HUB correspondiente e ingrese las credenciales Wi-Fi.
-          </p>
-
-          <!-- Tarjeta de MAC en VLAN 3 con sondeo de 5 segundos -->
-          <div id="step2MacCard" style="margin-bottom: 16px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: var(--radius-sm); padding: 14px 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span id="step2MacSpinner" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #6366f1; animation: pulse 1.5s infinite;"></span>
-                  <span style="font-size: 11px; text-transform: uppercase; color: #a5b4fc; font-weight: 700; letter-spacing: 0.5px;">📡 Dirección MAC aprendida en VLAN 3 (SmartOLT):</span>
-                </div>
-                <div id="step2MacWaitingText" style="font-size: 13px; color: #cbd5e1; margin-top: 4px;">
-                  Sincronizando con SmartOLT... Próxima consulta en: <strong id="step2MacCountdown" style="color: #60a5fa; font-size: 14px;">5s</strong>
-                </div>
-                <div style="font-family: monospace; font-size: 18px; font-weight: 700; color: #34d399; margin-top: 4px; display: none;" id="step2LearnedMac">--:--:--:--:--:--</div>
-              </div>
-              <div style="display: flex; gap: 8px;">
-                <button type="button" id="btnRetryMacNow" class="btn btn-outline btn-sm">🔄 Consultar ahora</button>
-                <button type="button" id="btnCopyStep2Mac" class="btn btn-primary btn-sm" style="display: none;">📋 Copiar MAC</button>
-              </div>
-            </div>
-            <div style="margin-top: 8px; font-size: 11px; color: #94a3b8; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 6px;">
-              💡 Busque esta MAC en el MikroTik (<strong>IP ➔ DHCP Server ➔ Leases</strong>) para identificar la IP asignada en VLAN 3 e ingrésela a continuación:
-            </div>
-          </div>
-
-          <!-- Tarjeta de Trazabilidad Estación de Flasheo -->
-          <div id="step2FlasheoCard" style="display: none; margin-bottom: 16px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 14px 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 14px;">🏷️</span>
-                <span style="font-size: 11px; text-transform: uppercase; color: #6ee7b7; font-weight: 700; letter-spacing: 0.5px;">Trazabilidad de Flasheo & Credencial de Lote:</span>
-              </div>
-              <span id="step2FlasheoBadge" class="badge" style="background: #059669; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px;">Sincronizado</span>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; font-size: 12px;">
-              <div>
-                <span style="color: #94a3b8; display: block; font-size: 11px;">Lote:</span>
-                <strong id="step2FlasheoLote" style="color: #f1f5f9; font-family: monospace;">--</strong>
-              </div>
-              <div>
-                <span style="color: #94a3b8; display: block; font-size: 11px;">Caja:</span>
-                <strong id="step2FlasheoCaja" style="color: #f1f5f9;">--</strong>
-              </div>
-              <div>
-                <span style="color: #94a3b8; display: block; font-size: 11px;">Usuario WEB:</span>
-                <strong id="step2FlasheoUser" style="color: #60a5fa; font-family: monospace;">--</strong>
-              </div>
-              <div>
-                <span style="color: #94a3b8; display: block; font-size: 11px;">Clave Vinculada:</span>
-                <strong id="step2FlasheoClave" style="color: #34d399; font-family: monospace;">--</strong>
-              </div>
-              <div>
-                <span style="color: #94a3b8; display: block; font-size: 11px;">Firmware:</span>
-                <span id="step2FlasheoFw" style="color: #cbd5e1; font-size: 11px; word-break: break-all;">--</span>
-              </div>
-            </div>
-            <div style="margin-top: 8px; font-size: 11px; color: #6ee7b7; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 6px;">
-              ✅ La credencial del lote fue inyectada automáticamente como prioridad 1 para acceder a la ONU.
-            </div>
-          </div>
-
-          <!-- Dirección IP -->
-          <div class="form-group">
-            <label class="form-label" for="onuIp">Dirección IP de Gestión ONU *</label>
-            <div class="input-group">
-              <input type="text" id="onuIp" class="form-control" placeholder="Ej: 3.3.X.Y (Segmento de Hub)" value="3.3." required>
-              <button type="button" id="btnProbe" class="btn btn-outline action-btn">🔍 Consultar ONU</button>
-            </div>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-              IP de acceso asignada en VLAN 3 para entrar a la interfaz web del equipo.
-            </div>
-          </div>
-
-          <!-- Selector con buscador de VLAN según HUB -->
-          <div class="form-group" style="margin-top: 18px;">
-            <label class="form-label">VLAN de Destino según HUB (100 cupos disponibles) *</label>
-            
-            <div class="vlan-combobox-wrapper">
-              <div class="input-group">
-                <input type="text" id="vlanSearchInput" class="form-control" placeholder="🔍 Buscar por nombre de HUB o número de VLAN...">
-                <button type="button" id="btnToggleVlanList" class="btn btn-outline btn-sm">▼ Ver HUBs</button>
-              </div>
-              <div id="vlanDropdownList" class="vlan-dropdown-list" style="display: none;">
-                <!-- Opciones generadas dinámicamente -->
-              </div>
+          <!-- ============================================================= -->
+          <!-- PASO 1: ACEPTACIÓN EN EL SMARTOLT -->
+          <!-- ============================================================= -->
+          <div id="panelStep1" class="wizard-panel active card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fa-solid fa-globe"></i> Paso 1: Aceptación en SmartOLT</h2>
+              <span class="badge badge-step">VLAN 3 Inicial</span>
             </div>
 
-            <!-- Previsualización de la VLAN seleccionada -->
-            <div id="vlanSelectedBanner" class="vlan-selected-banner" style="display: none;">
-              <div>
-                <span id="vlanSelectedHubName" style="font-weight: 700; color: #fff;">HUB La Colina</span>
-                <span id="vlanSelectedBadge" class="badge badge-step" style="margin-left: 8px;">VLAN 100</span>
-              </div>
-              <div id="vlanSelectedUsage" style="font-size: 12px; color: #34d399; font-weight: 600;">
-                Usada: 0 veces (100 disponibles)
-              </div>
-            </div>
-
-            <input type="hidden" id="targetVlan" value="">
-          </div>
-
-          <!-- Credenciales Wi-Fi -->
-          <div id="wifiConfigCard" style="margin-top: 20px; background: rgba(255,255,255,0.02); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span style="font-weight: 600; font-size: 13px; color: #a5b4fc;">📡 Credenciales Inalámbricas (Wi-Fi)</span>
-              <div style="display: flex; gap: 6px;">
-                <button type="button" id="btnGenPass" class="btn btn-outline btn-sm">🎲 Clave Segura</button>
-                <button type="button" id="btnCloneTo5G" class="btn btn-outline btn-sm">📋 Clonar a 5G</button>
-              </div>
-            </div>
-
-            <!-- 2.4 GHz -->
-            <div style="margin-bottom: 12px;">
-              <div style="font-size: 12px; font-weight: 600; color: #93c5fd; margin-bottom: 6px;">🔹 Red Wi-Fi 2.4 GHz (Estándar)</div>
-              <div class="form-row">
-                <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" for="ssid2g">Nombre de Red (SSID) *</label>
-                  <input type="text" id="ssid2g" class="form-control" placeholder="Ej: Powerlink_Wi-Fi" required>
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" for="pass2g">Clave Wi-Fi 2.4 GHz *</label>
-                  <input type="text" id="pass2g" class="form-control password-masked" placeholder="Mínimo 8 caracteres" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" required>
-                </div>
-              </div>
-            </div>
-
-            <!-- 5 GHz -->
-            <div>
-              <div style="font-size: 12px; font-weight: 600; color: #34d399; margin-bottom: 6px;">🔹 Red Wi-Fi 5 GHz (Alta Velocidad)</div>
-              <div class="form-row">
-                <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" for="ssid5g">Nombre de Red 5G (SSID)</label>
-                  <input type="text" id="ssid5g" class="form-control" placeholder="Ej: Powerlink_Wi-Fi_5G" autocomplete="off">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" for="pass5g">Clave Wi-Fi 5 GHz</label>
-                  <input type="text" id="pass5g" class="form-control password-masked" placeholder="Mínimo 8 caracteres" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Aviso de Equipo sin Wi-Fi (Monopuerto Ethernet Router) -->
-          <div id="noWifiNoticeCard" style="display: none; margin-top: 20px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: var(--radius-sm); padding: 14px 16px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 18px;">ℹ️</span>
-              <span style="font-weight: 600; font-size: 13px; color: #93c5fd;">Equipo Monopuerto / Sin Interfaz Wi-Fi (<span id="noWifiModelBadge">VSOLD64</span>)</span>
-            </div>
-            <p style="font-size: 12px; color: #cbd5e1; margin-top: 6px; margin-bottom: 0;">
-              Este modelo opera en <strong>Modo Router WAN</strong> directo por puerto Ethernet hacia el router/switch del cliente. La configuración de parámetros Wi-Fi ha sido omitida automáticamente.
+            <p style="font-size: 13px; color: var(--texto-gris); margin-bottom: 16px;">
+              Identifique la ONU no configurada por su serial PON, asigne el nombre descriptivo y seleccione el perfil de velocidad. La ONU se autorizará obligatoriamente en <strong>VLAN 3</strong>.
             </p>
-          </div>
 
-          <!-- Botones de navegación y acción Paso 2 -->
-          <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button type="button" id="btnBackToStep1" class="btn btn-outline">
-              ⬅ Volver a Paso 1
-            </button>
-            <button type="button" id="btnStep2Configure" class="btn btn-primary btn-lg action-btn" style="flex: 1;">
-              ⚡ Configurar ONU
-            </button>
-          </div>
-
-          <!-- Banner de éxito tras validar Paso 2 -->
-          <div id="step2SuccessBanner" style="display: none; margin-top: 16px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-sm); padding: 14px; font-size: 13px; color: #a7f3d0;">
-            <div style="font-weight: 700; margin-bottom: 6px;">🟢 ¡Router ONU configurado con éxito!</div>
-            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
-              Wi-Fi y WAN enrutada aplicadas con la VLAN correspondiente. Lista para ser liberada de SmartOLT.
-            </div>
-            <button type="button" id="btnGoToStep3" class="btn btn-success btn-sm" style="width: 100%;">
-              Continuar al Paso 3: Liberación en SmartOLT ➔
-            </button>
-          </div>
-        </div>
-
-        <!-- ============================================================= -->
-        <!-- PASO 3: LIBERACIÓN EN SMARTOLT (RETORNO A RUBPI) -->
-        <!-- ============================================================= -->
-        <div id="panelStep3" class="wizard-panel card">
-          <div class="card-header">
-            <h2 class="card-title">🗑️ Paso 3: Liberación en SmartOLT</h2>
-            <span class="badge badge-warning">Retorno a Rubpi</span>
-          </div>
-
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
-            La ONU ya cuenta con la VLAN de HUB grabada en su memoria y el Wi-Fi configurado. Ahora debe ser <strong>liberada (borrada) de SmartOLT</strong> para que retorne al listado de no configuradas y el equipo de soporte pueda aprovisionarla de forma estándar con el sistema <strong>Rubpi</strong>.
-          </p>
-
-          <div class="step3-summary-grid">
-            <div class="step3-summary-item">
-              <div class="step3-summary-label">Serial PON</div>
-              <div class="step3-summary-val" id="summaryPon">--</div>
-            </div>
-            <div class="step3-summary-item">
-              <div class="step3-summary-label">Nombre de la ONU</div>
-              <div class="step3-summary-val" id="summaryName">--</div>
-            </div>
-            <div class="step3-summary-item">
-              <div class="step3-summary-label">VLAN Grabada en Router ONU</div>
-              <div class="step3-summary-val" style="color: #34d399;" id="summaryTargetVlan">--</div>
-            </div>
-            <div class="step3-summary-item">
-              <div class="step3-summary-label">Acción Final en SmartOLT</div>
-              <div class="step3-summary-val" style="color: #f87171;">Liberar para Rubpi</div>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 10px; margin-top: 16px;">
-            <button type="button" id="btnBackToStep2" class="btn btn-outline">
-              ⬅ Volver a Paso 2
-            </button>
-            <button type="button" id="btnStep3Release" class="btn btn-danger btn-lg action-btn" style="flex: 1;">
-              🗑️ Liberar ONU en SmartOLT (Retornar a Desconfiguradas)
-            </button>
-          </div>
-
-          <!-- Banner final completado -->
-          <div id="step3CompleteCard" style="display: none; margin-top: 20px; background: rgba(16, 185, 129, 0.15); border: 2px solid #10b981; border-radius: var(--radius-md); padding: 18px; text-align: center;">
-            <div style="font-size: 28px; margin-bottom: 6px;">🎉</div>
-            <h3 style="color: #fff; font-size: 18px; margin-bottom: 6px;">¡ONU Liberada y Lista para Rubpi!</h3>
-            <p style="font-size: 13px; color: #a7f3d0; margin-bottom: 14px;" id="step3FinalDetails">
-              La ONU fue liberada de SmartOLT exitosamente con la VLAN cargada en memoria.
-            </p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-              <a href="/api/export_excel" class="btn btn-outline btn-sm" download>📥 Descargar Excel</a>
-              <button type="button" id="btnRestartWizard" class="btn btn-primary btn-sm">✨ Aprovisionar Otra ONU</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- COLUMNA DERECHA: DIAGNÓSTICO, MONITOR Y TERMINAL -->
-      <div class="right-column">
-        
-        <!-- TARJETA DE DIAGNÓSTICO EN VIVO -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">📊 Estado del Equipo</h2>
-            <span class="badge badge-step">Telemetría</span>
-          </div>
-          <div class="diag-grid">
-            <div class="diag-item">
-              <div class="diag-label">Modelo</div>
-              <div class="diag-value" id="diagModel">--</div>
-            </div>
-            <div class="diag-item">
-              <div class="diag-label">MAC Address</div>
-              <div class="diag-value" id="diagMac">--</div>
-            </div>
-            <div class="diag-item">
-              <div class="diag-label">Serial PON</div>
-              <div class="diag-value" id="diagPon">--</div>
-            </div>
-            <div class="diag-item">
-              <div class="diag-label">Potencia Óptica Rx</div>
-              <div class="diag-value" id="diagRx">--</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TARJETA DE PROGRESO Y LÍNEA DE TIEMPO -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">📡 Monitor de Aprovisionamiento</h2>
-          </div>
-
-          <!-- STEPPER 5 FASES -->
-          <div class="stepper-container">
-            <div class="step-item active" id="step1">
-              <div class="step-circle">1</div>
-              <div class="step-label">SmartOLT</div>
-            </div>
-            <div class="step-item" id="step2">
-              <div class="step-circle">2</div>
-              <div class="step-label">Acceso</div>
-            </div>
-            <div class="step-item" id="step3">
-              <div class="step-circle">3</div>
-              <div class="step-label">Wi-Fi</div>
-            </div>
-            <div class="step-item" id="step4">
-              <div class="step-circle">4</div>
-              <div class="step-label">WAN Router</div>
-            </div>
-            <div class="step-item" id="step5">
-              <div class="step-circle">5</div>
-              <div class="step-label">Liberación</div>
-            </div>
-          </div>
-
-          <!-- PROGRESS BAR -->
-          <div class="progress-wrapper">
-            <div class="progress-track">
-              <div class="progress-fill" id="progressBar"></div>
-            </div>
-          </div>
-
-          <!-- TERMINAL EN VIVO -->
-          <div class="terminal" id="terminalLogs">
-            <div class="term-line term-info">
-              <span class="term-time">[00:00:00]</span> Sistema listo con integración SmartOLT.
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- SECCIÓN DE HISTORIAL RECIENTE -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">📋 Registro Reciente de Aprovisionamiento</h2>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" id="btnRefreshHistory" class="btn btn-outline btn-sm">🔄 Refrescar</button>
-          <a href="/api/export_excel" class="btn btn-success btn-sm" download>📥 Descargar Excel (.xlsx)</a>
-        </div>
-      </div>
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Fecha y Hora</th>
-              <th>Usuario</th>
-              <th>IP ONU</th>
-              <th>MAC</th>
-              <th>VLAN</th>
-              <th>Wi-Fi 2.4G</th>
-              <th>Wi-Fi 5G</th>
-              <th>Resultado</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <tr>
-              <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 20px;">
-                Cargando historial...
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- MODAL CONFIGURACIÓN SMARTOLT -->
-  <div id="smartOltModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>🔑 Configuración API de SmartOLT</h3>
-        <button type="button" class="btn-close" id="btnCloseSmartOltModal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">URL Base de SmartOLT</label>
-          <input type="text" id="smartOltUrl" class="form-control" value="https://powerlinkcorp.telecomti.net/api">
-        </div>
-        <div class="form-group">
-          <label class="form-label">API Key / Token (Header X-Token) *</label>
-          <input type="text" id="smartOltKey" class="form-control password-masked" placeholder="Pegue la API Key de SmartOLT aquí" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true">
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-            Obtenible en SmartOLT: <em>Configuración ➔ API / Tokens</em>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" id="btnSaveSmartOltKey" class="btn btn-primary">Guardar Configuración</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL PANEL DE ADMINISTRADOR -->
-  <div id="adminModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-content" style="max-width: 650px;">
-      <div class="modal-header">
-        <h3>🛡️ Panel de Administración y Seguridad</h3>
-        <button type="button" class="btn-close" id="btnCloseAdminModal">✕</button>
-      </div>
-      <div class="modal-body">
-        <!-- Pestañas -->
-        <div class="admin-tabs">
-          <button type="button" class="admin-tab-btn active" data-tab="tabUsers">👥 Gestión de Usuarios</button>
-          <button type="button" class="admin-tab-btn" data-tab="tabIps">🌐 Filtro de IPs Permitidas</button>
-        </div>
-
-        <!-- Pestaña 1: Usuarios -->
-        <div id="tabUsers" class="admin-tab-content active">
-          <!-- Formulario nuevo usuario -->
-          <div style="background: rgba(255,255,255,0.02); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 16px;">
-            <div style="font-weight: 600; font-size: 13px; color: #a5b4fc; margin-bottom: 10px;">➕ Crear Nuevo Usuario</div>
             <div class="form-row">
-              <div class="form-group" style="margin-bottom: 8px;">
-                <label class="form-label" for="newUsername">Usuario *</label>
-                <input type="text" id="newUsername" class="form-control" placeholder="Ej: soporte1" autocomplete="off">
+              <div class="form-group">
+                <label class="form-label" for="onuSn">Número de Serie PON (SN) *</label>
+                <div class="input-group">
+                  <input type="text" id="onuSn" class="form-control" placeholder="Ej: VSOL00E4B181" required>
+                  <button type="button" id="btnDetectUnconfigured" class="btn btn-outline btn-sm" title="Detectar en SmartOLT">
+                    <i class="fa-solid fa-tower-broadcast"></i> Detectar
+                  </button>
+                </div>
               </div>
-              <div class="form-group" style="margin-bottom: 8px;">
-                <label class="form-label" for="newPassword">Clave de Acceso *</label>
-                <input type="text" id="newPassword" class="form-control password-masked" placeholder="Mínimo 4 caracteres" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true">
-              </div>
-              <div class="form-group" style="margin-bottom: 8px;">
-                <label class="form-label" for="newUserRole">Rol / Permisos *</label>
-                <select id="newUserRole" class="form-control">
-                  <option value="aprovisionador">Aprovisionador (Completo)</option>
-                  <option value="admin">Administrador (Total)</option>
-                  <option value="lectura">Lectura (Solo Consulta)</option>
-                </select>
+              <div class="form-group">
+                <label class="form-label" for="onuName">Nombre de la ONU *</label>
+                <input type="text" id="onuName" class="form-control" value="Configurada manualmente" placeholder="Ej: Configurada manualmente" required>
               </div>
             </div>
-            <button type="button" id="btnCreateUser" class="btn btn-primary btn-sm" style="width: 100%;">Crear Usuario</button>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="dbaSearchInput">Perfil DBA / Plan de Velocidad *</label>
+                <div class="dba-combobox-wrapper">
+                  <div class="input-group">
+                    <input type="text" id="dbaSearchInput" class="form-control" placeholder="🔍 Buscar o seleccionar perfil..." autocomplete="off">
+                    <button type="button" id="btnToggleDbaList" class="btn btn-outline btn-sm">▼ Planes</button>
+                  </div>
+                  <div id="dbaDropdownList" class="dba-dropdown-list" style="display: none;">
+                    <!-- Opciones de planes generadas dinámicamente -->
+                  </div>
+                </div>
+                <input type="hidden" id="dbaProfile" value="100M">
+                <div id="dbaSelectedBadge" style="font-size: 12px; color: #0284c7; margin-top: 4px; font-weight: 600;">
+                  Seleccionado: <strong id="dbaSelectedText">100M</strong>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">VLAN Inicial en OLT</label>
+                <input type="text" class="form-control" value="VLAN 3 (Gestión Inicial / Router)" readonly style="background: #f8fafc; color: var(--cabeceras); font-weight: 700; border: 1px solid #cbd5e1;">
+              </div>
+            </div>
+
+            <!-- Caja de información y estado del Paso 1 -->
+            <div id="step1StatusBox" style="margin: 12px 0; font-size: 13px; color: var(--texto-gris); background: #f8fafc; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--borde);">
+              💡 Presione <strong><i class="fa-solid fa-tower-broadcast"></i> Detectar</strong> para buscar equipos pendientes o ingrese el SN manualmente.
+            </div>
+
+            <!-- Botón de acción Paso 1 -->
+            <div style="margin-top: 18px;">
+              <button type="button" id="btnStep1Accept" class="btn btn-primary btn-lg action-btn" style="width: 100%;">
+                <i class="fa-solid fa-circle-check"></i> Aceptar ONU
+              </button>
+            </div>
+
+            <!-- Banner de éxito tras validar Paso 1 -->
+            <div id="step1SuccessBanner" style="display: none; margin-top: 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); padding: 14px; font-size: 13px; color: #065f46;">
+              <div style="font-weight: 700; margin-bottom: 6px;">🟢 ¡ONU autorizada y confirmada en VLAN 3!</div>
+              <div id="step1SummaryText" style="font-size: 12px; color: #047857; margin-bottom: 10px;"></div>
+              
+              <button type="button" id="btnGoToStep2" class="btn btn-success btn-sm" style="width: 100%;">
+                Continuar al Paso 2: Configuración ONU Vsol ➔
+              </button>
+            </div>
           </div>
 
-          <!-- Tabla de usuarios existentes -->
-          <div style="font-weight: 600; font-size: 13px; color: #e2e8f0; margin-bottom: 8px;">Usuarios Registrados</div>
-          <div class="table-wrapper" style="max-height: 220px; overflow-y: auto;">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Usuario</th>
-                  <th>Rol</th>
-                  <th>Fecha de Alta</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody id="usersTableBody">
-                <!-- Se llena dinámicamente -->
-              </tbody>
-            </table>
+          <!-- ============================================================= -->
+          <!-- PASO 2: CONFIGURACIÓN DE LA ONU VSOL -->
+          <!-- ============================================================= -->
+          <div id="panelStep2" class="wizard-panel card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fa-solid fa-wifi"></i> Paso 2: Configuración de la ONU VSOL</h2>
+              <span class="badge badge-step">Capa Router</span>
+            </div>
+
+            <p style="font-size: 13px; color: var(--texto-gris); margin-bottom: 14px;">
+              Conéctese a la ONU por su IP, defina la nueva VLAN según el HUB correspondiente e ingrese las credenciales Wi-Fi.
+            </p>
+
+            <!-- Tarjeta de MAC en VLAN 3 con sondeo de 5 segundos -->
+            <div id="step2MacCard" style="margin-bottom: 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 14px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="step2MacSpinner" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #0284c7;"></span>
+                    <span style="font-size: 11px; text-transform: uppercase; color: #1e40af; font-weight: 700; letter-spacing: 0.5px;">📡 Dirección MAC aprendida en VLAN 3 (SmartOLT):</span>
+                  </div>
+                  <div id="step2MacWaitingText" style="font-size: 13px; color: #1e293b; margin-top: 4px;">
+                    Sincronizando con SmartOLT... Próxima consulta en: <strong id="step2MacCountdown" style="color: #0284c7; font-size: 14px;">5s</strong>
+                  </div>
+                  <div style="font-family: monospace; font-size: 18px; font-weight: 700; color: #059669; margin-top: 4px; display: none;" id="step2LearnedMac">--:--:--:--:--:--</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button type="button" id="btnRetryMacNow" class="btn btn-outline btn-sm"><i class="fa-solid fa-rotate"></i> Consultar ahora</button>
+                  <button type="button" id="btnCopyStep2Mac" class="btn btn-primary btn-sm" style="display: none;"><i class="fa-solid fa-copy"></i> Copiar MAC</button>
+                </div>
+              </div>
+              <div style="margin-top: 8px; font-size: 12px; color: #475569; border-top: 1px dashed #cbd5e1; padding-top: 6px;">
+                💡 Busque esta MAC en el MikroTik (<strong>IP ➔ DHCP Server ➔ Leases</strong>) para identificar la IP asignada en VLAN 3 e ingrésela a continuación:
+              </div>
+            </div>
+
+            <!-- Tarjeta de Trazabilidad Estación de Flasheo -->
+            <div id="step2FlasheoCard" style="display: none; margin-bottom: 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); padding: 14px 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 14px;">🏷️</span>
+                  <span style="font-size: 11px; text-transform: uppercase; color: #065f46; font-weight: 700; letter-spacing: 0.5px;">Trazabilidad de Flasheo &amp; Credencial de Lote:</span>
+                </div>
+                <span id="step2FlasheoBadge" class="badge" style="background: #059669; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px;">Sincronizado</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; font-size: 12px;">
+                <div>
+                  <span style="color: #64748b; display: block; font-size: 11px;">Estación:</span>
+                  <strong id="step2FlasheoStation" style="color: #4f46e5; font-family: monospace;">--</strong>
+                </div>
+                <div>
+                  <span style="color: #64748b; display: block; font-size: 11px;">Lote:</span>
+                  <strong id="step2FlasheoLote" style="color: #1e293b; font-family: monospace;">--</strong>
+                </div>
+                <div>
+                  <span style="color: #64748b; display: block; font-size: 11px;">Caja:</span>
+                  <strong id="step2FlasheoCaja" style="color: #1e293b;">--</strong>
+                </div>
+                <div>
+                  <span style="color: #64748b; display: block; font-size: 11px;">Usuario WEB:</span>
+                  <strong id="step2FlasheoUser" style="color: #0284c7; font-family: monospace;">--</strong>
+                </div>
+                <div>
+                  <span style="color: #64748b; display: block; font-size: 11px;">Clave Vinculada:</span>
+                  <strong id="step2FlasheoClave" style="color: #059669; font-family: monospace;">--</strong>
+                </div>
+                <div>
+                  <span style="color: #64748b; display: block; font-size: 11px;">Firmware:</span>
+                  <span id="step2FlasheoFw" style="color: #475569; font-size: 11px; word-break: break-all;">--</span>
+                </div>
+              </div>
+              <div style="margin-top: 8px; font-size: 12px; color: #065f46; border-top: 1px dashed #a7f3d0; padding-top: 6px;">
+                ✅ La credencial del lote fue inyectada automáticamente como prioridad 1 para acceder a la ONU.
+              </div>
+            </div>
+
+            <!-- Dirección IP -->
+            <div class="form-group">
+              <label class="form-label" for="onuIp">Dirección IP de Gestión ONU *</label>
+              <div class="input-group">
+                <input type="text" id="onuIp" class="form-control" placeholder="Ej: 3.3.X.Y (Segmento de Hub)" value="3.3." required>
+                <button type="button" id="btnProbe" class="btn btn-outline action-btn">
+                  <i class="fa-solid fa-magnifying-glass"></i> Consultar ONU
+                </button>
+              </div>
+              <div style="font-size: 11px; color: var(--texto-gris); margin-top: 4px;">
+                IP de acceso asignada en VLAN 3 para entrar a la interfaz web del equipo.
+              </div>
+            </div>
+
+            <!-- Selector con buscador de VLAN según HUB -->
+            <div class="form-group" style="margin-top: 18px;">
+              <label class="form-label">VLAN de Destino según HUB (100 cupos disponibles) *</label>
+              
+              <div class="vlan-combobox-wrapper">
+                <div class="input-group">
+                  <input type="text" id="vlanSearchInput" class="form-control" placeholder="🔍 Buscar por nombre de HUB o número de VLAN...">
+                  <button type="button" id="btnToggleVlanList" class="btn btn-outline btn-sm">▼ Ver HUBs</button>
+                </div>
+                <div id="vlanDropdownList" class="vlan-dropdown-list" style="display: none;">
+                  <!-- Opciones generadas dinámicamente -->
+                </div>
+              </div>
+
+              <!-- Previsualización de la VLAN seleccionada -->
+              <div id="vlanSelectedBanner" class="vlan-selected-banner" style="display: none;">
+                <div>
+                  <span id="vlanSelectedHubName" style="font-weight: 700; color: var(--cabeceras);">HUB La Colina</span>
+                  <span id="vlanSelectedBadge" class="badge badge-step" style="margin-left: 8px;">VLAN 100</span>
+                </div>
+                <div id="vlanSelectedUsage" style="font-size: 12px; color: #059669; font-weight: 600;">
+                  Usada: 0 veces (100 disponibles)
+                </div>
+              </div>
+
+              <input type="hidden" id="targetVlan" value="">
+            </div>
+
+            <!-- Credenciales Wi-Fi -->
+            <div id="wifiConfigCard" style="margin-top: 20px; background: #f8fafc; padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--borde);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-weight: 700; font-size: 13px; color: var(--cabeceras);"><i class="fa-solid fa-wifi"></i> Credenciales Inalámbricas (Wi-Fi)</span>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" id="btnGenPass" class="btn btn-outline btn-sm">🎲 Clave Segura</button>
+                  <button type="button" id="btnCloneTo5G" class="btn btn-outline btn-sm">📋 Clonar a 5G</button>
+                </div>
+              </div>
+
+              <!-- 2.4 GHz -->
+              <div style="margin-bottom: 14px;">
+                <div style="font-size: 12px; font-weight: 700; color: #0284c7; margin-bottom: 6px;">🔹 Red Wi-Fi 2.4 GHz (Estándar)</div>
+                <div class="form-row">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="ssid2g">Nombre de Red (SSID) *</label>
+                    <input type="text" id="ssid2g" class="form-control" placeholder="Ej: Powerlink_Wi-Fi" required>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="pass2g">Clave Wi-Fi 2.4 GHz *</label>
+                    <input type="text" id="pass2g" class="form-control password-masked" placeholder="Mínimo 8 caracteres" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5 GHz -->
+              <div>
+                <div style="font-size: 12px; font-weight: 700; color: #059669; margin-bottom: 6px;">🔹 Red Wi-Fi 5 GHz (Alta Velocidad)</div>
+                <div class="form-row">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="ssid5g">Nombre de Red 5G (SSID)</label>
+                    <input type="text" id="ssid5g" class="form-control" placeholder="Ej: Powerlink_Wi-Fi_5G" autocomplete="off">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="pass5g">Clave Wi-Fi 5 GHz</label>
+                    <input type="text" id="pass5g" class="form-control password-masked" placeholder="Mínimo 8 caracteres" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Aviso de Equipo sin Wi-Fi (Monopuerto Ethernet Router) -->
+            <div id="noWifiNoticeCard" style="display: none; margin-top: 20px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 14px 16px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">ℹ️</span>
+                <span style="font-weight: 700; font-size: 13px; color: #1e40af;">Equipo Monopuerto / Sin Interfaz Wi-Fi (<span id="noWifiModelBadge">VSOLD64</span>)</span>
+              </div>
+              <p style="font-size: 12px; color: #334155; margin-top: 6px; margin-bottom: 0;">
+                Este modelo opera en <strong>Modo Router WAN</strong> directo por puerto Ethernet hacia el router/switch del cliente. La configuración de parámetros Wi-Fi ha sido omitida automáticamente.
+              </p>
+            </div>
+
+            <!-- Botones de navegación y acción Paso 2 -->
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button type="button" id="btnBackToStep1" class="btn btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> Volver a Paso 1
+              </button>
+              <button type="button" id="btnStep2Configure" class="btn btn-primary btn-lg action-btn" style="flex: 1;">
+                <i class="fa-solid fa-bolt"></i> Configurar ONU
+              </button>
+            </div>
+
+            <!-- Banner de éxito tras validar Paso 2 -->
+            <div id="step2SuccessBanner" style="display: none; margin-top: 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); padding: 14px; font-size: 13px; color: #065f46;">
+              <div style="font-weight: 700; margin-bottom: 6px;">🟢 ¡Router ONU configurado con éxito!</div>
+              <div style="font-size: 12px; color: #047857; margin-bottom: 12px;">
+                Wi-Fi y WAN enrutada aplicadas con la VLAN correspondiente. Lista para ser liberada de SmartOLT.
+              </div>
+              <button type="button" id="btnGoToStep3" class="btn btn-success btn-sm" style="width: 100%;">
+                Continuar al Paso 3: Liberación en SmartOLT ➔
+              </button>
+            </div>
           </div>
+
+          <!-- ============================================================= -->
+          <!-- PASO 3: LIBERACIÓN EN SMARTOLT (RETORNO A RUBPI) -->
+          <!-- ============================================================= -->
+          <div id="panelStep3" class="wizard-panel card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fa-solid fa-trash-can"></i> Paso 3: Liberación en SmartOLT</h2>
+              <span class="badge badge-warning">Retorno a Rubpi</span>
+            </div>
+
+            <p style="font-size: 13px; color: var(--texto-gris); margin-bottom: 14px;">
+              La ONU ya cuenta con la VLAN de HUB grabada en su memoria y el Wi-Fi configurado. Ahora debe ser <strong>liberada (borrada) de SmartOLT</strong> para que retorne al listado de no configuradas y el equipo de soporte pueda aprovisionarla de forma estándar con el sistema <strong>Rubpi</strong>.
+            </p>
+
+            <div class="step3-summary-grid">
+              <div class="step3-summary-item">
+                <div class="step3-summary-label">Serial PON</div>
+                <div class="step3-summary-val" id="summaryPon">--</div>
+              </div>
+              <div class="step3-summary-item">
+                <div class="step3-summary-label">Nombre de la ONU</div>
+                <div class="step3-summary-val" id="summaryName">--</div>
+              </div>
+              <div class="step3-summary-item">
+                <div class="step3-summary-label">VLAN Grabada en Router ONU</div>
+                <div class="step3-summary-val" style="color: #059669;" id="summaryTargetVlan">--</div>
+              </div>
+              <div class="step3-summary-item">
+                <div class="step3-summary-label">Acción Final en SmartOLT</div>
+                <div class="step3-summary-val" style="color: #dc2626;">Liberar para Rubpi</div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+              <button type="button" id="btnBackToStep2" class="btn btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> Volver a Paso 2
+              </button>
+              <button type="button" id="btnStep3Release" class="btn btn-danger btn-lg action-btn" style="flex: 1;">
+                <i class="fa-solid fa-trash-can"></i> Liberar ONU en SmartOLT (Retornar a Desconfiguradas)
+              </button>
+            </div>
+
+            <!-- Banner final completado -->
+            <div id="step3CompleteCard" style="display: none; margin-top: 20px; background: #ecfdf5; border: 2px solid #10b981; border-radius: var(--radius-md); padding: 20px; text-align: center;">
+              <div style="font-size: 32px; margin-bottom: 6px;">🎉</div>
+              <h3 style="color: var(--cabeceras); font-size: 18px; margin-bottom: 6px; font-weight: 700;">¡ONU Liberada y Lista para Rubpi!</h3>
+              <p style="font-size: 13px; color: #065f46; margin-bottom: 14px;" id="step3FinalDetails">
+                La ONU fue liberada de SmartOLT exitosamente con la VLAN cargada en memoria.
+              </p>
+              <div style="display: flex; gap: 10px; justify-content: center;">
+                <a href="/api/export_excel" class="btn btn-outline btn-sm" download><i class="fa-solid fa-download"></i> Descargar Excel</a>
+                <button type="button" id="btnRestartWizard" class="btn btn-primary btn-sm"><i class="fa-solid fa-sparkles"></i> Aprovisionar Otra ONU</button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Pestaña 2: Filtro de IPs -->
-        <div id="tabIps" class="admin-tab-content">
-          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
-            Si la lista está vacía, se permite el acceso desde cualquier dirección IP. Al agregar una o más IPs estáticas o segmentos CIDR (ej: <code>192.168.1.50</code> o <code>10.0.0.0/24</code>), solo los clientes autorizados podrán acceder a la plataforma.
-          </p>
-
-          <div class="input-group" style="margin-bottom: 12px;">
-            <input type="text" id="newIpInput" class="form-control" placeholder="Ej: 192.168.1.100 ó 10.0.0.0/24">
-            <button type="button" id="btnAddIp" class="btn btn-outline btn-sm">➕ Agregar IP/Rango</button>
+        <!-- COLUMNA DERECHA: DIAGNÓSTICO, MONITOR Y TERMINAL -->
+        <div class="right-column">
+          
+          <!-- TARJETA DE DIAGNÓSTICO EN VIVO -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fa-solid fa-chart-simple"></i> Estado del Equipo</h2>
+              <span class="badge badge-step">Telemetría</span>
+            </div>
+            <div class="diag-grid">
+              <div class="diag-item">
+                <div class="diag-label">Modelo</div>
+                <div class="diag-value" id="diagModel">--</div>
+              </div>
+              <div class="diag-item">
+                <div class="diag-label">MAC Address</div>
+                <div class="diag-value" id="diagMac">--</div>
+              </div>
+              <div class="diag-item">
+                <div class="diag-label">Serial PON</div>
+                <div class="diag-value" id="diagPon">--</div>
+              </div>
+              <div class="diag-item">
+                <div class="diag-label">Potencia Óptica Rx</div>
+                <div class="diag-value" id="diagRx">--</div>
+              </div>
+            </div>
           </div>
 
-          <div style="font-size: 12px; font-weight: 600; color: #a5b4fc; margin-bottom: 6px;">IPs y Segmentos Autorizados:</div>
-          <div id="ipTagsContainer" class="ip-tag-list">
-            <!-- Etiquetas de IPs -->
-          </div>
-          <div id="ipEmptyNotice" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
-            (Actualmente sin restricciones de IP: Todas las conexiones están permitidas)
+          <!-- TARJETA DE PROGRESO Y LÍNEA DE TIEMPO -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><i class="fa-solid fa-satellite-dish"></i> Monitor de Aprovisionamiento</h2>
+            </div>
+
+            <!-- STEPPER 5 FASES -->
+            <div class="stepper-container">
+              <div class="step-item active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-label">SmartOLT</div>
+              </div>
+              <div class="step-item" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Acceso</div>
+              </div>
+              <div class="step-item" id="step3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Wi-Fi</div>
+              </div>
+              <div class="step-item" id="step4">
+                <div class="step-circle">4</div>
+                <div class="step-label">WAN Router</div>
+              </div>
+              <div class="step-item" id="step5">
+                <div class="step-circle">5</div>
+                <div class="step-label">Liberación</div>
+              </div>
+            </div>
+
+            <!-- PROGRESS BAR -->
+            <div class="progress-wrapper">
+              <div class="progress-track">
+                <div class="progress-fill" id="progressBar"></div>
+              </div>
+            </div>
+
+            <!-- TERMINAL EN VIVO -->
+            <div class="terminal" id="terminalLogs">
+              <div class="term-line term-info">
+                <span class="term-time">[00:00:00]</span> Sistema listo con integración SmartOLT.
+              </div>
+            </div>
           </div>
 
-          <div style="margin-top: 18px;">
-            <button type="button" id="btnSaveIps" class="btn btn-primary btn-sm" style="width: 100%;">💾 Guardar Configuración de IPs</button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN DE HISTORIAL RECIENTE -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fa-solid fa-clipboard-list"></i> Registro Reciente de Aprovisionamiento</h2>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="btnRefreshHistory" class="btn btn-outline btn-sm"><i class="fa-solid fa-rotate"></i> Refrescar</button>
+            <a href="/api/export_excel" class="btn btn-primary btn-sm" download><i class="fa-solid fa-download"></i> Descargar Excel (.xlsx)</a>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha y Hora</th>
+                <th>Usuario</th>
+                <th>IP ONU</th>
+                <th>MAC</th>
+                <th>VLAN</th>
+                <th>Wi-Fi 2.4G</th>
+                <th>Wi-Fi 5G</th>
+                <th>Resultado</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--texto-gris); padding: 20px;">
+                  Cargando historial...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MODAL CONFIGURACIÓN SMARTOLT -->
+    <div id="smartOltModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>🔑 Configuración API de SmartOLT</h3>
+          <button type="button" class="btn-close" id="btnCloseSmartOltModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">URL Base de SmartOLT</label>
+            <input type="text" id="smartOltUrl" class="form-control" value="https://powerlinkcorp.telecomti.net/api">
+          </div>
+          <div class="form-group">
+            <label class="form-label">API Key / Token (Header X-Token) *</label>
+            <input type="text" id="smartOltKey" class="form-control password-masked" placeholder="Pegue la API Key de SmartOLT aquí" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true">
+            <div style="font-size: 11px; color: var(--texto-gris); margin-top: 4px;">
+              Obtenible en SmartOLT: <em>Configuración ➔ API / Tokens</em>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+          <button type="button" id="btnSaveSmartOltKey" class="btn btn-primary">Guardar Configuración</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL PANEL DE ADMINISTRADOR -->
+    <div id="adminModal" class="modal-backdrop" style="display: none;">
+      <div class="modal-content" style="max-width: 650px;">
+        <div class="modal-header">
+          <h3>🛡️ Panel de Administración y Seguridad</h3>
+          <button type="button" class="btn-close" id="btnCloseAdminModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- Pestañas -->
+          <div class="admin-tabs" style="display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid var(--borde); padding-bottom:8px;">
+            <button type="button" class="btn btn-sm btn-outline active admin-tab-btn" data-tab="tabUsers">👥 Gestión de Usuarios</button>
+            <button type="button" class="btn btn-sm btn-outline admin-tab-btn" data-tab="tabIps">🌐 Filtro de IPs Permitidas</button>
+          </div>
+
+          <!-- Pestaña 1: Usuarios -->
+          <div id="tabUsers" class="admin-tab-content active">
+            <!-- Formulario nuevo usuario -->
+            <div style="background: #f8fafc; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--borde); margin-bottom: 16px;">
+              <div style="font-weight: 700; font-size: 13px; color: var(--cabeceras); margin-bottom: 10px;">➕ Crear Nuevo Usuario</div>
+              <div class="form-row">
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" for="newUsername">Usuario *</label>
+                  <input type="text" id="newUsername" class="form-control" placeholder="Ej: soporte1" autocomplete="off">
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" for="newPassword">Clave de Acceso *</label>
+                  <input type="text" id="newPassword" class="form-control password-masked" placeholder="Mínimo 4 caracteres" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true">
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <label class="form-label" for="newUserRole">Rol / Permisos *</label>
+                  <select id="newUserRole" class="form-control">
+                    <option value="aprovisionador">Aprovisionador (Completo)</option>
+                    <option value="admin">Administrador (Total)</option>
+                    <option value="lectura">Lectura (Solo Consulta)</option>
+                  </select>
+                </div>
+              </div>
+              <button type="button" id="btnCreateUser" class="btn btn-primary btn-sm" style="width: 100%;">Crear Usuario</button>
+            </div>
+
+            <!-- Tabla de usuarios existentes -->
+            <div style="font-weight: 700; font-size: 13px; color: var(--cabeceras); margin-bottom: 8px;">Usuarios Registrados</div>
+            <div class="table-wrapper" style="max-height: 220px; overflow-y: auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Fecha de Alta</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <!-- Se llena dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pestaña 2: Filtro de IPs -->
+          <div id="tabIps" class="admin-tab-content" style="display:none;">
+            <p style="font-size: 12px; color: var(--texto-gris); margin-bottom: 12px;">
+              Si la lista está vacía, se permite el acceso desde cualquier dirección IP. Al agregar una o más IPs estáticas o segmentos CIDR (ej: <code>192.168.1.50</code> o <code>10.0.0.0/24</code>), solo los clientes autorizados podrán acceder a la plataforma.
+            </p>
+
+            <div class="input-group" style="margin-bottom: 12px;">
+              <input type="text" id="newIpInput" class="form-control" placeholder="Ej: 192.168.1.100 ó 10.0.0.0/24">
+              <button type="button" id="btnAddIp" class="btn btn-outline btn-sm">➕ Agregar IP/Rango</button>
+            </div>
+
+            <div style="font-size: 12px; font-weight: 700; color: var(--cabeceras); margin-bottom: 6px;">IPs y Segmentos Autorizados:</div>
+            <div id="ipTagsContainer" class="ip-tag-list" style="display:flex; flex-wrap:wrap; gap:6px;">
+              <!-- Etiquetas de IPs -->
+            </div>
+            <div id="ipEmptyNotice" style="font-size: 12px; color: var(--texto-gris); margin-top: 8px;">
+              (Actualmente sin restricciones de IP: Todas las conexiones están permitidas)
+            </div>
+
+            <div style="margin-top: 18px;">
+              <button type="button" id="btnSaveIps" class="btn btn-primary btn-sm" style="width: 100%;">💾 Guardar Configuración de IPs</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- MODAL DE INICIO DE SESIÓN -->
-  <div id="loginModal" class="login-backdrop" style="display: none;">
-    <div class="login-card">
-      <div class="login-header">
-        <div class="login-icon">⚡</div>
-        <h2 class="login-title">Control de Acceso</h2>
-        <p class="login-subtitle">Powerlink Corp • Aprovisionamiento de ONUs</p>
-      </div>
-      <form id="loginForm">
-        <div class="form-group">
-          <label class="form-label" for="loginUser">Usuario *</label>
-          <input type="text" id="loginUser" class="form-control" placeholder="Ingrese su usuario" autocomplete="username" required>
+    <!-- MODAL DE INICIO DE SESIÓN -->
+    <div id="loginModal" class="login-backdrop" style="display: none;">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-icon" style="font-size: 22px;">⚡</div>
+          <h2 class="login-title">Control de Acceso</h2>
+          <button type="button" class="btn-close" onclick="document.getElementById('loginModal').style.display='none'">✕</button>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="loginPass">Clave de Acceso *</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password" required style="padding-right: 42px;">
-            <button type="button" id="btnToggleLoginPass" style="position: absolute; right: 10px; background: transparent; border: none; color: #9ca3af; cursor: pointer; font-size: 16px; padding: 4px;" title="Mostrar / Ocultar clave">👁️</button>
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="loginUser">Usuario *</label>
+            <input type="text" id="loginUser" class="form-control" placeholder="Ingrese su usuario" autocomplete="username" required>
           </div>
-        </div>
-        <div id="loginErrorMsg" style="display: none; color: #ef4444; font-size: 12px; margin-bottom: 14px; text-align: center;"></div>
-        <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-lg" style="width: 100%;">
-          🔐 Ingresar al Sistema
-        </button>
-      </form>
+          <div class="form-group">
+            <label class="form-label" for="loginPass">Clave de Acceso *</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password" required style="padding-right: 42px;">
+              <button type="button" id="btnToggleLoginPass" style="position: absolute; right: 10px; background: transparent; border: none; color: #9ca3af; cursor: pointer; font-size: 16px; padding: 4px;" title="Mostrar / Ocultar clave">👁️</button>
+            </div>
+          </div>
+          <div id="loginErrorMsg" style="display: none; color: #ef4444; font-size: 12px; margin-bottom: 14px; text-align: center;"></div>
+          <button type="submit" id="btnLoginSubmit" class="btn btn-primary btn-lg" style="width: 100%;">
+            🔐 Ingresar al Sistema
+          </button>
+        </form>
+      </div>
     </div>
+
+    <!-- CONTENEDOR DE TOASTS -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/js/app.js"></script>
+
+    {% if not embed %}
+    {% include 'global_chat.html' %}
+    {% endif %}
   </div>
-
-  <!-- CONTENEDOR DE TOASTS -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <script src="/js/app.js"></script>
-    </div>
 </body>
 </html>

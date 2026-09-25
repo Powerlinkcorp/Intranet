@@ -290,6 +290,9 @@ class ONU(Base):
     duracion_segundos = Column(Integer, default=0)
     captura_path = Column(String(255), default="")
     operador_id = Column(Integer, ForeignKey("flasheo_usuarios.id"), nullable=True)
+    station_id = Column(String(50), default="ESTACION-DEFAULT", index=True)
+    sync_status = Column(String(20), default="SYNCED", index=True)
+    synced_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=True)
     fecha_hora = Column(DateTime, default=datetime.datetime.utcnow, index=True)
 
     # Relaciones
@@ -300,6 +303,9 @@ class ONU(Base):
     def to_dict(self, include_clave=True):
         return {
             "id": self.id,
+            "station_id": self.station_id or "ESTACION-DEFAULT",
+            "sync_status": self.sync_status or "SYNCED",
+            "synced_at": self.synced_at.strftime("%Y-%m-%d %H:%M:%S") if self.synced_at else "",
             "lote_id": self.lote_id,
             "codigo_lote": self.lote.codigo_lote if self.lote else None,
             "numero_caja": self.lote.numero_caja if self.lote else None,
@@ -322,3 +328,31 @@ class ONU(Base):
             "operador": self.operador.username if self.operador else None,
             "fecha_hora": self.fecha_hora.strftime("%Y-%m-%d %H:%M:%S") if self.fecha_hora else "",
         }
+
+
+class FlasheoStation(Base):
+    __tablename__ = "flasheo_stations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    station_id = Column(String(50), unique=True, nullable=False, index=True)
+    station_name = Column(String(100), default="")
+    ip_address = Column(String(50), default="")
+    hostname = Column(String(100), default="")
+    total_flashed = Column(Integer, default=0)
+    last_sync = Column(DateTime, default=datetime.datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "station_id": self.station_id,
+            "station_name": self.station_name or self.station_id,
+            "ip_address": self.ip_address,
+            "hostname": self.hostname,
+            "total_flashed": self.total_flashed,
+            "last_sync": self.last_sync.strftime("%Y-%m-%d %H:%M:%S") if self.last_sync else "",
+            "is_active": self.is_active,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else "",
+        }
+

@@ -25,7 +25,7 @@ class DummyRequest:
 request = DummyRequest()
 
 try:
-    print(templates.TemplateResponse("chat.html", {
+    print(templates.TemplateResponse(request, "chat.html", {
         "request": request,
         "user": user,
         "departments": departments

@@ -6,14 +6,49 @@ let currentLotes = [];
 let allOnusHistory = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initPortsGrid();
   checkAuth();
   loadLotes();
   loadModels();
   loadFirmwares();
   loadOnusHistory();
+  updateSyncStatusUI();
   connectWebSocket();
+  setInterval(updateSyncStatusUI, 12000);
 });
+
+// ============================================================================
+// GESTIÓN DE MODO CLARO / MODO OSCURO (HOMOLOGADO CON INTRANET)
+// ============================================================================
+function initTheme() {
+  const savedTheme = localStorage.getItem('powerlink_theme') || 'light';
+  applyTheme(savedTheme);
+}
+
+function toggleTheme() {
+  const isDark = document.body.classList.contains('dark-mode');
+  const newTheme = isDark ? 'light' : 'dark';
+  applyTheme(newTheme);
+}
+
+function applyTheme(theme) {
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  if (theme === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.documentElement.classList.add('dark-mode');
+    if (icon) icon.className = 'fa-solid fa-sun';
+    if (label) label.textContent = 'Modo Claro';
+  } else {
+    document.body.classList.remove('dark-mode');
+    document.documentElement.classList.remove('dark-mode');
+    if (icon) icon.className = 'fa-solid fa-moon';
+    if (label) label.textContent = 'Modo Oscuro';
+  }
+  localStorage.setItem('powerlink_theme', theme);
+}
+
 
 // ============================================================================
 // WEBSOCKET TELEMETRÍA EN VIVO
@@ -382,24 +417,26 @@ function renderOnusTable(rows) {
   const tbody = document.getElementById('onusTbody');
   tbody.innerHTML = '';
   if (!rows || !rows.length) {
-    tbody.innerHTML = '<tr><td colspan="10" class="text-center">No hay registros de flasheo.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" class="text-center" style="padding:20px; text-align:center; color:#64748b;">No hay registros de flasheo en esta estación.</td></tr>';
     return;
   }
 
   rows.forEach((r, idx) => {
     const tr = document.createElement('tr');
     const isExito = r.resultado === 'EXITO' || r.resultado === 'YA_CONFIGURADA';
+    const isSynced = (r.sync_status === 'SYNCED');
     tr.innerHTML = `
       <td>${idx + 1}</td>
-      <td>${r.fecha_hora}</td>
+      <td style="font-size:12px; color:var(--texto-gris);">${r.fecha_hora || '-'}</td>
       <td><b>P${r.puerto_mikrotik || '-'}</b></td>
-      <td>${r.ip || '-'}</td>
+      <td><code>${r.ip || '-'}</code></td>
       <td><code>${r.mac || '-'}</code></td>
       <td><b>${r.pon_sn || r.pon_original || '-'}</b></td>
       <td>${r.codigo_lote || '-'} (${r.numero_caja || '-'})</td>
       <td><code>${r.credenciales ? r.credenciales.clave : '-'}</code></td>
       <td><span style="color:${isExito ? '#10b981' : '#ef4444'}; font-weight:700;">${r.resultado}</span></td>
       <td>${r.vlan3_ok === 'SI' ? '✅ SI' : '❌ NO'}</td>
+      <td><span class="badge" style="background:${isSynced ? '#ecfdf5' : '#fef3c7'}; color:${isSynced ? '#059669' : '#b45309'}; font-weight:700; font-size:11px; padding:3px 8px; border-radius:4px;">${isSynced ? '☁️ Sincronizada' : '⏳ Pendiente'}</span></td>
     `;
     tbody.appendChild(tr);
   });
@@ -596,4 +633,117 @@ function showToast(msg) {
   div.textContent = msg;
   container.appendChild(div);
   setTimeout(() => div.remove(), 4000);
+}
+
+
+// ============================================================================
+// SINCRONIZACIÓN CON INTRANET CENTRAL (OFFLINE / MULTI-ESTACIÓN)
+// ============================================================================
+async function updateSyncStatusUI() {
+  try {
+    const res = await fetch('/api/v1/sync/status');
+    const d = await res.json();
+    const badge = document.getElementById('syncStatusBadge');
+    const stBadge = document.getElementById('stationIdBadge');
+    
+    if (stBadge) stBadge.innerText = d.station_id || 'ESTACION';
+    
+    if (badge) {
+      if (d.is_online) {
+        if (d.pending_count > 0) {
+          badge.className = 'badge-status warning';
+          badge.innerText = `● En Línea (${d.pending_count} pendientes)`;
+          badge.style.background = '#fef3c7';
+          badge.style.color = '#92400e';
+        } else {
+          badge.className = 'badge-status connected';
+          badge.innerText = `● Intranet: Sincronizada`;
+          badge.style.background = '#ecfdf5';
+          badge.style.color = '#065f46';
+        }
+      } else {
+        badge.className = 'badge-status disconnected';
+        badge.innerText = `● Modo Offline (${d.pending_count} en cola)`;
+        badge.style.background = '#fee2e2';
+        badge.style.color = '#991b1b';
+      }
+    }
+    
+    const sumOnline = document.getElementById('cfgSummaryOnline');
+    const sumPending = document.getElementById('cfgSummaryPending');
+    const sumLastSync = document.getElementById('cfgSummaryLastSync');
+    if (sumOnline) sumOnline.innerText = d.is_online ? 'En Línea (Conectado)' : 'Desconectado (Offline)';
+    if (sumPending) sumPending.innerText = `${d.pending_count} registros`;
+    if (sumLastSync) sumLastSync.innerText = d.last_sync || 'Nunca';
+  } catch (e) {
+  }
+}
+
+async function triggerManualSync() {
+  const btn = document.getElementById('btnManualSync');
+  if (btn) btn.innerText = 'Subiendo...';
+  try {
+    const res = await fetch('/api/v1/sync/trigger', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'success') {
+      alert(`✅ Sincronización exitosa: ${data.synced_count} registros subidos a la Intranet Central.`);
+    } else if (data.status === 'idle') {
+      alert(`ℹ️ No hay registros pendientes. Toda la información ya está sincronizada.`);
+    } else {
+      alert(`⚠️ ${data.message || 'No se pudo sincronizar en este momento. Verifique conectividad con el servidor.'}`);
+    }
+  } catch (err) {
+    alert(`❌ Error al conectar con el servicio local de sincronización: ${err}`);
+  } finally {
+    if (btn) btn.innerText = '🔄 Sincronizar';
+    updateSyncStatusUI();
+    if (typeof loadOnusHistory === 'function') loadOnusHistory();
+  }
+}
+
+function openStationConfigModal() {
+  fetch('/api/v1/sync/status')
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('cfgStationId').value = d.station_id || '';
+      document.getElementById('cfgStationName').value = d.station_name || '';
+      document.getElementById('cfgServerUrl').value = d.server_url || '';
+      document.getElementById('cfgAutoSync').checked = d.auto_sync !== false;
+      document.getElementById('modalStationConfig').style.display = 'flex';
+      updateSyncStatusUI();
+    });
+}
+
+function closeStationConfigModal() {
+  document.getElementById('modalStationConfig').style.display = 'none';
+}
+
+async function saveStationConfig() {
+  const body = {
+    station_id: document.getElementById('cfgStationId').value.trim(),
+    station_name: document.getElementById('cfgStationName').value.trim(),
+    server_url: document.getElementById('cfgServerUrl').value.trim(),
+    auto_sync: document.getElementById('cfgAutoSync').checked
+  };
+  
+  if (!body.station_id || !body.server_url) {
+    alert('Por favor complete el ID de la estación y la URL del servidor.');
+    return;
+  }
+  
+  try {
+    const res = await fetch('/api/v1/sync/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await res.json();
+    if (d.ok) {
+      alert('Configuración guardada correctamente.');
+      closeStationConfigModal();
+      updateSyncStatusUI();
+    }
+  } catch (err) {
+    alert(`Error guardando configuración: ${err}`);
+  }
 }

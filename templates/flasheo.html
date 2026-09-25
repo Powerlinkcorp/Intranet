@@ -3,286 +3,332 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estación de Flasheo ONUs - Powerlink Multi-Modelo</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <title>Auditoría y Monitoreo de Flasheo - POWER LINK CORP.</title>
+  <link rel="icon" type="image/png" href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/flasheo.css">
 </head>
 <body>
-    {% include 'sidebar.html' %}
-    <div class='content-wrapper' id='contentWrapper' style='padding-left: 250px; min-height: 100vh;'>
-  <!-- HEADER -->
-  <header>
-    <div class="header-container">
-      <div class="brand">
-        <span class="brand-icon">⚡</span>
-        <div>
-          <div class="brand-title">POWERLINK ESTACIÓN DE FLASHEO <span class="badge-pro">PRO 3.0</span></div>
-          <div class="brand-sub">Sistema Profesional Multi-Modelo con Trazabilidad de Lotes y API REST</div>
+  <!-- SIDEBAR GENERAL DE LA INTRANET -->
+  {% include 'sidebar.html' %}
+
+  <div class="content-wrapper" id="contentWrapper">
+    <div class="flasheo-page-container">
+
+      <!-- HEADER DEL MÓDULO (SOLO MONITOREO CENTRAL) -->
+      <header class="module-header">
+        <div class="brand-wrapper">
+          <div class="brand-icon-box">
+            <i class="fa-solid fa-server"></i>
+          </div>
+          <div>
+            <div class="brand-title-text">
+              POWERLINK AUDITORÍA Y MONITOREO DE FLASHEO
+              <span class="badge-pro">CENTRAL</span>
+            </div>
+            <div class="brand-subtitle-text">Panel Central de Visualización y Trazabilidad de Estaciones de Flasheo</div>
+          </div>
+        </div>
+
+        <div class="header-actions-group">
+          <button class="btn btn-sm btn-outline" onclick="refreshAllData()" title="Recargar datos del servidor">
+            <i class="fa-solid fa-arrows-rotate"></i> Actualizar
+          </button>
+          <a href="/docs" target="_blank" class="btn-doc" title="Documentación interactiva Swagger">
+            <i class="fa-solid fa-book-open"></i> API Docs
+          </a>
+          <div class="badge-status connected" style="font-size:12px;">
+            <i class="fa-solid fa-circle-check"></i> Servidor Central Online
+          </div>
+          <div class="user-pill">
+            <i class="fa-solid fa-user-shield"></i>
+            <span id="topUserName">{{ user.username if user else 'Usuario' }}</span>
+            <span id="topUserRole" class="role-badge role-{{ user.role if user else 'visualizador' }}">{{ user.role if user else 'visualizador' }}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- TARJETAS DE MÉTRICAS KPI CENTRALES -->
+      <div class="metrics-summary-grid">
+        <div class="stat-summary-card">
+          <div class="stat-card-icon stat-icon-blue">
+            <i class="fa-solid fa-laptop-code"></i>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-label">Laptops / Estaciones</span>
+            <span id="kpiStationsCount" class="stat-card-val">0</span>
+            <span class="stat-card-sub" id="kpiStationsSub">Conectadas al Galpón</span>
+          </div>
+        </div>
+
+        <div class="stat-summary-card">
+          <div class="stat-card-icon stat-icon-amber">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-label">Total ONUs Flasheadas</span>
+            <span id="kpiTotalOnus" class="stat-card-val">0</span>
+            <span class="stat-card-sub" id="kpiTotalOnusSub">Sincronizadas en Central</span>
+          </div>
+        </div>
+
+        <div class="stat-summary-card">
+          <div class="stat-card-icon stat-icon-green">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-label">Flasheadas con Éxito</span>
+            <span id="kpiSuccessOnus" class="stat-card-val">0</span>
+            <span class="stat-card-sub" id="kpiSuccessPercent">0% Efectividad</span>
+          </div>
+        </div>
+
+        <div class="stat-summary-card">
+          <div class="stat-card-icon stat-icon-purple">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <div class="stat-card-content">
+            <span class="stat-card-label">Lotes y Cajas Auditados</span>
+            <span id="kpiTotalLotes" class="stat-card-val">0</span>
+            <span class="stat-card-sub" id="kpiLotesSub">Registrados en Taller</span>
+          </div>
         </div>
       </div>
 
-      <div class="header-actions">
-        <a href="/docs" target="_blank" class="btn-doc" title="Documentación interactiva Swagger">
-          📖 API Docs
-        </a>
-        <div id="wsIndicator" class="badge-status disconnected">● Desconectado</div>
-        <div class="user-pill">
-          <span id="topUserName">Usuario</span>
-          <span id="topUserRole" class="role-badge role-configurador">configurador</span>
-        </div>
-        <button id="btnLoginLogout" class="btn-sm btn-outline" onclick="handleAuthAction()">Iniciar Sesión</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- CONTENEDOR PRINCIPAL -->
-  <main class="main-container">
-
-    <!-- BARRA SUPERIOR DE CONTROL -->
-    <div class="control-card">
-      <div class="control-group">
-        <label>Modo de Conexión:</label>
-        <select id="flashModeSelect" class="form-select oper-only" onchange="onModeChange()">
-          <option value="direct">⚡ Conexión Directa (1 ONU - 192.168.1.1)</option>
-          <option value="switch">📡 Switch MikroTik (20 Puertos Continuo)</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label>Lote / Caja Activa:</label>
-        <select id="activeLoteSelect" class="form-select oper-only" onchange="changeActiveLote()">
-          <option value="">Cargando lotes...</option>
-        </select>
-      </div>
-
-      <div class="control-group">
-        <label>Modelo de ONU:</label>
-        <select id="activeModelSelect" class="form-select oper-only">
-          <option value="V2801S-B">VSOL V2801S-B ONU 1GE</option>
-          <option value="V2804AX30-H">VSOL Wi-Fi 6 AX3000</option>
-        </select>
-      </div>
-
-      <div class="control-buttons">
-        <button id="btnStartAction" class="btn btn-primary oper-only" onclick="executeMainAction()">
-          ▶ Iniciar Flasheo
+      <!-- NAVEGACIÓN POR PESTAÑAS (SOLO INFORMACIÓN Y MONITOREO) -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('tabStations', this)">
+          <i class="fa-solid fa-network-wired"></i> Estaciones de Flasheo
         </button>
-        <button id="btnActionReset" class="btn btn-secondary oper-only" onclick="executeSubAction('factory_reset')" title="Solo restablecer de fábrica">
-          🔄 Factory Reset
+        <button class="tab-btn" onclick="switchTab('tabOnus', this)">
+          <i class="fa-solid fa-list-check"></i> Registro Histórico Central
         </button>
-        <button id="btnActionAudit" class="btn btn-outline oper-only" onclick="executeSubAction('verify_vlan')" title="Solo auditar VLAN 3 y credenciales">
-          🔍 Auditar VLAN 3
+        <button class="tab-btn" onclick="switchTab('tabTrace', this)">
+          <i class="fa-solid fa-magnifying-glass-chart"></i> Consulta de Trazabilidad
         </button>
-        <button id="btnStop" class="btn btn-danger oper-only" onclick="stopProcess()" style="display:none;">
-          ⏹ Detener
+        <button class="tab-btn" onclick="switchTab('tabLotes', this)">
+          <i class="fa-solid fa-boxes-stacked"></i> Lotes y Credenciales
         </button>
+        <button class="tab-btn" onclick="switchTab('tabModels', this)">
+          <i class="fa-solid fa-hard-drive"></i> Modelos y Firmwares
+        </button>
+        {% if user and user.role == 'admin' %}
+        <button class="tab-btn" onclick="switchTab('tabUsers', this)">
+          <i class="fa-solid fa-users-gear"></i> Operadores de Flasheo
+        </button>
+        {% endif %}
       </div>
 
-      <div id="directConnectionAlert" style="display:none; width:100%; margin-top:10px; padding:8px 14px; border-radius:6px; font-size:0.88rem; font-weight:500;"></div>
+      <!-- CONTENIDO DE LAS PESTAÑAS -->
 
-      <div class="metrics-row">
-        <div class="metric-item metric-success">
-          <span class="metric-label">Listas</span>
-          <span id="cntListas" class="metric-val">0</span>
+      <!-- TAB 1: ESTACIONES DE TRABAJO (LAPTOPS) -->
+      <div id="tabStations" class="tab-content active">
+        <!-- Grid de tarjetas de laptops -->
+        <div id="stationCardsGrid" class="station-cards-grid" style="margin-bottom:18px;">
+          <!-- Generado dinámicamente -->
         </div>
-        <div class="metric-item metric-warning">
-          <span class="metric-label">En curso</span>
-          <span id="cntEnCurso" class="metric-val">0</span>
-        </div>
-        <div class="metric-item metric-danger">
-          <span class="metric-label">Errores</span>
-          <span id="cntErrores" class="metric-val">0</span>
-        </div>
-        <div class="metric-item metric-total">
-          <span class="metric-label">Total</span>
-          <span id="cntTotal" class="metric-val">20</span>
+
+        <!-- Tabla detallada de estaciones -->
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+            <div>
+              <h3 style="margin:0;"><i class="fa-solid fa-laptop" style="color:var(--acento); margin-right:8px;"></i> Detalle de Laptops / Estaciones Conectadas</h3>
+              <p class="text-muted" style="margin:4px 0 0 0;">Laptops operativas en el galpón que envían datos y telemetría de flasheo a la Intranet.</p>
+            </div>
+            <button class="btn btn-outline" onclick="loadStations()"><i class="fa-solid fa-rotate"></i> Refrescar Estaciones</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Estación</th>
+                  <th>Nombre Descriptivo</th>
+                  <th>Hostname</th>
+                  <th>Dirección IP</th>
+                  <th>Total ONUs Flasheadas</th>
+                  <th>Última Sincronización</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="stationsTbody">
+                <tr><td colspan="7" style="padding:20px; text-align:center; color:#64748b;">Cargando estaciones de flasheo...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- NAVEGACIÓN POR PESTAÑAS -->
-    <div class="tabs-nav">
-      <button class="tab-btn active" onclick="switchTab('tabPorts')">📡 Matriz 20 Puertos</button>
-      <button class="tab-btn" onclick="switchTab('tabOnus')">📋 Registro Histórico de ONUs</button>
-      <button class="tab-btn" onclick="switchTab('tabLotes')">📦 Lotes y Credenciales</button>
-      <button class="tab-btn" onclick="switchTab('tabModels')">💾 Modelos y Firmwares</button>
-      <button class="tab-btn admin-only" onclick="switchTab('tabUsers')">👥 Usuarios y Roles</button>
-      <button class="tab-btn" onclick="switchTab('tabTerminal')">🖥️ Terminal en Vivo</button>
-    </div>
+      <!-- TAB 2: HISTORIAL DE ONUs -->
+      <div id="tabOnus" class="tab-content">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+            <div>
+              <h3 style="margin:0;"><i class="fa-solid fa-database" style="color:var(--acento); margin-right:8px;"></i> Registro Histórico Centralizado de ONUs</h3>
+              <p class="text-muted" style="margin:4px 0 0 0;">Historial global con identificación de laptop origen, firmware instalado, credenciales y validación VLAN 3.</p>
+            </div>
+            <span id="onusTotalBadge" class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; padding:6px 14px; border-radius:20px; font-size:12px;">
+              <i class="fa-solid fa-cloud-arrow-down"></i> Sincronización Central Activa
+            </span>
+          </div>
 
-    <!-- CONTENIDO DE PESTAÑAS -->
+          <div class="table-header-tools" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">
+            <div style="flex:1; min-width:240px; position:relative;">
+              <input type="text" id="filterOnus" class="form-input" style="width:100%; padding-left:36px;" placeholder="Buscar por MAC, Serial PON, Lote, Caja..." onkeyup="filterOnusTable()">
+              <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+            </div>
+            <select id="filterStation" class="form-select" style="min-width:200px;" onchange="loadOnusHistory()">
+              <option value="TODAS">💻 Todas las Estaciones</option>
+            </select>
+            <select id="filterResult" class="form-select" style="min-width:180px;" onchange="filterOnusTable()">
+              <option value="TODOS">Todos los Resultados</option>
+              <option value="EXITO">✅ Solo ÉXITO</option>
+              <option value="YA_CONFIGURADA">🔄 YA CONFIGURADA</option>
+              <option value="ERROR">❌ Con ERROR</option>
+            </select>
+            <button class="btn btn-outline" onclick="loadOnusHistory()"><i class="fa-solid fa-rotate"></i> Refrescar</button>
+          </div>
 
-    <!-- TAB 1: MATRIZ DE PUERTOS -->
-    <div id="tabPorts" class="tab-content active">
-      <div id="portsGrid" class="ports-grid">
-        <!-- Generado dinámicamente: Puertos 1 al 20 -->
-      </div>
-    </div>
-
-    <!-- TAB 2: HISTORIAL DE ONUs -->
-    <div id="tabOnus" class="tab-content">
-      <div class="table-header-tools">
-        <input type="text" id="filterOnus" class="form-input" placeholder="Buscar por MAC, PON o Lote..." onkeyup="filterOnusTable()">
-        <button class="btn btn-outline" onclick="loadOnusHistory()">🔄 Refrescar</button>
-      </div>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Fecha y Hora</th>
-              <th>Puerto</th>
-              <th>IP</th>
-              <th>MAC</th>
-              <th>GPON SN (Formateado)</th>
-              <th>Lote / Caja</th>
-              <th>Credencial Programada</th>
-              <th>Resultado</th>
-              <th>VLAN3</th>
-            </tr>
-          </thead>
-          <tbody id="onusTbody">
-            <tr><td colspan="10" class="text-center">Cargando registros...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- TAB 3: LOTES Y CAJAS -->
-    <div id="tabLotes" class="tab-content">
-      <div class="lotes-layout">
-        <!-- Formulario Crear Lote -->
-        <div class="card oper-only">
-          <h3>📦 Crear Nuevo Lote / Caja</h3>
-          <p class="text-muted">Asigna el modelo, el firmware específico y la clave que recibirán las ONUs de esta caja.</p>
-          <form onsubmit="handleCreateLote(event)" class="lote-form">
-            <div class="form-group">
-              <label>Código de Lote:</label>
-              <input type="text" id="newLoteCodigo" class="form-input" placeholder="ej. LOTE-2026-B02" required>
-            </div>
-            <div class="form-group">
-              <label>Número de Caja:</label>
-              <input type="text" id="newLoteCaja" class="form-input" placeholder="ej. Caja #15" required>
-            </div>
-            <div class="form-group">
-              <label>Modelo de ONU:</label>
-              <select id="newLoteModelo" class="form-select" required>
-                <option value="V2801S-B">VSOL V2801S-B ONU 1GE</option>
-                <option value="V2804AX30-H">VSOL Wi-Fi 6 AX3000</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Firmware Asignado (.bin):</label>
-              <select id="newLoteFirmware" class="form-select" required></select>
-            </div>
-            <div class="form-group">
-              <label>Clave que se programará a las ONUs:</label>
-              <input type="password" id="newLoteClave" class="form-input" placeholder="ej. Powerlink2026*" required>
-            </div>
-            <div class="form-group">
-              <label>Cantidad de ONUs en la Caja:</label>
-              <input type="number" id="newLoteQty" class="form-input" value="20" min="1" max="100">
-            </div>
-            <button type="submit" class="btn btn-primary" style="margin-top:12px;">Crear y Activar Lote</button>
-          </form>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Estación Origen</th>
+                  <th>Fecha y Hora</th>
+                  <th>Puerto</th>
+                  <th>IP Asignada</th>
+                  <th>Dirección MAC</th>
+                  <th>GPON SN</th>
+                  <th>Lote / Caja</th>
+                  <th>Clave Asignada</th>
+                  <th>Resultado</th>
+                  <th>VLAN 3</th>
+                </tr>
+              </thead>
+              <tbody id="onusTbody">
+                <tr><td colspan="11" style="padding:25px; text-align:center; color:#64748b;">Cargando registros centralizados...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
 
-        <!-- Lista de Lotes -->
-        <div class="card lotes-list-card">
-          <h3>Lotes Registrados</h3>
+      <!-- TAB 3: CONSULTA DE TRAZABILIDAD RÁPIDA -->
+      <div id="tabTrace" class="tab-content">
+        <div class="card">
+          <div style="margin-bottom:18px;">
+            <h3 style="margin:0;"><i class="fa-solid fa-id-card" style="color:var(--acento); margin-right:8px;"></i> Buscador de Trazabilidad Directa</h3>
+            <p class="text-muted" style="margin:4px 0 0 0;">Ingresa la dirección MAC o el Serial GPON de cualquier ONU para recuperar instantáneamente su ficha de flasheo y credenciales.</p>
+          </div>
+
+          <div class="trace-search-box">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+              <div style="flex:1; min-width:280px; position:relative;">
+                <input type="text" id="traceInput" class="form-input" style="width:100%; font-size:15px; padding:12px 14px 12px 40px; font-weight:600; letter-spacing:0.5px;" placeholder="Ejemplo: 4C:46:D1:BA:48:FA o VSOL00BA48FA" onkeydown="if(event.key==='Enter') executeTraceSearch()">
+                <i class="fa-solid fa-barcode" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--acento); font-size:18px;"></i>
+              </div>
+              <button class="btn btn-primary" style="padding:12px 24px; font-size:14px;" onclick="executeTraceSearch()">
+                <i class="fa-solid fa-magnifying-glass"></i> Consultar Trazabilidad
+              </button>
+            </div>
+          </div>
+
+          <div id="traceResultContainer" style="margin-top:20px; display:none;">
+            <!-- Generado dinámicamente con ficha técnica de la ONU -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: LOTES Y CAJAS (AUDITORÍA) -->
+      <div id="tabLotes" class="tab-content">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+            <div>
+              <h3 style="margin:0;"><i class="fa-solid fa-boxes-stacked" style="color:var(--acento); margin-right:8px;"></i> Registro y Auditoría de Lotes</h3>
+              <p class="text-muted" style="margin:4px 0 0 0;">Lotes y cajas de ONUs procesadas o en curso en las estaciones de flasheo.</p>
+            </div>
+            <button class="btn btn-outline" onclick="loadLotes()"><i class="fa-solid fa-rotate"></i> Actualizar Lotes</button>
+          </div>
           <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
                   <th>Código Lote</th>
-                  <th>Caja</th>
-                  <th>Modelo</th>
-                  <th>Firmware</th>
-                  <th>Clave Asignada</th>
-                  <th>Progreso</th>
+                  <th>Número Caja</th>
+                  <th>Modelo ONU</th>
+                  <th>Firmware Asignado</th>
+                  <th>Clave Programada</th>
+                  <th>Progreso (ONUs)</th>
                   <th>Estado</th>
-                  <th>Acción</th>
                 </tr>
               </thead>
-              <tbody id="lotesTbody"></tbody>
+              <tbody id="lotesTbody">
+                <tr><td colspan="7" style="padding:20px; text-align:center; color:#64748b;">Cargando lotes...</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- TAB 4: MODELOS Y FIRMWARES -->
-    <div id="tabModels" class="tab-content">
-      <div class="card oper-only">
-        <h3>⬆️ Subir Nuevo Firmware (.bin)</h3>
-        <p class="text-muted">Carga el archivo de firmware para dejarlo disponible en la creación de lotes.</p>
-        <div style="display:flex; gap:12px; align-items:center; margin-top:10px;">
-          <input type="file" id="firmwareFileInput" accept=".bin" class="form-input">
-          <button class="btn btn-primary" onclick="handleUploadFirmware()">Subir Firmware</button>
+      <!-- TAB 5: MODELOS Y FIRMWARES -->
+      <div id="tabModels" class="tab-content">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap:20px;">
+          <div class="card">
+            <h3 style="margin-bottom:12px;"><i class="fa-solid fa-microchip" style="color:var(--acento); margin-right:8px;"></i> Modelos de ONU Soportados</h3>
+            <p class="text-muted">Perfiles técnicos configurados para flasheo automático.</p>
+            <div id="modelsCardsList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+              <!-- Generado dinámicamente -->
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-bottom:12px;"><i class="fa-solid fa-hard-drive" style="color:var(--acento); margin-right:8px;"></i> Repositorio de Firmwares (.bin)</h3>
+            <p class="text-muted">Imágenes binarias homologadas disponibles para las estaciones.</p>
+            <ul id="firmwaresList" class="firmwares-list" style="list-style:none; margin-top:12px; display:flex; flex-direction:column; gap:8px;">
+              <li style="color:#64748b; font-size:13px;">Cargando firmwares...</li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="card" style="margin-top:20px;">
-        <h3>Firmwares en el Servidor</h3>
-        <ul id="firmwaresList" class="firmwares-list"></ul>
-      </div>
-    </div>
 
-    <!-- TAB 5: USUARIOS (ADMIN) -->
-    <div id="tabUsers" class="tab-content admin-only">
-      <div class="card">
-        <h3>Gestión de Usuarios y Roles (RBAC)</h3>
-        <p class="text-muted">Roles disponibles: <b>admin</b> (acceso total y visualización de claves), <b>configurador</b> (operación de flasheo y carga), <b>visualizador</b> (solo lectura).</p>
-        <div class="table-responsive" style="margin-top:14px;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Nombre Completo</th>
-                <th>Rol</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody id="usersTbody"></tbody>
-          </table>
+      <!-- TAB 6: USUARIOS Y ROLES (ADMIN) -->
+      {% if user and user.role == 'admin' %}
+      <div id="tabUsers" class="tab-content">
+        <div class="card">
+          <div style="margin-bottom:14px;">
+            <h3 style="margin:0;"><i class="fa-solid fa-users-gear" style="color:var(--acento); margin-right:8px;"></i> Operadores y Técnicos de Flasheo</h3>
+            <p class="text-muted" style="margin:4px 0 0 0;">Cuentas autorizadas para autenticarse en las estaciones de flasheo del taller.</p>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Usuario</th>
+                  <th>Nombre Completo</th>
+                  <th>Rol Asignado</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="usersTbody">
+                <tr><td colspan="5" style="padding:20px; text-align:center; color:#64748b;">Cargando operadores...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+      {% endif %}
+
     </div>
 
-    <!-- TAB 6: TERMINAL EN VIVO -->
-    <div id="tabTerminal" class="tab-content">
-      <div class="terminal-card">
-        <div class="terminal-header">
-          <span>🖥️ Consola de Flasheo en Vivo</span>
-          <label><input type="checkbox" id="autoScrollCheck" checked> Auto-Scroll</label>
-        </div>
-        <pre id="terminalLogs" class="terminal-body">Conectando al stream de consola...</pre>
-      </div>
-    </div>
+    <div id="toastContainer"></div>
 
-  </main>
+    <script src="/static/js/flasheo.js"></script>
 
-  <!-- MODAL LOGIN -->
-  <div id="modalLogin" class="modal-overlay">
-    <div class="modal-box">
-      <h3>Iniciar Sesión</h3>
-      <div class="form-group" style="margin-top:12px;">
-        <label>Usuario:</label>
-        <input type="text" id="loginUser" class="form-input" placeholder="admin, operador, etc.">
-      </div>
-      <div class="form-group" style="margin-top:10px;">
-        <label>Contraseña:</label>
-        <input type="password" id="loginPass" class="form-input" placeholder="••••••••">
-      </div>
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-        <button class="btn btn-outline" onclick="closeModalLogin()">Cancelar</button>
-        <button class="btn btn-primary" onclick="submitLogin()">Ingresar</button>
-      </div>
-    </div>
+    {% if not embed %}
+    {% include 'global_chat.html' %}
+    {% endif %}
   </div>
-
-  <div id="toastContainer"></div>
-
-  <script src="/static/app.js"></script>
-    </div>
 </body>
 </html>

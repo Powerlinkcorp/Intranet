@@ -1,5 +1,12 @@
 
 <style>
+:root {
+    --cabeceras: #1A1A1A;
+    --blanco: #ffffff;
+    --acento: #FFC107;
+    --acento-hover: #F5C71D;
+}
+
 /* SIDEBAR & LAYOUT */
 .sidebar {
     position: fixed;
@@ -7,8 +14,8 @@
     left: 0;
     width: 260px;
     height: 100vh;
-    background-color: var(--cabeceras);
-    color: var(--blanco);
+    background-color: var(--cabeceras, #1A1A1A);
+    color: var(--blanco, #ffffff);
     z-index: 1000;
     transition: width 0.3s ease;
     overflow-y: auto;
@@ -323,7 +330,7 @@
             </ul>
         </li>
 
-        {% if user.role == 'admin' or 'ver_cajas_nac' in (user.permissions or '') %}
+        {% if user.role == 'admin' or 'ver_cajas_nac' in (user.permissions or '') or 'ver_flasheo' in (user.permissions or '') or 'ver_aprovisionamiento' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') %}
         <div class="menu-section">Soporte</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-soporte', this)">
@@ -385,10 +392,14 @@
 
     <div class="sidebar-footer">
         <div class="user-badge">
-            <span id="userNavName" style="font-size: 13px; font-weight:600;">Cargando...</span>
+            <span id="userNavName" style="font-size: 13px; font-weight:600;">{{ user.username if user else 'admin' }}</span>
             <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
         </div>
+        {% if user and user.role == 'admin' %}
+        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:block; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel RRHH</a>
+        {% else %}
         <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:none; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel RRHH</a>
+        {% endif %}
         <button class="btn-logout" onclick="logout()" style="width:100%;">Salir</button>
     </div>
 </aside>
@@ -484,4 +495,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 });
+
+async function logout() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {}
+    localStorage.clear();
+    window.location.href = '/login';
+}
 </script>

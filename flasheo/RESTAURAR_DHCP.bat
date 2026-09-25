@@ -16,13 +16,20 @@ if %errorlevel% neq 0 (
     exit /b
 )
 
-echo Configurando Ethernet 3 en DHCP automatico...
-netsh interface ipv4 set address name="Ethernet 3" source=dhcp
-netsh interface ipv4 set dnsservers name="Ethernet 3" source=dhcp
+REM Detectar adaptador Ethernet activo o conectado
+set "ADAPTER=Ethernet 3"
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "(Get-NetAdapter | Where-Object Status -eq 'Up' | Where-Object Name -like '*Ethernet*' | Select-Object -ExpandProperty Name -First 1)"`) do (
+    if not "%%A"=="" set "ADAPTER=%%A"
+)
+
+echo Adaptador detectado: "%ADAPTER%"
+echo Configurando "%ADAPTER%" en DHCP automatico...
+netsh interface ipv4 set address name="%ADAPTER%" source=dhcp
+netsh interface ipv4 set dnsservers name="%ADAPTER%" source=dhcp
 
 echo.
 echo ========================================================================
-echo [OK] Ethernet 3 restaurada a DHCP automatico.
+echo [OK] "%ADAPTER%" restaurada a DHCP automatico.
 echo ========================================================================
 echo.
 pause
