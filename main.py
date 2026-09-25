@@ -1597,6 +1597,8 @@ async def procesar_auditoria_api(
     # Generar cuadro resumen agrupado de Clientes Activos por Plan
     plan_aggregates = {}
     for c in datosClientesActivos:
+        if c.get('Tipo de servicio', '').strip().upper() in ['PYME', 'CORPORATIVO']:
+            continue
         p_name = c['Plan'] or 'Sin Plan'
         if p_name not in plan_aggregates:
             plan_aggregates[p_name] = {
@@ -1706,7 +1708,7 @@ def build_plan_aggregates(users):
             plan = str(item.get('plan', '')).strip() or 'Sin Plan'
             service_type = str(item.get('service_type', '')).strip().upper()
             
-            if plan.upper() == 'TV' or service_type == 'IPTV':
+            if service_type in ['PYME', 'CORPORATIVO', 'IPTV'] or plan.upper() == 'TV':
                 continue
                 
             try:
@@ -2247,17 +2249,21 @@ async def api_get_db():
 async def api_post_db(request: Request):
     try:
         payload = await request.json()
-        with open("db.json", "r+", encoding="utf-8") as f:
+        
+        data = {}
+        if os.path.exists("db.json"):
             try:
-                data = json.load(f)
+                with open("db.json", "r", encoding="utf-8") as f:
+                    data = json.load(f)
             except Exception:
                 data = {}
-            for key in ['reports', 'afectaciones', 'techs', 'assignments', 'motivos', 'zonas', 'users', 'logs']:
-                if key in payload and isinstance(payload[key], list):
-                    data[key] = payload[key]
-            f.seek(0)
+                
+        for key in ['reports', 'afectaciones', 'techs', 'assignments', 'motivos', 'zonas', 'users', 'logs']:
+            if key in payload and isinstance(payload[key], list):
+                data[key] = payload[key]
+                
+        with open("db.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-            f.truncate()
         await notify_reporte_clients()
         return {"status": "ok", "message": "Database saved and clients notified"}
     except Exception as e:

@@ -25,6 +25,12 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 import security
+
+# Permitir que flasheo resuelva sus propios módulos absolutos (ej. core)
+flasheo_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "flasheo"))
+if flasheo_dir not in sys.path:
+    sys.path.append(flasheo_dir)
+
 from flasheo.api.v1 import api_v1_router
 from flasheo.api.v1.endpoints import ws, onus
 
