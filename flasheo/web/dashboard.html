@@ -137,6 +137,23 @@
       </div>
     </div>
 
+    <!-- BANNER DINÁMICO DE ESTADO EN VIVO DEL FLASHEO -->
+    <div id="liveProcessBanner" class="live-status-banner" style="display:none;">
+      <div class="live-banner-header">
+        <div class="live-pulse-box">
+          <span class="live-pulse-dot" id="livePulseDot"></span>
+          <span id="liveStatusTitle">Flasheo en Ejecución</span>
+        </div>
+        <div class="live-banner-meta">
+          <span id="liveMetaMode" class="badge-mode">Modo: Continuo</span>
+          <span id="liveMetaModel" class="badge-model">Modelo: V2801D-B</span>
+        </div>
+      </div>
+      <div id="liveActiveList" class="live-active-list">
+        <!-- Renderizado dinámico de tarjetas de actividad por cada ONU en curso -->
+      </div>
+    </div>
+
     <!-- NAVEGACIÓN POR PESTAÑAS (TABS) -->
     <div class="tabs-nav">
       <button class="tab-btn active" onclick="switchTab('tabPorts', this)"><i class="fa-solid fa-table-cells"></i> Matriz 20 Puertos</button>

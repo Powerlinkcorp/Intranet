@@ -502,7 +502,7 @@ def log_onu_flash(
             else:
                 active_lote.cantidad_fallidas = (active_lote.cantidad_fallidas or 0) + 1
             if active_lote.cantidad_procesadas >= active_lote.cantidad_total:
-                active_lote.estado = "COMPLETO"
+                active_lote.estado = "CERRADO"
 
         session.commit()
 
