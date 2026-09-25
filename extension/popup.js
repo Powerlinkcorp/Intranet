@@ -423,11 +423,15 @@ function openDetailModal(item) {
             <span class="detail-label">Motivo:</span>
             <span class="detail-val" style="color: var(--primary);">${escapeHtml(item.motivo || 'N/A')}</span>
         </div>
-        ${item.fecha_visita ? `
+        ${item.a_disponibilidad ? `
+        <div class="detail-row">
+            <span class="detail-label">Modalidad:</span>
+            <span class="detail-val" style="color: #f59e0b; font-weight: 800;">⚡ A Disponibilidad</span>
+        </div>` : (item.fecha_visita ? `
         <div class="detail-row">
             <span class="detail-label">Fecha de Visita:</span>
             <span class="detail-val" style="color: #0284c7; font-weight: 800;">📅 ${escapeHtml(item.fecha_visita)}</span>
-        </div>` : ''}
+        </div>` : '')}
         <div class="detail-row">
             <span class="detail-label">Ubicación:</span>
             <span class="detail-val" style="max-width: 60%;">${escapeHtml(item.ubicacion || 'N/A')}</span>
@@ -467,7 +471,7 @@ function openDetailModal(item) {
         const txt = `SOPORTE #${item.id}
 C.I: ${item.cedula}
 ZONA: ${item.zona}
-MOTIVO: ${item.motivo}${item.fecha_visita ? `\nFECHA DE VISITA: ${item.fecha_visita}` : ''}
+MOTIVO: ${item.motivo}${item.a_disponibilidad ? '\nMODALIDAD: A DISPONIBILIDAD' : (item.fecha_visita ? `\nFECHA DE VISITA: ${item.fecha_visita}` : '')}
 UBICACION: ${item.ubicacion}
 ONU: ${item.onu || 'N/A'} | CAJA-NAP: ${item.caja_nap || 'N/A'} | PRECINTO: ${item.precinto || 'N/A'}
 COORDENADAS: ${item.coordenadas || 'N/A'}
@@ -706,8 +710,71 @@ document.addEventListener('DOMContentLoaded', async () => {
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    // Configuración y restricción de Fecha de Visita
+    function getTomorrowDateString() {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Configuración y restricción de Fecha de Visita y Disponibilidad
+    let sopIsDisponibilidad = false;
+    const btnSopDisp = document.getElementById('btn_sop_disponibilidad');
+    const extDispDot = document.getElementById('ext_disp_dot');
+    const extDispLabel = document.getElementById('ext_disp_label');
+    const extDispHelp = document.getElementById('ext_disp_help');
+    const extFechaContainer = document.getElementById('ext_fecha_container');
+    const extFechaBadge = document.getElementById('ext_fecha_badge');
+    const extFechaNotice = document.getElementById('ext_fecha_notice');
     const sopFechaVisitaInput = document.getElementById('sop_fecha_visita');
+
+    function updateExtDisponibilidadUI() {
+        if (!btnSopDisp) return;
+        if (sopIsDisponibilidad) {
+            btnSopDisp.style.background = '#f59e0b';
+            btnSopDisp.style.borderColor = '#d97706';
+            btnSopDisp.style.color = '#ffffff';
+            if (extDispDot) extDispDot.style.background = '#ffffff';
+            if (extDispLabel) extDispLabel.textContent = 'SÍ (A Disponibilidad)';
+            if (extDispHelp) extDispHelp.textContent = '✓ Visita a disponibilidad (sin fecha fija)';
+            if (sopFechaVisitaInput) {
+                sopFechaVisitaInput.value = '';
+                sopFechaVisitaInput.disabled = true;
+            }
+            if (extFechaContainer) extFechaContainer.style.opacity = '0.5';
+            if (extFechaBadge) {
+                extFechaBadge.textContent = 'A Disponibilidad';
+                extFechaBadge.style.color = '#f59e0b';
+            }
+            if (extFechaNotice) extFechaNotice.textContent = '⚡ Esta visita quedará registrada a disponibilidad.';
+        } else {
+            btnSopDisp.style.background = 'var(--bg-card)';
+            btnSopDisp.style.borderColor = 'var(--border-color)';
+            btnSopDisp.style.color = 'var(--text-muted)';
+            if (extDispDot) extDispDot.style.background = '#94a3b8';
+            if (extDispLabel) extDispLabel.textContent = 'NO';
+            if (extDispHelp) extDispHelp.textContent = 'No (se planifica para mañana o fecha fija)';
+            if (sopFechaVisitaInput) {
+                sopFechaVisitaInput.disabled = false;
+            }
+            if (extFechaContainer) extFechaContainer.style.opacity = '1';
+            if (extFechaBadge) {
+                extFechaBadge.textContent = 'Por defecto: Mañana';
+                extFechaBadge.style.color = '#38bdf8';
+            }
+            if (extFechaNotice) extFechaNotice.textContent = 'Si no seleccionas fecha, se planificará para mañana.';
+        }
+    }
+
+    if (btnSopDisp) {
+        btnSopDisp.addEventListener('click', () => {
+            sopIsDisponibilidad = !sopIsDisponibilidad;
+            updateExtDisponibilidadUI();
+        });
+    }
+
     if (sopFechaVisitaInput) {
         sopFechaVisitaInput.min = getTodayDateString();
         sopFechaVisitaInput.addEventListener('change', (e) => {
@@ -744,7 +811,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             const zona = document.getElementById('sop_zona').value.trim();
             const motivo = document.getElementById('sop_motivo').value.trim();
             const ubicacion = document.getElementById('sop_ubicacion').value.trim();
-            const fechaVisita = document.getElementById('sop_fecha_visita') ? (document.getElementById('sop_fecha_visita').value || null) : null;
+            let fechaVisita = document.getElementById('sop_fecha_visita') ? (document.getElementById('sop_fecha_visita').value || null) : null;
+            const aDisponibilidad = sopIsDisponibilidad;
+
+            if (aDisponibilidad) {
+                fechaVisita = null;
+            } else if (!fechaVisita) {
+                // Si no se especifica fecha, se planifica para el siguiente día
+                fechaVisita = getTomorrowDateString();
+            }
 
             if (!cedula || !zona || !motivo || !ubicacion) {
                 showToast('Por favor completa todos los campos requeridos (*)', true);
@@ -762,6 +837,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 cedula,
                 motivo,
                 fecha_visita: fechaVisita,
+                a_disponibilidad: aDisponibilidad,
                 onu: document.getElementById('sop_onu').value.trim() || null,
                 caja_nap: document.getElementById('sop_caja_nap').value.trim() || null,
                 precinto: document.getElementById('sop_precinto').value.trim() || null,
@@ -785,6 +861,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (ok) {
                 showToast(`✅ Soporte #${newReport.id} guardado con éxito`);
                 formSoporte.reset();
+                sopIsDisponibilidad = false;
+                updateExtDisponibilidadUI();
                 // Cambiar a la pestaña de consulta para ver el reporte creado
                 const btnConsultar = document.querySelector('[data-tab="tab-consultar"]');
                 if (btnConsultar) btnConsultar.click();

@@ -214,9 +214,28 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="sop_fecha_visita">Fecha de Visita</label>
-                        <input type="date" id="sop_fecha_visita">
+                    <div class="form-group" style="padding: 10px; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.02); margin-bottom: 12px;">
+                        <input type="hidden" id="sop_a_disponibilidad" value="0">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <div>
+                                <label style="margin: 0; font-weight: 700; font-size: 12px;">¿Visita a Disponibilidad?</label>
+                                <span style="font-size: 10px; color: var(--text-dim); display: block;" id="ext_disp_help">No (se planifica para mañana o fecha fija)</span>
+                            </div>
+                            <button type="button" id="btn_sop_disponibilidad" style="padding: 4px 10px; font-size: 11px; font-weight: 800; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #94a3b8;" id="ext_disp_dot"></span>
+                                <span id="ext_disp_label">NO</span>
+                            </button>
+                        </div>
+                        <div id="ext_fecha_container" style="transition: all 0.2s;">
+                            <label for="sop_fecha_visita" style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>Fecha de Visita</span>
+                                <span style="font-size: 10px; color: #38bdf8; font-weight: 600;" id="ext_fecha_badge">Por defecto: Mañana</span>
+                            </label>
+                            <input type="date" id="sop_fecha_visita">
+                            <span style="font-size: 10px; color: var(--text-dim); display: block; margin-top: 4px;" id="ext_fecha_notice">
+                                Si no seleccionas fecha, se planificará para mañana.
+                            </span>
+                        </div>
                     </div>
 
                     <div class="form-row-3">

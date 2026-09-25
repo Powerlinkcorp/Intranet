@@ -126,8 +126,9 @@
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
+
         .btn-action-gold:hover {
             background-color: var(--acento-hover);
             transform: translateY(-1px);
@@ -147,8 +148,9 @@
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
+
         .btn-action-light:hover {
             background-color: #f8fafc;
             border-color: #cbd5e1;
@@ -170,18 +172,21 @@
             transition: all 0.2s;
             white-space: nowrap;
         }
+
         .subnav-tab:hover {
             background: #f8fafc;
             color: #0f172a;
             border-color: #94a3b8;
         }
+
         .subnav-tab.active {
             background: var(--cabeceras) !important;
             color: var(--acento) !important;
             border-color: var(--cabeceras) !important;
             font-weight: 700;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
+
         .subnav-tab.active i {
             color: var(--acento) !important;
         }
@@ -367,36 +372,48 @@
     <!-- SIDEBAR GENERAL CORPORATIVO -->
     {% include 'sidebar.html' %}
     <div class="content-wrapper" id="contentWrapper">
-    {% endif %}
+        {% endif %}
 
         <!-- HEADER BANNER CORPORATIVO (IDÉNTICO A LA INTRANET) -->
-        <div class="bg-white border-b border-slate-200 px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
+        <div
+            class="bg-white border-b border-slate-200 px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-[#1A1A1A] flex items-center justify-center text-[#FFC107] text-xl shadow-md flex-shrink-0">
+                <div
+                    class="w-12 h-12 rounded-xl bg-[#1A1A1A] flex items-center justify-center text-[#FFC107] text-xl shadow-md flex-shrink-0">
                     <i class="fa-solid fa-headset"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="bg-[#FFC107] text-[#1A1A1A] font-extrabold text-[10px] px-2 py-0.5 rounded tracking-wider uppercase">SOPORTE TÉCNICO</span>
-                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        <span
+                            class="bg-[#FFC107] text-[#1A1A1A] font-extrabold text-[10px] px-2 py-0.5 rounded tracking-wider uppercase">SOPORTE
+                            TÉCNICO</span>
+                        <span
+                            class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en línea
                         </span>
                     </div>
                     <h1 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mt-1">Control de Averías y Cuadrillas</h1>
-                    <p class="text-xs text-slate-500">Gestión de tickets, coordinación de técnicos y afectaciones de zona en tiempo real</p>
+                    <p class="text-xs text-slate-500">Gestión de tickets, coordinación de técnicos y afectaciones de
+                        zona en tiempo real</p>
                 </div>
             </div>
 
             <!-- Botones de Acción Global -->
             <div class="flex items-center gap-2 flex-wrap">
-                <button onclick="exportData()" id="navExport" class="btn-action-light" title="Exportar base de datos JSON">
+                <button onclick="openExtensionModal()" id="navDownloadExt" class="btn-action-light"
+                    title="Descargar extensión de soporte">
+                    <i class="fa-solid fa-puzzle-piece text-amber-500"></i> Descargar extensión de soporte
+                </button>
+                <button onclick="exportData()" id="navExport" class="btn-action-light"
+                    title="Exportar base de datos JSON">
                     <i class="fa-solid fa-file-arrow-down text-slate-600"></i> Exportar BD
                 </button>
                 <label id="navImport" class="btn-action-light cursor-pointer" title="Importar base de datos JSON">
                     <i class="fa-solid fa-file-arrow-up text-slate-600"></i> Importar BD
                     <input type="file" accept=".json" onchange="importData(event)" class="hidden">
                 </label>
-                <button onclick="handleHeaderNewBtn()" id="navBtnNuevo" class="btn-action-gold" title="Crear nuevo registro">
+                <button onclick="handleHeaderNewBtn()" id="navBtnNuevo" class="btn-action-gold"
+                    title="Crear nuevo registro">
                     <i class="fa-solid fa-plus"></i> <span id="navBtnNuevoText">Nuevo Reporte</span>
                 </button>
 
@@ -407,7 +424,8 @@
         </div>
 
         <!-- BARRA HORIZONTAL DE SUB-PESTAÑAS DE SOPORTE TÉCNICO -->
-        <div class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-2.5 overflow-x-auto custom-scrollbar">
+        <div
+            class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-2.5 overflow-x-auto custom-scrollbar">
             <button onclick="toggleSection('dashboard')" id="navDashboard" class="subnav-tab active">
                 <i class="fa-solid fa-file-invoice"></i> Reportes (Soportes)
             </button>
@@ -434,7 +452,7 @@
         <!-- MAIN VIEW CONTAINER -->
         <main class="flex-1 p-4 sm:p-6" id="app"></main>
 
-    {% if not embed %}
+        {% if not embed %}
     </div> <!-- /content-wrapper -->
     {% endif %}
 
@@ -618,22 +636,61 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Selecciona el motivo por el cual se
                             genera el soporte. Los motivos se gestionan en la sección "Motivos".</p>
                     </div>
-                    <div class="pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
-                        <label for="f_fecha_visita"
-                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-                            <span class="flex items-center gap-1.5">
-                                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                FECHA DE VISITA (PROGRAMADA)
-                            </span>
-                            <span
-                                class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Opcional</span>
-                        </label>
-                        <input type="date" id="f_fecha_visita"
-                            class="input-modern w-full px-3 py-2.5 text-sm border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:border-indigo-400 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                    <div class="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 space-y-3">
+                        <input type="hidden" id="f_a_disponibilidad" value="0">
+                        <!-- Botón de Disponibilidad -->
+                        <div
+                            class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/60 transition-all">
+                            <div class="flex items-center gap-2.5">
+                                <span id="disp_icon_box"
+                                    class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center flex-shrink-0 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <div
+                                        class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                        ¿Visita a Disponibilidad?
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400" id="disp_help_text">
+                                        No (se planifica para mañana o fecha específica)
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="btn_toggle_disponibilidad" onclick="toggleFormDisponibilidad()"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer">
+                                <span class="w-2 h-2 rounded-full bg-slate-400" id="disp_indicator_dot"></span>
+                                <span id="disp_button_text">NO</span>
+                            </button>
+                        </div>
+
+                        <!-- Selector de Fecha de Visita -->
+                        <div id="fecha_visita_wrapper" class="transition-all">
+                            <label for="f_fecha_visita"
+                                class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    FECHA DE VISITA (PROGRAMADA)
+                                </span>
+                                <span id="f_visita_badge"
+                                    class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+                                    Por defecto: Mañana
+                                </span>
+                            </label>
+                            <input type="date" id="f_fecha_visita"
+                                class="input-modern w-full px-3 py-2.5 text-sm border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:border-indigo-400 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1"
+                                id="f_visita_notice">
+                                <span>ℹ️</span> Si no especificas una fecha, quedará planificada para mañana (<strong
+                                    id="lbl_tomorrow_preview"></strong>).
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <!-- Buttons -->
@@ -671,6 +728,128 @@
             <div class="overflow-y-auto flex-1 p-6" id="viewContent"></div>
             <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-800/50"
                 id="viewActions"></div>
+        </div>
+    </div>
+
+    <!-- Modal Descargar Extensión -->
+    <div id="modalExtension" class="fixed inset-0 z-[80] hidden">
+        <div class="modal-overlay absolute inset-0" onclick="closeExtensionModal()"></div>
+        <div
+            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[92vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800">
+            <!-- Header -->
+            <div
+                class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/50">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-puzzle-piece"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Extensión de Soporte Técnico</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Descarga e instrucciones de instalación paso a paso</p>
+                    </div>
+                </div>
+                <button onclick="closeExtensionModal()"
+                    class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 rounded-lg transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="overflow-y-auto flex-1 p-6 space-y-5 custom-scrollbar">
+                <!-- Banner de Descarga -->
+                <div
+                    class="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <span
+                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                            Versión 1.0.0 · Google Chrome, Brave, Edge
+                        </span>
+                        <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100">Paquete de Extensión listo para descargar</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Descarga el archivo ZIP oficial para integrar la captura de averías en tu navegador.</p>
+                    </div>
+                    <a href="https://drive.google.com/uc?id=132rjmrCXtOOFJ2CpKClcdbmVqC4I_h8D" target="_blank" rel="noopener noreferrer"
+                        class="btn-modern inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-amber-700 transition-all flex-shrink-0">
+                        <i class="fa-solid fa-cloud-arrow-down text-base"></i>
+                        <span>Descargar Extensión (.zip)</span>
+                    </a>
+                </div>
+
+                <!-- Pasos de Instalación -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Instrucciones de instalación en 5 pasos:</h4>
+
+                    <!-- Paso 1 -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xs flex-shrink-0">1</div>
+                        <div class="space-y-1 text-xs">
+                            <p class="font-bold text-slate-800 dark:text-slate-200">Descarga y descomprime el archivo ZIP</p>
+                            <p class="text-slate-500 dark:text-slate-400">Haz clic en el botón <strong>"Descargar Extensión (.zip)"</strong>. Al terminar la descarga, ve a tu carpeta de descargas, haz clic derecho sobre el archivo <code>.zip</code> y selecciona <strong>"Extraer todo..."</strong> en una carpeta definitiva (por ejemplo, en tus Documentos o Escritorio).</p>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2 -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xs flex-shrink-0">2</div>
+                        <div class="space-y-1.5 text-xs flex-1">
+                            <p class="font-bold text-slate-800 dark:text-slate-200">Abre la página de Extensiones en tu navegador</p>
+                            <p class="text-slate-500 dark:text-slate-400">Pega en la barra de direcciones de Chrome la siguiente URL:</p>
+                            <div class="flex items-center gap-2">
+                                <code class="px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-indigo-600 dark:text-indigo-400 font-mono text-[11px] font-semibold select-all">chrome://extensions/</code>
+                                <button type="button" onclick="copyExtensionsUrl()" class="px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors inline-flex items-center gap-1 cursor-pointer">
+                                    <i class="fa-regular fa-copy"></i> Copiar URL
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 italic">(O ve a Configuración de Chrome → Extensiones → Administrar extensiones)</p>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3 -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xs flex-shrink-0">3</div>
+                        <div class="space-y-1 text-xs">
+                            <p class="font-bold text-slate-800 dark:text-slate-200">Activa el "Modo de desarrollador"</p>
+                            <p class="text-slate-500 dark:text-slate-400">En la esquina superior derecha de la pantalla de extensiones, enciende el interruptor <strong>"Modo de desarrollador"</strong> (Developer mode).</p>
+                        </div>
+                    </div>
+
+                    <!-- Paso 4 -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/30">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xs flex-shrink-0">4</div>
+                        <div class="space-y-1 text-xs">
+                            <p class="font-bold text-slate-800 dark:text-slate-200">Haz clic en "Cargar descomprimida"</p>
+                            <p class="text-slate-500 dark:text-slate-400">Aparecerá un botón arriba a la izquierda llamado <strong>"Cargar descomprimida"</strong> (Load unpacked). Haz clic y selecciona la carpeta que descomprimiste en el Paso 1 (la que contiene los archivos de la extensión).</p>
+                        </div>
+                    </div>
+
+                    <!-- Paso 5 -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-950/20">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xs flex-shrink-0">5</div>
+                        <div class="space-y-1 text-xs">
+                            <p class="font-bold text-emerald-800 dark:text-emerald-300">¡Listo! Fija la extensión para usarla</p>
+                            <p class="text-slate-600 dark:text-slate-400">Haz clic en el icono de rompecabezas 🧩 en la barra superior de Chrome y pulsa el icono de la <strong>chincheta (Pin)</strong> para fijar la extensión y tenerla disponible siempre que navegues.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div
+                class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/60 dark:bg-slate-800/50">
+                <span class="text-xs text-slate-400 dark:text-slate-500">¿Requieres ayuda? Consulta al equipo de sistemas</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeExtensionModal()"
+                        class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        Cerrar
+                    </button>
+                    <a href="https://drive.google.com/uc?id=132rjmrCXtOOFJ2CpKClcdbmVqC4I_h8D" target="_blank" rel="noopener noreferrer"
+                        class="btn-modern inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-md shadow-amber-500/20">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> Descargar (.zip)
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1360,7 +1539,8 @@
 
     <!-- Modal Login (Desactivado: Acceso directo sin autenticación) -->
     <div id="modalLogin"
-        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md transition-all" style="display: none !important;">
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md transition-all"
+        style="display: none !important;">
         <div
             class="w-full max-w-md bg-white dark:bg-[#0c1427] rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800/80 p-8 space-y-6 slide-up">
             <div class="text-center space-y-2">
@@ -1646,7 +1826,7 @@
             try {
                 sessionStorage.setItem(SESSION_KEY, str);
                 if (remember) localStorage.setItem(SESSION_KEY, str);
-            } catch (e) {}
+            } catch (e) { }
             updateUserBar();
         }
 
@@ -1956,7 +2136,15 @@
             let tel = [r.telefono1, r.telefono2].filter(Boolean).join(' | ') || 'N/A';
             let ubi = r.coordenadas ? `${r.ubicacion} (${r.coordenadas})` : r.ubicacion;
             let motivo = r.motivo || r.estatus || 'N/A';
-            return `ZONA: ${r.zona}\n=======================\n*C.I./RIF*: ${r.cedula}\n*ONU*: ${onu}\n*UBICACIÓN*: ${ubi}\n*TELÉFONO*: ${tel}\n*ESTATUS*: ${motivo}\n========================`;
+            let extra = '';
+            if (r.a_disponibilidad) {
+                extra = '\n*MODALIDAD*: A DISPONIBILIDAD';
+            } else if (r.fecha_visita) {
+                const parts = String(r.fecha_visita).split('-');
+                const formatted = (parts.length === 3) ? `${parts[2]}/${parts[1]}/${parts[0]}` : r.fecha_visita;
+                extra = `\n*FECHA DE VISITA*: ${formatted}`;
+            }
+            return `ZONA: ${r.zona}\n=======================\n*C.I./RIF*: ${r.cedula}\n*ONU*: ${onu}\n*UBICACIÓN*: ${ubi}\n*TELÉFONO*: ${tel}\n*ESTATUS*: ${motivo}${extra}\n========================`;
         }
 
         function estatusBadge(r) {
@@ -2210,20 +2398,30 @@
                 reports.forEach(r => {
                     const isCoordinado = Boolean(r.assigned) || assignedSopIds.has(r.id);
                     let fechaCell = `<span class="text-xs text-slate-400 dark:text-slate-600 font-semibold">—</span>`;
-                    if (!isCoordinado && r.fecha_visita) {
-                        const parts = String(r.fecha_visita).split('-');
-                        const formatted = (parts.length === 3) ? `${parts[2]}/${parts[1]}/${parts[0]}` : r.fecha_visita;
-                        fechaCell = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 whitespace-nowrap">
-                            <svg class="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span>Visita: ${formatted}</span>
-                        </span>`;
+                    if (!isCoordinado) {
+                        if (r.a_disponibilidad) {
+                            fechaCell = `
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 whitespace-nowrap" title="Visita a Disponibilidad">
+                                <svg class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <span>A Disponibilidad</span>
+                            </span>`;
+                        } else if (r.fecha_visita) {
+                            const parts = String(r.fecha_visita).split('-');
+                            const formatted = (parts.length === 3) ? `${parts[2]}/${parts[1]}/${parts[0]}` : r.fecha_visita;
+                            fechaCell = `
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 whitespace-nowrap">
+                                <svg class="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>Visita: ${formatted}</span>
+                            </span>`;
+                        }
                     }
 
                     html += `
-                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors" data-search="${(r.zona + ' ' + r.cedula + ' ' + r.ubicacion + ' ' + (r.motivo || '') + ' ' + (!isCoordinado && r.fecha_visita ? r.fecha_visita : '')).toLowerCase()}">
+                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors" data-search="${(r.zona + ' ' + r.cedula + ' ' + r.ubicacion + ' ' + (r.motivo || '') + ' ' + (!isCoordinado && r.fecha_visita ? r.fecha_visita : '') + (r.a_disponibilidad ? ' disponibilidad a disponibilidad' : '')).toLowerCase()}">
                         <td class="px-6 py-4.5"><span class="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500">#${r.id}</span></td>
                         <td class="px-6 py-4.5"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/20">${r.zona}</span></td>
                         <td class="px-6 py-4.5"><span class="text-sm font-semibold text-slate-800 dark:text-slate-200">${r.cedula}</span></td>
@@ -3335,7 +3533,7 @@
 
             const sopCoordinados = supportAssignments.length;
             const sopRealizados = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('REALIZADA') || (a.status || '').toUpperCase().includes('RESUELTO')).length;
-            const sopPendientes = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE')).length;
+            const sopPendientes = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE') || (a.status || '').toUpperCase().includes('ESPERA')).length;
             const sopEnProceso = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('PROCESO')).length;
             const sopEspera = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('ESPERA')).length;
             const sopReagendado = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('REAGENDADA')).length;
@@ -3396,7 +3594,7 @@
 
                 if (teamSop.length > 0) {
                     const real = teamSop.filter(a => (a.status || '').toUpperCase().includes('REALIZADA') || (a.status || '').toUpperCase().includes('RESUELTO')).length;
-                    const pend = teamSop.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE')).length;
+                    const pend = teamSop.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE') || (a.status || '').toUpperCase().includes('ESPERA')).length;
                     const proc = teamSop.filter(a => (a.status || '').toUpperCase().includes('PROCESO')).length;
                     const esp = teamSop.filter(a => (a.status || '').toUpperCase().includes('ESPERA')).length;
                     const reag = teamSop.filter(a => (a.status || '').toUpperCase().includes('REAGENDADA')).length;
@@ -3774,7 +3972,7 @@
             // 9. CONTROL DE SOPORTES (Métricas globales)
             const sopCoordinados = supportAssignments.length;
             const sopReal = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('REALIZADA') || (a.status || '').toUpperCase().includes('RESUELTO')).length;
-            const sopPend = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE')).length;
+            const sopPend = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE') || (a.status || '').toUpperCase().includes('ESPERA')).length;
             const sopProc = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('PROCESO')).length;
             const sopReag = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('REAGENDADA')).length;
             const sopAnul = supportAssignments.filter(a => (a.status || '').toUpperCase().includes('ANULADA') || (a.status || '').toUpperCase().includes('CANCELADO')).length;
@@ -3831,7 +4029,7 @@
 
                 if (teamSop.length > 0) {
                     const real = teamSop.filter(a => (a.status || '').toUpperCase().includes('REALIZADA') || (a.status || '').toUpperCase().includes('RESUELTO')).length;
-                    const pend = teamSop.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE')).length;
+                    const pend = teamSop.filter(a => (a.status || '').toUpperCase().includes('PENDIENTE') || (a.status || '').toUpperCase().includes('ESPERA')).length;
                     const proc = teamSop.filter(a => (a.status || '').toUpperCase().includes('PROCESO')).length;
                     const reag = teamSop.filter(a => (a.status || '').toUpperCase().includes('REAGENDADA')).length;
                     const anul = teamSop.filter(a => (a.status || '').toUpperCase().includes('ANULADA') || (a.status || '').toUpperCase().includes('CANCELADO')).length;
@@ -3899,7 +4097,7 @@
                 'CUMBRE ROJAS Y TEJERÍAS'
             ];
 
-            const sopManana = reports.filter(r => !isCoordSop(r) && r.fecha_visita === tomorrowIso);
+            const sopManana = reports.filter(r => !isCoordSop(r) && !r.a_disponibilidad && (r.fecha_visita === tomorrowIso || (!r.fecha_visita && !r.a_disponibilidad)));
             const groupedByZone = {};
             CANONICAL_ZONES.forEach(z => { groupedByZone[z] = []; });
             groupedByZone['OTRAS ZONAS'] = [];
@@ -4091,99 +4289,59 @@
             // 13. DÍAS POSTERIORES (VIERNES, SÁBADO, LUNES...)
             const unassignedFutureReports = reports.filter(r => !isCoordSop(r));
             const futureIsoDates = [...new Set(unassignedFutureReports.map(r => r.fecha_visita).filter(Boolean))].filter(d => d > tomorrowIso).sort();
-            if (futureIsoDates.length > 0) {
-                futureIsoDates.forEach(fIso => {
-                    const fParts = fIso.split('-');
-                    const fDate = new Date(parseInt(fParts[0]), parseInt(fParts[1]) - 1, parseInt(fParts[2]));
-                    const fDayName = dayNames[fDate.getDay()];
-                    const fFormatted = `${fParts[2]}/${fParts[1]}/${fParts[0]}`;
-                    const fSops = unassignedFutureReports.filter(r => r.fecha_visita === fIso);
+            futureIsoDates.forEach(fIso => {
+                const fSops = unassignedFutureReports.filter(r => r.fecha_visita === fIso);
+                if (fSops.length === 0) return;
 
-                    out.push(`SOPORTES PARA EL DÍA ${fDayName} ${fFormatted}`);
-                    const fGrouped = {};
-                    fSops.forEach(r => {
-                        const z = classifyZone(r.zona, r.ubicacion);
-                        if (!fGrouped[z]) fGrouped[z] = [];
-                        fGrouped[z].push(r);
-                    });
-                    let renderedFutureZones = 0;
-                    Object.entries(fGrouped).forEach(([z, items]) => {
-                        if (items && items.length > 0) {
-                            renderedFutureZones++;
-                            out.push(`ZONA: ${z}`);
-                            out.push(sep);
-                            items.forEach(r => {
-                                out.push(formatFichaTecnicaSoporte(r));
-                                out.push(sep);
-                            });
-                            out.push('');
-                        }
-                    });
-                    if (renderedFutureZones === 0) {
-                        out.push(sep);
-                        out.push('');
-                        out.push(sep);
-                        out.push('');
-                    }
+                const fParts = fIso.split('-');
+                const fDate = new Date(parseInt(fParts[0]), parseInt(fParts[1]) - 1, parseInt(fParts[2]));
+                const fDayName = dayNames[fDate.getDay()];
+                const fFormatted = `${fParts[2]}/${fParts[1]}/${fParts[0]}`;
+
+                const fGrouped = {};
+                fSops.forEach(r => {
+                    const z = classifyZone(r.zona, r.ubicacion);
+                    if (!fGrouped[z]) fGrouped[z] = [];
+                    fGrouped[z].push(r);
                 });
-            } else {
-                function calcUpcomingDate(targetDay) {
-                    const d = new Date(now);
-                    let add = (targetDay - d.getDay() + 7) % 7;
-                    if (add <= 1) add += 7;
-                    d.setDate(d.getDate() + add);
-                    const dd = String(d.getDate()).padStart(2, '0');
-                    const mm = String(d.getMonth() + 1).padStart(2, '0');
-                    return `${dd}/${mm}/${d.getFullYear()}`;
+                const groupEntries = Object.entries(fGrouped).filter(([_, items]) => items && items.length > 0);
+                if (groupEntries.length > 0) {
+                    out.push(`SOPORTES PARA EL DÍA ${fDayName} ${fFormatted}`);
+                    out.push(sep);
+                    groupEntries.forEach(([z, items]) => {
+                        out.push(`ZONA: ${z}`);
+                        out.push(sep);
+                        items.forEach(r => {
+                            out.push(formatFichaTecnicaSoporte(r));
+                            out.push(sep);
+                        });
+                        out.push('');
+                    });
                 }
-                const vieDate = calcUpcomingDate(5);
-                const sabDate = calcUpcomingDate(6);
-                const lunDate = calcUpcomingDate(1);
-
-                out.push(`SOPORTES PARA EL DÍA VIERNES ${vieDate}`);
-                out.push(sep);
-                out.push('');
-                out.push(sep);
-                out.push('');
-                out.push(`SOPORTES PARA EL SÁBADO ${sabDate}`);
-                out.push(sep);
-                out.push('');
-                out.push(sep);
-                out.push('');
-                out.push(`SOPORTES PARA EL DÍA LUNES ${lunDate}`);
-                out.push(sep);
-                out.push('');
-                out.push(sep);
-                out.push('');
-            }
+            });
 
             // 14. VISITAS A DISPONIBILIDAD
-            out.push('*-VISITAS A DISPONIBILIDAD-*');
-            out.push(sep);
-            const sopsDisponibilidad = reports.filter(r => !isCoordSop(r) && !r.fecha_visita);
+            const sopsDisponibilidad = reports.filter(r => !isCoordSop(r) && (r.a_disponibilidad === true || (!r.fecha_visita && r.a_disponibilidad !== false && r.fecha_visita !== tomorrowIso)));
             if (sopsDisponibilidad.length > 0) {
+                out.push('*-VISITAS A DISPONIBILIDAD-*');
+                out.push(sep);
                 sopsDisponibilidad.forEach(r => {
                     out.push(formatFichaTecnicaSoporte(r));
                     out.push(sep);
                 });
-            } else {
                 out.push('');
-                out.push(sep);
             }
-            out.push('');
 
             // 15. ACTIVIDADES A DISPONIBILIDAD
-            out.push('*ACTIVIDADES A DISPONIBILIDAD*');
-            out.push(sep);
-            const actsDisponibilidad = afectaciones.filter(a => !isCoordAfec(a));
+            const actsDisponibilidad = afectaciones.filter(a => !isCoordAfec(a) && (a.a_disponibilidad === true || !a.fecha_visita));
             if (actsDisponibilidad.length > 0) {
+                out.push('*ACTIVIDADES A DISPONIBILIDAD*');
+                out.push(sep);
                 actsDisponibilidad.forEach(a => {
                     out.push(formatFichaTecnicaActividad(a));
                     out.push(sep);
                 });
-            } else {
                 out.push('');
-                out.push(sep);
             }
 
             return out.join('\n');
@@ -4432,6 +4590,84 @@
             return `${yyyy}-${mm}-${dd}`;
         }
 
+        function getTomorrowDateString() {
+            const d = new Date();
+            d.setDate(d.getDate() + 1);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function formatDisplayDate(isoDateStr) {
+            if (!isoDateStr) return '';
+            const parts = String(isoDateStr).split('-');
+            return (parts.length === 3) ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoDateStr;
+        }
+
+        function setFormDisponibilidad(isDisp) {
+            const btn = document.getElementById('btn_toggle_disponibilidad');
+            const dot = document.getElementById('disp_indicator_dot');
+            const txt = document.getElementById('disp_button_text');
+            const help = document.getElementById('disp_help_text');
+            const iconBox = document.getElementById('disp_icon_box');
+            const wrapper = document.getElementById('fecha_visita_wrapper');
+            const input = document.getElementById('f_fecha_visita');
+            const badge = document.getElementById('f_visita_badge');
+            const notice = document.getElementById('f_visita_notice');
+            const hidden = document.getElementById('f_a_disponibilidad');
+
+            if (hidden) hidden.value = isDisp ? '1' : '0';
+
+            const tomIso = getTomorrowDateString();
+            const tomDisplay = formatDisplayDate(tomIso);
+            const lblTom = document.getElementById('lbl_tomorrow_preview');
+            if (lblTom) lblTom.textContent = tomDisplay;
+
+            if (isDisp) {
+                if (btn) {
+                    btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm border border-amber-500 bg-amber-500 text-white hover:bg-amber-600 cursor-pointer';
+                }
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-white animate-pulse';
+                if (txt) txt.textContent = 'SÍ (A Disponibilidad)';
+                if (help) help.textContent = '✓ Visita a disponibilidad (sin fecha fija para cuadrilla)';
+                if (iconBox) iconBox.className = 'w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0 transition-colors';
+
+                if (input) {
+                    input.value = '';
+                    input.disabled = true;
+                }
+                if (wrapper) wrapper.classList.add('opacity-50', 'pointer-events-none');
+                if (badge) {
+                    badge.textContent = 'A Disponibilidad';
+                    badge.className = 'text-[10px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800';
+                }
+                if (notice) notice.innerHTML = '⚡ Esta visita quedará registrada en <strong>Visitas a Disponibilidad</strong>.';
+            } else {
+                if (btn) {
+                    btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 cursor-pointer';
+                }
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+                if (txt) txt.textContent = 'NO';
+                if (help) help.textContent = 'No (se planifica para mañana o fecha específica)';
+                if (iconBox) iconBox.className = 'w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center flex-shrink-0 transition-colors';
+
+                if (input) input.disabled = false;
+                if (wrapper) wrapper.classList.remove('opacity-50', 'pointer-events-none');
+                if (badge) {
+                    badge.textContent = 'Por defecto: Mañana';
+                    badge.className = 'text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800';
+                }
+                if (notice) notice.innerHTML = `<span>ℹ️</span> Si no especificas una fecha, quedará planificada para mañana (<strong id="lbl_tomorrow_preview">${tomDisplay}</strong>).`;
+            }
+        }
+
+        function toggleFormDisponibilidad() {
+            const hidden = document.getElementById('f_a_disponibilidad');
+            const current = hidden && hidden.value === '1';
+            setFormDisponibilidad(!current);
+        }
+
         function showForm() {
             document.getElementById('reportForm').reset();
             document.getElementById('f_id').value = '';
@@ -4440,6 +4676,7 @@
                 fVisita.value = '';
                 fVisita.min = getTodayDateString();
             }
+            setFormDisponibilidad(false);
             document.getElementById('formTitle').textContent = 'Nuevo Reporte';
             document.getElementById('formSubmitText').textContent = 'Guardar';
             populateZonasSelect();
@@ -4486,11 +4723,18 @@
             document.getElementById('f_coordenadas').value = r.coordenadas || '';
             document.getElementById('f_telefono1').value = r.telefono1 || '';
             document.getElementById('f_telefono2').value = r.telefono2 || '';
+
+            const isCoord = Boolean(r.assigned) || getAssignments().some(a => (a.itemType || 'SOPORTE') === 'SOPORTE' && a.reportId === r.id);
+            const isDisp = Boolean(r.a_disponibilidad);
+
+            setFormDisponibilidad(isDisp);
+
             const fVisita = document.getElementById('f_fecha_visita');
             if (fVisita) {
                 fVisita.min = getTodayDateString();
-                const isCoord = Boolean(r.assigned) || getAssignments().some(a => (a.itemType || 'SOPORTE') === 'SOPORTE' && a.reportId === r.id);
-                fVisita.value = (!isCoord && (r.fecha_visita || r.visit_date)) ? (r.fecha_visita || r.visit_date) : '';
+                if (!isDisp) {
+                    fVisita.value = (!isCoord && (r.fecha_visita || r.visit_date)) ? (r.fecha_visita || r.visit_date) : '';
+                }
             }
             populateZonasSelect(r.zona);
             populateMotivosSelect(r.motivo || r.estatus);
@@ -4505,6 +4749,26 @@
             document.body.style.overflow = '';
         }
 
+        function openExtensionModal() {
+            const m = document.getElementById('modalExtension');
+            if (m) {
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeExtensionModal() {
+            const m = document.getElementById('modalExtension');
+            if (m) {
+                m.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function copyExtensionsUrl() {
+            copyTextToClipboard('chrome://extensions/', 'Enlace chrome://extensions/ copiado al portapapeles');
+        }
+
         document.getElementById('f_fecha_visita')?.addEventListener('change', function () {
             const todayStr = getTodayDateString();
             if (this.value && this.value < todayStr) {
@@ -4516,6 +4780,16 @@
         document.getElementById('reportForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const id = document.getElementById('f_id').value;
+            const aDisponibilidad = document.getElementById('f_a_disponibilidad')?.value === '1';
+            let fechaVisita = document.getElementById('f_fecha_visita').value || null;
+
+            if (aDisponibilidad) {
+                fechaVisita = null;
+            } else if (!fechaVisita) {
+                // En caso de no especificar alguna fecha en específica del soporte, queda para planificación del siguiente día
+                fechaVisita = getTomorrowDateString();
+            }
+
             const data = {
                 zona: document.getElementById('f_zona').value.trim(),
                 cedula: document.getElementById('f_cedula').value.replace(/[^0-9]/g, '').trim(),
@@ -4527,7 +4801,8 @@
                 telefono1: document.getElementById('f_telefono1').value.trim() || null,
                 telefono2: document.getElementById('f_telefono2').value.trim() || null,
                 motivo: document.getElementById('f_motivo').value,
-                fecha_visita: document.getElementById('f_fecha_visita').value || null
+                fecha_visita: fechaVisita,
+                a_disponibilidad: aDisponibilidad
             };
             if (!data.zona || !data.cedula || !data.ubicacion || !data.motivo) { toast('Completa los campos obligatorios (ZONA, C.I./RIF, UBICACIÓN, MOTIVO)'); return; }
             if (data.fecha_visita && data.fecha_visita < getTodayDateString()) {
@@ -4565,16 +4840,25 @@
             const currentAssignments = getAssignments();
             const isCoordinado = Boolean(r.assigned) || currentAssignments.some(a => (a.itemType || 'SOPORTE') === 'SOPORTE' && a.reportId === r.id);
             let fechaVisitaPill = '';
-            if (!isCoordinado && r.fecha_visita) {
-                const parts = String(r.fecha_visita).split('-');
-                const formatted = (parts.length === 3) ? `${parts[2]}/${parts[1]}/${parts[0]}` : r.fecha_visita;
-                fechaVisitaPill = `
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
-                    <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>Fecha de Visita: ${formatted}</span>
-                </span>`;
+            if (!isCoordinado) {
+                if (r.a_disponibilidad) {
+                    fechaVisitaPill = `
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span>A Disponibilidad</span>
+                    </span>`;
+                } else if (r.fecha_visita) {
+                    const formatted = formatDisplayDate(r.fecha_visita);
+                    fechaVisitaPill = `
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
+                        <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Fecha de Visita: ${formatted}</span>
+                    </span>`;
+                }
             }
 
             document.getElementById('viewContent').innerHTML = `
