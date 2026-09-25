@@ -35,10 +35,10 @@ for p in [PROJECT_ROOT, CORE_DIR, WEB_DIR]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from flasheo.core import inventory_db as db
-from flasheo.core import mikrotik as mtk
-from flasheo.core import network_diag as netdiag
-from flasheo.core import profiles
+import inventory_db as db
+import mikrotik as mtk
+import network_diag as netdiag
+import profiles
 
 STATUS_FILE = os.path.join(LOGS_DIR, "estado.json")
 LOG_FILE = os.path.join(LOGS_DIR, "continuo.log")

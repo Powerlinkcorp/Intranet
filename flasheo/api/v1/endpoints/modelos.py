@@ -6,8 +6,8 @@ import os
 import shutil
 from typing import List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from flasheo.core import profiles
-from flasheo.api.v1.endpoints.auth import require_operator
+import profiles
+from api.v1.endpoints.auth import require_operator
 
 router = APIRouter(tags=["Modelos y Firmwares"])
 
