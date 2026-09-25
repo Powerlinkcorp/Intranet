@@ -2131,6 +2131,39 @@
             toggleSection(currentView || 'dashboard');
         });
 
+        function isNextDayVisit(fechaVisita, createdAt) {
+            if (!fechaVisita) return false;
+            let iso = '';
+            const str = String(fechaVisita).trim();
+            if (str.includes('-')) {
+                iso = str.slice(0, 10);
+            } else if (str.includes('/')) {
+                const p = str.split('/');
+                if (p.length === 3) {
+                    iso = `${p[2]}-${String(p[1]).padStart(2, '0')}-${String(p[0]).padStart(2, '0')}`;
+                }
+            }
+            if (!iso) return false;
+
+            // 1. Día siguiente respecto a la fecha de creación del reporte (hora local)
+            if (createdAt) {
+                const base = new Date(createdAt);
+                if (!isNaN(base.getTime())) {
+                    const next = new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1);
+                    const nextIso = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-${String(next.getDate()).padStart(2, '0')}`;
+                    if (iso === nextIso) return true;
+                }
+            }
+
+            // 2. Día siguiente respecto a la fecha actual (mañana en hora local)
+            const now = new Date();
+            const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            const tomIso = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, '0')}-${String(tom.getDate()).padStart(2, '0')}`;
+            if (iso === tomIso) return true;
+
+            return false;
+        }
+
         function generateReportText(r) {
             let onu = [r.onu, r.caja_nap, r.precinto].filter(Boolean).join(' | ') || 'N/A';
             let tel = [r.telefono1, r.telefono2].filter(Boolean).join(' | ') || 'N/A';
@@ -2139,7 +2172,7 @@
             let extra = '';
             if (r.a_disponibilidad) {
                 extra = '\n*MODALIDAD*: A DISPONIBILIDAD';
-            } else if (r.fecha_visita) {
+            } else if (r.fecha_visita && !isNextDayVisit(r.fecha_visita, r.created_at)) {
                 const parts = String(r.fecha_visita).split('-');
                 const formatted = (parts.length === 3) ? `${parts[2]}/${parts[1]}/${parts[0]}` : r.fecha_visita;
                 extra = `\n*FECHA DE VISITA*: ${formatted}`;

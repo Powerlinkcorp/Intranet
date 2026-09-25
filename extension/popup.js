@@ -401,6 +401,37 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
+function isNextDayVisit(fechaVisita, createdAt) {
+    if (!fechaVisita) return false;
+    let iso = '';
+    const str = String(fechaVisita).trim();
+    if (str.includes('-')) {
+        iso = str.slice(0, 10);
+    } else if (str.includes('/')) {
+        const p = str.split('/');
+        if (p.length === 3) {
+            iso = `${p[2]}-${String(p[1]).padStart(2, '0')}-${String(p[0]).padStart(2, '0')}`;
+        }
+    }
+    if (!iso) return false;
+
+    if (createdAt) {
+        const base = new Date(createdAt);
+        if (!isNaN(base.getTime())) {
+            const next = new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1);
+            const nextIso = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-${String(next.getDate()).padStart(2, '0')}`;
+            if (iso === nextIso) return true;
+        }
+    }
+
+    const now = new Date();
+    const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const tomIso = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, '0')}-${String(tom.getDate()).padStart(2, '0')}`;
+    if (iso === tomIso) return true;
+
+    return false;
+}
+
 // Modal Detalle de Soporte
 function openDetailModal(item) {
     const modal = document.getElementById('detailModal');
@@ -468,10 +499,11 @@ function openDetailModal(item) {
     `;
 
     document.getElementById('btnCopyDetail').onclick = () => {
+        const extraFecha = (item.fecha_visita && !isNextDayVisit(item.fecha_visita, item.created_at)) ? `\nFECHA DE VISITA: ${item.fecha_visita}` : '';
         const txt = `SOPORTE #${item.id}
 C.I: ${item.cedula}
 ZONA: ${item.zona}
-MOTIVO: ${item.motivo}${item.a_disponibilidad ? '\nMODALIDAD: A DISPONIBILIDAD' : (item.fecha_visita ? `\nFECHA DE VISITA: ${item.fecha_visita}` : '')}
+MOTIVO: ${item.motivo}${item.a_disponibilidad ? '\nMODALIDAD: A DISPONIBILIDAD' : extraFecha}
 UBICACION: ${item.ubicacion}
 ONU: ${item.onu || 'N/A'} | CAJA-NAP: ${item.caja_nap || 'N/A'} | PRECINTO: ${item.precinto || 'N/A'}
 COORDENADAS: ${item.coordenadas || 'N/A'}
