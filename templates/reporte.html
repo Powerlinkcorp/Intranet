@@ -4934,36 +4934,243 @@
         }
 
         function exportData() {
-            const data = { reports: getReports(), techs: getTechs(), exported: new Date().toISOString() };
+            const data = {
+                reports: getReports(),
+                techs: getTechs(),
+                motivos: getMotivos(),
+                zonas: getZonas(),
+                users: getUsers(),
+                assignments: getAssignments(),
+                afectaciones: getAfectaciones(),
+                logs: getLogs(),
+                exported: new Date().toISOString()
+            };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = `soporte_tecnico_backup_${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(a.href);
-            toast('Datos exportados');
+            logActivity('EXPORTAR_BD', 'SISTEMA', 'Exportó respaldo completo de la base de datos (reportes, cuadrillas, motivos, zonas, operadores, coordinación, afectaciones)');
+            toast('Base de datos exportada con éxito');
         }
 
-        function importData(e) {
+        async function importData(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function (ev) {
+            reader.onload = async function (ev) {
                 try {
                     const data = JSON.parse(ev.target.result);
-                    if (data.reports && data.techs) {
-                        saveReports([...getReports(), ...data.reports.filter(r => !getReports().find(x => x.id === r.id))]);
-                        saveTechs([...getTechs(), ...data.techs.filter(t => !getTechs().find(x => x.id === t.id))]);
-                        toast(`Datos importados: ${data.reports.length} reportes, ${data.techs.length} equipos`);
-                    } else if (Array.isArray(data)) {
-                        saveReports([...getReports(), ...data.filter(r => !getReports().find(x => x.id === r.id))]);
-                        toast(`${data.length} reportes importados`);
-                    } else {
-                        toast('Formato inválido');
+                    if (!data || typeof data !== 'object') {
+                        toast('Archivo JSON inválido o vacío');
                         return;
                     }
-                    renderApp('dashboard');
-                } catch { toast('Archivo inválido'); }
+
+                    const addedCounts = {
+                        reports: 0,
+                        techs: 0,
+                        motivos: 0,
+                        zonas: 0,
+                        users: 0,
+                        assignments: 0,
+                        afectaciones: 0,
+                        logs: 0
+                    };
+
+                    let changed = false;
+
+                    // 1. REPORTES DE SOPORTE
+                    const importReports = Array.isArray(data) ? data : (Array.isArray(data.reports) ? data.reports : null);
+                    if (importReports && importReports.length > 0) {
+                        let currentReports = getReports();
+                        importReports.forEach(r => {
+                            if (!r) return;
+                            const isDup = currentReports.some(x =>
+                                (r.id !== undefined && x.id !== undefined && String(x.id) === String(r.id)) ||
+                                (r.ticket && x.ticket && String(r.ticket).trim() === String(x.ticket).trim())
+                            );
+                            if (!isDup) {
+                                const newId = (r.id && !currentReports.some(x => String(x.id) === String(r.id))) ? r.id : genId();
+                                currentReports.push({ ...r, id: newId });
+                                addedCounts.reports++;
+                            }
+                        });
+                        if (addedCounts.reports > 0) {
+                            localStorage.setItem(DB_KEY, JSON.stringify(currentReports));
+                            changed = true;
+                        }
+                    }
+
+                    // 2. CUADRILLAS / TÉCNICOS
+                    if (Array.isArray(data.techs) && data.techs.length > 0) {
+                        let currentTechs = getTechs();
+                        data.techs.forEach(t => {
+                            if (!t) return;
+                            const isDup = currentTechs.some(x =>
+                                (t.id !== undefined && x.id !== undefined && String(x.id) === String(t.id)) ||
+                                (t.name && x.name && x.name.trim().toLowerCase() === t.name.trim().toLowerCase())
+                            );
+                            if (!isDup) {
+                                const newId = (t.id && !currentTechs.some(x => String(x.id) === String(t.id))) ? t.id : genId();
+                                currentTechs.push({ ...t, id: newId });
+                                addedCounts.techs++;
+                            }
+                        });
+                        if (addedCounts.techs > 0) {
+                            localStorage.setItem(TECHS_KEY, JSON.stringify(currentTechs));
+                            changed = true;
+                        }
+                    }
+
+                    // 3. MOTIVOS DE SOPORTE
+                    if (Array.isArray(data.motivos) && data.motivos.length > 0) {
+                        let currentMotivos = getMotivos();
+                        data.motivos.forEach(m => {
+                            if (!m) return;
+                            const isDup = currentMotivos.some(x =>
+                                (m.id !== undefined && x.id !== undefined && String(x.id) === String(m.id)) ||
+                                (m.name && x.name && x.name.trim().toLowerCase() === m.name.trim().toLowerCase())
+                            );
+                            if (!isDup) {
+                                const newId = (m.id && !currentMotivos.some(x => String(x.id) === String(m.id))) ? m.id : genId();
+                                currentMotivos.push({ ...m, id: newId, name: m.name ? m.name.trim() : '' });
+                                addedCounts.motivos++;
+                            }
+                        });
+                        if (addedCounts.motivos > 0) {
+                            localStorage.setItem(MOTIVOS_KEY, JSON.stringify(currentMotivos));
+                            changed = true;
+                        }
+                    }
+
+                    // 4. ZONAS
+                    if (Array.isArray(data.zonas) && data.zonas.length > 0) {
+                        let currentZonas = getZonas();
+                        data.zonas.forEach(z => {
+                            if (!z) return;
+                            const isDup = currentZonas.some(x =>
+                                (z.id !== undefined && x.id !== undefined && String(x.id) === String(z.id)) ||
+                                (z.name && x.name && x.name.trim().toUpperCase() === z.name.trim().toUpperCase())
+                            );
+                            if (!isDup) {
+                                const newId = (z.id && !currentZonas.some(x => String(x.id) === String(z.id))) ? z.id : genId();
+                                currentZonas.push({ ...z, id: newId, name: z.name ? z.name.trim().toUpperCase() : '' });
+                                addedCounts.zonas++;
+                            }
+                        });
+                        if (addedCounts.zonas > 0) {
+                            localStorage.setItem(ZONAS_KEY, JSON.stringify(currentZonas));
+                            changed = true;
+                        }
+                    }
+
+                    // 5. OPERADORES / USUARIOS
+                    if (Array.isArray(data.users) && data.users.length > 0) {
+                        let currentUsers = getUsers();
+                        data.users.forEach(u => {
+                            if (!u) return;
+                            const isDup = currentUsers.some(x =>
+                                (u.id !== undefined && x.id !== undefined && String(x.id) === String(u.id)) ||
+                                (u.username && x.username && x.username.trim().toLowerCase() === u.username.trim().toLowerCase())
+                            );
+                            if (!isDup) {
+                                const newId = (u.id && !currentUsers.some(x => String(x.id) === String(u.id))) ? u.id : genId();
+                                currentUsers.push({ ...u, id: newId });
+                                addedCounts.users++;
+                            }
+                        });
+                        if (addedCounts.users > 0) {
+                            localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+                            changed = true;
+                        }
+                    }
+
+                    // 6. COORDINACIÓN / ASIGNACIONES
+                    if (Array.isArray(data.assignments) && data.assignments.length > 0) {
+                        let currentAssignments = getAssignments();
+                        data.assignments.forEach(a => {
+                            if (!a) return;
+                            const isDup = currentAssignments.some(x =>
+                                (a.id !== undefined && x.id !== undefined && String(x.id) === String(a.id)) ||
+                                (a.reportId !== undefined && x.reportId !== undefined &&
+                                    String(x.reportId) === String(a.reportId) &&
+                                    (x.itemType || 'SOPORTE') === (a.itemType || 'SOPORTE'))
+                            );
+                            if (!isDup) {
+                                const newId = (a.id && !currentAssignments.some(x => String(x.id) === String(a.id))) ? a.id : genId();
+                                currentAssignments.push({ ...a, id: newId });
+                                addedCounts.assignments++;
+                            }
+                        });
+                        if (addedCounts.assignments > 0) {
+                            localStorage.setItem(ASSIGN_KEY, JSON.stringify(currentAssignments));
+                            changed = true;
+                        }
+                    }
+
+                    // 7. AFECTACIONES / ACTIVIDADES
+                    if (Array.isArray(data.afectaciones) && data.afectaciones.length > 0) {
+                        let currentAfectaciones = getAfectaciones();
+                        data.afectaciones.forEach(af => {
+                            if (!af) return;
+                            const isDup = currentAfectaciones.some(x =>
+                                (af.id !== undefined && x.id !== undefined && String(x.id) === String(af.id))
+                            );
+                            if (!isDup) {
+                                const newId = (af.id && !currentAfectaciones.some(x => String(x.id) === String(af.id))) ? af.id : genId();
+                                currentAfectaciones.push({ ...af, id: newId });
+                                addedCounts.afectaciones++;
+                            }
+                        });
+                        if (addedCounts.afectaciones > 0) {
+                            localStorage.setItem(AFECTACIONES_KEY, JSON.stringify(currentAfectaciones));
+                            changed = true;
+                        }
+                    }
+
+                    // 8. BITÁCORA / LOGS
+                    if (Array.isArray(data.logs) && data.logs.length > 0) {
+                        let currentLogs = getLogs();
+                        data.logs.forEach(l => {
+                            if (!l) return;
+                            const isDup = currentLogs.some(x =>
+                                (l.id !== undefined && x.id !== undefined && String(x.id) === String(l.id))
+                            );
+                            if (!isDup) {
+                                currentLogs.push(l);
+                                addedCounts.logs++;
+                            }
+                        });
+                        if (addedCounts.logs > 0) {
+                            localStorage.setItem(LOGS_KEY, JSON.stringify(currentLogs));
+                            changed = true;
+                        }
+                    }
+
+                    // Sincronizar inmediatamente con servidor y actualizar UI
+                    if (changed) {
+                        await syncServerDB();
+                        const summary = [];
+                        if (addedCounts.reports > 0) summary.push(`${addedCounts.reports} reporte(s)`);
+                        if (addedCounts.techs > 0) summary.push(`${addedCounts.techs} cuadrilla(s)`);
+                        if (addedCounts.motivos > 0) summary.push(`${addedCounts.motivos} motivo(s)`);
+                        if (addedCounts.zonas > 0) summary.push(`${addedCounts.zonas} zona(s)`);
+                        if (addedCounts.users > 0) summary.push(`${addedCounts.users} operador(es)`);
+                        if (addedCounts.assignments > 0) summary.push(`${addedCounts.assignments} asignación(es)`);
+                        if (addedCounts.afectaciones > 0) summary.push(`${addedCounts.afectaciones} afectación(es)`);
+
+                        logActivity('IMPORTAR_BD', 'SISTEMA', `Importó datos nuevos: ${summary.join(', ')}`);
+                        toast(`Importado exitosamente: ${summary.join(', ')}`);
+                    } else {
+                        toast('No se encontraron registros nuevos (toda la información del archivo ya existe)');
+                    }
+
+                    renderApp(currentView || 'dashboard');
+                } catch (err) {
+                    console.error('Error importando datos:', err);
+                    toast('Error al procesar el archivo JSON');
+                }
             };
             reader.readAsText(file);
             e.target.value = '';
