@@ -1,6 +1,4 @@
 import os
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from database import engine, Base, SessionLocal, DATABASE_URL
 import models
 from security import get_password_hash
@@ -9,6 +7,8 @@ def ensure_postgresql_database_exists():
     """Si se usa PostgreSQL, asegura que la base de datos intranet_db esté creada en el servidor."""
     if "postgresql" in DATABASE_URL:
         try:
+            import psycopg2
+            from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
             from urllib.parse import urlparse, unquote
             result = urlparse(DATABASE_URL)
             username = unquote(result.username) if result.username else 'postgres'

@@ -3,31 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estación de Flasheo ONUs - Powerlink Multi-Modelo</title>
+  <title>Estación de Flasheo ONUs - POWER LINK CORP.</title>
+  <link rel="icon" type="image/png" href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
+  <script>
+    // Inicializar tema inmediatamente para evitar parpadeos
+    (function() {
+      const savedTheme = localStorage.getItem('powerlink_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+        document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-mode'));
+      }
+    })();
+  </script>
 </head>
 <body>
-  <!-- HEADER -->
+  <!-- HEADER PRINCIPAL -->
   <header>
     <div class="header-container">
       <div class="brand">
-        <span class="brand-icon">⚡</span>
+        <div class="brand-icon-box">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
         <div>
-          <div class="brand-title">POWERLINK ESTACIÓN DE FLASHEO <span class="badge-pro">PRO 3.0</span></div>
+          <div class="brand-title">
+            POWERLINK ESTACIÓN DE FLASHEO <span class="badge-pro">PRO 3.0</span>
+          </div>
           <div class="brand-sub">Sistema Profesional Multi-Modelo con Trazabilidad de Lotes y API REST</div>
         </div>
       </div>
 
       <div class="header-actions">
+        <!-- BOTÓN MODO OSCURO / MODO CLARO -->
+        <button id="btnThemeToggle" class="btn-theme-toggle" onclick="toggleTheme()" title="Alternar Modo Claro / Modo Oscuro">
+          <i id="themeIcon" class="fa-solid fa-moon"></i>
+          <span id="themeLabel">Modo Oscuro</span>
+        </button>
+
+        <!-- WIDGET DE SINCRONIZACIÓN CON INTRANET CENTRAL -->
+        <div class="sync-widget" id="syncStatusWidget">
+          <span id="stationIdBadge" class="station-badge">ESTACION-01</span>
+          <span id="syncStatusBadge" class="badge-status disconnected">● Intranet: Offline</span>
+          <button id="btnManualSync" class="btn-sm btn-outline" onclick="triggerManualSync()" title="Subir registros pendientes a la Intranet ahora">
+            <i class="fa-solid fa-rotate"></i> Sincronizar
+          </button>
+          <button class="btn-sm btn-outline" onclick="openStationConfigModal()" title="Configuración de la Estación">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+
         <a href="/docs" target="_blank" class="btn-doc" title="Documentación interactiva Swagger">
-          📖 API Docs
+          <i class="fa-solid fa-book-open"></i> API Docs
         </a>
+
         <div id="wsIndicator" class="badge-status disconnected">● Desconectado</div>
+
         <div class="user-pill">
+          <i class="fa-solid fa-user-circle"></i>
           <span id="topUserName">Usuario</span>
           <span id="topUserRole" class="role-badge role-configurador">configurador</span>
         </div>
-        <button id="btnLoginLogout" class="btn-sm btn-outline" onclick="handleAuthAction()">Iniciar Sesión</button>
+
+        <button id="btnLoginLogout" class="btn btn-sm btn-outline" onclick="handleAuthAction()">Iniciar Sesión</button>
       </div>
     </div>
   </header>
@@ -35,10 +74,10 @@
   <!-- CONTENEDOR PRINCIPAL -->
   <main class="main-container">
 
-    <!-- BARRA SUPERIOR DE CONTROL -->
+    <!-- BARRA SUPERIOR DE CONTROL OPERATIVO -->
     <div class="control-card">
       <div class="control-group">
-        <label>Modo de Conexión:</label>
+        <label><i class="fa-solid fa-network-wired"></i> Modo de Conexión:</label>
         <select id="flashModeSelect" class="form-select oper-only" onchange="onModeChange()">
           <option value="direct">⚡ Conexión Directa (1 ONU - 192.168.1.1)</option>
           <option value="switch">📡 Switch MikroTik (20 Puertos Continuo)</option>
@@ -46,36 +85,37 @@
       </div>
 
       <div class="control-group">
-        <label>Lote / Caja Activa:</label>
+        <label><i class="fa-solid fa-box-archive"></i> Lote / Caja Activa:</label>
         <select id="activeLoteSelect" class="form-select oper-only" onchange="changeActiveLote()">
           <option value="">Cargando lotes...</option>
         </select>
       </div>
 
       <div class="control-group">
-        <label>Modelo de ONU:</label>
+        <label><i class="fa-solid fa-microchip"></i> Modelo de ONU:</label>
         <select id="activeModelSelect" class="form-select oper-only">
-          <option value="V2801S-B">VSOL V2801S-B ONU 1GE</option>
+          <option value="V2801S-B">VSOL V2801S-B / V2801D-B ONU 1GE</option>
+          <option value="V2801D-B">VSOL V2801D-B ONU 1GE (GPON)</option>
           <option value="V2804AX30-H">VSOL Wi-Fi 6 AX3000</option>
         </select>
       </div>
 
       <div class="control-buttons">
         <button id="btnStartAction" class="btn btn-primary oper-only" onclick="executeMainAction()">
-          ▶ Iniciar Flasheo
+          <i class="fa-solid fa-play"></i> Iniciar Flasheo
         </button>
         <button id="btnActionReset" class="btn btn-secondary oper-only" onclick="executeSubAction('factory_reset')" title="Solo restablecer de fábrica">
-          🔄 Factory Reset
+          <i class="fa-solid fa-rotate-left"></i> Factory Reset
         </button>
         <button id="btnActionAudit" class="btn btn-outline oper-only" onclick="executeSubAction('verify_vlan')" title="Solo auditar VLAN 3 y credenciales">
-          🔍 Auditar VLAN 3
+          <i class="fa-solid fa-magnifying-glass"></i> Auditar VLAN 3
         </button>
         <button id="btnStop" class="btn btn-danger oper-only" onclick="stopProcess()" style="display:none;">
-          ⏹ Detener
+          <i class="fa-solid fa-stop"></i> Detener
         </button>
       </div>
 
-      <div id="directConnectionAlert" style="display:none; width:100%; margin-top:10px; padding:8px 14px; border-radius:6px; font-size:0.88rem; font-weight:500;"></div>
+      <div id="directConnectionAlert" style="display:none; width:100%; margin-top:10px; padding:10px 14px; border-radius:8px; font-size:0.88rem; font-weight:600;"></div>
 
       <div class="metrics-row">
         <div class="metric-item metric-success">
@@ -97,74 +137,83 @@
       </div>
     </div>
 
-    <!-- NAVEGACIÓN POR PESTAÑAS -->
+    <!-- NAVEGACIÓN POR PESTAÑAS (TABS) -->
     <div class="tabs-nav">
-      <button class="tab-btn active" onclick="switchTab('tabPorts')">📡 Matriz 20 Puertos</button>
-      <button class="tab-btn" onclick="switchTab('tabOnus')">📋 Registro Histórico de ONUs</button>
-      <button class="tab-btn" onclick="switchTab('tabLotes')">📦 Lotes y Credenciales</button>
-      <button class="tab-btn" onclick="switchTab('tabModels')">💾 Modelos y Firmwares</button>
-      <button class="tab-btn admin-only" onclick="switchTab('tabUsers')">👥 Usuarios y Roles</button>
-      <button class="tab-btn" onclick="switchTab('tabTerminal')">🖥️ Terminal en Vivo</button>
+      <button class="tab-btn active" onclick="switchTab('tabPorts', this)"><i class="fa-solid fa-table-cells"></i> Matriz 20 Puertos</button>
+      <button class="tab-btn" onclick="switchTab('tabOnus', this)"><i class="fa-solid fa-list-check"></i> Registro Histórico</button>
+      <button class="tab-btn" onclick="switchTab('tabLotes', this)"><i class="fa-solid fa-boxes-stacked"></i> Lotes y Credenciales</button>
+      <button class="tab-btn" onclick="switchTab('tabModels', this)"><i class="fa-solid fa-hard-drive"></i> Modelos y Firmwares</button>
+      <button class="tab-btn admin-only" onclick="switchTab('tabUsers', this)"><i class="fa-solid fa-users-gear"></i> Usuarios y Roles</button>
+      <button class="tab-btn" onclick="switchTab('tabTerminal', this)"><i class="fa-solid fa-terminal"></i> Terminal en Vivo</button>
     </div>
 
-    <!-- CONTENIDO DE PESTAÑAS -->
+    <!-- CONTENIDO DE LAS PESTAÑAS -->
 
     <!-- TAB 1: MATRIZ DE PUERTOS -->
     <div id="tabPorts" class="tab-content active">
       <div id="portsGrid" class="ports-grid">
-        <!-- Generado dinámicamente: Puertos 1 al 20 -->
+        <!-- Generado dinámicamente con Puertos 1 al 20 -->
       </div>
     </div>
 
-    <!-- TAB 2: HISTORIAL DE ONUs -->
+    <!-- TAB 2: HISTORIAL LOCAL DE ONUs -->
     <div id="tabOnus" class="tab-content">
-      <div class="table-header-tools">
-        <input type="text" id="filterOnus" class="form-input" placeholder="Buscar por MAC, PON o Lote..." onkeyup="filterOnusTable()">
-        <button class="btn btn-outline" onclick="loadOnusHistory()">🔄 Refrescar</button>
-      </div>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Fecha y Hora</th>
-              <th>Puerto</th>
-              <th>IP</th>
-              <th>MAC</th>
-              <th>GPON SN (Formateado)</th>
-              <th>Lote / Caja</th>
-              <th>Credencial Programada</th>
-              <th>Resultado</th>
-              <th>VLAN3</th>
-            </tr>
-          </thead>
-          <tbody id="onusTbody">
-            <tr><td colspan="10" class="text-center">Cargando registros...</td></tr>
-          </tbody>
-        </table>
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <div>
+            <h3 style="margin:0;"><i class="fa-solid fa-database" style="color:var(--acento); margin-right:8px;"></i> Registro Local de ONUs Flasheadas</h3>
+            <p class="text-muted">Equipos procesados en esta laptop con estado de sincronización hacia la Intranet Central.</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <input type="text" id="filterOnus" class="form-input" placeholder="Buscar por MAC o SN..." onkeyup="filterOnusTable()">
+            <button class="btn btn-outline" onclick="loadOnusHistory()"><i class="fa-solid fa-rotate"></i> Refrescar</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fecha / Hora</th>
+                <th>Puerto</th>
+                <th>IP Asignada</th>
+                <th>MAC</th>
+                <th>Serial PON</th>
+                <th>Lote (Caja)</th>
+                <th>Clave</th>
+                <th>Resultado</th>
+                <th>VLAN 3</th>
+                <th>Sincronización</th>
+              </tr>
+            </thead>
+            <tbody id="onusTbody">
+              <tr><td colspan="11" style="padding:20px; text-align:center; color:#64748b;">Cargando registros...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <!-- TAB 3: LOTES Y CAJAS -->
     <div id="tabLotes" class="tab-content">
       <div class="lotes-layout">
-        <!-- Formulario Crear Lote -->
         <div class="card oper-only">
-          <h3>📦 Crear Nuevo Lote / Caja</h3>
-          <p class="text-muted">Asigna el modelo, el firmware específico y la clave que recibirán las ONUs de esta caja.</p>
+          <h3 style="margin-bottom:6px;"><i class="fa-solid fa-boxes-stacked" style="color:var(--acento); margin-right:8px;"></i> Crear Nuevo Lote / Caja</h3>
+          <p class="text-muted" style="margin-bottom:16px;">Asigna el modelo, firmware y clave para la caja actual en proceso.</p>
           <form onsubmit="handleCreateLote(event)" class="lote-form">
             <div class="form-group">
               <label>Código de Lote:</label>
-              <input type="text" id="newLoteCodigo" class="form-input" placeholder="ej. LOTE-2026-B02" required>
+              <input type="text" id="newLoteCodigo" class="form-input" placeholder="ej. LOTE-2026-B01" required>
             </div>
             <div class="form-group">
               <label>Número de Caja:</label>
-              <input type="text" id="newLoteCaja" class="form-input" placeholder="ej. Caja #15" required>
+              <input type="text" id="newLoteCaja" class="form-input" placeholder="ej. Caja #12" required>
             </div>
             <div class="form-group">
               <label>Modelo de ONU:</label>
               <select id="newLoteModelo" class="form-select" required>
-                <option value="V2801S-B">VSOL V2801S-B ONU 1GE</option>
+                <option value="V2801S-B">VSOL V2801S-B / V2801D-B ONU 1GE</option>
+                <option value="V2801D-B">VSOL V2801D-B ONU 1GE (GPON)</option>
                 <option value="V2804AX30-H">VSOL Wi-Fi 6 AX3000</option>
               </select>
             </div>
@@ -180,13 +229,14 @@
               <label>Cantidad de ONUs en la Caja:</label>
               <input type="number" id="newLoteQty" class="form-input" value="20" min="1" max="100">
             </div>
-            <button type="submit" class="btn btn-primary" style="margin-top:12px;">Crear y Activar Lote</button>
+            <button type="submit" class="btn btn-primary" style="margin-top:10px; width:100%;">
+              <i class="fa-solid fa-plus-circle"></i> Crear y Activar Lote
+            </button>
           </form>
         </div>
 
-        <!-- Lista de Lotes -->
-        <div class="card lotes-list-card">
-          <h3>Lotes Registrados</h3>
+        <div class="card">
+          <h3 style="margin-bottom:14px;"><i class="fa-solid fa-list-check" style="color:var(--acento); margin-right:8px;"></i> Lotes Registrados</h3>
           <div class="table-responsive">
             <table class="data-table">
               <thead>
@@ -210,25 +260,29 @@
 
     <!-- TAB 4: MODELOS Y FIRMWARES -->
     <div id="tabModels" class="tab-content">
-      <div class="card oper-only">
-        <h3>⬆️ Subir Nuevo Firmware (.bin)</h3>
-        <p class="text-muted">Carga el archivo de firmware para dejarlo disponible en la creación de lotes.</p>
-        <div style="display:flex; gap:12px; align-items:center; margin-top:10px;">
-          <input type="file" id="firmwareFileInput" accept=".bin" class="form-input">
-          <button class="btn btn-primary" onclick="handleUploadFirmware()">Subir Firmware</button>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:20px;">
+        <div class="card oper-only">
+          <h3 style="margin-bottom:8px;"><i class="fa-solid fa-cloud-arrow-up" style="color:var(--acento); margin-right:8px;"></i> Subir Nuevo Firmware (.bin)</h3>
+          <p class="text-muted">Carga el binario de actualización en la estación local.</p>
+          <div style="display:flex; gap:12px; align-items:center; margin-top:14px; flex-wrap:wrap;">
+            <input type="file" id="firmwareFileInput" accept=".bin" class="form-input" style="flex:1; min-width:240px;">
+            <button class="btn btn-primary" onclick="handleUploadFirmware()">
+              <i class="fa-solid fa-upload"></i> Subir Firmware
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="card" style="margin-top:20px;">
-        <h3>Firmwares en el Servidor</h3>
-        <ul id="firmwaresList" class="firmwares-list"></ul>
+        <div class="card">
+          <h3 style="margin-bottom:14px;"><i class="fa-solid fa-hard-drive" style="color:var(--acento); margin-right:8px;"></i> Firmwares Disponibles</h3>
+          <ul id="firmwaresList" style="list-style:none; display:flex; flex-direction:column; gap:8px;"></ul>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 5: USUARIOS (ADMIN) -->
+    <!-- TAB 5: USUARIOS Y ROLES (ADMIN) -->
     <div id="tabUsers" class="tab-content admin-only">
       <div class="card">
-        <h3>Gestión de Usuarios y Roles (RBAC)</h3>
-        <p class="text-muted">Roles disponibles: <b>admin</b> (acceso total y visualización de claves), <b>configurador</b> (operación de flasheo y carga), <b>visualizador</b> (solo lectura).</p>
+        <h3 style="margin-bottom:6px;"><i class="fa-solid fa-users-gear" style="color:var(--acento); margin-right:8px;"></i> Gestión de Usuarios y Roles (RBAC)</h3>
+        <p class="text-muted">Roles disponibles: <b>admin</b> (acceso total), <b>configurador</b> (operación de flasheo), <b>visualizador</b> (solo lectura).</p>
         <div class="table-responsive" style="margin-top:14px;">
           <table class="data-table">
             <thead>
@@ -250,30 +304,78 @@
     <div id="tabTerminal" class="tab-content">
       <div class="terminal-card">
         <div class="terminal-header">
-          <span>🖥️ Consola de Flasheo en Vivo</span>
+          <span><i class="fa-solid fa-terminal" style="color:var(--acento); margin-right:8px;"></i> Consola de Flasheo en Vivo</span>
           <label><input type="checkbox" id="autoScrollCheck" checked> Auto-Scroll</label>
         </div>
-        <pre id="terminalLogs" class="terminal-body">Conectando al stream de consola...</pre>
+        <pre id="terminalLogs" class="terminal-body">Iniciando stream de consola...</pre>
       </div>
     </div>
 
   </main>
 
-  <!-- MODAL LOGIN -->
+  <!-- MODAL DE CONFIGURACIÓN DE LA ESTACIÓN (SINCRONIZACIÓN) -->
+  <div id="modalStationConfig" class="modal-overlay">
+    <div class="modal-box">
+      <h3><i class="fa-solid fa-sliders" style="color:var(--acento); margin-right:8px;"></i> Configuración de la Estación</h3>
+      <p class="text-muted" style="margin:4px 0 16px 0;">Ajustes de identidad y enlace con el Servidor Central de la Intranet.</p>
+
+      <div style="background:var(--hover-bg); border:1px solid var(--card-border); padding:12px; border-radius:8px; margin-bottom:16px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--texto-gris);">Conexión Intranet:</span>
+          <b id="cfgSummaryOnline">Comprobando...</b>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--texto-gris);">Registros en cola (Offline):</span>
+          <b id="cfgSummaryPending">0 registros</b>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--texto-gris);">Última subida exitosa:</span>
+          <b id="cfgSummaryLastSync">Nunca</b>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px; display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:var(--texto-gris); text-transform:uppercase;">Identificador Único (Station ID):</label>
+        <input type="text" id="cfgStationId" class="form-input" placeholder="ej. ESTACION-GALPON-01">
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px; display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:var(--texto-gris); text-transform:uppercase;">Nombre de la Laptop / Puesto:</label>
+        <input type="text" id="cfgStationName" class="form-input" placeholder="ej. Laptop Galpón Puesto 1">
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px; display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:var(--texto-gris); text-transform:uppercase;">URL Servidor Intranet:</label>
+        <input type="text" id="cfgServerUrl" class="form-input" placeholder="http://10.0.1.10:8000 o http://127.0.0.1:8000">
+      </div>
+
+      <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="cfgAutoSync" style="width:16px; height:16px;" checked>
+        <label for="cfgAutoSync" style="font-size:13px; font-weight:600; cursor:pointer;">Sincronización automática periódica (segundo plano)</label>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:22px;">
+        <button class="btn btn-outline" onclick="closeStationConfigModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveStationConfig()"><i class="fa-solid fa-floppy-disk"></i> Guardar Ajustes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE LOGIN -->
   <div id="modalLogin" class="modal-overlay">
     <div class="modal-box">
-      <h3>Iniciar Sesión</h3>
-      <div class="form-group" style="margin-top:12px;">
-        <label>Usuario:</label>
+      <h3><i class="fa-solid fa-lock" style="color:var(--acento); margin-right:8px;"></i> Iniciar Sesión en la Estación</h3>
+      <div class="form-group" style="margin-top:14px; display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:var(--texto-gris); text-transform:uppercase;">Usuario:</label>
         <input type="text" id="loginUser" class="form-input" placeholder="admin, operador, etc.">
       </div>
-      <div class="form-group" style="margin-top:10px;">
-        <label>Contraseña:</label>
+      <div class="form-group" style="margin-top:10px; display:flex; flex-direction:column; gap:4px;">
+        <label style="font-size:12px; font-weight:700; color:var(--texto-gris); text-transform:uppercase;">Contraseña:</label>
         <input type="password" id="loginPass" class="form-input" placeholder="••••••••">
       </div>
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
         <button class="btn btn-outline" onclick="closeModalLogin()">Cancelar</button>
-        <button class="btn btn-primary" onclick="submitLogin()">Ingresar</button>
+        <button class="btn btn-primary" onclick="submitLogin()"><i class="fa-solid fa-right-to-bracket"></i> Ingresar</button>
       </div>
     </div>
   </div>

@@ -82,6 +82,7 @@ class FlasheoIntegrationService:
                 return {
                     "encontrado": True,
                     "origen_datos": "SQLITE_DIRECT",
+                    "station_id": row["station_id"] if "station_id" in row.keys() and row["station_id"] else "ESTACION-CENTRAL",
                     "mac": row["mac"],
                     "pon_sn": row["pon_sn"],
                     "pon_original": row["pon_original"],

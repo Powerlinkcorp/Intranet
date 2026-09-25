@@ -158,11 +158,20 @@ def handle_flasheo_traceability(query_str: str) -> tuple:
     """
     Consulta la trazabilidad y credenciales del lote de una ONU en la Estación de Flasheo.
     """
-    from core.services.flasheo_integration_service import FlasheoIntegrationService
+    try:
+        from aprovisionamiento.core.services.flasheo_integration_service import FlasheoIntegrationService
+    except ImportError:
+        try:
+            from core.services.flasheo_integration_service import FlasheoIntegrationService
+        except ImportError:
+            FlasheoIntegrationService = None
+
     if not query_str or not str(query_str).strip():
         return ({"success": False, "encontrado": False, "error": "Parámetro query (MAC o Serial) es requerido"}, 400)
-    data = FlasheoIntegrationService.lookup(str(query_str).strip())
-    if not data or not data.get("encontrado"):
-        return ({"success": True, "encontrado": False, "mensaje": "ONU no registrada en la base de datos de Estación de Flasheo"}, 200)
-    return ({"success": True, "encontrado": True, **data}, 200)
+    if FlasheoIntegrationService:
+        data = FlasheoIntegrationService.lookup(str(query_str).strip())
+        if not data or not data.get("encontrado"):
+            return ({"success": True, "encontrado": False, "mensaje": "ONU no registrada en la base de datos de Estación de Flasheo"}, 200)
+        return ({"success": True, "encontrado": True, **data}, 200)
+    return ({"success": True, "encontrado": False, "mensaje": "Servicio de integración no disponible"}, 200)
 
