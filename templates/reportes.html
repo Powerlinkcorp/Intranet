@@ -514,20 +514,9 @@
                     <i class="fa-solid fa-users"></i>
                 </div>
                 <div class="kpi-content">
-                    <span class="kpi-label">Total Clientes Activos (Unión)</span>
+                    <span class="kpi-label">Total Clientes Activos</span>
                     <span class="kpi-value" id="kpiTotalClientes">-</span>
-                    <span class="kpi-sub" id="kpiSubClientes">Residenciales + Corporativos</span>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-icon green">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-label">Facturación Mensual Total</span>
-                    <span class="kpi-value" id="kpiTotalCosto">$0.00</span>
-                    <span class="kpi-sub" id="kpiSubCosto">Monto total consolidado</span>
+                    <span class="kpi-sub" id="kpiSubClientes">Monto total</span>
                 </div>
             </div>
 
@@ -536,7 +525,7 @@
                     <i class="fa-solid fa-house-user"></i>
                 </div>
                 <div class="kpi-content">
-                    <span class="kpi-label">Residenciales (Naturales)</span>
+                    <span class="kpi-label">Residenciales</span>
                     <span class="kpi-value" id="kpiResidencialCount">-</span>
                     <span class="kpi-sub" id="kpiResidencialMonto">$0.00 facturación</span>
                 </div>
@@ -547,9 +536,20 @@
                     <i class="fa-solid fa-building"></i>
                 </div>
                 <div class="kpi-content">
-                    <span class="kpi-label">Corporativos (is_natural=false)</span>
+                    <span class="kpi-label">Corporativos</span>
                     <span class="kpi-value" id="kpiCorporativoCount">-</span>
-                    <span class="kpi-sub" id="kpiCorporativoMonto">$0.00 facturación</span>
+                    <span class="kpi-sub" id="kpiSubCorpCount">clientes activos</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon green">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Corporativos</span>
+                    <span class="kpi-value" id="kpiCorporativoMonto">$0.00</span>
+                    <span class="kpi-sub" id="kpiSubCorpMonto">facturación</span>
                 </div>
             </div>
         </div>
@@ -819,13 +819,13 @@
 
             // KPIs
             document.getElementById('kpiTotalClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('kpiTotalCosto').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpiSubClientes').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             
-            document.getElementById('kpiResidencialCount').innerText = `${res.totales.total_clientes_activos.toLocaleString('en-US')} clientes`;
+            document.getElementById('kpiResidencialCount').innerText = `${res.totales.total_clientes_activos.toLocaleString('en-US')}`;
             document.getElementById('kpiResidencialMonto').innerText = `$${res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} facturación`;
             
-            document.getElementById('kpiCorporativoCount').innerText = `${corp.totales.total_clientes_activos.toLocaleString('en-US')} clientes`;
-            document.getElementById('kpiCorporativoMonto').innerText = `$${corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} facturación`;
+            document.getElementById('kpiCorporativoCount').innerText = `${corp.totales.total_clientes_activos.toLocaleString('en-US')}`;
+            document.getElementById('kpiCorporativoMonto').innerText = `$${corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
             // Badges
             document.getElementById('badgeResCount').innerText = `${res.planes.length} planes`;

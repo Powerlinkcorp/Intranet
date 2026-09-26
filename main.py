@@ -1325,13 +1325,9 @@ async def procesar_auditoria_api(
                 totalActivosCorp += 1
                 ingreso_hoy_corp += costoDelPlanNew
                 count_activos_hoy_corp += 1
-            elif tipoServicioNew == 'RESIDENCIAL':
-                if planNew.upper() != 'TV':
-                    totalActivos += 1
-                    ingreso_hoy += costoDelPlanNew
-                else:
-                    impacto_exclusion_tv += costoDelPlanNew
-                    count_exclusion_tv += 1
+            else:
+                totalActivos += 1
+                ingreso_hoy += costoDelPlanNew
             datosClientesActivos.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
@@ -1359,7 +1355,7 @@ async def procesar_auditoria_api(
             if tipoServicioNew in ['PYME', 'CORPORATIVO']:
                 if estado_dt >= corte_corp:
                     totalSuspendidosFechaCorp += 1
-            elif tipoServicioNew == 'RESIDENCIAL':
+            else:
                 if estado_dt >= corte_res:
                     totalSuspendidosFecha += 1
         elif estadoServicioNew == 'EXO.':
@@ -1371,7 +1367,7 @@ async def procesar_auditoria_api(
                 else:
                     if tipoServicioNew in ['PYME', 'CORPORATIVO']:
                         totalExoneradosRegCorp += 1
-                    elif tipoServicioNew == 'RESIDENCIAL':
+                    else:
                         totalExoneradosReg += 1
                         
         if tipoServicioNew in ['PYME', 'CORPORATIVO']:

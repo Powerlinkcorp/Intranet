@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auditoría de Clientes - Integración</title>
-    <link rel="icon" type="image/png" href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
+    <link rel="icon" type="image/png"
+        href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
     <!-- Tailwind CSS para diseño limpio -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         /* ESTILOS CORPORATIVOS GLOBALES (NAVBAR) */
         :root {
@@ -52,7 +54,7 @@
         .navbar .logo span {
             color: var(--acento);
         }
-        
+
         .navbar .admin-badge {
             background-color: var(--acento);
             color: var(--texto-negro) !important;
@@ -103,15 +105,31 @@
         }
 
         /* Ajustes Tailwind a nuestra paleta */
-        .text-blue-700 { color: var(--texto-negro) !important; }
-        .bg-blue-600 { background-color: var(--acento) !important; color: var(--texto-negro) !important; }
-        .bg-blue-600:hover { background-color: var(--acento-hover) !important; }
-        
-        .bg-blue-50 { background-color: #f1f5f9 !important; }
-        
-        .ring-blue-500 { --tw-ring-color: #f59e0b !important; }
-        .border-blue-500 { border-color: #f59e0b !important; }
-        
+        .text-blue-700 {
+            color: var(--texto-negro) !important;
+        }
+
+        .bg-blue-600 {
+            background-color: var(--acento) !important;
+            color: var(--texto-negro) !important;
+        }
+
+        .bg-blue-600:hover {
+            background-color: var(--acento-hover) !important;
+        }
+
+        .bg-blue-50 {
+            background-color: #f1f5f9 !important;
+        }
+
+        .ring-blue-500 {
+            --tw-ring-color: #f59e0b !important;
+        }
+
+        .border-blue-500 {
+            border-color: #f59e0b !important;
+        }
+
         /* TABLA DINAMICA Y BADGES */
         .tab-btn {
             background-color: #f1f5f9;
@@ -123,19 +141,21 @@
             transition: all 0.2s;
             border: 1px solid #e2e8f0;
         }
+
         .tab-btn.active {
             background-color: var(--acento);
             color: var(--texto-negro) !important;
             border-color: var(--acento);
         }
+
         .tab-btn .badge-count {
-            background-color: rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.1);
             padding: 2px 6px;
             border-radius: 12px;
             font-size: 12px;
             margin-left: 6px;
         }
-        
+
         .status-badge {
             padding: 4px 10px;
             border-radius: 12px;
@@ -147,20 +167,55 @@
             align-items: center;
             justify-content: center;
         }
-        .status-activo { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .status-suspendido { background-color: #fef08a; color: #854d0e; border: 1px solid #fde047; }
-        .status-exonerado { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
-        .status-inactivo { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        .status-retiro { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        .status-transferido { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-        .status-default { background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        
+
+        .status-activo {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-suspendido {
+            background-color: #fef08a;
+            color: #854d0e;
+            border: 1px solid #fde047;
+        }
+
+        .status-exonerado {
+            background-color: #f3e8ff;
+            color: #6b21a8;
+            border: 1px solid #e9d5ff;
+        }
+
+        .status-inactivo {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status-retiro {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .status-transferido {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-default {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
         .transition-arrow {
             color: #94a3b8;
             margin: 0 8px;
             font-size: 12px;
         }
-        
+
         .data-table th {
             background-color: #f8fafc;
             color: #64748b;
@@ -172,6 +227,7 @@
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
         }
+
         .data-table td {
             padding: 12px 16px;
             border-bottom: 1px solid #f1f5f9;
@@ -179,15 +235,20 @@
             color: #334155;
             vertical-align: middle;
         }
+
         .data-table tr:hover td {
             background-color: #f8fafc;
         }
-    
+
         /* ========================================================= */
         /* RESPONSIVE DESIGN - INJECTED AUTOMATICALLY                */
         /* ========================================================= */
         @media screen and (max-width: 1024px) {
-            .main-container, .grid-container, .dashboard-grid, .layout-grid {
+
+            .main-container,
+            .grid-container,
+            .dashboard-grid,
+            .layout-grid {
                 grid-template-columns: 1fr 1fr;
             }
         }
@@ -196,24 +257,31 @@
             body {
                 padding-bottom: 20px;
             }
-            .main-container, .grid-container, .dashboard-grid, .layout-grid, 
-            .kpi-container, .resource-grid, .metrics-grid, .cards-grid {
+
+            .main-container,
+            .grid-container,
+            .dashboard-grid,
+            .layout-grid,
+            .kpi-container,
+            .resource-grid,
+            .metrics-grid,
+            .cards-grid {
                 grid-template-columns: 1fr !important;
                 display: flex !important;
                 flex-direction: column !important;
                 padding: 10px;
                 gap: 15px;
             }
-            
+
             .hero {
                 padding: 30px 20px !important;
                 text-align: center;
             }
-            
+
             .hero h1 {
                 font-size: 28px !important;
             }
-            
+
             .sidebar {
                 position: static !important;
                 width: 100% !important;
@@ -226,13 +294,14 @@
                 padding: 15px;
                 margin-bottom: 20px;
             }
-            
-            .content-area, .main-content {
+
+            .content-area,
+            .main-content {
                 margin-left: 0 !important;
                 width: 100% !important;
                 padding: 10px !important;
             }
-            
+
             .card {
                 padding: 15px !important;
             }
@@ -242,657 +311,825 @@
                 overflow-x: auto;
                 white-space: nowrap;
             }
-            
-            .flex-container, .navbar, .top-bar {
+
+            .flex-container,
+            .navbar,
+            .top-bar {
                 flex-direction: column !important;
                 align-items: center;
                 gap: 10px;
             }
-            
-            .login-container, .login-box {
+
+            .login-container,
+            .login-box {
                 width: 95% !important;
                 margin: 20px auto !important;
             }
-            
+
             .section-title {
                 font-size: 14px;
             }
         }
-
     </style>
 </head>
+
 <body class="min-h-screen">
     {% if not embed %}
     <!-- NAVBAR CORPORATIVO -->
     {% include 'sidebar.html' %}
-<div class="content-wrapper" id="contentWrapper">
+    <div class="content-wrapper" id="contentWrapper">
 
 
-    <!-- ENLACES RÁPIDOS GLOBALES -->
-    
-    {% endif %}
+        <!-- ENLACES RÁPIDOS GLOBALES -->
 
-    <!-- CONTENIDO ESPECÍFICO DE INTEGRACIÓN (USER HTML) -->
-    <div class="max-w-6xl mx-auto p-6 mt-6">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-blue-700" style="color: var(--texto-negro) !important;">Extractor y Auditor de Clientes Corporativo</h1>
-            <p class="text-gray-500 mt-2">Módulo avanzado con control de fechas diferenciadas para cambios de planes y estatus.</p>
-        </header>
+        {% endif %}
 
-        <!-- Configuración y Carga de Archivos -->
-        <div class="bg-white p-6 rounded-xl shadow-xs border border-gray-200 mb-8">
-            <h2 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">1. Parámetros de Carga y Filtros de Fecha</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Segmento de Clientes (Filtro API):</label>
-                    <select id="tipoClienteInput" class="w-full text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 font-semibold cursor-pointer">
-                        <option value="todos">🌐 Todos los Clientes</option>
-                        <option value="corporativo">🏢 Corporativos / Jurídicos (is_natural=false)</option>
-                        <option value="residencial">🏠 Residenciales / Naturales</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Cuadro Resumen (Contar Suspendidos desde):</label>
-                    <input type="date" id="fechaCorteInput" value="2026-07-01" class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha Filtro Instalaciones (A buscar):</label>
-                    <input type="date" id="fechaInstalacionesInput" value="2026-07-13" class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
+        <!-- CONTENIDO ESPECÍFICO DE INTEGRACIÓN (USER HTML) -->
+        <div class="max-w-6xl mx-auto p-6 mt-6">
+            <header class="mb-8 text-center">
+                <h1 class="text-3xl font-bold text-blue-700" style="color: var(--texto-negro) !important;">Extractor y
+                    Auditor de Clientes Corporativo</h1>
+                <p class="text-gray-500 mt-2">Módulo avanzado con control de fechas diferenciadas para cambios de planes
+                    y estatus.</p>
+            </header>
 
-            <!-- Sección Principal: Cargar Archivo Antiguo (Día 01 o Mes Anterior) -->
-            <div class="mt-6 border-t border-gray-200 pt-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Configurar Base Mensual -->
-                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm flex flex-col gap-4">
-                        <div>
-                            <label class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
-                                <span><i class="fa-solid fa-calendar-check mr-2 text-indigo-700"></i> 1A. Cargar Base Residencial (Día 1):</span>
-                                <span id="lblEstadoMensualBox1" class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
-                            </label>
-                            <input type="file" id="fileBaseMes" accept=".xlsx, .xls" class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
-                            <button id="btnGuardarBaseMes" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
-                                <i class="fa-solid fa-upload mr-1"></i> Guardar Base Residencial
-                            </button>
-                        </div>
-                        <div class="border-t border-indigo-200 pt-4">
-                            <label class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
-                                <span><i class="fa-solid fa-building mr-2 text-indigo-700"></i> 1B. Cargar Base Corporativa (Día 1):</span>
-                                <span id="lblEstadoMensualCorpBox" class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
-                            </label>
-                            <input type="file" id="fileBaseMesCorp" accept=".xlsx, .xls" class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
-                            <button id="btnGuardarBaseMesCorp" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
-                                <i class="fa-solid fa-upload mr-1"></i> Guardar Base Corporativa
-                            </button>
-                        </div>
-                        <p class="text-xs text-indigo-700 mt-2 font-medium">Sube los archivos del día 1. Estos quedarán guardados permanentemente para las comparativas mensuales hasta reemplazarlos.</p>
-                    </div>
+            <!-- Configuración y Carga de Archivos -->
+            <div class="bg-white p-6 rounded-xl shadow-xs border border-gray-200 mb-8">
+                <h2 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">1. Parámetros de Carga y
+                    Filtros de Fecha</h2>
 
-                    <!-- Seleccionar Comparativa -->
-                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-center">
-                        <label class="block text-sm font-bold text-blue-900 mb-3">
-                            <i class="fa-solid fa-sliders mr-2 text-blue-700"></i> 2. Tipo de Comparativa a realizar:
-                        </label>
-                        <div class="flex gap-4">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="tipoComparativa" value="diaria" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <span class="ml-2 text-sm font-semibold text-gray-800">Diaria (Hoy vs Ayer)</span>
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="tipoComparativa" value="mensual" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <span class="ml-2 text-sm font-semibold text-gray-800">Mensual (Hoy vs Día 1)</span>
-                            </label>
-                        </div>
-                        <p class="text-xs text-blue-700 mt-4 font-medium">Al procesar, el sistema usará el registro automático (Diaria) o la base guardada (Mensual) según tu selección.</p>
-                        
-                        <div class="mt-4 p-3 bg-white border border-blue-100 rounded-lg text-xs font-mono text-gray-600 space-y-1.5">
-                            <p class="font-bold text-gray-700 mb-2 border-b border-gray-100 pb-1.5"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Fechas de Respaldos Guardados:</p>
-                            <p class="flex justify-between items-center"><span>Base Mensual (Residencial):</span> <span id="lblEstadoMensual" class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span></p>
-                            <p class="flex justify-between items-center"><span>Base Mensual (Corporativo):</span> <span id="lblEstadoMensualCorp" class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span></p>
-                            <p class="flex justify-between items-center"><span>Diario (Residencial):</span> <span id="lblEstadoDiarioRes" class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span></p>
-                            <p class="flex justify-between items-center"><span>Diario (Corporativo):</span> <span id="lblEstadoDiarioCorp" class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botón de Acción -->
-        <div class="flex justify-center mb-8 gap-4">
-            <button id="btnGuardarRegistro" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all cursor-pointer">
-                <i class="fa-solid fa-save mr-2"></i> Guardar Registro Actual (Local)
-            </button>
-            <button id="btnProcesarApi" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all cursor-pointer">
-                <i class="fa-solid fa-code-compare mr-2"></i> Comparar API (Hoy) vs Excel / Registro
-            </button>
-        </div>
-
-        <!-- Resultados e Indicadores rápidos -->
-        <div id="resultadosSection" class="hidden">
-            <!-- Cuadro de Resumen Dinámico y Financiero -->
-            <div class="mb-6 flex flex-col gap-6">
-                <!-- Métricas Principales (Arriba) -->
-                <div class="flex flex-col items-center gap-4">
-                    <div class="flex flex-wrap justify-center gap-4 w-full">
-                        <div class="p-4 bg-emerald-50 rounded-lg text-center flex-1 min-w-[200px] max-w-[300px]">
-                            <p class="text-sm font-medium text-emerald-700">Clientes Activos residenciales</p>
-                            <p id="resumenActivos" class="text-2xl font-bold text-emerald-900">0</p>
-                        </div>
-                        <div class="p-4 bg-emerald-50 rounded-lg text-center flex-1 min-w-[200px] max-w-[300px]">
-                            <p class="text-sm font-medium text-emerald-700">Clientes corporativos</p>
-                            <p id="resumenActivosCorp" class="text-2xl font-bold text-emerald-900">0</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap justify-center gap-4 w-full">
-                        <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
-                            <p class="text-sm font-medium text-amber-700">Suspendidos residenciales</p>
-                            <p id="resumenSuspendidos" class="text-2xl font-bold text-amber-900">0</p>
-                        </div>
-                        <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
-                            <p class="text-sm font-medium text-amber-700">Suspendidos corporativos</p>
-                            <p id="resumenSuspendidosCorp" class="text-2xl font-bold text-amber-900">0</p>
-                        </div>
-                        <div class="p-4 bg-indigo-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
-                            <p class="text-sm font-medium text-indigo-700">Exonerados Regulares</p>
-                            <p id="resumenExonReg" class="text-2xl font-bold text-indigo-900">0</p>
-                        </div>
-                        <div class="p-4 bg-indigo-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
-                            <p class="text-sm font-medium text-indigo-700">Exonerados corporativos</p>
-                            <p id="resumenExonRegCorp" class="text-2xl font-bold text-indigo-900">0</p>
-                        </div>
-                        <div class="p-4 bg-sky-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
-                            <p class="text-sm font-medium text-sky-700">Exonerados Empleados (emp)</p>
-                            <p id="resumenExonEmp" class="text-2xl font-bold text-sky-900">0</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Nuevo Cuadro Resumen en Forma de Lista -->
-                <div class="max-w-3xl mx-auto overflow-hidden rounded-xl border border-gray-200 shadow-xs bg-white mb-6 w-full">
-                    <div class="flex items-center justify-between border-b border-gray-100 p-4 bg-gray-50/50">
-                        <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fa-solid fa-list-ul text-blue-600"></i> Resumen de Clientes (Lista)
-                        </h3>
-                    </div>
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
-                            <tr>
-                                <th class="py-3 px-4 text-left">Segmento / Estatus</th>
-                                <th class="py-3 px-4 text-right">Cantidad</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 font-mono">
-                            <tr class="hover:bg-gray-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans font-medium text-emerald-700">Clientes Activos residenciales</td>
-                                <td class="py-2.5 px-4 text-right font-bold text-emerald-900" id="listaActivos">0</td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans font-medium text-emerald-700">Clientes corporativos</td>
-                                <td class="py-2.5 px-4 text-right font-bold text-emerald-900" id="listaActivosCorp">0</td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos residenciales</td>
-                                <td class="py-2.5 px-4 text-right font-bold text-amber-900" id="listaSuspendidos">0</td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos corporativos</td>
-                                <td class="py-2.5 px-4 text-right font-bold text-amber-900" id="listaSuspendidosCorp">0</td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados Regulares</td>
-                                <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonReg">0</td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados corporativos</td>
-                                <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonRegCorp">0</td>
-                            </tr>
-                            <tr class="hover:bg-gray-50/30 transition-colors">
-                                <td class="py-2.5 px-4 text-left font-sans font-medium text-sky-700">Exonerados Empleados (emp)</td>
-                                <td class="py-2.5 px-4 text-right font-bold text-sky-900" id="listaExonEmp">0</td>
-                            </tr>
-                            <tr class="bg-indigo-50/60 font-bold border-t-2 border-indigo-200 transition-colors">
-                                <td class="py-3 px-4 text-left font-sans text-indigo-900 text-base uppercase">Sumatoria Total</td>
-                                <td class="py-3 px-4 text-right font-bold text-indigo-900 text-base" id="listaTotalGeneral">0</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="flex items-center justify-center my-2">
-                    <h2 class="text-xl font-bold text-gray-700 border-b-2 border-gray-200 pb-2 px-6">💰 Resumen Financiero de Variaciones</h2>
-                </div>
-
-                <!-- Métricas Financieras y Subcategorías -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Columna Instalaciones (Verde) -->
-                    <div class="flex flex-col gap-3">
-                        <div class="p-4 bg-emerald-50 rounded-lg text-center h-[90px] flex flex-col justify-center">
-                            <p class="text-sm font-medium text-emerald-700">Total Nuevas Instalaciones</p>
-                            <p id="resumenFinancieroInstalaciones" class="text-2xl font-bold text-emerald-900">$0.00</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 flex-1 rounded min-h-[70px]">
-                                <p class="text-[11px] text-emerald-700 font-semibold mb-1 leading-tight">Crecimiento (Instalaciones)</p>
-                                <p id="countInstalaciones" class="text-lg font-bold text-emerald-900 leading-none">0</p>
-                            </div>
-                            <div class="bg-teal-50 border-l-4 border-teal-500 p-3 flex-1 rounded min-h-[70px]">
-                                <p class="text-[11px] text-teal-700 font-semibold mb-1 leading-tight">Instalaciones en Proceso (Hoy)</p>
-                                <p id="countInstalacionesProceso" class="text-lg font-bold text-teal-900 leading-none">0</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Columna Plan (Naranja) -->
-                    <div class="flex flex-col gap-3">
-                        <div class="p-4 bg-orange-50 rounded-lg text-center h-[90px] flex flex-col justify-center">
-                            <p class="text-sm font-medium text-orange-700">Variación Neta por Cambios de Plan</p>
-                            <p id="resumenFinancieroPlan" class="text-2xl font-bold text-orange-900">$0.00</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="bg-orange-50 border-l-4 border-orange-500 p-3 flex-1 rounded min-h-[70px]">
-                                <p class="text-[11px] text-orange-700 font-semibold mb-1 leading-tight">Cambios de Plan</p>
-                                <p id="countCambiosPlan" class="text-lg font-bold text-orange-900 leading-none">0</p>
-                            </div>
-                            <div style="display: none;" class="bg-blue-50 border-l-4 border-blue-500 p-3 flex-1 rounded min-h-[70px]">
-                                <p class="text-[11px] text-blue-700 font-semibold mb-1 leading-tight">Cambios Plan o Estado</p>
-                                <p id="countSeguimiento" class="text-lg font-bold text-blue-900 leading-none">0</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Columna Estatus (Morado) -->
-                    <div class="flex flex-col gap-3">
-                        <div class="p-4 bg-purple-50 rounded-lg text-center h-[90px] flex flex-col justify-center">
-                            <p class="text-sm font-medium text-purple-700">Variación Neta por Cambios de Estatus</p>
-                            <p id="resumenFinancieroEstatus" class="text-2xl font-bold text-purple-900">$0.00</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="bg-purple-50 border-l-4 border-purple-500 p-3 flex-1 rounded min-h-[70px]">
-                                <p class="text-[11px] text-purple-700 font-semibold mb-1 leading-tight">Cambios Estatus Solamente</p>
-                                <p id="countEstados" class="text-lg font-bold text-purple-900 leading-none">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Fila extra para Deudores (Oculto en tu imagen, pero útil para no perder el dato) -->
-                <div class="flex justify-center mt-2">
-                    <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg flex-1 max-w-[200px] text-center">
-                        <p class="text-xs text-red-700 font-semibold mb-1">Activos con Deuda</p>
-                        <p id="countDeudores" class="text-lg font-bold text-red-900 leading-none">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-end mb-4 gap-3 flex-wrap">
-                <button onclick="exportarExcelResumenPlanes()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-5 rounded-md shadow-xs flex items-center gap-2 cursor-pointer mb-6">
-                    <i class="fa-solid fa-file-excel"></i> Descargar Excel de Planes
-                </button>
-                <button id="btnDescargar" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-5 rounded-md shadow-xs flex items-center gap-2 cursor-pointer mb-6">
-                    📥 Descargar Reporte Consolidado (.xlsx)
-                </button>
-            </div>
-
-            <!-- Visor de Datos Dinámico -->
-            <div class="bg-white rounded-xl shadow-xs border border-gray-200 mb-6 overflow-hidden">
-                <!-- Pestañas -->
-                <div class="flex gap-2 p-4 border-b border-gray-100 flex-wrap bg-gray-50/50">
-                    <button class="tab-btn active cursor-pointer" onclick="changeTab('estatus')" id="tab-estatus">Cambios de Estatus <span class="badge-count" id="badge-estatus">0</span></button>
-                    <button class="tab-btn cursor-pointer" onclick="changeTab('instalaciones')" id="tab-instalaciones">Crecimiento (Nuevas Instalaciones) <span class="badge-count" id="badge-instalaciones">0</span></button>
-                    <button class="tab-btn cursor-pointer" onclick="changeTab('instalacionesProceso')" id="tab-instalacionesProceso">Instalaciones en Proceso <span class="badge-count" id="badge-instalacionesProceso">0</span></button>
-                    <button class="tab-btn cursor-pointer" onclick="changeTab('cambiosPlan')" id="tab-cambiosPlan">Cambios de Plan <span class="badge-count" id="badge-cambiosPlan">0</span></button>
-                    <button style="display: none;" class="tab-btn cursor-pointer" onclick="changeTab('seguimiento')" id="tab-seguimiento">Seguimiento <span class="badge-count" id="badge-seguimiento">0</span></button>
-                    <button class="tab-btn cursor-pointer" onclick="changeTab('deudores')" id="tab-deudores">Activos con Deuda <span class="badge-count" id="badge-deudores">0</span></button>
-                </div>
-
-                <!-- Barra de Búsqueda y Filtros -->
-                <div class="flex gap-4 p-4 border-b border-gray-100 flex-wrap bg-white items-center justify-between">
-                    <div class="flex gap-4 flex-1">
-                        <div class="relative w-full max-w-sm">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="searchInput" oninput="filterTable()" placeholder="Buscar por Nombre, Cédula..." class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                        </div>
-                        <select id="planFilter" onchange="filterTable()" class="border border-gray-300 rounded-lg py-2 px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white min-w-[200px] cursor-pointer">
-                            <option value="">Todos los Planes</option>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Segmento de Clientes (Filtro
+                            API):</label>
+                        <select id="tipoClienteInput"
+                            class="w-full text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 font-semibold cursor-pointer">
+                            <option value="todos">🌐 Todos los Clientes</option>
+                            <option value="corporativo">🏢 Corporativos / Jurídicos (is_natural=false)</option>
+                            <option value="residencial">🏠 Residenciales / Naturales</option>
                         </select>
                     </div>
-                    <button onclick="clearFilters()" class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer">
-                        Limpiar Filtros
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cuadro Resumen (Contar Suspendidos
+                            desde):</label>
+                        <input type="date" id="fechaCorteInput" value="2026-07-01"
+                            class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha Filtro Instalaciones (A
+                            buscar):</label>
+                        <input type="date" id="fechaInstalacionesInput" value="2026-07-13"
+                            class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Sección Principal: Cargar Archivo Antiguo (Día 01 o Mes Anterior) -->
+                <div class="mt-6 border-t border-gray-200 pt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Configurar Base Mensual -->
+                        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm flex flex-col gap-4">
+                            <div>
+                                <label
+                                    class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
+                                    <span><i class="fa-solid fa-calendar-check mr-2 text-indigo-700"></i> 1A. Cargar
+                                        Base Residencial (Día 1):</span>
+                                    <span id="lblEstadoMensualBox1"
+                                        class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
+                                </label>
+                                <input type="file" id="fileBaseMes" accept=".xlsx, .xls"
+                                    class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
+                                <button id="btnGuardarBaseMes"
+                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
+                                    <i class="fa-solid fa-upload mr-1"></i> Guardar Base Residencial
+                                </button>
+                            </div>
+                            <div class="border-t border-indigo-200 pt-4">
+                                <label
+                                    class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
+                                    <span><i class="fa-solid fa-building mr-2 text-indigo-700"></i> 1B. Cargar Base
+                                        Corporativa (Día 1):</span>
+                                    <span id="lblEstadoMensualCorpBox"
+                                        class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
+                                </label>
+                                <input type="file" id="fileBaseMesCorp" accept=".xlsx, .xls"
+                                    class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
+                                <button id="btnGuardarBaseMesCorp"
+                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
+                                    <i class="fa-solid fa-upload mr-1"></i> Guardar Base Corporativa
+                                </button>
+                            </div>
+                            <p class="text-xs text-indigo-700 mt-2 font-medium">Sube los archivos del día 1. Estos
+                                quedarán guardados permanentemente para las comparativas mensuales hasta reemplazarlos.
+                            </p>
+                        </div>
+
+                        <!-- Seleccionar Comparativa -->
+                        <div
+                            class="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-center">
+                            <label class="block text-sm font-bold text-blue-900 mb-3">
+                                <i class="fa-solid fa-sliders mr-2 text-blue-700"></i> 2. Tipo de Comparativa a
+                                realizar:
+                            </label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="tipoComparativa" value="diaria" checked
+                                        class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    <span class="ml-2 text-sm font-semibold text-gray-800">Diaria (Hoy vs Ayer)</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="tipoComparativa" value="mensual"
+                                        class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    <span class="ml-2 text-sm font-semibold text-gray-800">Mensual (Hoy vs Día 1)</span>
+                                </label>
+                            </div>
+                            <p class="text-xs text-blue-700 mt-4 font-medium">Al procesar, el sistema usará el registro
+                                automático (Diaria) o la base guardada (Mensual) según tu selección.</p>
+
+                            <div
+                                class="mt-4 p-3 bg-white border border-blue-100 rounded-lg text-xs font-mono text-gray-600 space-y-1.5">
+                                <p class="font-bold text-gray-700 mb-2 border-b border-gray-100 pb-1.5"><i
+                                        class="fa-solid fa-clock-rotate-left mr-1"></i> Fechas de Respaldos Guardados:
+                                </p>
+                                <p class="flex justify-between items-center"><span>Base Mensual (Residencial):</span>
+                                    <span id="lblEstadoMensual"
+                                        class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span>
+                                </p>
+                                <p class="flex justify-between items-center"><span>Base Mensual (Corporativo):</span>
+                                    <span id="lblEstadoMensualCorp"
+                                        class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span>
+                                </p>
+                                <p class="flex justify-between items-center"><span>Diario (Residencial):</span> <span
+                                        id="lblEstadoDiarioRes"
+                                        class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span>
+                                </p>
+                                <p class="flex justify-between items-center"><span>Diario (Corporativo):</span> <span
+                                        id="lblEstadoDiarioCorp"
+                                        class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón de Acción -->
+            <div class="flex justify-center mb-8 gap-4">
+                <button id="btnGuardarRegistro"
+                    class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all cursor-pointer">
+                    <i class="fa-solid fa-save mr-2"></i> Guardar Registro Actual (Local)
+                </button>
+                <button id="btnProcesarApi"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all cursor-pointer">
+                    <i class="fa-solid fa-code-compare mr-2"></i> Comparar API (Hoy) vs Excel / Registro
+                </button>
+            </div>
+
+            <!-- Resultados e Indicadores rápidos -->
+            <div id="resultadosSection" class="hidden">
+                <!-- Cuadro de Resumen Dinámico y Financiero -->
+                <div class="mb-6 flex flex-col gap-6">
+                    <!-- Métricas Principales (Arriba) -->
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="flex flex-wrap justify-center gap-4 w-full">
+                            <div class="p-4 bg-emerald-50 rounded-lg text-center flex-1 min-w-[200px] max-w-[300px]">
+                                <p class="text-sm font-medium text-emerald-700">Clientes Activos residenciales</p>
+                                <p id="resumenActivos" class="text-2xl font-bold text-emerald-900">0</p>
+                            </div>
+                            <div class="p-4 bg-emerald-50 rounded-lg text-center flex-1 min-w-[200px] max-w-[300px]">
+                                <p class="text-sm font-medium text-emerald-700">Clientes corporativos</p>
+                                <p id="resumenActivosCorp" class="text-2xl font-bold text-emerald-900">0</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-4 w-full">
+                            <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                                <p class="text-sm font-medium text-amber-700">Suspendidos residenciales</p>
+                                <p id="resumenSuspendidos" class="text-2xl font-bold text-amber-900">0</p>
+                            </div>
+                            <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                                <p class="text-sm font-medium text-amber-700">Suspendidos corporativos</p>
+                                <p id="resumenSuspendidosCorp" class="text-2xl font-bold text-amber-900">0</p>
+                            </div>
+                            <div class="p-4 bg-indigo-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                                <p class="text-sm font-medium text-indigo-700">Exonerados Regulares</p>
+                                <p id="resumenExonReg" class="text-2xl font-bold text-indigo-900">0</p>
+                            </div>
+                            <div class="p-4 bg-indigo-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                                <p class="text-sm font-medium text-indigo-700">Exonerados corporativos</p>
+                                <p id="resumenExonRegCorp" class="text-2xl font-bold text-indigo-900">0</p>
+                            </div>
+                            <div class="p-4 bg-sky-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                                <p class="text-sm font-medium text-sky-700">Exonerados Empleados (emp)</p>
+                                <p id="resumenExonEmp" class="text-2xl font-bold text-sky-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nuevo Cuadro Resumen en Forma de Lista -->
+                    <div
+                        class="max-w-3xl mx-auto overflow-hidden rounded-xl border border-gray-200 shadow-xs bg-white mb-6 w-full">
+                        <div class="flex items-center justify-between border-b border-gray-100 p-4 bg-gray-50/50">
+                            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                <i class="fa-solid fa-list-ul text-blue-600"></i> Resumen de Clientes (Lista)
+                            </h3>
+                        </div>
+                        <table class="w-full text-sm">
+                            <thead
+                                class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">Segmento / Estatus</th>
+                                    <th class="py-3 px-4 text-right">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 font-mono">
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-emerald-700">Clientes
+                                        Activos residenciales</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-emerald-900" id="listaActivos">0
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-emerald-700">Clientes
+                                        corporativos</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-emerald-900" id="listaActivosCorp">
+                                        0</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos
+                                        residenciales</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-amber-900" id="listaSuspendidos">0
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos
+                                        corporativos</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-amber-900"
+                                        id="listaSuspendidosCorp">0</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados
+                                        Regulares</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonReg">0
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados
+                                        corporativos</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonRegCorp">0
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-sky-700">Exonerados
+                                        Empleados (emp)</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-sky-900" id="listaExonEmp">0</td>
+                                </tr>
+                                <tr class="bg-indigo-50/60 font-bold border-t-2 border-indigo-200 transition-colors">
+                                    <td class="py-3 px-4 text-left font-sans text-indigo-900 text-base uppercase">
+                                        Sumatoria Total</td>
+                                    <td class="py-3 px-4 text-right font-bold text-indigo-900 text-base"
+                                        id="listaTotalGeneral">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex items-center justify-center my-2">
+                        <h2 class="text-xl font-bold text-gray-700 border-b-2 border-gray-200 pb-2 px-6">💰 Resumen
+                            Financiero de Variaciones</h2>
+                    </div>
+
+                    <!-- Métricas Financieras y Subcategorías -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Columna Instalaciones (Verde) -->
+                        <div class="flex flex-col gap-3">
+                            <div class="p-4 bg-emerald-50 rounded-lg text-center h-[90px] flex flex-col justify-center">
+                                <p class="text-sm font-medium text-emerald-700">Total Nuevas Instalaciones</p>
+                                <p id="resumenFinancieroInstalaciones" class="text-2xl font-bold text-emerald-900">$0.00
+                                </p>
+                            </div>
+                            <div class="flex gap-2">
+                                <div
+                                    class="bg-emerald-50 border-l-4 border-emerald-500 p-3 flex-1 rounded min-h-[70px]">
+                                    <p class="text-[11px] text-emerald-700 font-semibold mb-1 leading-tight">Crecimiento
+                                        (Instalaciones)</p>
+                                    <p id="countInstalaciones" class="text-lg font-bold text-emerald-900 leading-none">0
+                                    </p>
+                                </div>
+                                <div class="bg-teal-50 border-l-4 border-teal-500 p-3 flex-1 rounded min-h-[70px]">
+                                    <p class="text-[11px] text-teal-700 font-semibold mb-1 leading-tight">Instalaciones
+                                        en Proceso (Hoy)</p>
+                                    <p id="countInstalacionesProceso"
+                                        class="text-lg font-bold text-teal-900 leading-none">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Plan (Naranja) -->
+                        <div class="flex flex-col gap-3">
+                            <div class="p-4 bg-orange-50 rounded-lg text-center h-[90px] flex flex-col justify-center">
+                                <p class="text-sm font-medium text-orange-700">Variación Neta por Cambios de Plan</p>
+                                <p id="resumenFinancieroPlan" class="text-2xl font-bold text-orange-900">$0.00</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="bg-orange-50 border-l-4 border-orange-500 p-3 flex-1 rounded min-h-[70px]">
+                                    <p class="text-[11px] text-orange-700 font-semibold mb-1 leading-tight">Cambios de
+                                        Plan</p>
+                                    <p id="countCambiosPlan" class="text-lg font-bold text-orange-900 leading-none">0
+                                    </p>
+                                </div>
+                                <div style="display: none;"
+                                    class="bg-blue-50 border-l-4 border-blue-500 p-3 flex-1 rounded min-h-[70px]">
+                                    <p class="text-[11px] text-blue-700 font-semibold mb-1 leading-tight">Cambios Plan o
+                                        Estado</p>
+                                    <p id="countSeguimiento" class="text-lg font-bold text-blue-900 leading-none">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Estatus (Morado) -->
+                        <div class="flex flex-col gap-3">
+                            <div class="p-4 bg-purple-50 rounded-lg text-center h-[90px] flex flex-col justify-center">
+                                <p class="text-sm font-medium text-purple-700">Variación Neta por Cambios de Estatus</p>
+                                <p id="resumenFinancieroEstatus" class="text-2xl font-bold text-purple-900">$0.00</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="bg-purple-50 border-l-4 border-purple-500 p-3 flex-1 rounded min-h-[70px]">
+                                    <p class="text-[11px] text-purple-700 font-semibold mb-1 leading-tight">Cambios
+                                        Estatus Solamente</p>
+                                    <p id="countEstados" class="text-lg font-bold text-purple-900 leading-none">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila extra para Deudores (Oculto en tu imagen, pero útil para no perder el dato) -->
+                    <div class="flex justify-center mt-2">
+                        <div
+                            class="bg-red-50 border-l-4 border-red-500 p-3 rounded-lg flex-1 max-w-[200px] text-center">
+                            <p class="text-xs text-red-700 font-semibold mb-1">Activos con Deuda</p>
+                            <p id="countDeudores" class="text-lg font-bold text-red-900 leading-none">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mb-4 gap-3 flex-wrap">
+                    <button onclick="exportarExcelResumenPlanes()"
+                        class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-5 rounded-md shadow-xs flex items-center gap-2 cursor-pointer mb-6">
+                        <i class="fa-solid fa-file-excel"></i> Descargar Excel de Planes
+                    </button>
+                    <button id="btnDescargar"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-5 rounded-md shadow-xs flex items-center gap-2 cursor-pointer mb-6">
+                        📥 Descargar Reporte Consolidado (.xlsx)
                     </button>
                 </div>
 
-                <!-- Contenedor de Tabla con Scroll -->
-                <div class="overflow-x-auto" style="max-height: 500px;">
-                    <table class="w-full data-table" id="dataTable">
-                        <thead class="sticky top-0 z-10">
-                            <tr id="tableHeader">
-                                <!-- Cabeceras Dinámicas -->
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <!-- Filas Dinámicas -->
-                            <tr>
-                                <td colspan="10" class="text-center py-8 text-gray-500">Seleccione un archivo y presione Procesar para ver los resultados.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Variación / Conciliación Financiera -->
-            <div id="seccionConciliacionFinanciera" class="bg-white rounded-xl shadow-xs border border-gray-200 p-6 mb-8 hidden">
-                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
-                    <i class="fa-solid fa-chart-line text-emerald-500"></i> Variación Financiera (Día 1 vs Hoy)
-                </h3>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 font-bold text-gray-900">Abonados</th>
-                                <th scope="col" class="px-6 py-3 text-center font-bold text-gray-900">Cantidad</th>
-                                <th scope="col" class="px-6 py-3 text-right font-bold text-gray-900">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Empleados exonerados</td>
-                                <td class="px-6 py-4 text-center" id="cf_emp_exo_qty">-</td>
-                                <td class="px-6 py-4 text-right" id="cf_emp_exo_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Residenciales exonerados</td>
-                                <td class="px-6 py-4 text-center" id="cf_res_exo_qty">-</td>
-                                <td class="px-6 py-4 text-right" id="cf_res_exo_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Subieron de Plan (Upgrades)</td>
-                                <td class="px-6 py-4 text-center" id="cf_upgrades_qty">-</td>
-                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_upgrades_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Cambios 3 Meses Beneficio</td>
-                                <td class="px-6 py-4 text-center" id="cf_cambios_3m_qty">-</td>
-                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_cambios_3m_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Reconexiones</td>
-                                <td class="px-6 py-4 text-center" id="cf_reconex_qty">-</td>
-                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_reconex_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (3 meses beneficio)</td>
-                                <td class="px-6 py-4 text-center" id="cf_inst_3m_qty">-</td>
-                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_3m_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (Normales)</td>
-                                <td class="px-6 py-4 text-center" id="cf_inst_norm_qty">-</td>
-                                <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_norm_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Bajaron de Plan (Downgrades)</td>
-                                <td class="px-6 py-4 text-center" id="cf_downgrades_qty">-</td>
-                                <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_downgrades_mnt">-</td>
-                            </tr>
-                            <tr class="bg-white border-b hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">Residenciales suspendidos</td>
-                                <td class="px-6 py-4 text-center" id="cf_susp_qty">-</td>
-                                <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_susp_mnt">-</td>
-                            </tr>
-                        </tbody>
-                        <tfoot class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
-                            <tr class="border-b border-gray-200">
-                                <td class="px-6 py-4 uppercase">Total a inicio de mes Residenciales activos</td>
-                                <td class="px-6 py-4 text-center font-mono" id="cf_tot_ini_qty">-</td>
-                                <td class="px-6 py-4 text-right font-mono" id="cf_tot_ini_mnt">-</td>
-                            </tr>
-                            <tr class="border-b border-gray-200">
-                                <td class="px-6 py-4 uppercase">Total al día de hoy</td>
-                                <td class="px-6 py-4 text-center font-mono" id="cf_tot_hoy_qty">-</td>
-                                <td class="px-6 py-4 text-right font-mono" id="cf_tot_hoy_mnt">-</td>
-                            </tr>
-                            <tr class="bg-indigo-50 border-t border-indigo-200 text-indigo-900">
-                                <td class="px-6 py-4 text-lg font-black uppercase">Diferencia</td>
-                                <td class="px-6 py-4 text-center font-mono text-lg font-black" id="cf_dif_qty">-</td>
-                                <td class="px-6 py-4 text-right font-mono text-lg font-black" id="cf_dif_mnt">-</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-
-            <!-- SECCIÓN APARTE: Clientes Activos por Plan (3 Cuadros Simultáneos) -->
-            <div id="seccionPlanesActivosConsolidado" class="bg-white rounded-xl shadow-xs border border-gray-200 p-6 mb-8 mt-6">
-                <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-6 flex-wrap gap-3">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-amber-500"></i> Cuadro de Clientes Activos por Plan
-                        </h3>
-                        <p class="text-xs text-gray-500 mt-1">Conteo y sumatoria de contratos Residenciales, Corporativos (is_natural=false) y su Unión Consolidada.</p>
+                <!-- Visor de Datos Dinámico -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-200 mb-6 overflow-hidden">
+                    <!-- Pestañas -->
+                    <div class="flex gap-2 p-4 border-b border-gray-100 flex-wrap bg-gray-50/50">
+                        <button class="tab-btn active cursor-pointer" onclick="changeTab('estatus')"
+                            id="tab-estatus">Cambios de Estatus <span class="badge-count"
+                                id="badge-estatus">0</span></button>
+                        <button class="tab-btn cursor-pointer" onclick="changeTab('instalaciones')"
+                            id="tab-instalaciones">Crecimiento (Nuevas Instalaciones) <span class="badge-count"
+                                id="badge-instalaciones">0</span></button>
+                        <button class="tab-btn cursor-pointer" onclick="changeTab('instalacionesProceso')"
+                            id="tab-instalacionesProceso">Instalaciones en Proceso <span class="badge-count"
+                                id="badge-instalacionesProceso">0</span></button>
+                        <button class="tab-btn cursor-pointer" onclick="changeTab('cambiosPlan')"
+                            id="tab-cambiosPlan">Cambios de Plan <span class="badge-count"
+                                id="badge-cambiosPlan">0</span></button>
+                        <button style="display: none;" class="tab-btn cursor-pointer" onclick="changeTab('seguimiento')"
+                            id="tab-seguimiento">Seguimiento <span class="badge-count"
+                                id="badge-seguimiento">0</span></button>
+                        <button class="tab-btn cursor-pointer" onclick="changeTab('deudores')" id="tab-deudores">Activos
+                            con Deuda <span class="badge-count" id="badge-deudores">0</span></button>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="exportarExcelConsolidadoCompleto()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-all">
-                            <i class="fa-solid fa-file-excel"></i> Descargar Excel Completo (3 Cuadros)
+
+                    <!-- Barra de Búsqueda y Filtros -->
+                    <div
+                        class="flex gap-4 p-4 border-b border-gray-100 flex-wrap bg-white items-center justify-between">
+                        <div class="flex gap-4 flex-1">
+                            <div class="relative w-full max-w-sm">
+                                <i
+                                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="searchInput" oninput="filterTable()"
+                                    placeholder="Buscar por Nombre, Cédula..."
+                                    class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            </div>
+                            <select id="planFilter" onchange="filterTable()"
+                                class="border border-gray-300 rounded-lg py-2 px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white min-w-[200px] cursor-pointer">
+                                <option value="">Todos los Planes</option>
+                            </select>
+                        </div>
+                        <button onclick="clearFilters()"
+                            class="text-sm text-gray-500 hover:text-gray-700 font-medium px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer">
+                            Limpiar Filtros
                         </button>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-                    <!-- 1. TABLA RESIDENCIAL -->
-                    <div class="border border-blue-200 rounded-xl overflow-hidden shadow-2xs h-full flex flex-col">
-                        <div class="bg-blue-50/80 px-4 py-3 border-b border-blue-200 flex items-center justify-between flex-wrap gap-2">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-house-user text-blue-600 text-sm"></i>
-                                <h4 class="font-bold text-blue-950 text-sm">1. Clientes Residenciales (Naturales)</h4>
-                                <span id="badgePlanesRes" class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full border border-blue-200">0 Planes</span>
-                            </div>
-                            <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 justify-between sm:justify-end">
-                                <input type="text" id="buscarPlanesResInput" oninput="filtrarPlanesSeccion('residencial')" placeholder="Filtrar residencial..." class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-32 md:w-48 focus:ring-1 focus:ring-blue-500">
-                                <button onclick="exportarExcelUnaSeccion('residencial')" class="px-2.5 py-1.5 bg-white hover:bg-blue-100 text-blue-800 text-xs font-bold rounded-lg border border-blue-300 cursor-pointer">
-                                    <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> Excel
-                                </button>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto flex-1">
-                            <table class="w-full data-table text-xs">
-                                <thead class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
-                                    <tr>
-                                        <th class="py-2.5 px-3 text-center" style="width: 40px;">#</th>
-                                        <th class="py-2.5 px-3 text-left">Nombre del Plan</th>
-                                        <th class="py-2.5 px-3 text-center">Clientes Activos</th>
-                                        <th class="py-2.5 px-3 text-center">% Segmento</th>
-                                        <th class="py-2.5 px-3 text-right">Precio Unitario</th>
-                                        <th class="py-2.5 px-3 text-right">Sumatoria Costo Total ($)</th>
-                                        <th class="py-2.5 px-3 text-center">% Facturación</th>
-                                        <th class="py-2.5 px-3 text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodyPlanesRes">
-                                    <tr><td colspan="8" class="text-center py-6 text-gray-500">Presione 'Comparar API' para cargar datos.</td></tr>
-                                </tbody>
-                                <tfoot id="tfootPlanesRes" class="bg-gray-100 font-bold border-t border-gray-300 text-gray-900 hidden">
-                                    <tr>
-                                        <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL RESIDENCIAL</td>
-                                        <td class="py-2.5 px-3 text-center font-mono text-indigo-900 font-bold" id="totResClientes">-</td>
-                                        <td class="py-2.5 px-3 text-center">100%</td>
-                                        <td class="py-2.5 px-3 text-right text-gray-500">-</td>
-                                        <td class="py-2.5 px-3 text-right font-mono text-emerald-900 font-bold" id="totResCosto">-</td>
-                                        <td class="py-2.5 px-3 text-center text-emerald-900">100%</td>
-                                        <td class="py-2.5 px-3 text-center text-gray-500">Subtotal</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-    
-                    <!-- 2. TABLA CORPORATIVO (IS_NATURAL=FALSE) -->
-                    <div class="border border-amber-200 rounded-xl overflow-hidden shadow-2xs h-full flex flex-col">
-                        <div class="bg-amber-50/80 px-4 py-3 border-b border-amber-200 flex items-center justify-between flex-wrap gap-2">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-building text-amber-600 text-sm"></i>
-                                <h4 class="font-bold text-amber-950 text-sm">2. Clientes Corporativos / Jurídicos</h4>
-                                <span id="badgePlanesCorp" class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full border border-amber-200">0 Planes</span>
-                            </div>
-                            <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 justify-between sm:justify-end">
-                                <input type="text" id="buscarPlanesCorpInput" oninput="filtrarPlanesSeccion('corporativo')" placeholder="Filtrar corporativo..." class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-32 md:w-48 focus:ring-1 focus:ring-amber-500">
-                                <button onclick="exportarExcelUnaSeccion('corporativo')" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-lg border border-amber-300 cursor-pointer">
-                                    <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> Excel
-                                </button>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto flex-1">
-                            <table class="w-full data-table text-xs">
-                                <thead class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
-                                    <tr>
-                                        <th class="py-2.5 px-3 text-center" style="width: 40px;">#</th>
-                                        <th class="py-2.5 px-3 text-left">Nombre del Plan</th>
-                                        <th class="py-2.5 px-3 text-center">Clientes Activos</th>
-                                        <th class="py-2.5 px-3 text-center">% Segmento</th>
-                                        <th class="py-2.5 px-3 text-right">Precio Unitario</th>
-                                        <th class="py-2.5 px-3 text-right">Sumatoria Costo Total ($)</th>
-                                        <th class="py-2.5 px-3 text-center">% Facturación</th>
-                                        <th class="py-2.5 px-3 text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbodyPlanesCorp">
-                                    <tr><td colspan="8" class="text-center py-6 text-gray-500">Presione 'Comparar API' para cargar datos.</td></tr>
-                                </tbody>
-                                <tfoot id="tfootPlanesCorp" class="bg-gray-100 font-bold border-t border-gray-300 text-gray-900 hidden">
-                                    <tr>
-                                        <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL CORPORATIVO</td>
-                                        <td class="py-2.5 px-3 text-center font-mono text-amber-900 font-bold" id="totCorpClientes">-</td>
-                                        <td class="py-2.5 px-3 text-center">100%</td>
-                                        <td class="py-2.5 px-3 text-right text-gray-500">-</td>
-                                        <td class="py-2.5 px-3 text-right font-mono text-emerald-900 font-bold" id="totCorpCosto">-</td>
-                                        <td class="py-2.5 px-3 text-center text-emerald-900">100%</td>
-                                        <td class="py-2.5 px-3 text-center text-gray-500">Subtotal</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. TABLA CONSOLIDADO (UNIÓN DE AMBOS) -->
-                <div class="mb-4 border border-emerald-200 rounded-xl overflow-hidden shadow-2xs">
-                    <div class="bg-emerald-50/80 px-4 py-3 border-b border-emerald-200 flex items-center justify-between flex-wrap gap-2">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-layer-group text-emerald-600 text-sm"></i>
-                            <h4 class="font-bold text-emerald-950 text-sm">3. Cuadro Consolidado (Unión de Residencial + Corporativo)</h4>
-                            <span id="badgePlanesCons" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">0 Planes</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="buscarPlanesConsInput" oninput="filtrarPlanesSeccion('consolidado')" placeholder="Filtrar consolidado..." class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-48 focus:ring-1 focus:ring-emerald-500">
-                            <button onclick="exportarExcelUnaSeccion('consolidado')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg cursor-pointer">
-                                <i class="fa-solid fa-file-excel mr-1"></i> Excel Consolidado
-                            </button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto max-h-72">
-                        <table class="w-full data-table text-xs">
-                            <thead class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
-                                <tr>
-                                    <th class="py-2.5 px-3 text-center" style="width: 40px;">#</th>
-                                    <th class="py-2.5 px-3 text-left">Nombre del Plan</th>
-                                    <th class="py-2.5 px-3 text-center">Clientes Activos</th>
-                                    <th class="py-2.5 px-3 text-center">% Total</th>
-                                    <th class="py-2.5 px-3 text-right">Precio Unitario</th>
-                                    <th class="py-2.5 px-3 text-right">Sumatoria Costo Total ($)</th>
-                                    <th class="py-2.5 px-3 text-center">% Facturación</th>
-                                    <th class="py-2.5 px-3 text-center">Acciones</th>
+                    <!-- Contenedor de Tabla con Scroll -->
+                    <div class="overflow-x-auto" style="max-height: 500px;">
+                        <table class="w-full data-table" id="dataTable">
+                            <thead class="sticky top-0 z-10">
+                                <tr id="tableHeader">
+                                    <!-- Cabeceras Dinámicas -->
                                 </tr>
                             </thead>
-                            <tbody id="tbodyPlanesCons">
-                                <tr><td colspan="8" class="text-center py-6 text-gray-500">Presione 'Comparar API' para cargar datos.</td></tr>
-                            </tbody>
-                            <tfoot id="tfootPlanesCons" class="bg-gray-100 font-bold border-t border-gray-300 text-gray-900 hidden">
+                            <tbody id="tableBody">
+                                <!-- Filas Dinámicas -->
                                 <tr>
-                                    <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL GENERAL (UNIÓN)</td>
-                                    <td class="py-2.5 px-3 text-center font-mono text-indigo-900 font-extrabold text-sm" id="totConsClientes">-</td>
-                                    <td class="py-2.5 px-3 text-center">100%</td>
-                                    <td class="py-2.5 px-3 text-right text-gray-500">-</td>
-                                    <td class="py-2.5 px-3 text-right font-mono text-emerald-900 font-extrabold text-sm" id="totConsCosto">-</td>
-                                    <td class="py-2.5 px-3 text-center text-emerald-900">100%</td>
-                                    <td class="py-2.5 px-3 text-center text-gray-500">Consolidado</td>
+                                    <td colspan="10" class="text-center py-8 text-gray-500">Seleccione un archivo y
+                                        presione Procesar para ver los resultados.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Variación / Conciliación Financiera -->
+                <div id="seccionConciliacionFinanciera"
+                    class="bg-white rounded-xl shadow-xs border border-gray-200 p-6 mb-8 hidden">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-chart-line text-emerald-500"></i> Variación Financiera (Día 1 vs Hoy)
+                    </h3>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 font-bold text-gray-900">Abonados</th>
+                                    <th scope="col" class="px-6 py-3 text-center font-bold text-gray-900">Cantidad</th>
+                                    <th scope="col" class="px-6 py-3 text-right font-bold text-gray-900">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Empleados exonerados</td>
+                                    <td class="px-6 py-4 text-center" id="cf_emp_exo_qty">-</td>
+                                    <td class="px-6 py-4 text-right" id="cf_emp_exo_mnt">-</td>
+                                </tr>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Residenciales exonerados</td>
+                                    <td class="px-6 py-4 text-center" id="cf_res_exo_qty">-</td>
+                                    <td class="px-6 py-4 text-right" id="cf_res_exo_mnt">-</td>
+                                </tr>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Subieron de Plan (Upgrades)</td>
+                                    <td class="px-6 py-4 text-center" id="cf_upgrades_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_upgrades_mnt">-
+                                    </td>
+                                </tr>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Cambios 3 Meses Beneficio</td>
+                                    <td class="px-6 py-4 text-center" id="cf_cambios_3m_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-emerald-600"
+                                        id="cf_cambios_3m_mnt">-</td>
+                                </tr>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Reconexiones</td>
+                                    <td class="px-6 py-4 text-center" id="cf_reconex_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_reconex_mnt">-
+                                    </td>
+                                </tr>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (3 meses
+                                        beneficio)</td>
+                                    <td class="px-6 py-4 text-center" id="cf_inst_3m_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_3m_mnt">-
+                                    </td>
+                                </tr>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (Normales)</td>
+                                    <td class="px-6 py-4 text-center" id="cf_inst_norm_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_norm_mnt">
+                                        -</td>
+                                </tr>
+                                <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Bajaron de Plan (Downgrades)</td>
+                                    <td class="px-6 py-4 text-center" id="cf_downgrades_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_downgrades_mnt">-
+                                    </td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Residenciales suspendidos</td>
+                                    <td class="px-6 py-4 text-center" id="cf_susp_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_susp_mnt">-</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
+                                <tr class="border-b border-gray-200">
+                                    <td class="px-6 py-4 uppercase">Total a inicio de mes Residenciales activos</td>
+                                    <td class="px-6 py-4 text-center font-mono" id="cf_tot_ini_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-mono" id="cf_tot_ini_mnt">-</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="px-6 py-4 uppercase">Total al día de hoy</td>
+                                    <td class="px-6 py-4 text-center font-mono" id="cf_tot_hoy_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-mono" id="cf_tot_hoy_mnt">-</td>
+                                </tr>
+                                <tr class="bg-indigo-50 border-t border-indigo-200 text-indigo-900">
+                                    <td class="px-6 py-4 text-lg font-black uppercase">Diferencia</td>
+                                    <td class="px-6 py-4 text-center font-mono text-lg font-black" id="cf_dif_qty">-
+                                    </td>
+                                    <td class="px-6 py-4 text-right font-mono text-lg font-black" id="cf_dif_mnt">-</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
 
-                <!-- Visor de Detalle de Clientes del Plan (Desplegable) -->
-                <div id="cardDetalleClientesPlan" class="hidden mt-6 border-t border-gray-200 pt-6">
-                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4 flex-wrap gap-2">
+                <!-- SECCIÓN APARTE: Clientes Activos por Plan (3 Cuadros Simultáneos) -->
+                <div id="seccionPlanesActivosConsolidado"
+                    class="bg-white rounded-xl shadow-xs border border-gray-200 p-6 mb-8 mt-6">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-6 flex-wrap gap-3">
                         <div>
-                            <h4 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-users text-amber-600"></i> Listado de Clientes Activos del Plan: <span id="lblPlanDetalleConsolidado" class="text-amber-700 font-bold">-</span>
-                            </h4>
-                            <p class="text-xs text-gray-500 mt-0.5">Clientes específicos asociados a este plan.</p>
+                            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-amber-500"></i> Cuadro de Clientes Activos por
+                                Plan
+                            </h3>
+                            <p class="text-xs text-gray-500 mt-1">Conteo y sumatoria de contratos Residenciales,
+                                Corporativos (is_natural=false) y su Unión Consolidada.</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="relative w-64">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
-                                <input type="text" id="buscarClientesPlanInput" oninput="filtrarClientesPlanConsolidado()" placeholder="Buscar cliente, cédula o ID..." class="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
-                            </div>
-                            <button onclick="cerrarDetalleClientesPlan()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg border border-gray-300 cursor-pointer">
-                                <i class="fa-solid fa-xmark mr-1"></i> Cerrar
+                        <div class="flex items-center gap-3">
+                            <button onclick="exportarExcelConsolidadoCompleto()"
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-all">
+                                <i class="fa-solid fa-file-excel"></i> Descargar Excel Completo (3 Cuadros)
                             </button>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-gray-200" style="max-height: 420px;">
-                        <table class="w-full data-table text-xs">
-                            <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 font-semibold text-gray-600">
-                                <tr>
-                                    <th class="py-2.5 px-3 text-left">ID Servicio</th>
-                                    <th class="py-2.5 px-3 text-left">Cédula</th>
-                                    <th class="py-2.5 px-3 text-left">Cliente</th>
-                                    <th class="py-2.5 px-3 text-left">Plan</th>
-                                    <th class="py-2.5 px-3 text-right">Costo ($)</th>
-                                    <th class="py-2.5 px-3 text-center">Estado</th>
-                                    <th class="py-2.5 px-3 text-left">Urbanismo / Teléfono</th>
-                                    <th class="py-2.5 px-3 text-center">Fecha Instalación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyClientesPlanConsolidado">
-                                <!-- Clientes del plan -->
-                            </tbody>
-                        </table>
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+                        <!-- 1. TABLA RESIDENCIAL -->
+                        <div class="border border-blue-200 rounded-xl overflow-hidden shadow-2xs h-full flex flex-col">
+                            <div
+                                class="bg-blue-50/80 px-4 py-3 border-b border-blue-200 flex items-center justify-between flex-wrap gap-2">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-house-user text-blue-600 text-sm"></i>
+                                    <h4 class="font-bold text-blue-950 text-sm">1. Clientes Residenciales (Naturales)
+                                    </h4>
+                                    <span id="badgePlanesRes"
+                                        class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full border border-blue-200">0
+                                        Planes</span>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 justify-between sm:justify-end">
+                                    <input type="text" id="buscarPlanesResInput"
+                                        oninput="filtrarPlanesSeccion('residencial')"
+                                        placeholder="Filtrar residencial..."
+                                        class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-32 md:w-48 focus:ring-1 focus:ring-blue-500">
+                                    <button onclick="exportarExcelUnaSeccion('residencial')"
+                                        class="px-2.5 py-1.5 bg-white hover:bg-blue-100 text-blue-800 text-xs font-bold rounded-lg border border-blue-300 cursor-pointer">
+                                        <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> Excel
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto flex-1">
+                                <table class="w-full data-table text-xs">
+                                    <thead
+                                        class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
+                                        <tr>
+                                            <th class="py-2.5 px-3 text-center" style="width: 40px;">#</th>
+                                            <th class="py-2.5 px-3 text-left">Nombre del Plan</th>
+                                            <th class="py-2.5 px-3 text-center">Clientes Activos</th>
+                                            <th class="py-2.5 px-3 text-center">% Segmento</th>
+                                            <th class="py-2.5 px-3 text-right">Precio Unitario</th>
+                                            <th class="py-2.5 px-3 text-right">Sumatoria Costo Total ($)</th>
+                                            <th class="py-2.5 px-3 text-center">% Facturación</th>
+                                            <th class="py-2.5 px-3 text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyPlanesRes">
+                                        <tr>
+                                            <td colspan="8" class="text-center py-6 text-gray-500">Presione 'Comparar
+                                                API' para cargar datos.</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot id="tfootPlanesRes"
+                                        class="bg-gray-100 font-bold border-t border-gray-300 text-gray-900 hidden">
+                                        <tr>
+                                            <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL
+                                                RESIDENCIAL</td>
+                                            <td class="py-2.5 px-3 text-center font-mono text-indigo-900 font-bold"
+                                                id="totResClientes">-</td>
+                                            <td class="py-2.5 px-3 text-center">100%</td>
+                                            <td class="py-2.5 px-3 text-right text-gray-500">-</td>
+                                            <td class="py-2.5 px-3 text-right font-mono text-emerald-900 font-bold"
+                                                id="totResCosto">-</td>
+                                            <td class="py-2.5 px-3 text-center text-emerald-900">100%</td>
+                                            <td class="py-2.5 px-3 text-center text-gray-500">Subtotal</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 2. TABLA CORPORATIVO (IS_NATURAL=FALSE) -->
+                        <div class="border border-amber-200 rounded-xl overflow-hidden shadow-2xs h-full flex flex-col">
+                            <div
+                                class="bg-amber-50/80 px-4 py-3 border-b border-amber-200 flex items-center justify-between flex-wrap gap-2">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-building text-amber-600 text-sm"></i>
+                                    <h4 class="font-bold text-amber-950 text-sm">2. Clientes Corporativos / Jurídicos
+                                    </h4>
+                                    <span id="badgePlanesCorp"
+                                        class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full border border-amber-200">0
+                                        Planes</span>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0 justify-between sm:justify-end">
+                                    <input type="text" id="buscarPlanesCorpInput"
+                                        oninput="filtrarPlanesSeccion('corporativo')"
+                                        placeholder="Filtrar corporativo..."
+                                        class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-32 md:w-48 focus:ring-1 focus:ring-amber-500">
+                                    <button onclick="exportarExcelUnaSeccion('corporativo')"
+                                        class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-lg border border-amber-300 cursor-pointer">
+                                        <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> Excel
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto flex-1">
+                                <table class="w-full data-table text-xs">
+                                    <thead
+                                        class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
+                                        <tr>
+                                            <th class="py-2.5 px-3 text-center" style="width: 40px;">#</th>
+                                            <th class="py-2.5 px-3 text-left">Nombre del Plan</th>
+                                            <th class="py-2.5 px-3 text-center">Clientes Activos</th>
+                                            <th class="py-2.5 px-3 text-center">% Segmento</th>
+                                            <th class="py-2.5 px-3 text-right">Precio Unitario</th>
+                                            <th class="py-2.5 px-3 text-right">Sumatoria Costo Total ($)</th>
+                                            <th class="py-2.5 px-3 text-center">% Facturación</th>
+                                            <th class="py-2.5 px-3 text-center">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyPlanesCorp">
+                                        <tr>
+                                            <td colspan="8" class="text-center py-6 text-gray-500">Presione 'Comparar
+                                                API' para cargar datos.</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot id="tfootPlanesCorp"
+                                        class="bg-gray-100 font-bold border-t border-gray-300 text-gray-900 hidden">
+                                        <tr>
+                                            <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL
+                                                CORPORATIVO</td>
+                                            <td class="py-2.5 px-3 text-center font-mono text-amber-900 font-bold"
+                                                id="totCorpClientes">-</td>
+                                            <td class="py-2.5 px-3 text-center">100%</td>
+                                            <td class="py-2.5 px-3 text-right text-gray-500">-</td>
+                                            <td class="py-2.5 px-3 text-right font-mono text-emerald-900 font-bold"
+                                                id="totCorpCosto">-</td>
+                                            <td class="py-2.5 px-3 text-center text-emerald-900">100%</td>
+                                            <td class="py-2.5 px-3 text-center text-gray-500">Subtotal</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. TABLA CONSOLIDADO (UNIÓN DE AMBOS) -->
+                    <div class="mb-4 border border-emerald-200 rounded-xl overflow-hidden shadow-2xs">
+                        <div
+                            class="bg-emerald-50/80 px-4 py-3 border-b border-emerald-200 flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-emerald-600 text-sm"></i>
+                                <h4 class="font-bold text-emerald-950 text-sm">3. Cuadro Consolidado (Unión de
+                                    Residencial + Corporativo)</h4>
+                                <span id="badgePlanesCons"
+                                    class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">0
+                                    Planes</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="buscarPlanesConsInput"
+                                    oninput="filtrarPlanesSeccion('consolidado')" placeholder="Filtrar consolidado..."
+                                    class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-48 focus:ring-1 focus:ring-emerald-500">
+                                <button onclick="exportarExcelUnaSeccion('consolidado')"
+                                    class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg cursor-pointer">
+                                    <i class="fa-solid fa-file-excel mr-1"></i> Excel Consolidado
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto max-h-72">
+                            <table class="w-full data-table text-xs">
+                                <thead
+                                    class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
+                                    <tr>
+                                        <th class="py-2.5 px-3 text-center" style="width: 40px;">#</th>
+                                        <th class="py-2.5 px-3 text-left">Nombre del Plan</th>
+                                        <th class="py-2.5 px-3 text-center">Clientes Activos</th>
+                                        <th class="py-2.5 px-3 text-center">% Total</th>
+                                        <th class="py-2.5 px-3 text-right">Precio Unitario</th>
+                                        <th class="py-2.5 px-3 text-right">Sumatoria Costo Total ($)</th>
+                                        <th class="py-2.5 px-3 text-center">% Facturación</th>
+                                        <th class="py-2.5 px-3 text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyPlanesCons">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-6 text-gray-500">Presione 'Comparar API'
+                                            para cargar datos.</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot id="tfootPlanesCons"
+                                    class="bg-gray-100 font-bold border-t border-gray-300 text-gray-900 hidden">
+                                    <tr>
+                                        <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL GENERAL
+                                            (UNIÓN)</td>
+                                        <td class="py-2.5 px-3 text-center font-mono text-indigo-900 font-extrabold text-sm"
+                                            id="totConsClientes">-</td>
+                                        <td class="py-2.5 px-3 text-center">100%</td>
+                                        <td class="py-2.5 px-3 text-right text-gray-500">-</td>
+                                        <td class="py-2.5 px-3 text-right font-mono text-emerald-900 font-extrabold text-sm"
+                                            id="totConsCosto">-</td>
+                                        <td class="py-2.5 px-3 text-center text-emerald-900">100%</td>
+                                        <td class="py-2.5 px-3 text-center text-gray-500">Consolidado</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Visor de Detalle de Clientes del Plan (Desplegable) -->
+                    <div id="cardDetalleClientesPlan" class="hidden mt-6 border-t border-gray-200 pt-6">
+                        <div
+                            class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4 flex-wrap gap-2">
+                            <div>
+                                <h4 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-users text-amber-600"></i> Listado de Clientes Activos del
+                                    Plan: <span id="lblPlanDetalleConsolidado" class="text-amber-700 font-bold">-</span>
+                                </h4>
+                                <p class="text-xs text-gray-500 mt-0.5">Clientes específicos asociados a este plan.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="relative w-64">
+                                    <i
+                                        class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                                    <input type="text" id="buscarClientesPlanInput"
+                                        oninput="filtrarClientesPlanConsolidado()"
+                                        placeholder="Buscar cliente, cédula o ID..."
+                                        class="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                                </div>
+                                <button onclick="cerrarDetalleClientesPlan()"
+                                    class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg border border-gray-300 cursor-pointer">
+                                    <i class="fa-solid fa-xmark mr-1"></i> Cerrar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-gray-200" style="max-height: 420px;">
+                            <table class="w-full data-table text-xs">
+                                <thead
+                                    class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 font-semibold text-gray-600">
+                                    <tr>
+                                        <th class="py-2.5 px-3 text-left">ID Servicio</th>
+                                        <th class="py-2.5 px-3 text-left">Cédula</th>
+                                        <th class="py-2.5 px-3 text-left">Cliente</th>
+                                        <th class="py-2.5 px-3 text-left">Plan</th>
+                                        <th class="py-2.5 px-3 text-right">Costo ($)</th>
+                                        <th class="py-2.5 px-3 text-center">Estado</th>
+                                        <th class="py-2.5 px-3 text-left">Urbanismo / Teléfono</th>
+                                        <th class="py-2.5 px-3 text-center">Fecha Instalación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyClientesPlanConsolidado">
+                                    <!-- Clientes del plan -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-gray-200" style="max-height: 420px;">
-                        <table class="w-full data-table text-xs">
-                            <thead class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 font-semibold text-gray-600">
-                                <tr>
-                                    <th class="py-2.5 px-3 text-left">ID Servicio</th>
-                                    <th class="py-2.5 px-3 text-left">Cédula</th>
-                                    <th class="py-2.5 px-3 text-left">Cliente</th>
-                                    <th class="py-2.5 px-3 text-left">Plan</th>
-                                    <th class="py-2.5 px-3 text-right">Costo ($)</th>
-                                    <th class="py-2.5 px-3 text-center">Estado</th>
-                                    <th class="py-2.5 px-3 text-left">Urbanismo / Teléfono</th>
-                                    <th class="py-2.5 px-3 text-center">Fecha Instalación</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyClientesPlanConsolidado">
-                                <!-- Clientes del plan -->
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="overflow-x-auto rounded-xl border border-gray-200" style="max-height: 420px;">
+                    <table class="w-full data-table text-xs">
+                        <thead
+                            class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 font-semibold text-gray-600">
+                            <tr>
+                                <th class="py-2.5 px-3 text-left">ID Servicio</th>
+                                <th class="py-2.5 px-3 text-left">Cédula</th>
+                                <th class="py-2.5 px-3 text-left">Cliente</th>
+                                <th class="py-2.5 px-3 text-left">Plan</th>
+                                <th class="py-2.5 px-3 text-right">Costo ($)</th>
+                                <th class="py-2.5 px-3 text-center">Estado</th>
+                                <th class="py-2.5 px-3 text-left">Urbanismo / Teléfono</th>
+                                <th class="py-2.5 px-3 text-center">Fecha Instalación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyClientesPlanConsolidado">
+                            <!-- Clientes del plan -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-        </div>
-        </div>
+    </div>
+    </div>
     </div>
 
     <!-- Spinner Overlay Anaranjado -->
-    <div id="globalSpinnerOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 flex flex-col items-center justify-center hidden">
+    <div id="globalSpinnerOverlay"
+        class="fixed inset-0 bg-gray-900 bg-opacity-70 z-50 flex flex-col items-center justify-center hidden">
         <i class="fa-solid fa-circle-notch fa-spin text-7xl text-orange-500 mb-4"></i>
         <h2 id="spinnerText" class="text-2xl font-bold text-white tracking-wider">Procesando...</h2>
         <p class="text-gray-200 mt-2">Por favor, espera unos segundos.</p>
@@ -906,7 +1143,7 @@
                 await fetch('/api/auth/logout', { method: 'POST' });
                 localStorage.clear();
                 window.location.href = '/login';
-            } catch (err) {}
+            } catch (err) { }
         }
 
         let datosInstalaciones = [];
@@ -923,10 +1160,10 @@
         // Inicializar fechas por defecto (Instalaciones = Hoy, Corte = 1ro del mes actual)
         document.addEventListener("DOMContentLoaded", () => {
             const hoy = new Date();
-            
+
             // Fecha de Instalaciones (Hoy)
             document.getElementById('fechaInstalacionesInput').value = hoy.toISOString().split('T')[0];
-            
+
             // 1ro del mes actual
             const primeroMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
             document.getElementById('fechaCorteInput').value = primeroMes.toISOString().split('T')[0];
@@ -934,10 +1171,10 @@
 
         function limpiarFechaSoloDia(valorCelda) {
             if (!valorCelda) return '';
-            
+
             let texto = String(valorCelda).trim();
             if (texto === '' || texto.toUpperCase() === 'NAN' || texto.toUpperCase() === 'UNDEFINED') return '';
-            
+
             if (texto.includes('GMT') || (texto.split(' ').length >= 4 && isNaN(texto.split(' ')[1]))) {
                 try {
                     let d = new Date(valorCelda);
@@ -947,7 +1184,7 @@
                         let anio = d.getFullYear();
                         return `${dia}/${mes}/${anio}`;
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
 
             if (texto.includes('T')) {
@@ -993,7 +1230,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(result.detail || 'Error al guardar la base mensual residencial');
                 }
@@ -1032,7 +1269,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(result.detail || 'Error al guardar la base mensual corporativa');
                 }
@@ -1054,13 +1291,13 @@
 
             const btn = document.getElementById('btnGuardarRegistro');
             const origText = btn.innerHTML;
-            
+
             const overlay = document.getElementById('globalSpinnerOverlay');
             const spinnerText = document.getElementById('spinnerText');
-            
+
             btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin text-orange-500 mr-2'></i> Obteniendo y guardando...";
             btn.disabled = true;
-            
+
             spinnerText.innerText = "Guardando Registro Actual...";
             overlay.classList.remove('hidden');
 
@@ -1083,7 +1320,7 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(result.detail || 'Error al guardar el snapshot en la API');
                 }
@@ -1112,19 +1349,19 @@
                 const response = await fetch('/api/integracion/estado_respaldos', {
                     headers: token ? { 'Authorization': `Bearer ${token}` } : {}
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
-                    
+
                     document.getElementById('lblEstadoMensual').innerText = data.base_mensual;
                     const box1 = document.getElementById('lblEstadoMensualBox1');
-                    if(box1) {
+                    if (box1) {
                         box1.innerText = data.base_mensual !== "No disponible" ? "Actualizado: " + data.base_mensual : "Sin registro";
                     }
 
                     document.getElementById('lblEstadoMensualCorp').innerText = data.base_mensual_corporativo || "No disponible";
                     const boxCorp = document.getElementById('lblEstadoMensualCorpBox');
-                    if(boxCorp) {
+                    if (boxCorp) {
                         boxCorp.innerText = (data.base_mensual_corporativo && data.base_mensual_corporativo !== "No disponible") ? "Actualizado: " + data.base_mensual_corporativo : "Sin registro";
                     }
 
@@ -1136,14 +1373,14 @@
                 document.getElementById('lblEstadoMensual').innerText = "Error";
                 document.getElementById('lblEstadoMensualCorp').innerText = "Error";
                 const box1 = document.getElementById('lblEstadoMensualBox1');
-                if(box1) box1.innerText = "Error";
+                if (box1) box1.innerText = "Error";
                 const boxCorp = document.getElementById('lblEstadoMensualCorpBox');
-                if(boxCorp) boxCorp.innerText = "Error";
+                if (boxCorp) boxCorp.innerText = "Error";
                 document.getElementById('lblEstadoDiarioRes').innerText = "Error";
                 document.getElementById('lblEstadoDiarioCorp').innerText = "Error";
             }
         }
-        
+
         // Cargar al inicio
         window.addEventListener('DOMContentLoaded', cargarEstadoRespaldos);
 
@@ -1159,7 +1396,7 @@
             formData.append('fechaInstalaciones', fechaInstalacionesUsuario);
             formData.append('tipoCliente', tipoCliente);
             formData.append('tipoComparativa', tipoComparativa);
-            
+
             if (fileOldInput && fileOldInput.files.length > 0) {
                 formData.append('fileOld', fileOldInput.files[0]);
             }
@@ -1169,13 +1406,13 @@
 
             const btn = document.getElementById('btnProcesarApi');
             const origText = btn.innerHTML;
-            
+
             const overlay = document.getElementById('globalSpinnerOverlay');
             const spinnerText = document.getElementById('spinnerText');
-            
+
             btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin text-orange-500 mr-2'></i> Comparando en backend (aprox 10s)...";
             btn.disabled = true;
-            
+
             spinnerText.innerText = "Comparando API vs Registro...";
             overlay.classList.remove('hidden');
 
@@ -1195,12 +1432,12 @@
                 });
 
                 if (!response.ok) {
-                    const errInfo = await response.json().catch(()=>({}));
+                    const errInfo = await response.json().catch(() => ({}));
                     throw new Error(errInfo.detail || 'Error al procesar los archivos en el backend');
                 }
 
                 const result = await response.json();
-                
+
                 cuadroResumenFinal = result.resumen;
                 datosInstalaciones = result.instalaciones;
                 datosInstalacionesProceso = result.instalacionesProceso;
@@ -1211,7 +1448,7 @@
                 datosPlanesActivos = result.planesActivos || [];
                 datosClientesActivos = result.clientesActivos || [];
                 datosConciliacionDetalle = result.conciliacion_detalle || [];
-                
+
                 const t = result.totales;
 
                 document.getElementById('resumenActivos').innerText = t.activos;
@@ -1223,23 +1460,23 @@
                 document.getElementById('resumenExonRegCorp').innerText = t.exonRegCorp || 0;
 
                 // Actualizar la vista en lista
-                if(document.getElementById('listaActivos')) document.getElementById('listaActivos').innerText = t.activos;
-                if(document.getElementById('listaActivosCorp')) document.getElementById('listaActivosCorp').innerText = t.activos_corp || 0;
-                if(document.getElementById('listaSuspendidos')) document.getElementById('listaSuspendidos').innerText = t.suspendidos;
-                if(document.getElementById('listaSuspendidosCorp')) document.getElementById('listaSuspendidosCorp').innerText = t.suspendidos_corp || 0;
-                if(document.getElementById('listaExonEmp')) document.getElementById('listaExonEmp').innerText = t.exonEmp;
-                if(document.getElementById('listaExonReg')) document.getElementById('listaExonReg').innerText = t.exonReg;
-                if(document.getElementById('listaExonRegCorp')) document.getElementById('listaExonRegCorp').innerText = t.exonRegCorp || 0;
+                if (document.getElementById('listaActivos')) document.getElementById('listaActivos').innerText = t.activos;
+                if (document.getElementById('listaActivosCorp')) document.getElementById('listaActivosCorp').innerText = t.activos_corp || 0;
+                if (document.getElementById('listaSuspendidos')) document.getElementById('listaSuspendidos').innerText = t.suspendidos;
+                if (document.getElementById('listaSuspendidosCorp')) document.getElementById('listaSuspendidosCorp').innerText = t.suspendidos_corp || 0;
+                if (document.getElementById('listaExonEmp')) document.getElementById('listaExonEmp').innerText = t.exonEmp;
+                if (document.getElementById('listaExonReg')) document.getElementById('listaExonReg').innerText = t.exonReg;
+                if (document.getElementById('listaExonRegCorp')) document.getElementById('listaExonRegCorp').innerText = t.exonRegCorp || 0;
 
                 let sumListaTotal = (t.activos || 0) + (t.activos_corp || 0) + (t.suspendidos || 0) + (t.suspendidos_corp || 0) + (t.exonEmp || 0) + (t.exonReg || 0) + (t.exonRegCorp || 0);
-                if(document.getElementById('listaTotalGeneral')) document.getElementById('listaTotalGeneral').innerText = sumListaTotal;
+                if (document.getElementById('listaTotalGeneral')) document.getElementById('listaTotalGeneral').innerText = sumListaTotal;
 
                 // Lógica de Variación / Conciliación Financiera
                 const seccionCF = document.getElementById('seccionConciliacionFinanciera');
                 const cf = result.conciliacion_financiera_res;
                 if (cf && seccionCF) {
                     seccionCF.classList.remove('hidden');
-                    
+
                     const formatMnt = (val) => val === 0 ? '-' : val.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     const formatQty = (val) => val === 0 ? '-' : val;
 
@@ -1279,7 +1516,7 @@
                 document.getElementById('countSeguimiento').innerText = datosSeguimiento.length;
                 document.getElementById('countEstados').innerText = datosEstatus.length;
                 document.getElementById('countDeudores').innerText = datosDeudores.length;
-                
+
                 // Actualizar badges de las pestañas
                 document.getElementById('badge-estatus').innerText = datosEstatus.length;
                 document.getElementById('badge-instalaciones').innerText = datosInstalaciones.length;
@@ -1287,10 +1524,10 @@
                 document.getElementById('badge-cambiosPlan').innerText = datosCambiosPlan.length;
                 document.getElementById('badge-seguimiento').innerText = datosSeguimiento.length;
                 document.getElementById('badge-deudores').innerText = datosDeudores.length;
-                
+
                 // Renderizar los 3 cuadros de planes (Residencial, Corporativo, Consolidado)
                 cargarCuadrosPlanesIntegracion();
-                
+
                 // Calcular y renderizar sumatoria de variaciones
                 let sumEstatus = 0;
                 datosEstatus.forEach(item => {
@@ -1310,10 +1547,10 @@
                 document.getElementById('resumenFinancieroEstatus').innerText = '$' + sumEstatus.toFixed(2);
                 document.getElementById('resumenFinancieroPlan').innerText = '$' + sumPlan.toFixed(2);
                 document.getElementById('resumenFinancieroInstalaciones').innerText = '$' + sumInstalaciones.toFixed(2);
-                
+
                 // Llenar dropdown de planes
                 populatePlanFilter();
-                
+
                 document.getElementById('resultadosSection').classList.remove('hidden');
 
                 // Renderizar tabla por defecto
@@ -1350,7 +1587,7 @@
             // Fila de total
             const totalClientes = rows.reduce((acc, r) => acc + (r["Cantidad de Clientes"] || 0), 0);
             const totalCosto = rows.reduce((acc, r) => acc + (r["Sumatoria Costo Total ($)"] || 0), 0);
-            
+
             rows.push({
                 "Nombre del Plan": "TOTAL GENERAL",
                 "Costo del Plan ($)": "-",
@@ -1397,7 +1634,7 @@
 
         function filtrarDetalleConciliacion(concepto) {
             filtroConceptoConciliacionActivo = concepto;
-            
+
             document.querySelectorAll('.pill-cf-btn').forEach(btn => {
                 const btnConcepto = btn.getAttribute('data-concepto') || '';
                 if (btnConcepto === concepto) {
@@ -1406,7 +1643,7 @@
                     btn.className = "pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer";
                 }
             });
-            
+
             renderTablaDetalleConciliacion();
         }
 
@@ -1423,9 +1660,9 @@
         function renderTablaDetalleConciliacion() {
             const tbody = document.getElementById('tbodyConciliacionDetalle');
             if (!tbody) return;
-            
+
             const searchVal = (document.getElementById('searchConciliacionInput')?.value || '').toLowerCase().trim();
-            
+
             let filtrados = datosConciliacionDetalle.filter(item => {
                 if (filtroConceptoConciliacionActivo && item.Concepto !== filtroConceptoConciliacionActivo) {
                     return false;
@@ -1439,12 +1676,12 @@
                 }
                 return true;
             });
-            
+
             if (filtrados.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-gray-500">No se encontraron clientes para este filtro.</td></tr>`;
                 return;
             }
-            
+
             const formatM = (num) => '$' + Math.abs(num || 0).toFixed(2);
 
             let html = '';
@@ -1452,7 +1689,7 @@
                 const varVal = parseFloat(item['Variación'] || 0);
                 const varSign = varVal > 0 ? '+' : (varVal < 0 ? '-' : '');
                 const varColor = varVal > 0 ? 'text-green-600 font-bold' : (varVal < 0 ? 'text-red-600 font-bold' : 'text-gray-600');
-                
+
                 const planDisplay = (item['Plan Anterior'] && item['Plan Anterior'] !== '-' && item['Plan Anterior'] !== item['Plan Actual'])
                     ? `<div class="text-[11px] text-gray-400 line-through">${item['Plan Anterior']}</div><div class="font-medium text-gray-800">${item['Plan Actual']}</div>`
                     : `<div class="font-medium text-gray-800">${item['Plan Actual']}</div>`;
@@ -1472,7 +1709,7 @@
                     <td class="py-2.5 px-3 text-center text-gray-500 text-[11px]">${item['Fecha'] || '-'}</td>
                 </tr>`;
             });
-            
+
             tbody.innerHTML = html;
         }
 
@@ -1480,18 +1717,18 @@
         // LÓGICA DE TABLA DINÁMICA
         // ==========================================
         let currentTab = 'estatus';
-        
+
         function changeTab(tabId) {
             currentTab = tabId;
-            
+
             // Actualizar botones UI
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            
+
             // Renderizar
             filterTable();
         }
-        
+
         function populatePlanFilter() {
             const planSet = new Set();
             const addPlans = (arr, key1, key2) => {
@@ -1500,7 +1737,7 @@
                     if (key2 && item[key2]) planSet.add(item[key2]);
                 });
             };
-            
+
             addPlans(datosEstatus, 'Plan Actual');
             addPlans(datosInstalaciones, 'Plan');
             addPlans(datosInstalacionesProceso, 'Plan');
@@ -1509,20 +1746,20 @@
             addPlans(datosDeudores, 'Plan');
             addPlans(datosPlanesActivos, 'Plan');
             addPlans(datosClientesActivos, 'Plan');
-            
+
             const filter = document.getElementById('planFilter');
             filter.innerHTML = '<option value="">Todos los Planes</option>';
             Array.from(planSet).sort().forEach(p => {
-                if(p && p !== 'N/A') filter.innerHTML += `<option value="${p}">${p}</option>`;
+                if (p && p !== 'N/A') filter.innerHTML += `<option value="${p}">${p}</option>`;
             });
         }
-        
+
         function clearFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('planFilter').value = '';
             filterTable();
         }
-        
+
         function getStatusClass(status) {
             if (!status) return 'status-default';
             const s = status.toUpperCase();
@@ -1534,11 +1771,11 @@
             if (s === 'TRANSFERIDO' || s === 'TRANS.') return 'status-transferido';
             return 'status-default';
         }
-        
+
         function filterTable() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const planQ = document.getElementById('planFilter').value.toLowerCase();
-            
+
             let dataset = [];
             if (currentTab === 'estatus') dataset = datosEstatus;
             else if (currentTab === 'instalaciones') dataset = datosInstalaciones;
@@ -1546,38 +1783,38 @@
             else if (currentTab === 'cambiosPlan') dataset = datosCambiosPlan;
             else if (currentTab === 'seguimiento') dataset = datosSeguimiento;
             else if (currentTab === 'deudores') dataset = datosDeudores;
-            
+
             const filtered = dataset.filter(row => {
-                const searchMatch = !query || 
+                const searchMatch = !query ||
                     (row['Nombres'] && row['Nombres'].toLowerCase().includes(query)) ||
                     (row['Cédula'] && String(row['Cédula']).toLowerCase().includes(query));
-                    
+
                 let planMatch = !planQ;
                 if (planQ) {
                     const pA = (row['Plan Actual'] || row['Plan Anterior'] || row['Plan'] || '').toLowerCase();
                     const pN = (row['Plan Nuevo'] || '').toLowerCase();
                     planMatch = pA.includes(planQ) || pN.includes(planQ);
                 }
-                
+
                 return searchMatch && planMatch;
             });
-            
+
             renderTableData(filtered);
         }
-        
+
         function renderTableData(data) {
             const thead = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
-            
+
             if (data.length === 0) {
                 thead.innerHTML = '';
                 tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-500">No hay registros que coincidan con los filtros.</td></tr>`;
                 return;
             }
-            
+
             let theadHtml = '';
             let tbodyHtml = '';
-            
+
             if (currentTab === 'estatus') {
                 theadHtml = `<th>ID Servicio</th><th>Cédula</th><th>Cliente</th><th>Plan</th><th>Estado Anterior</th><th>Estado Nuevo</th><th>Variación</th><th>Fecha</th>`;
                 data.forEach(row => {
@@ -1593,13 +1830,13 @@
                         <td class="text-gray-500">${row['Fecha Último Cambio Estado']}</td>
                     </tr>`;
                 });
-            } 
+            }
             else if (currentTab === 'instalaciones' || currentTab === 'instalacionesProceso') {
                 theadHtml = `<th>ID Servicio</th><th>Cédula</th><th>Cliente</th><th>Plan</th><th>Estado</th><th>Saldo Actual</th><th>Fecha Instalación</th>`;
-                
+
                 const groupBeneficio = data.filter(r => (r['Plan'] || '').toUpperCase().startsWith('3 MESES BENEFICIO'));
                 const groupOtros = data.filter(r => !(r['Plan'] || '').toUpperCase().startsWith('3 MESES BENEFICIO'));
-                
+
                 const renderRow = (row) => `<tr>
                     <td><strong>${row['ID Servicio']}</strong></td>
                     <td>${row['Cédula']}</td>
@@ -1614,7 +1851,7 @@
                     tbodyHtml += `<tr><td colspan="7" class="bg-indigo-50 text-indigo-800 font-semibold py-2 px-4 text-center">Plan: 3 Meses Beneficio (${groupBeneficio.length})</td></tr>`;
                     groupBeneficio.forEach(row => { tbodyHtml += renderRow(row); });
                 }
-                
+
                 if (groupOtros.length > 0) {
                     tbodyHtml += `<tr><td colspan="7" class="bg-gray-100 text-gray-800 font-semibold py-2 px-4 text-center">Otros Planes (${groupOtros.length})</td></tr>`;
                     groupOtros.forEach(row => { tbodyHtml += renderRow(row); });
@@ -1625,16 +1862,16 @@
                 data.forEach(row => {
                     const statusOld = row['Estado Anterior'] || row['Estado Actual'];
                     const statusNew = row['Estado Nuevo'] || row['Estado Actual'];
-                    const statusHtml = statusOld !== statusNew 
-                        ? `<span class="status-badge ${getStatusClass(statusOld)}">${statusOld}</span><span class="transition-arrow"><i class="fa-solid fa-arrow-right"></i></span><span class="status-badge ${getStatusClass(statusNew)}">${statusNew}</span>` 
+                    const statusHtml = statusOld !== statusNew
+                        ? `<span class="status-badge ${getStatusClass(statusOld)}">${statusOld}</span><span class="transition-arrow"><i class="fa-solid fa-arrow-right"></i></span><span class="status-badge ${getStatusClass(statusNew)}">${statusNew}</span>`
                         : `<span class="status-badge ${getStatusClass(statusOld)}">${statusOld}</span>`;
-                        
+
                     const planHtml = row['Plan Anterior'] !== row['Plan Nuevo']
                         ? `<div class="text-xs text-gray-500">${row['Plan Anterior']}</div><div class="font-medium">${row['Plan Nuevo']}</div>`
                         : `<div class="font-medium">${row['Plan Anterior']}</div>`;
-                        
+
                     const varHtml = row['Variación de Costo'] != null ? `<span class="${row['Variación de Costo'] > 0 ? 'text-green-600' : (row['Variación de Costo'] < 0 ? 'text-red-600' : '')} font-semibold">${row['Variación de Costo'] > 0 ? '+' : ''}${row['Variación de Costo']}</span>` : '-';
-                        
+
                     tbodyHtml += `<tr>
                         <td><strong>${row['ID Servicio']}</strong></td>
                         <td>${row['Cédula']}</td>
@@ -1708,15 +1945,15 @@
             // Footers
             document.getElementById('tfootPlanesRes').classList.remove('hidden');
             document.getElementById('totResClientes').innerText = res.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('totResCosto').innerText = '$' + res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('totResCosto').innerText = '$' + res.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
             document.getElementById('tfootPlanesCorp').classList.remove('hidden');
             document.getElementById('totCorpClientes').innerText = corp.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('totCorpCosto').innerText = '$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('totCorpCosto').innerText = '$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
             document.getElementById('tfootPlanesCons').classList.remove('hidden');
             document.getElementById('totConsClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('totConsCosto').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('totConsCosto').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function renderTablaSeccionIntegracion(tbodyId, planes, seccion) {
@@ -1741,7 +1978,7 @@
                     <td class="text-center font-bold text-indigo-700 font-mono text-xs py-2.5 px-3">${cant.toLocaleString('en-US')}</td>
                     <td class="text-center py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">${p['Porcentaje Clientes'] || 0}%</span></td>
                     <td class="text-right font-mono text-gray-700 py-2.5 px-3">${p['Precio Unitario'] || '$0.00'}</td>
-                    <td class="text-right font-mono font-bold text-emerald-700 text-xs py-2.5 px-3">$${costo.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="text-right font-mono font-bold text-emerald-700 text-xs py-2.5 px-3">$${costo.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td class="text-center py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">${p['Porcentaje Ingresos'] || 0}%</span></td>
                     <td class="text-center py-2.5 px-3">
                         <button onclick="verClientesDeSeccion('${p.Plan.replace(/'/g, "\\'")}', '${seccion}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded shadow-2xs transition-all cursor-pointer">
@@ -1812,7 +2049,7 @@
             let clientes = poolClientesDetalle;
 
             if (query) {
-                clientes = clientes.filter(c => 
+                clientes = clientes.filter(c =>
                     (c['Nombres'] && c['Nombres'].toLowerCase().includes(query)) ||
                     (c['Cédula'] && String(c['Cédula']).toLowerCase().includes(query)) ||
                     (String(c['ID Servicio']).toLowerCase().includes(query))
@@ -1944,9 +2181,10 @@
             XLSX.writeFile(wb, `Reporte_Consolidado_Planes_Completo_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
     </script>
-{% if not embed %}
-{% include 'global_chat.html' %}
-{% endif %}
-</div>
+    {% if not embed %}
+    {% include 'global_chat.html' %}
+    {% endif %}
+    </div>
 </body>
+
 </html>
