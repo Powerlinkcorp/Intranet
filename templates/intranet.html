@@ -696,7 +696,8 @@
                 // User profile
                 const fullName = data.user.full_name;
                 document.getElementById('userNavName').textContent = fullName;
-                if (data.user.avatar_url) document.getElementById('userNavAvatar').src = data.user.avatar_url;
+                const avatarEl = document.getElementById('userNavAvatar');
+                if (data.user.avatar_url && avatarEl) avatarEl.src = data.user.avatar_url;
                 if (data.user.role === 'admin' || data.user.role === 'rrhh' || (data.user.permissions || '').includes('cargar_datos_usuarios')) {
                     const btn = document.getElementById('adminNavBtn');
                     if (btn) btn.style.display = 'inline-block';
@@ -739,10 +740,13 @@
 
                 // Birthday
                 if (data.birthday_employee) {
-                    document.getElementById('birthdayName').textContent = data.birthday_employee.name;
-                    document.getElementById('birthdayDate').textContent = data.birthday_employee.birthday_date || 'Próximamente';
-                    if (data.birthday_employee.photo_url) {
-                        document.getElementById('birthdayPhoto').src = data.birthday_employee.photo_url;
+                    const bName = document.getElementById('birthdayName');
+                    const bDate = document.getElementById('birthdayDate');
+                    const bPhoto = document.getElementById('birthdayPhoto');
+                    if (bName) bName.textContent = data.birthday_employee.name;
+                    if (bDate) bDate.textContent = data.birthday_employee.birthday_date || 'Próximamente';
+                    if (bPhoto && data.birthday_employee.photo_url) {
+                        bPhoto.src = data.birthday_employee.photo_url;
                     }
                 }
 

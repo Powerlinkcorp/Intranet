@@ -341,7 +341,7 @@
                 <i class="fa-solid fa-chevron-down chevron"></i>
             </div>
             <ul class="submenu" id="submenu-soporte">
-                <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas Nac</a></li>
+                <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas NAP</a></li>
                 <li><a href="/reporte"><i class="fa-solid fa-file-invoice" style="margin-right: 8px;"></i> Reporte</a></li>
                 <li><a href="/soporte/flasheo"><i class="fa-solid fa-microchip" style="margin-right: 8px;"></i> Flasheo</a></li>
                 <li><a href="/soporte/aprovisionamiento"><i class="fa-solid fa-server" style="margin-right: 8px;"></i> Aprovisionamiento</a></li>
@@ -370,7 +370,7 @@
                 <li><a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
-                <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> RRHH</a></li>
+                <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> Panel Admin</a></li>
                 {% endif %}
             </ul>
         </li>
@@ -396,9 +396,9 @@
             <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
         </div>
         {% if user and user.role == 'admin' %}
-        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:block; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel RRHH</a>
+        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:block; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel Admin</a>
         {% else %}
-        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:none; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel RRHH</a>
+        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:none; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel Admin</a>
         {% endif %}
         <button class="btn-logout" onclick="logout()" style="width:100%;">Salir</button>
     </div>

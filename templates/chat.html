@@ -421,7 +421,7 @@
                 <span id="currentUserName">{{ user.full_name }}</span>
             </div>
             {% if user.role == 'admin' %}
-            <a href="/admin" class="btn-admin-nav">⚙️ Panel RRHH</a>
+            <a href="/admin" class="btn-admin-nav">⚙️ Panel Admin</a>
             {% endif %}
             <button class="btn-logout" onclick="logout()">Salir</button>
         </div>
@@ -440,7 +440,7 @@
         <a href="/reportes"><i class="fa-solid fa-chart-bar"></i> Reportes</a>
         {% endif %}
         {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
-        <a href="/admin"><i class="fa-solid fa-users"></i> RRHH</a>
+        <a href="/admin"><i class="fa-solid fa-users"></i> Panel Admin</a>
         {% endif %}
         {% if user.role == 'admin' %}
         <a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
