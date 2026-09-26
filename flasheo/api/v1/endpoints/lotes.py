@@ -4,9 +4,9 @@ api.v1.endpoints.lotes — Gestión de Cajas, Lotes y Asignación de Claves.
 """
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from flasheo.core import database
-from flasheo.core.schemas import LoteCreate, LoteResponse
-from flasheo.api.v1.endpoints.auth import get_current_user, require_operator, require_admin
+from core import database
+from core.schemas import LoteCreate, LoteResponse
+from api.v1.endpoints.auth import get_current_user, require_operator, require_admin
 
 router = APIRouter(prefix="/lotes", tags=["Lotes y Cajas"])
 

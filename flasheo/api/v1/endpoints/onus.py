@@ -4,8 +4,8 @@ api.v1.endpoints.onus — Rutas de Consulta de ONUs y Consulta Externa de Creden
 """
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query, Response, status
-from flasheo.core import database
-from flasheo.core.schemas import ONUResponse, ONUExternalResponse
+from core import database
+from core.schemas import ONUResponse, ONUExternalResponse
 
 router = APIRouter(prefix="/onus", tags=["ONUs y Consulta Externa"])
 

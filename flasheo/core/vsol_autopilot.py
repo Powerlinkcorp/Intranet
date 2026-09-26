@@ -59,7 +59,7 @@ import threading
 from datetime import datetime
 
 from playwright.async_api import async_playwright
-from flasheo.core import profiles
+import profiles
 
 CORE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(CORE_DIR) if os.path.basename(CORE_DIR) == "core" else CORE_DIR
@@ -68,7 +68,7 @@ if PROJECT_ROOT not in sys.path:
 if os.path.join(PROJECT_ROOT, "core") not in sys.path:
     sys.path.insert(0, os.path.join(PROJECT_ROOT, "core"))
 
-from flasheo.core import profiles
+import profiles
 try:
     import inventory_db
 except Exception:
@@ -147,8 +147,8 @@ USE_COLOR = True
 def _reconfigure():
     global USE_EMOJI
     try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
     except Exception:
         pass
     # Fallback si la consola no soporta emojis
@@ -558,6 +558,7 @@ class VSOLAutopilot:
         self.context = context
         self.headless = headless
         self.page = None
+        self.puerto = None  # Asignado por process_one para reportar progreso al UI
 
     # --- helpers de red ---
     async def api_get(self, path):
@@ -580,9 +581,33 @@ class VSOLAutopilot:
         return None
 
     async def get_device_info(self):
-        """Best-effort: (mac, pon) de la ONU via device_basic_show.cgi.
+        """Best-effort: (mac, pon) de la ONU via device_basic_show.cgi o páginas Cortina.
         Requiere sesion activa (se llama tras login). Nunca lanza."""
+        mac = ""
+        pon = ""
         try:
+            arch = ACTIVE_PROFILE.get("arch", "realtek_boa")
+            if arch == "zte_cortina" or getattr(self, "is_classic_form", False):
+                try:
+                    await self.page.goto(f"http://{self.ip}/getpage.gch?pid=1002&nextpage=status_dev_info_t.gch", timeout=10000)
+                    content = await self.page.content()
+                    m_pon = re.search(r'id=["\']Frm_PonSerialNumber["\'][^>]*value=["\']([^"\']+)["\']', content)
+                    if m_pon:
+                        pon = m_pon.group(1).strip().upper()
+                except Exception:
+                    pass
+                try:
+                    await self.page.goto(f"http://{self.ip}/getpage.gch?pid=1002&nextpage=pon_status_lan_info_t.gch", timeout=10000)
+                    content = await self.page.content()
+                    for m_mac in re.findall(r'([0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5})', content):
+                        if m_mac.upper() != "00:00:00:00:00:00":
+                            mac = m_mac.strip().upper()
+                            break
+                except Exception:
+                    pass
+                if mac or pon:
+                    return {"mac": mac, "pon": pon}
+
             resp = await self.api_get(EP_DEVICE_BASIC)
             if not resp:
                 return {"mac": "", "pon": ""}
@@ -603,7 +628,7 @@ class VSOLAutopilot:
         # 0. Comprobar si ya está dentro del dashboard o asistente (sesión activa)
         await asyncio.sleep(1)
         cur_url = self.page.url.lower()
-        if "/dashboard" in cur_url or "/overview" in cur_url or "/wizard" in cur_url:
+        if "/dashboard" in cur_url or "/overview" in cur_url or "/wizard" in cur_url or "/start.ghtml" in cur_url:
             if "/wizard" in cur_url:
                 return "firstBoot"
             return "auth"
@@ -664,13 +689,60 @@ class VSOLAutopilot:
                 except Exception:
                     pass
 
+                # Comprobar si saltó el asistente de cambio obligatorio de clave (primer arranque)
+                content = await self.page.content()
+                if "frm_cfmpassword" in content.lower():
+                    info(f"{e('wizard')} Asistente de cambio obligatorio de clave detectado. Aplicando '{FINAL_PASS}'...")
+                    try:
+                        await self.page.evaluate("""(u, pwd) => {
+                            var elU = document.getElementById('Frm_Username');
+                            if (elU) elU.value = u || 'admin';
+                            var elP = document.getElementById('Frm_Password');
+                            if (elP) elP.value = pwd;
+                            var elCP = document.getElementById('Frm_CfmPassword');
+                            if (elCP) elCP.value = pwd;
+                            if (typeof pageSubmit_chgpwd === 'function') {
+                                pageSubmit_chgpwd();
+                            }
+                        }""", user or "admin", FINAL_PASS)
+                        await asyncio.sleep(4)
+
+                        # Si regresó al formulario de login o requiere reingreso:
+                        content_after = await self.page.content()
+                        if "frm_username" in content_after.lower() and "frm_cfmpassword" not in content_after.lower():
+                            code2 = await self.page.evaluate("""() => {
+                                if (!window.code || window.code.length !== 4) {
+                                    if (typeof createCode === 'function') createCode();
+                                }
+                                return window.code || (document.getElementById('checkCode') ? document.getElementById('checkCode').value : '');
+                            }""")
+                            await self.page.evaluate("""(u, pwd, c) => {
+                                var elU = document.getElementById('Frm_Username');
+                                if (elU) elU.value = u || 'admin';
+                                var elP = document.getElementById('Frm_Password');
+                                if (elP) elP.value = pwd;
+                                var elC = document.getElementById('Frm_IdentCode');
+                                if (elC && c) elC.value = c;
+                                if (typeof dosubmit === 'function') dosubmit();
+                            }""", user or "admin", FINAL_PASS, code2 or "")
+                            await asyncio.sleep(3)
+                    except Exception as ex:
+                        warn(f"Aviso en asistente de cambio de clave: {ex}")
+                    return "auth"
+
                 # Verificar si ya entró al dashboard o cambió de página
-                url = self.page.url
-                if "/login" not in url.lower() and await user_input.count() == 0:
+                url = self.page.url.lower()
+                if "start.ghtml" in url or "getpage.gch" in url or "/dashboard" in url or "/overview" in url:
+                    return "auth"
+                if await self.page.locator("#mmStatus, #mmManager, #mmNet").count() > 0:
+                    return "auth"
+                if await user_input.count() == 0 and "/login" not in url:
                     return "auth"
 
             # Check final
-            if await user_input.count() == 0:
+            if await self.page.locator("#mmStatus, #mmManager, #mmNet").count() > 0 or "start.ghtml" in self.page.url.lower():
+                return "auth"
+            if await user_input.count() == 0 and "/login" not in self.page.url.lower():
                 return "auth"
             return None
 
@@ -1030,20 +1102,18 @@ class VSOLAutopilot:
         await file_input.set_input_files(fw_path)
         await asyncio.sleep(1)
 
-        # Enviar formulario ejecutando msgCallback()
+        # Enviar formulario de subida de firmware
         info(f"{e('upload')} [Cortina] Ejecutando envío y confirmación de actualización...")
         submitted = False
         try:
             res_eval = await self.page.evaluate("""() => {
-                if (typeof msgCallback === 'function') {
-                    msgCallback();
-                    return 'msgCallback';
-                }
-                if (document.fUpload && typeof document.fUpload.submit === 'function') {
-                    document.fUpload.submit();
-                    return 'fUpload.submit';
-                }
-                return false;
+                var f = document.getElementById('fUpload') || document.fUpload;
+                if (!f) return false;
+                var cur_time = document.getElementById('CUR_TIME');
+                var cur_val = cur_time ? cur_time.value : '';
+                f.action = "getpage.gch?pid=100&&" + cur_val + "&nextpage=manager_dev_version_t.gch";
+                f.submit();
+                return 'fUpload.submit';
             }""")
             if res_eval:
                 submitted = True
@@ -1061,34 +1131,52 @@ class VSOLAutopilot:
         # Monitorear escritura en memoria flash y posterior reinicio
         phase(3, "Monitoreo de actualización y reinicio Cortina (V2801)")
         t0 = time.time()
-        max_wait = 210  # 3.5 minutos
+        max_wait = 240  # 4 minutos
         reboot_seen = False
 
-        # Progreso inicial mientras el navegador sube los bytes
-        for step in range(1, 15):
+        def _fw_status(pct, fase_txt):
+            """Actualiza estado.json con porcentaje de progreso durante el flasheo."""
+            if self.puerto:
+                _set_status(self.puerto, estado="FLASHEANDO", icono="📥",
+                            detalle=fase_txt, progreso=pct)
+
+        # Progreso inicial mientras el navegador transfiere y la ONU graba en flash
+        for step in range(1, 20):
             await asyncio.sleep(2)
+            pct = round(step / 40 * 100, 1)
             progress_bar(step, 40, prefix=f"{e('cpu')} Transfiriendo y Grabando Flash", suffix=f"{int(time.time() - t0)}s")
+            _fw_status(pct, f"Grabando firmware en flash ({pct:.0f}%) ...")
 
         while time.time() - t0 < max_wait:
             await asyncio.sleep(3)
             elapsed = int(time.time() - t0)
-            up = await wait_http(self.ip, timeout=4, quiet=True)
+            up = await wait_http(self.ip, timeout=3, quiet=True)
 
             if not up:
                 reboot_seen = True
-                progress_bar(25, 40, prefix=f"{e('reboot')} Reiniciando", suffix=f"APLICANDO FIRMWARE ({elapsed}s)")
+                progress_bar(28, 40, prefix=f"{e('reboot')} Reiniciando", suffix=f"REINICIO DETECTADO ({elapsed}s)")
+                _fw_status(70, f"Reiniciando equipo tras flasheo ({elapsed}s) ...")
             elif up and reboot_seen:
                 progress_bar(40, 40, prefix=f"{e('ok')} Completado", suffix=f"ONU EN LÍNEA ({elapsed}s)")
                 sys.stdout.write("\n")
+                _fw_status(100, f"Firmware aplicado — ONU en línea ({elapsed}s)")
                 ok(f"{e('ok')} Firmware aplicado exitosamente (reinicio completado en {elapsed}s).")
                 return True
             else:
-                progress_bar(min(38, 15 + int(elapsed / 6)), 40, prefix=f"{e('cpu')} Monitoreando", suffix=f"({elapsed}s)")
+                cur_step = min(38, 20 + int(elapsed / 6))
+                pct = round(cur_step / 40 * 100, 1)
+                progress_bar(cur_step, 40, prefix=f"{e('cpu')} Monitoreando", suffix=f"({elapsed}s)")
+                _fw_status(pct, f"Escribiendo en memoria flash ({elapsed}s) ...")
 
-        if await wait_http(self.ip, timeout=8, quiet=True):
+        if reboot_seen and await wait_http(self.ip, timeout=8, quiet=True):
+            _fw_status(100, f"Firmware aplicado ({int(time.time() - t0)}s)")
             ok(f"{e('ok')} ONU responde tras actualización ({int(time.time() - t0)}s).")
             return True
-        fail("Tiempo de espera agotado durante el flasheo de la ONU.")
+        if await wait_http(self.ip, timeout=8, quiet=True):
+            _fw_status(100, f"Firmware aplicado ({int(time.time() - t0)}s)")
+            ok(f"{e('ok')} ONU responde tras actualización ({int(time.time() - t0)}s).")
+            return True
+        fail("Tiempo de espera agotado o la ONU no reinició tras la subida de firmware.")
         return False
 
     async def _upload_firmware_realtek(self, fw_path, size_mb):
@@ -1225,18 +1313,39 @@ class VSOLAutopilot:
                 await asyncio.sleep(2)
                 self.page.on("dialog", lambda dialog: asyncio.create_task(dialog.accept()))
 
+                await self.page.evaluate("""() => {
+                    if (typeof msgCallback2 === 'function') {
+                        msgCallback2();
+                        return;
+                    }
+                    if (typeof DevRestoreSubmit === 'function') {
+                        DevRestoreSubmit();
+                        return;
+                    }
+                }""")
                 btn_restore = self.page.locator("#Submit2, input[onclick*='DevRestoreSubmit']").first
                 if await btn_restore.count() > 0:
                     info(f"{e('reset')} [Cortina] Ejecutando restauración de fábrica...")
                     await btn_restore.click()
-                else:
-                    await self.page.evaluate("if (typeof DevRestoreSubmit === 'function') DevRestoreSubmit();")
             except Exception as ex:
                 warn(f"[Cortina] Aviso en restablecimiento web: {ex}")
 
             info(f"{e('reset')} Esperando reinicio de fábrica de la ONU...")
-            await self.wait_online(timeout=180)
-            ok(f"{e('ok')} Restablecimiento de fábrica Cortina completado.")
+            t0 = time.time()
+            saw_down = False
+            up_streak = 0
+            while time.time() - t0 < 180:
+                up = await wait_http(self.ip, timeout=4, quiet=True)
+                if not up:
+                    saw_down = True
+                    up_streak = 0
+                else:
+                    if saw_down:
+                        up_streak += 1
+                        if up_streak >= 3:
+                            break
+                await asyncio.sleep(2)
+            ok(f"{e('ok')} Restablecimiento de fábrica Cortina completado ({int(time.time() - t0)}s).")
             return True
 
         info(f"{e('reset')} Navegando a Configuracion de recuperacion ...")
@@ -1324,6 +1433,9 @@ class VSOLAutopilot:
         if is_cortina:
             # En arquitectura Cortina / ZTE GHTML, consultar la página de configuración WAN
             wan_pages = [
+                "/template.gch?pid=1002&nextpage=IPv46_net_wan2_conf_t.gch",
+                "/getpage.gch?pid=1002&nextpage=IPv46_net_wan2_conf_t.gch",
+                "/template.gch?pid=1002&nextpage=net_wanset_t.gch",
                 "/getpage.gch?pid=1002&nextpage=net_wanset_t.gch",
                 "/getpage.gch?pid=1002&nextpage=net_wan_conf_t.gch",
                 "/getpage.gch?pid=1002&nextpage=net_wancfg_t.gch",
@@ -1334,14 +1446,28 @@ class VSOLAutopilot:
                 try:
                     await self.page.goto(f"http://{self.ip}{wp}", timeout=15000)
                     await asyncio.sleep(2)
+                    
+                    # Seleccionar opciones WAN configuradas
+                    opts = await self.page.locator("#Frm_WANCName0 option").all_text_contents()
+                    opts = [o.strip() for o in opts if o.strip()]
+                    for opt in opts:
+                        if opt.lower() not in ("create wan connection", "crear conexión wan", "criar conexão wan"):
+                            try:
+                                await self.page.select_option("#Frm_WANCName0", label=opt)
+                                await asyncio.sleep(1.5)
+                            except Exception:
+                                pass
+                                
                     content = await self.page.content()
-                    if "TR069" in content or "VID_3" in content or "1_TR069_INTERNET" in content or "VLAN" in content:
+                    if ("vlanid = 3" in content.lower() or "frm_vlanid = 3" in content.lower() or
+                        "vlanid: 3" in content.lower() or "default_wan" in content.lower() or 
+                        "vid_3" in content.lower() or "1_tr069_internet" in content.lower()):
                         break
                 except Exception:
                     pass
 
             # Si no se encontró por URL directa, intentar hacer clic en el menú Network -> WAN
-            if not ("TR069" in content or "VID_3" in content):
+            if not ("vlanid = 3" in content.lower() or "default_wan" in content.lower() or "vid_3" in content.lower()):
                 try:
                     for sel in ["#mmNet", "text='Network'", "text='Red'", "text='Rede'"]:
                         el = self.page.locator(sel).first
@@ -1354,19 +1480,45 @@ class VSOLAutopilot:
                         if await el.count() > 0:
                             await el.click()
                             await asyncio.sleep(2)
+                            opts = await self.page.locator("#Frm_WANCName0 option").all_text_contents()
+                            for opt in opts:
+                                if opt.strip().lower() not in ("create wan connection", "crear conexión wan", "criar conexão wan"):
+                                    try:
+                                        await self.page.select_option("#Frm_WANCName0", label=opt.strip())
+                                        await asyncio.sleep(1.5)
+                                    except Exception:
+                                        pass
                             content = await self.page.content()
                             break
                 except Exception:
                     pass
 
+            wan_opts = []
+            try:
+                wan_opts = await self.page.locator("#Frm_WANCName0 option").all_text_contents()
+                wan_opts = [o.strip() for o in wan_opts if o.strip()]
+            except Exception:
+                pass
+
+            has_custom_wan = any(
+                ("default_wan" in o.lower() or "tr069" in o.lower() or "vid_3" in o.lower() or "vid 3" in o.lower())
+                and "create" not in o.lower() and "crear" not in o.lower()
+                for o in wan_opts
+            )
+
             found = (
-                (TARGET_WAN_NAME and TARGET_WAN_NAME.lower() in content.lower())
-                or "vid_3" in content.lower()
+                "vlanid = 3" in content.lower()
+                or "frm_vlanid = 3" in content.lower()
+                or "vlanid: 3" in content.lower()
                 or "1_tr069_internet_r_vid_3" in content.lower()
-                or ("tr069" in content.lower() and "3" in content)
+                or "default_wan" in content.lower()
+                or "vid_3" in content.lower()
+                or "vid 3" in content.lower()
+                or has_custom_wan
+                or (TARGET_WAN_NAME and TARGET_WAN_NAME.lower() in content.lower())
             )
             if found:
-                ok(f"{e('vlan')} [Cortina] VLAN objetivo encontrada: {TARGET_WAN_NAME or 'VID 3'}")
+                ok(f"{e('vlan')} [Cortina] VLAN objetivo encontrada: {TARGET_WAN_NAME or 'DEFAULT_WAN / VID 3'}")
                 return True
             else:
                 fail(f"{e('fail')} [Cortina] No se encontró {TARGET_WAN_NAME} / VLAN {TARGET_VLAN_ID} en la configuración WAN.")
@@ -1491,6 +1643,7 @@ async def process_one(onu, browser, opts):
 
     ap = VSOLAutopilot(ip, browser, context, headless)
     ap.page = page
+    ap.puerto = puerto  # Permitir que el autopilot reporte progreso al estado.json
     result = "ERROR"
     vlan_ok = "NO"
     details = ""
@@ -1527,7 +1680,19 @@ async def process_one(onu, browser, opts):
         state = None
         cur_user, cur_pass = None, None
         # Construir lista de credenciales a probar segun el perfil del modelo
-        candidates = ACTIVE_PROFILE.get("candidate_credentials", [])
+        candidates = list(ACTIVE_PROFILE.get("candidate_credentials", []))
+        essential = [
+            ["admin", "Powerlink2026*"],
+            ["Powerlink", "Powerlink2026*"],
+            ["admin", "stdONUi0i"],
+            ["admin", "stdONU101"],
+            ["admin", "CorpPowerLink**2026"],
+            ["admin", "admin"],
+            ["admin", "admin123"],
+        ]
+        for eu, ep in essential:
+            if not any(u == eu and p == ep for u, p in candidates):
+                candidates.append([eu, ep])
         creds_to_try = []
         if opts.get("final_first"):
             creds_to_try.append(("final", onu.get("final_user", FINAL_USER), onu.get("final_pass", FINAL_PASS)))
@@ -1620,8 +1785,8 @@ async def process_one(onu, browser, opts):
             ok(f"{e('finish')} ONU LISTA (puerto {puerto}).")
         # ---- Comprobación temprana: ONU ya configurada con VLAN 3 ----
         vlan_precheck = await ap.verify_vlan()
-        if vlan_precheck:
-            info(f"{e('info')} La ONU ya tiene la VLAN 3 configurada ({TARGET_WAN_NAME}). No requiere flasheo.")
+        if vlan_precheck and (state == "final" or cur_user == FINAL_USER):
+            info(f"{e('info')} La ONU ya tiene la VLAN 3 configurada ({TARGET_WAN_NAME}) y credenciales finales. No requiere flasheo.")
             await ap.screenshot("ya_configurada")
             result = "YA_CONFIGURADA"
             details = "ONU ya posee VLAN 3 activa y firmware configurado"
@@ -1648,14 +1813,14 @@ async def process_one(onu, browser, opts):
         else:
             info(f"{e('info')} Omitiendo asistente ({'no aplica para este modelo' if not has_wizard else 'no es primer arranque o --skip-wizard'}).")
 
-        # ---- FIRMWARE (opcional con --skip-firmware) ----
+        # ---- FIRMWARE (opcional con --skip-firmware o --factory-reset-only) ----
         if factory_only or skip_firmware:
             info(f"{e('info')} Omitiendo subida de firmware "
                  f"({'--factory-reset-only' if factory_only else '--skip-firmware'}).")
         else:
             phase(3, f"Subida de firmware ({ACTIVE_PROFILE.get('name', 'ONU')})")
             _set_status(puerto, estado="FLASHEANDO", icono="\U0001f4e4",
-                        detalle=f"Subiendo firmware ({os.path.basename(FIRMWARE_PATH)}) ...")
+                        detalle=f"Subiendo firmware ({os.path.basename(FIRMWARE_PATH)}) ...", progreso=10)
             try:
                 await ap.goto_upgrade()
             except Exception as ex:
@@ -1663,39 +1828,57 @@ async def process_one(onu, browser, opts):
             await ap.screenshot("antes_upgrade")
             if await ap.upload_firmware(FIRMWARE_PATH) is False:
                 raise RuntimeError("La ONU reporto fallo en la actualizacion")
+            
+            _set_status(puerto, estado="REINICIANDO", icono="\U0001f504",
+                        detalle="Reinicio post-flasheo en curso...")
             await ap.wait_online(timeout=360)
             ok(f"{e('ok')} Firmware actualizado. Reingresando al equipo ...")
-            # Tras subir el firmware, el equipo normalmente conserva la contrasena del
-            # asistente (admin/admin123); si el flasheo la reseteo, el default del
-            # firmware es Powerlink. Probar previas, luego final, luego default.
+            _set_status(puerto, estado="LOGIN", icono="\U0001f511",
+                        detalle="Reautenticando tras subida de firmware...")
             logged2 = None
             for lbl2, u2, p2 in (
-                    ("post-actualizacion", cur_user or NEW_USER, cur_pass or NEW_PASS),
-                    ("final", onu["final_user"], onu["final_pass"]),
-                    ("default", onu["user"], onu["pass"]),
+                    ("post-actualizacion", cur_user or "admin", cur_pass or FINAL_PASS),
+                    ("final", onu.get("final_user", FINAL_USER), onu.get("final_pass", FINAL_PASS)),
+                    ("admin-final", "admin", onu.get("final_pass", FINAL_PASS)),
+                    ("factory-i0i", "admin", "stdONUi0i"),
+                    ("factory-101", "admin", "stdONU101"),
+                    ("default", onu.get("user", DEFAULT_USER), onu.get("pass", DEFAULT_PASS)),
             ):
                 logged2 = await ap.login(u2, p2, attempt_label=lbl2)
                 if logged2:
+                    cur_user, cur_pass = u2, p2
                     break
             if logged2 is None:
                 raise RuntimeError("Login post-actualizacion fallo")
 
         # ---- RESTABLECIMIENTO DE FABRICA ----
         _set_status(puerto, estado="REINICIANDO", icono="\U0001f504",
-                    detalle="Restableciendo de fabrica ...")
+                    detalle="Restableciendo a valores de fabrica para aplicar VLAN 3...")
         await ap.factory_reset(method=opts.get("reset_method", "factory"))
         await ap.wait_online(timeout=300)
 
-        # ---- LOGIN FINAL (Powerlink) ----
+        # ---- LOGIN FINAL (Powerlink / Cortina Defaults) ----
         _set_status(puerto, estado="VERIFICANDO", icono="\U0001f50d",
-                    detalle="Login final y verificacion VLAN3 ...")
+                    detalle="Login post-reset y verificacion VLAN 3...")
         info(f"{e('login')} Equipo restaurado. Verificando credenciales finales ...")
-        logged3 = await ap.login(onu["final_user"], onu["final_pass"],
-                                 attempt_label="final")
+        logged3 = None
+        for lbl3, u3, p3 in (
+            ("final", onu.get("final_user", FINAL_USER), onu.get("final_pass", FINAL_PASS)),
+            ("admin-final", "admin", onu.get("final_pass", FINAL_PASS)),
+            ("factory-i0i", "admin", "stdONUi0i"),
+            ("factory-101", "admin", "stdONU101"),
+            ("default", onu.get("user", DEFAULT_USER), onu.get("pass", DEFAULT_PASS)),
+        ):
+            logged3 = await ap.login(u3, p3, attempt_label=lbl3)
+            if logged3:
+                cur_user, cur_pass = u3, p3
+                break
         if logged3 is None:
-            raise RuntimeError("No se pudo ingresar con credenciales finales (Powerlink)")
+            raise RuntimeError("No se pudo ingresar tras el factory reset (credenciales no aceptadas)")
 
         # ---- VERIFICACION DE VLAN ----
+        _set_status(puerto, estado="VERIFICANDO", icono="\U0001f50d",
+                    detalle="Verificando parametrizacion WAN (VLAN 3)...")
         vlan_ok = "SI" if await ap.verify_vlan() else "NO"
         await ap.screenshot("final")
 
