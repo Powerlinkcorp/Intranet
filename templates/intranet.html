@@ -376,7 +376,36 @@
             background-color: #1e293b;
         }
 
-        /* CHAT WIDGET */
+        /* POP-UP BIENVENIDA CSS */
+        .welcome-popup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        .welcome-popup-overlay.active {
+            display: flex;
+        }
+        .welcome-popup {
+            background: var(--blanco);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         .chat-widget {
             position: fixed;
             bottom: 25px;
@@ -725,7 +754,12 @@
         }
 
         async function showWelcomePopup(name) {
+            const overlay = document.getElementById('welcomePopupOverlay');
+            overlay.classList.add('active');
+
             document.getElementById('welcomeName').textContent = name.split(" ")[0]; // Primer nombre
+            document.getElementById('welcomeMessage').textContent = 'Cargando...';
+            document.getElementById('welcomeMessage').style.display = 'block';
             
             try {
                 const res = await fetch('/api/popup');
@@ -733,7 +767,6 @@
                     const data = await res.json();
                     if(data.message) {
                         document.getElementById('welcomeMessage').textContent = data.message;
-                        document.getElementById('welcomeMessage').style.display = 'block';
                     } else {
                         document.getElementById('welcomeMessage').style.display = 'none';
                     }
@@ -741,9 +774,6 @@
             } catch (e) {
                 document.getElementById('welcomeMessage').style.display = 'none';
             }
-
-            const overlay = document.getElementById('welcomePopupOverlay');
-            overlay.classList.add('active');
 
             // Cerrar automáticamente a los 5 segundos
             setTimeout(() => {
