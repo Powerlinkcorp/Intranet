@@ -10,12 +10,12 @@ import threading
 import time
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
-from flasheo.core import mikrotik as mtk
-from flasheo.core import network_diag as netdiag
-from flasheo.core import profiles
-from flasheo.core import database
-from flasheo.core.schemas import FlasheoContinuoRequest, FlasheoSingleRequest
-from flasheo.api.v1.endpoints.auth import require_operator
+import mikrotik as mtk
+import network_diag as netdiag
+import profiles
+from core import database
+from core.schemas import FlasheoContinuoRequest, FlasheoSingleRequest
+from api.v1.endpoints.auth import require_operator
 
 router = APIRouter(prefix="/flasheo", tags=["Control de Flasheo"])
 

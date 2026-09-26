@@ -5,8 +5,8 @@ api.v1.endpoints.auth — Rutas de Autenticación y Gestión de Usuarios (RBAC).
 import secrets
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Header, status
-from flasheo.core import database
-from flasheo.core.schemas import LoginRequest, LoginResponse, UserCreate, UserResponse
+from core import database
+from core.schemas import LoginRequest, LoginResponse, UserCreate, UserResponse
 
 router = APIRouter(prefix="/auth", tags=["Autenticación y Usuarios"])
 

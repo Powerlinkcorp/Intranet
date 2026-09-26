@@ -97,7 +97,7 @@ function updateTelemetry(data) {
     document.getElementById('cntTotal').textContent = data.counts.total || 20;
   }
 
-  // Estado del proceso
+  // Estado del proceso y Banner en Vivo
   const isRunning = data.process && data.process.running;
   const btnStart = document.getElementById('btnStartAction');
   const btnReset = document.getElementById('btnActionReset');
@@ -107,6 +107,62 @@ function updateTelemetry(data) {
   if (btnReset) btnReset.style.display = isRunning ? 'none' : 'inline-flex';
   if (btnAudit) btnAudit.style.display = isRunning ? 'none' : 'inline-flex';
   if (btnStop) btnStop.style.display = isRunning ? 'inline-flex' : 'none';
+
+  // Banner dinámico de estado en vivo del flasheo
+  const liveBanner = document.getElementById('liveProcessBanner');
+  const liveTitle = document.getElementById('liveStatusTitle');
+  const liveMode = document.getElementById('liveMetaMode');
+  const liveModel = document.getElementById('liveMetaModel');
+  const liveList = document.getElementById('liveActiveList');
+  const liveDot = document.getElementById('livePulseDot');
+
+  const statusOnus = (data.status && data.status.onus) || [];
+  const ACTIVE_STATES = ['FLASHEANDO', 'REINICIANDO', 'VERIFICANDO', 'ESTABILIZANDO', 'CONECTADO', 'LOGIN', 'WIZARD', 'ESPERANDO'];
+  const activeOnus = statusOnus.filter(o => ACTIVE_STATES.includes(o.estado) && o.estado !== 'SIN_ONU');
+
+  if (liveBanner) {
+    if (isRunning || activeOnus.length > 0) {
+      liveBanner.style.display = 'flex';
+      const modeText = data.process && data.process.mode ? data.process.mode.toUpperCase() : (document.getElementById('flashModeSelect') ? document.getElementById('flashModeSelect').value.toUpperCase() : 'CONTINUO');
+      const modelText = (data.process && data.process.model) || (document.getElementById('activeModelSelect') ? document.getElementById('activeModelSelect').value : 'V2801D-B');
+      
+      if (liveTitle) liveTitle.textContent = isRunning ? `Flasheo en Ejecución — Modo ${modeText}` : `Proceso Finalizado — Estado de Puertos`;
+      if (liveMode) liveMode.textContent = `Modo: ${modeText}`;
+      if (liveModel) liveModel.textContent = `Modelo: ${modelText}`;
+      if (liveDot) liveDot.style.background = isRunning ? '#10b981' : '#f59e0b';
+
+      if (liveList) {
+        liveList.innerHTML = '';
+        const listToRender = activeOnus.length > 0 ? activeOnus : statusOnus.filter(o => o.estado && o.estado !== 'SIN_ONU');
+        if (listToRender.length === 0) {
+          liveList.innerHTML = '<div style="font-size:12px; color:var(--texto-gris); padding:6px 0;">Esperando conexión de ONUs en los puertos...</div>';
+        } else {
+          listToRender.forEach(o => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'live-active-card';
+            const pct = o.progreso != null ? Math.min(100, Math.max(0, o.progreso)) : (o.estado === 'FLASHEANDO' ? 45 : (o.estado === 'REINICIANDO' ? 70 : (o.estado === 'VERIFICANDO' ? 90 : (o.estado === 'EXITO' ? 100 : 20))));
+            cardDiv.innerHTML = `
+              <div class="live-card-top">
+                <span class="live-port-tag">Puerto P${o.puerto} (${o.ip || '10.100.' + o.puerto + '.1'})</span>
+                <span class="live-state-tag" style="${o.estado === 'EXITO' || o.estado === 'YA_CONFIGURADA' ? 'background:rgba(16,185,129,0.15);color:#10b981;' : (o.estado === 'ERROR' ? 'background:rgba(239,68,68,0.15);color:#ef4444;' : '')}">${o.icono || '⚡'} ${o.estado || 'EN PROCESO'}</span>
+              </div>
+              <div class="live-detail-text">${o.detalle || 'Procesando ONU...'}</div>
+              <div class="live-progress-container">
+                <div class="live-progress-bar">
+                  <div class="live-progress-fill" style="width:${pct}%"></div>
+                </div>
+                <span class="live-progress-pct">${pct.toFixed(0)}%</span>
+              </div>
+              ${o.mac || o.pon ? `<div style="font-size:10px; font-family:monospace; color:var(--texto-gris); margin-top:2px;">MAC: ${o.mac || '-'} | PON: ${o.pon || '-'}</div>` : ''}
+            `;
+            liveList.appendChild(cardDiv);
+          });
+        }
+      }
+    } else {
+      liveBanner.style.display = 'none';
+    }
+  }
 
   // Alerta dinámica de enlace en Modo Directo
   const alertEl = document.getElementById('directConnectionAlert');
@@ -132,7 +188,6 @@ function updateTelemetry(data) {
 
   // Puertos
   const mtkPorts = data.mikrotik_active_ports || {};
-  const statusOnus = (data.status && data.status.onus) || [];
   const onuMap = {};
   statusOnus.forEach(o => { onuMap[String(o.puerto)] = o; });
 
@@ -142,6 +197,10 @@ function updateTelemetry(data) {
     const stateEl = document.getElementById(`portState-${p}`);
     const ipEl = document.getElementById(`portIp-${p}`);
     const macEl = document.getElementById(`portMac-${p}`);
+    const detailEl = document.getElementById(`portDetail-${p}`);
+    const progressWrap = document.getElementById(`portProgressWrap-${p}`);
+    const progressFill = document.getElementById(`portProgressFill-${p}`);
+    const progressPct = document.getElementById(`portProgressPct-${p}`);
     if (!card) continue;
 
     const hasLink = mtkPorts.hasOwnProperty(p);
@@ -155,9 +214,26 @@ function updateTelemetry(data) {
       if (info.ip) ipEl.textContent = info.ip;
       if (info.mac) macEl.textContent = info.mac;
       if (info.pon) macEl.textContent = info.pon;
+
+      // Detalle del estado actual (actividad en curso)
+      if (detailEl) {
+        detailEl.textContent = info.detalle || '';
+        detailEl.style.display = info.detalle ? 'block' : 'none';
+      }
+
+      // Barra de progreso (solo en FLASHEANDO con campo progreso)
+      const showProgress = info.estado === 'FLASHEANDO' && info.progreso != null;
+      if (progressWrap) progressWrap.style.display = showProgress ? 'flex' : 'none';
+      if (showProgress && progressFill && progressPct) {
+        const pct = Math.min(100, Math.max(0, info.progreso));
+        progressFill.style.width = pct + '%';
+        progressPct.textContent = pct.toFixed(0) + '%';
+      }
     } else {
       stateEl.textContent = hasLink ? 'ENLACE OK' : 'LIBRE';
       card.className = `port-card ${hasLink ? 'has-link' : ''}`;
+      if (detailEl) { detailEl.textContent = ''; detailEl.style.display = 'none'; }
+      if (progressWrap) progressWrap.style.display = 'none';
     }
   }
 }
@@ -188,6 +264,13 @@ function initPortsGrid() {
       </div>
       <div class="port-body">
         <div id="portState-${i}" class="port-state">LIBRE</div>
+        <div id="portDetail-${i}" class="port-detail"></div>
+        <div class="port-progress-wrap" id="portProgressWrap-${i}" style="display:none;">
+          <div class="port-progress-bar">
+            <div class="port-progress-fill" id="portProgressFill-${i}" style="width:0%"></div>
+          </div>
+          <span class="port-progress-pct" id="portProgressPct-${i}">0%</span>
+        </div>
         <div id="portIp-${i}" class="port-ip">10.100.${i}.1</div>
         <div id="portMac-${i}" class="port-mac">-</div>
       </div>

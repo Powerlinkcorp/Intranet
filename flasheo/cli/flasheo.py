@@ -22,9 +22,9 @@ for p in [PROJECT_ROOT, CORE_DIR, WEB_DIR, CLI_DIR]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from flasheo.core import profiles
+import profiles
 import web_station
-from flasheo.core import network_diag as netdiag
+import network_diag as netdiag
 
 AUTOPILOT = os.path.join(CORE_DIR, "vsol_autopilot.py")
 if not os.path.exists(AUTOPILOT):

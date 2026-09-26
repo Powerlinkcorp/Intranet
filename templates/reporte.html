@@ -100,6 +100,22 @@
             --texto-negro: #1A1A1A;
             --texto-gris: #4A4A4A;
             --borde: #e2e8f0;
+
+            /* Tipografía Escalable Fluida con clamp() */
+            --font-size-xs: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+            --font-size-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+            --font-size-base: clamp(0.85rem, 0.8rem + 0.3vw, 0.95rem);
+            --font-size-md: clamp(0.95rem, 0.9rem + 0.35vw, 1.1rem);
+            --font-size-lg: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+            --font-size-xl: clamp(1.25rem, 1.15rem + 0.7vw, 1.65rem);
+            --font-size-2xl: clamp(1.45rem, 1.3rem + 1vw, 2.1rem);
+
+            /* Espaciado Dinámico con clamp() */
+            --space-xs: clamp(0.25rem, 0.2rem + 0.2vw, 0.375rem);
+            --space-sm: clamp(0.375rem, 0.3rem + 0.3vw, 0.625rem);
+            --space-md: clamp(0.75rem, 0.65rem + 0.5vw, 1.125rem);
+            --space-lg: clamp(1rem, 0.85rem + 0.75vw, 1.5rem);
+            --space-xl: clamp(1.25rem, 1rem + 1vw, 2rem);
         }
 
         * {
@@ -111,22 +127,35 @@
             background-color: var(--fondo-principal);
             color: var(--texto-negro);
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 1920px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: clamp(0.75rem, 1.5vw, 1.75rem);
+            box-sizing: border-box;
+            min-width: 0;
         }
 
         .btn-action-gold {
             background-color: var(--acento);
             color: var(--texto-negro);
             font-weight: 700;
-            font-size: 13px;
-            padding: 8px 16px;
+            font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.8125rem);
+            padding: clamp(0.42rem, 0.38rem + 0.25vw, 0.55rem) clamp(0.7rem, 0.6rem + 0.35vw, 1rem);
             border-radius: 8px;
             border: none;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             transition: all 0.2s;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
         }
 
         .btn-action-gold:hover {
@@ -139,16 +168,18 @@
             background-color: #ffffff;
             color: #334155;
             font-weight: 600;
-            font-size: 13px;
-            padding: 8px 14px;
+            font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.8125rem);
+            padding: clamp(0.42rem, 0.38rem + 0.25vw, 0.55rem) clamp(0.65rem, 0.55rem + 0.35vw, 0.95rem);
             border-radius: 8px;
             border: 1px solid var(--borde);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             transition: all 0.2s;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
         }
 
         .btn-action-light:hover {
@@ -160,9 +191,10 @@
         .subnav-tab {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 9px 18px;
-            font-size: 13px;
+            padding: clamp(0.42rem, 0.38rem + 0.2vw, 0.55rem) clamp(0.7rem, 0.6rem + 0.35vw, 1.1rem);
+            font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.8125rem);
             font-weight: 600;
             color: #475569;
             background: #ffffff;
@@ -171,6 +203,7 @@
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .subnav-tab:hover {
@@ -376,14 +409,14 @@
 
         <!-- HEADER BANNER CORPORATIVO (IDÉNTICO A LA INTRANET) -->
         <div
-            class="bg-white border-b border-slate-200 px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
-            <div class="flex items-center gap-4">
+            class="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 sm:py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0">
                 <div
-                    class="w-12 h-12 rounded-xl bg-[#1A1A1A] flex items-center justify-center text-[#FFC107] text-xl shadow-md flex-shrink-0">
+                    class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#1A1A1A] flex items-center justify-center text-[#FFC107] text-lg sm:text-xl shadow-md flex-shrink-0">
                     <i class="fa-solid fa-headset"></i>
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span
                             class="bg-[#FFC107] text-[#1A1A1A] font-extrabold text-[10px] px-2 py-0.5 rounded tracking-wider uppercase">SOPORTE
                             TÉCNICO</span>
@@ -392,8 +425,8 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en línea
                         </span>
                     </div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mt-1">Control de Averías y Cuadrillas</h1>
-                    <p class="text-xs text-slate-500">Gestión de tickets, coordinación de técnicos y afectaciones de
+                    <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mt-1 truncate">Control de Averías y Cuadrillas</h1>
+                    <p class="text-xs text-slate-500 line-clamp-1 sm:line-clamp-none">Gestión de tickets, coordinación de técnicos y afectaciones de
                         zona en tiempo real</p>
                 </div>
             </div>
@@ -402,7 +435,7 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <button onclick="openExtensionModal()" id="navDownloadExt" class="btn-action-light"
                     title="Descargar extensión de soporte">
-                    <i class="fa-solid fa-puzzle-piece text-amber-500"></i> Descargar extensión de soporte
+                    <i class="fa-solid fa-puzzle-piece text-amber-500"></i> <span class="hidden sm:inline">Extensión</span>
                 </button>
                 <button onclick="exportData()" id="navExport" class="btn-action-light"
                     title="Exportar base de datos JSON">
@@ -425,7 +458,7 @@
 
         <!-- BARRA HORIZONTAL DE SUB-PESTAÑAS DE SOPORTE TÉCNICO -->
         <div
-            class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-2.5 overflow-x-auto custom-scrollbar">
+            class="bg-white border-b border-slate-200 px-3 sm:px-6 py-2 sm:py-3 flex items-center gap-2 sm:gap-2.5 overflow-x-auto custom-scrollbar">
             <button onclick="toggleSection('dashboard')" id="navDashboard" class="subnav-tab active">
                 <i class="fa-solid fa-file-invoice"></i> Reportes (Soportes)
             </button>
@@ -469,10 +502,10 @@
     <div id="modalForm" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-2xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 id="formTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Reporte</h2>
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 id="formTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Reporte</h2>
                 <button onclick="closeModal()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,7 +514,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="reportForm" class="overflow-y-auto flex-1 p-6 space-y-5">
+            <form id="reportForm" class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <input type="hidden" id="f_id">
                 <!-- Datos del Cliente -->
                 <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-4">
@@ -713,10 +746,10 @@
     <div id="modalView" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeView()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-2xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100" id="viewTitle">Reporte #1</h2>
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100" id="viewTitle">Reporte #1</h2>
                 <button onclick="closeView()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -725,8 +758,8 @@
                     </svg>
                 </button>
             </div>
-            <div class="overflow-y-auto flex-1 p-6" id="viewContent"></div>
-            <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-800/50"
+            <div class="overflow-y-auto flex-1 p-4 sm:p-6 custom-scrollbar" id="viewContent"></div>
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-100 dark:border-slate-700 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-800/50"
                 id="viewActions"></div>
         </div>
     </div>
@@ -735,13 +768,13 @@
     <div id="modalExtension" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeExtensionModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[92vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-2xl max-h-[calc(100vh-1rem)] sm:max-h-[92vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800 mx-auto">
             <!-- Header -->
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/50">
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/50">
                 <div class="flex items-center gap-3">
                     <div
-                        class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg">
+                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base sm:text-lg shrink-0">
                         <i class="fa-solid fa-puzzle-piece"></i>
                     </div>
                     <div>
@@ -758,7 +791,7 @@
             </div>
 
             <!-- Body -->
-            <div class="overflow-y-auto flex-1 p-6 space-y-5 custom-scrollbar">
+            <div class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <!-- Banner de Descarga -->
                 <div
                     class="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -857,10 +890,10 @@
     <div id="modalTech" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeTechModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 id="techFormTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Equipo Técnico
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 id="techFormTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Equipo Técnico
                 </h2>
                 <button onclick="closeTechModal()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
@@ -870,7 +903,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="techForm" class="overflow-y-auto flex-1 p-6 space-y-5">
+            <form id="techForm" class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <input type="hidden" id="tf_id">
                 <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-4">
                     <div class="flex items-center gap-2 mb-2">
@@ -1010,10 +1043,10 @@
     <div id="modalMotivo" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeMotivoModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 id="motivoFormTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Motivo</h2>
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 id="motivoFormTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Motivo</h2>
                 <button onclick="closeMotivoModal()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1022,7 +1055,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="motivoForm" class="overflow-y-auto flex-1 p-6 space-y-5">
+            <form id="motivoForm" class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <input type="hidden" id="mf_id">
                 <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-4">
                     <div class="flex items-center gap-2 mb-2">
@@ -1070,10 +1103,10 @@
     <div id="modalZona" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeZonaModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 id="zonaFormTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Nueva Zona</h2>
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 id="zonaFormTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Nueva Zona</h2>
                 <button onclick="closeZonaModal()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1082,7 +1115,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="zonaForm" class="overflow-y-auto flex-1 p-6 space-y-5">
+            <form id="zonaForm" class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <input type="hidden" id="zf_id">
                 <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-4">
                     <div class="flex items-center gap-2 mb-2">
@@ -1125,10 +1158,10 @@
     <div id="modalAssign" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeAssignModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 id="assignFormTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Asignar Soporte
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 id="assignFormTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Asignar Soporte
                 </h2>
                 <button onclick="closeAssignModal()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
@@ -1138,7 +1171,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="assignForm" class="overflow-y-auto flex-1 p-6 space-y-5">
+            <form id="assignForm" class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <input type="hidden" id="af_reportId">
                 <input type="hidden" id="af_assignId">
 
@@ -1319,10 +1352,10 @@
     <div id="modalAfectacion" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeAfectacionModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-2xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 id="afectacionFormTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Reporte
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 id="afectacionFormTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Reporte
                     (Afectación / Actividad)</h2>
                 <button onclick="closeAfectacionModal()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
@@ -1332,7 +1365,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="afectacionForm" class="overflow-y-auto flex-1 p-6 space-y-5">
+            <form id="afectacionForm" class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <input type="hidden" id="afec_id">
 
                 <!-- Selector de Tipo: ACTIVIDAD vs AFECTACION -->
@@ -1594,10 +1627,10 @@
     <div id="modalUser" class="fixed inset-0 z-[80] hidden">
         <div class="modal-overlay absolute inset-0" onclick="closeUserModal()"></div>
         <div
-            class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            class="absolute inset-2 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-[calc(100%-1rem)] sm:w-full sm:max-w-2xl max-h-[calc(100vh-1rem)] sm:max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col mx-auto">
             <div
-                class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h2 id="userFormTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Usuario</h2>
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h2 id="userFormTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Nuevo Usuario</h2>
                 <button onclick="closeUserModal()"
                     class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1606,7 +1639,7 @@
                     </svg>
                 </button>
             </div>
-            <form id="userForm" class="overflow-y-auto flex-1 p-6 space-y-5">
+            <form id="userForm" class="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
                 <input type="hidden" id="usr_id">
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2131,6 +2164,39 @@
             toggleSection(currentView || 'dashboard');
         });
 
+        function isNextDayVisit(fechaVisita, createdAt) {
+            if (!fechaVisita) return false;
+            let iso = '';
+            const str = String(fechaVisita).trim();
+            if (str.includes('-')) {
+                iso = str.slice(0, 10);
+            } else if (str.includes('/')) {
+                const p = str.split('/');
+                if (p.length === 3) {
+                    iso = `${p[2]}-${String(p[1]).padStart(2, '0')}-${String(p[0]).padStart(2, '0')}`;
+                }
+            }
+            if (!iso) return false;
+
+            // 1. Día siguiente respecto a la fecha de creación del reporte (hora local)
+            if (createdAt) {
+                const base = new Date(createdAt);
+                if (!isNaN(base.getTime())) {
+                    const next = new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1);
+                    const nextIso = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-${String(next.getDate()).padStart(2, '0')}`;
+                    if (iso === nextIso) return true;
+                }
+            }
+
+            // 2. Día siguiente respecto a la fecha actual (mañana en hora local)
+            const now = new Date();
+            const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            const tomIso = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, '0')}-${String(tom.getDate()).padStart(2, '0')}`;
+            if (iso === tomIso) return true;
+
+            return false;
+        }
+
         function generateReportText(r) {
             let onu = [r.onu, r.caja_nap, r.precinto].filter(Boolean).join(' | ') || 'N/A';
             let tel = [r.telefono1, r.telefono2].filter(Boolean).join(' | ') || 'N/A';
@@ -2139,7 +2205,7 @@
             let extra = '';
             if (r.a_disponibilidad) {
                 extra = '\n*MODALIDAD*: A DISPONIBILIDAD';
-            } else if (r.fecha_visita) {
+            } else if (r.fecha_visita && !isNextDayVisit(r.fecha_visita, r.created_at)) {
                 const parts = String(r.fecha_visita).split('-');
                 const formatted = (parts.length === 3) ? `${parts[2]}/${parts[1]}/${parts[0]}` : r.fecha_visita;
                 extra = `\n*FECHA DE VISITA*: ${formatted}`;
@@ -2291,81 +2357,81 @@
             const techs = getTechs();
 
             let html = `
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6 fade-in">
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
-                        <div><p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">${total}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Total</p></div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 mb-6 fade-in">
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-3.5 sm:p-4 md:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm min-w-0">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                        <div class="min-w-0"><p class="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-slate-100 tracking-tight truncate">${total}</p><p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5 truncate">Total</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-amber-200/70 dark:border-amber-900/40 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-amber-50 dark:bg-amber-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                        <div><p class="text-2xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">${pend}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Pendientes</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-3.5 sm:p-4 md:p-5 border border-amber-200/70 dark:border-amber-900/40 shadow-sm min-w-0">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-50 dark:bg-amber-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                        <div class="min-w-0"><p class="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight truncate">${pend}</p><p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5 truncate">Pendientes</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-blue-200/70 dark:border-blue-900/40 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
-                        <div><p class="text-2xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight">${proc}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5">En Proceso</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-3.5 sm:p-4 md:p-5 border border-blue-200/70 dark:border-blue-900/40 shadow-sm min-w-0">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 dark:bg-blue-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+                        <div class="min-w-0"><p class="text-xl sm:text-2xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tight truncate">${proc}</p><p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5 truncate">En Proceso</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-purple-200/70 dark:border-purple-900/40 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-purple-50 dark:bg-purple-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                        <div><p class="text-2xl font-extrabold text-purple-600 dark:text-purple-400 tracking-tight">${reag}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Reagendados</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-3.5 sm:p-4 md:p-5 border border-purple-200/70 dark:border-purple-900/40 shadow-sm min-w-0">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-50 dark:bg-purple-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                        <div class="min-w-0"><p class="text-xl sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400 tracking-tight truncate">${reag}</p><p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5 truncate">Reagendados</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-sky-200/70 dark:border-sky-900/40 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-sky-50 dark:bg-sky-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                        <div><p class="text-2xl font-extrabold text-sky-600 dark:text-sky-400 tracking-tight">${espera}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5">En Espera</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-3.5 sm:p-4 md:p-5 border border-sky-200/70 dark:border-sky-900/40 shadow-sm min-w-0">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-sky-50 dark:bg-sky-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                        <div class="min-w-0"><p class="text-xl sm:text-2xl font-extrabold text-sky-600 dark:text-sky-400 tracking-tight truncate">${espera}</p><p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5 truncate">En Espera</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-red-200/70 dark:border-red-900/40 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-red-50 dark:bg-red-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
-                        <div><p class="text-2xl font-extrabold text-red-600 dark:text-red-400 tracking-tight">${anu}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Anulados</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-3.5 sm:p-4 md:p-5 border border-red-200/70 dark:border-red-900/40 shadow-sm min-w-0">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-50 dark:bg-red-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></div>
+                        <div class="min-w-0"><p class="text-xl sm:text-2xl font-extrabold text-red-600 dark:text-red-400 tracking-tight truncate">${anu}</p><p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5 truncate">Anulados</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-emerald-200/70 dark:border-emerald-900/40 shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                        <div><p class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">${resu}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5">Realizados</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-3.5 sm:p-4 md:p-5 border border-emerald-200/70 dark:border-emerald-900/40 shadow-sm min-w-0">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                        <div class="min-w-0"><p class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight truncate">${resu}</p><p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider mt-0.5 truncate">Realizados</p></div>
                     </div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 fade-in">
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm cursor-pointer hover:border-brand-400 dark:hover:border-brand-500 transition-colors" onclick="toggleSection('dashboard')">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-brand-50 dark:bg-brand-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
-                        <div><p class="text-xl font-extrabold text-slate-800 dark:text-slate-100">${total}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Reportes Registrados</p></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 fade-in">
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm cursor-pointer hover:border-brand-400 dark:hover:border-brand-500 transition-colors min-w-0" onclick="toggleSection('dashboard')">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-brand-50 dark:bg-brand-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                        <div class="min-w-0"><p class="text-lg sm:text-xl font-extrabold text-slate-800 dark:text-slate-100 truncate">${total}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Reportes Registrados</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors" onclick="toggleSection('techs')">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
-                        <div><p class="text-xl font-extrabold text-slate-800 dark:text-slate-100">${techs.length}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Equipos Técnicos</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors min-w-0" onclick="toggleSection('techs')">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-blue-50 dark:bg-blue-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+                        <div class="min-w-0"><p class="text-lg sm:text-xl font-extrabold text-slate-800 dark:text-slate-100 truncate">${techs.length}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Equipos Técnicos</p></div>
                     </div>
                 </div>
-                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm cursor-pointer hover:border-purple-400 dark:hover:border-purple-500 transition-colors" onclick="toggleSection('coordinacion')">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-purple-50 dark:bg-purple-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
-                        <div><p class="text-xl font-extrabold text-slate-800 dark:text-slate-100">${assignedReports.length}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium">En Coordinación</p></div>
+                <div class="card-hover bg-white dark:bg-[#0c1427] rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm cursor-pointer hover:border-purple-400 dark:hover:border-purple-500 transition-colors min-w-0 sm:col-span-2 lg:col-span-1" onclick="toggleSection('coordinacion')">
+                    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 bg-purple-50 dark:bg-purple-950/40 rounded-xl flex items-center justify-center flex-shrink-0"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+                        <div class="min-w-0"><p class="text-lg sm:text-xl font-extrabold text-slate-800 dark:text-slate-100 truncate">${assignedReports.length}</p><p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">En Coordinación</p></div>
                     </div>
                 </div>
             </div>`;
 
             html += `
             <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden slide-up">
-                <div class="px-6 py-4.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/30">
+                <div class="px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 bg-slate-50/50 dark:bg-slate-900/30">
                     <div>
-                        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Reportes de Soporte</h2>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">Reportes de Soporte</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${total} reporte${total !== 1 ? 's' : ''} registrado${total !== 1 ? 's' : ''}</p>
                     </div>
-                    <div class="relative">
+                    <div class="relative w-full sm:w-auto">
                         <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Buscar por cliente, zona, CI..." class="input-modern pl-10 pr-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-brand-400 w-full sm:w-72 bg-white dark:bg-[#090e1a] text-slate-800 dark:text-slate-100 placeholder:text-slate-400">
+                        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Buscar por cliente, zona, CI..." class="input-modern pl-10 pr-4 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-brand-400 w-full sm:w-64 md:w-72 bg-white dark:bg-[#090e1a] text-slate-800 dark:text-slate-100 placeholder:text-slate-400">
                     </div>
                 </div>`;
 
@@ -2382,14 +2448,14 @@
                     </button>
                 </div>`;
             } else {
-                html += `<div class="overflow-x-auto"><table class="w-full"><thead><tr class="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40">
-                    <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
-                    <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zona</th>
-                    <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">C.I./RIF</th>
-                    <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Ubicación</th>
-                    <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Motivos</th>
-                    <th class="text-left px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Visita</th>
-                    <th class="text-right px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                html += `<div class="overflow-x-auto custom-scrollbar w-full"><table class="w-full min-w-[720px]"><thead><tr class="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40">
+                    <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
+                    <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zona</th>
+                    <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">C.I./RIF</th>
+                    <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Ubicación</th>
+                    <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Motivos</th>
+                    <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Visita</th>
+                    <th class="text-right px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                 </tr></thead><tbody id="reportsTable" class="divide-y divide-slate-100 dark:divide-slate-800/60">`;
 
                 const currentCoordAssignments = getAssignments();
@@ -2422,17 +2488,17 @@
 
                     html += `
                     <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors" data-search="${(r.zona + ' ' + r.cedula + ' ' + r.ubicacion + ' ' + (r.motivo || '') + ' ' + (!isCoordinado && r.fecha_visita ? r.fecha_visita : '') + (r.a_disponibilidad ? ' disponibilidad a disponibilidad' : '')).toLowerCase()}">
-                        <td class="px-6 py-4.5"><span class="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500">#${r.id}</span></td>
-                        <td class="px-6 py-4.5"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/20">${r.zona}</span></td>
-                        <td class="px-6 py-4.5"><span class="text-sm font-semibold text-slate-800 dark:text-slate-200">${r.cedula}</span></td>
-                        <td class="px-6 py-4.5 hidden md:table-cell"><span class="text-sm text-slate-600 dark:text-slate-400 max-w-[220px] truncate block">${r.ubicacion}</span></td>
-                        <td class="px-6 py-4.5">${estatusBadge(r)}</td>
-                        <td class="px-6 py-4.5">${fechaCell}</td>
-                        <td class="px-6 py-4.5"><div class="flex items-center justify-end gap-1.5">
-                            <button onclick="viewReport(${r.id})" class="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all" title="Ver / Copiar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
-                            <button onclick="editReport(${r.id})" class="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-all" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
-                            <button onclick="downloadReport(${r.id})" class="p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all" title="Descargar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
-                            <button onclick="deleteReport(${r.id})" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                        <td class="px-4 sm:px-6 py-3.5 sm:py-4"><span class="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500">#${r.id}</span></td>
+                        <td class="px-4 sm:px-6 py-3.5 sm:py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/20">${r.zona}</span></td>
+                        <td class="px-4 sm:px-6 py-3.5 sm:py-4"><span class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">${r.cedula}</span></td>
+                        <td class="px-4 sm:px-6 py-3.5 sm:py-4 hidden md:table-cell"><span class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-[220px] truncate block">${r.ubicacion}</span></td>
+                        <td class="px-4 sm:px-6 py-3.5 sm:py-4">${estatusBadge(r)}</td>
+                        <td class="px-4 sm:px-6 py-3.5 sm:py-4">${fechaCell}</td>
+                        <td class="px-4 sm:px-6 py-3.5 sm:py-4"><div class="flex items-center justify-end gap-1 sm:gap-1.5">
+                            <button onclick="viewReport(${r.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all" title="Ver / Copiar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                            <button onclick="editReport(${r.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-all" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            <button onclick="downloadReport(${r.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all" title="Descargar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
+                            <button onclick="deleteReport(${r.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
                         </div></td>
                     </tr>`;
                 });
@@ -2459,13 +2525,13 @@
             const canWrite = hasPermission('techs', 'write');
             const techs = getTechs();
             let html = `
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 fade-in">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Equipos Técnicos</h2>
-                    <p class="text-sm text-slate-500 mt-0.5">${techs.length} equipo${techs.length !== 1 ? 's' : ''} registrado${techs.length !== 1 ? 's' : ''} · Cada equipo tiene 2 técnicos (el segundo es opcional)</p>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">Equipos Técnicos</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">${techs.length} equipo${techs.length !== 1 ? 's' : ''} registrado${techs.length !== 1 ? 's' : ''} · Cada equipo tiene 2 técnicos (el segundo es opcional)</p>
                 </div>
                 ${canWrite ? `
-                <button onclick="showTechForm()" class="btn-modern inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-xl shadow-lg shadow-brand-500/25">
+                <button onclick="showTechForm()" class="btn-modern inline-flex items-center gap-2 px-4.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-xl shadow-lg shadow-brand-500/25 self-start sm:self-auto">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Nuevo Equipo
                 </button>
@@ -2489,56 +2555,58 @@
                     </div>
                 </div>`;
             } else {
-                html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 slide-up">`;
+                html += `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 slide-up">`;
                 techs.forEach(t => {
                     html += `
-                    <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm card-hover overflow-hidden">
-                        <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30">
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">${t.name}</h3>
-                                    ${t.for_afectaciones ? `
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                                            ⚠️ AFECTACIONES
-                                        </span>
-                                    ` : `
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/30">
-                                            🎫 SOPORTES
-                                        </span>
-                                    `}
+                    <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm card-hover overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30 gap-2">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base truncate">${t.name}</h3>
+                                        ${t.for_afectaciones ? `
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                                                ⚠️ AFECTACIONES
+                                            </span>
+                                        ` : `
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/30">
+                                                🎫 SOPORTES
+                                            </span>
+                                        `}
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium truncate">${t.area || 'Sin área especificada'}</p>
                                 </div>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">${t.area || 'Sin área especificada'}</p>
-                            </div>
-                            ${canWrite ? `
-                            <div class="flex items-center gap-1">
-                                <button onclick="editTech(${t.id})" class="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
-                                <button onclick="deleteTech(${t.id})" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
-                            </div>
-                            ` : ''}
-                        </div>
-                        <div class="p-5 space-y-4">
-                            <div class="bg-emerald-500/5 dark:bg-emerald-950/20 rounded-xl p-4 border border-emerald-500/20">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <div class="w-6 h-6 bg-emerald-500/10 rounded-full flex items-center justify-center"><svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
-                                    <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Técnico 1</span>
+                                ${canWrite ? `
+                                <div class="flex items-center gap-1 flex-shrink-0">
+                                    <button onclick="editTech(${t.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                    <button onclick="deleteTech(${t.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
                                 </div>
-                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">${t.t1.name || 'Sin nombre'}</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${t.t1.cedula || ''} ${t.t1.telefono ? '· ' + t.t1.telefono : ''}</p>
-                                ${t.t1.email ? `<p class="text-xs text-brand-600 dark:text-brand-400">${t.t1.email}</p>` : ''}
+                                ` : ''}
                             </div>
-                            ${t.t2.name ? `
-                            <div class="bg-blue-500/5 dark:bg-blue-950/20 rounded-xl p-4 border border-blue-500/20">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <div class="w-6 h-6 bg-blue-500/10 rounded-full flex items-center justify-center"><svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
-                                    <span class="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">Técnico 2</span>
+                            <div class="p-4 sm:p-5 space-y-3 sm:space-y-4">
+                                <div class="bg-emerald-500/5 dark:bg-emerald-950/20 rounded-xl p-3.5 sm:p-4 border border-emerald-500/20">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-6 h-6 bg-emerald-500/10 rounded-full flex items-center justify-center flex-shrink-0"><svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+                                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Técnico 1</span>
+                                    </div>
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${t.t1.name || 'Sin nombre'}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">${t.t1.cedula || ''} ${t.t1.telefono ? '· ' + t.t1.telefono : ''}</p>
+                                    ${t.t1.email ? `<p class="text-xs text-brand-600 dark:text-brand-400 truncate">${t.t1.email}</p>` : ''}
                                 </div>
-                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">${t.t2.name || ''}</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${t.t2.cedula || ''} ${t.t2.telefono ? '· ' + t.t2.telefono : ''}</p>
-                                ${t.t2.email ? `<p class="text-xs text-brand-600 dark:text-brand-400">${t.t2.email}</p>` : ''}
-                            </div>` : `
-                            <div class="bg-slate-50 dark:bg-slate-800/40 rounded-xl p-4 border border-dashed border-slate-200 dark:border-slate-700/60 text-center">
-                                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Técnico 2: <em>opcional (no asignado)</em></p>
-                            </div>`}
+                                ${t.t2.name ? `
+                                <div class="bg-blue-500/5 dark:bg-blue-950/20 rounded-xl p-3.5 sm:p-4 border border-blue-500/20">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-6 h-6 bg-blue-500/10 rounded-full flex items-center justify-center flex-shrink-0"><svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+                                        <span class="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">Técnico 2</span>
+                                    </div>
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${t.t2.name || ''}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">${t.t2.cedula || ''} ${t.t2.telefono ? '· ' + t.t2.telefono : ''}</p>
+                                    ${t.t2.email ? `<p class="text-xs text-brand-600 dark:text-brand-400 truncate">${t.t2.email}</p>` : ''}
+                                </div>` : `
+                                <div class="bg-slate-50 dark:bg-slate-800/40 rounded-xl p-3.5 sm:p-4 border border-dashed border-slate-200 dark:border-slate-700/60 text-center">
+                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Técnico 2: <em>opcional (no asignado)</em></p>
+                                </div>`}
+                            </div>
                         </div>
                     </div>`;
                 });
@@ -2794,7 +2862,7 @@
                 <!-- Header con Título, Selector de Pestañas y Botón de Acción -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
-                        <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Motivos y Zonas</h2>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Motivos y Zonas</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Administra los motivos de soporte y las zonas seleccionables al generar reportes</p>
                     </div>
                     <div class="flex items-center gap-3 self-start sm:self-auto flex-wrap">
@@ -2810,7 +2878,7 @@
 
                         <!-- Botón Nuevo -->
                         ${canWrite ? `
-                        <button onclick="${isZonas ? 'showZonaForm()' : 'showMotivoForm()'}" class="btn-modern inline-flex items-center gap-1.5 px-4.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl shadow-lg shadow-brand-500/25 transition-all">
+                        <button onclick="${isZonas ? 'showZonaForm()' : 'showMotivoForm()'}" class="btn-modern inline-flex items-center gap-1.5 px-4 sm:px-4.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl shadow-lg shadow-brand-500/25 transition-all">
                             <span class="text-base font-bold leading-none">+</span>
                             <span>${isZonas ? 'Nueva Zona' : 'Nuevo Motivo'}</span>
                         </button>
@@ -2835,26 +2903,26 @@
                         ` : ''}
                     </div>
                     ` : `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 slide-up">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3.5 sm:gap-4.5 slide-up">
                         ${zonas.map(z => {
                 const count = countReportsForZona(z.name);
                 return `
-                            <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 p-4.5 flex items-center justify-between shadow-sm card-hover transition-all">
-                                <div class="flex items-center gap-3.5 min-w-0">
-                                    <div class="w-11 h-11 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400 flex-shrink-0 shadow-sm">
+                            <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 p-3.5 sm:p-4.5 flex items-center justify-between shadow-sm card-hover transition-all min-w-0">
+                                <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400 flex-shrink-0 shadow-sm">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     </div>
                                     <div class="min-w-0">
-                                        <h4 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white uppercase tracking-wide truncate leading-tight">${z.name}</h4>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/60 mt-1.5">${count} reporte${count !== 1 ? 's' : ''}</span>
+                                        <h4 class="font-extrabold text-xs sm:text-sm md:text-base text-slate-900 dark:text-white uppercase tracking-wide truncate leading-tight">${z.name}</h4>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-semibold bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/60 mt-1">${count} reporte${count !== 1 ? 's' : ''}</span>
                                     </div>
                                 </div>
                                 ${canWrite ? `
-                                <div class="flex items-center gap-1.5 flex-shrink-0">
-                                    <button onclick="editZona(${z.id})" class="p-2 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/30 rounded-xl transition-all" title="Editar">
+                                <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+                                    <button onclick="editZona(${z.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/30 rounded-xl transition-all" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </button>
-                                    <button onclick="deleteZona(${z.id})" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar">
+                                    <button onclick="deleteZona(${z.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </div>
@@ -2880,29 +2948,29 @@
                         ` : ''}
                     </div>
                     ` : `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 slide-up">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3.5 sm:gap-4.5 slide-up">
                         ${motivos.map(m => {
                 const count = countReportsForMotivo(m.name);
                 return `
-                            <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 p-4.5 flex items-center justify-between shadow-sm card-hover transition-all">
-                                <div class="flex items-center gap-3.5 min-w-0">
-                                    <div class="w-11 h-11 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 flex-shrink-0 shadow-sm">
+                            <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700/80 p-3.5 sm:p-4.5 flex items-center justify-between shadow-sm card-hover transition-all min-w-0">
+                                <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 flex-shrink-0 shadow-sm">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                                     </div>
                                     <div class="min-w-0">
-                                        <h4 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white uppercase tracking-wide truncate leading-tight">${m.name}</h4>
-                                        <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/60">${count} reporte${count !== 1 ? 's' : ''}</span>
-                                            ${m.desc ? `<span class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[150px] sm:max-w-xs font-medium" title="${m.desc}">${m.desc}</span>` : ''}
+                                        <h4 class="font-extrabold text-xs sm:text-sm md:text-base text-slate-900 dark:text-white uppercase tracking-wide truncate leading-tight">${m.name}</h4>
+                                        <div class="flex items-center gap-1.5 sm:gap-2 mt-1 flex-wrap">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-semibold bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/60">${count} reporte${count !== 1 ? 's' : ''}</span>
+                                            ${m.desc ? `<span class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[120px] sm:max-w-xs font-medium" title="${m.desc}">${m.desc}</span>` : ''}
                                         </div>
                                     </div>
                                 </div>
                                 ${canWrite ? `
-                                <div class="flex items-center gap-1.5 flex-shrink-0">
-                                    <button onclick="editMotivo(${m.id})" class="p-2 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 rounded-xl transition-all" title="Editar">
+                                <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+                                    <button onclick="editMotivo(${m.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 rounded-xl transition-all" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </button>
-                                    <button onclick="deleteMotivo(${m.id})" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar">
+                                    <button onclick="deleteMotivo(${m.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </div>
@@ -3250,41 +3318,41 @@
             }).filter(a => a.item);
 
             let html = `
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 fade-in">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 fade-in">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Coordinación de Soportes y Afectaciones</h2>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Coordinación de Soportes y Afectaciones</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Asignación de casos a equipos de soporte y equipos de afectaciones por zonas</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <select id="zoneFilter" onchange="filterCoordTable()" class="input-modern px-3.5 py-2 text-xs md:text-sm font-semibold border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0c1427] text-slate-800 dark:text-slate-100 rounded-xl focus:outline-none focus:border-brand-500">
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <select id="zoneFilter" onchange="filterCoordTable()" class="input-modern px-3 py-2 text-xs sm:text-sm font-semibold border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0c1427] text-slate-800 dark:text-slate-100 rounded-xl focus:outline-none focus:border-brand-500">
                         <option value="">Todas las zonas</option>
                         ${zones.map(z => `<option value="${z}">${z}</option>`).join('')}
                     </select>
-                    <button onclick="showAssignModal()" class="btn-modern inline-flex items-center gap-1.5 px-4 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl shadow-lg shadow-brand-500/25 transition-all">
+                    <button onclick="showAssignModal()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl shadow-lg shadow-brand-500/25 transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         <span>Asignar</span>
                     </button>
-                    <button onclick="generateOperacionalReport()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-purple-500/25 transition-all" title="Generar Reporte Operacional de Cierre">
+                    <button onclick="generateOperacionalReport()" class="btn-modern inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-purple-500/25 transition-all" title="Generar Reporte Operacional de Cierre">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Reporte</span>
                     </button>
-                    <button onclick="generateControlReport()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl shadow-lg shadow-emerald-500/25 transition-all" title="Generar reporte de control">
+                    <button onclick="generateControlReport()" class="btn-modern inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl shadow-lg shadow-emerald-500/25 transition-all" title="Generar reporte de control">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Control</span>
                     </button>
-                    <button onclick="generateControlFinalReport()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 rounded-xl shadow-lg shadow-red-500/25 transition-all" title="Generar reporte final">
+                    <button onclick="generateControlFinalReport()" class="btn-modern inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-rose-600 to-red-500 hover:from-rose-500 hover:to-red-400 rounded-xl shadow-lg shadow-red-500/25 transition-all" title="Generar reporte final">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Control Final</span>
                     </button>
-                    <button onclick="generateSoportesReport()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-xl shadow-lg shadow-blue-500/25 transition-all" title="Copiar reporte de todos los soportes">
+                    <button onclick="generateSoportesReport()" class="btn-modern inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-xl shadow-lg shadow-blue-500/25 transition-all" title="Copiar reporte de todos los soportes">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Soportes</span>
                     </button>
-                    <button onclick="generateAfectacionesReport()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 rounded-xl shadow-lg shadow-amber-500/25 transition-all" title="Copiar reporte estructurado de afectaciones">
+                    <button onclick="generateAfectacionesReport()" class="btn-modern inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 rounded-xl shadow-lg shadow-amber-500/25 transition-all" title="Copiar reporte estructurado de afectaciones">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Afectaciones</span>
                     </button>
-                    <button onclick="purgeCoordinacion()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-600 hover:to-rose-500 rounded-xl shadow-lg shadow-red-600/30 transition-all" title="Eliminar asignaciones de coordinación y resetear contadores">
+                    <button onclick="purgeCoordinacion()" class="btn-modern inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-600 hover:to-rose-500 rounded-xl shadow-lg shadow-red-600/30 transition-all" title="Eliminar asignaciones de coordinación y resetear contadores">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         <span>Limpiar</span>
                     </button>
@@ -3339,32 +3407,32 @@
 
                     html += `
                     <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden card-hover transition-all">
-                        <div class="px-6 py-4.5 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-[#080d19]/80">
-                            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-11 h-11 ${isAfecTeam ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' : 'bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20'} rounded-xl flex items-center justify-center font-bold text-lg shadow-sm">
+                        <div class="px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-[#080d19]/80">
+                            <div class="flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between gap-3">
+                                <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+                                    <div class="w-10 h-10 sm:w-11 sm:h-11 ${isAfecTeam ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' : 'bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20'} rounded-xl flex items-center justify-center font-bold text-base sm:text-lg shadow-sm flex-shrink-0">
                                         ${isAfecTeam ? '⚠️' : '🎫'}
                                     </div>
-                                    <div>
-                                        <div class="flex items-center gap-2.5 flex-wrap">
-                                            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">${techTeam.name}</h3>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <h3 class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">${techTeam.name}</h3>
                                             ${isAfecTeam ? `
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 tracking-wide">EQUIPO AFECTACIONES</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 tracking-wide">EQUIPO AFECTACIONES</span>
                                             ` : `
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/30 tracking-wide">EQUIPO SOPORTES</span>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/30 tracking-wide">EQUIPO SOPORTES</span>
                                             `}
                                         </div>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${membersHtml}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${membersHtml}</p>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/60">Total: <span class="font-extrabold">${counts.total}</span></span>
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">Pend: ${counts.pendientes}</span>
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/30">Proc: ${counts.enProceso}</span>
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/30">Espera: ${counts.espera}</span>
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">Real: ${counts.realizados}</span>
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/30">Reag: ${counts.reagendados}</span>
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/30">Anul: ${counts.anulados}</span>
+                                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/60">Total: <span class="font-extrabold">${counts.total}</span></span>
+                                    <span class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">Pend: ${counts.pendientes}</span>
+                                    <span class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/30">Proc: ${counts.enProceso}</span>
+                                    <span class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/30">Espera: ${counts.espera}</span>
+                                    <span class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">Real: ${counts.realizados}</span>
+                                    <span class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/30">Reag: ${counts.reagendados}</span>
+                                    <span class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-700 dark:text-red-300 border border-red-500/30">Anul: ${counts.anulados}</span>
                                     <div class="inline-flex items-center gap-0.5 p-1 bg-slate-100/90 dark:bg-[#080d19] border border-slate-200/80 dark:border-slate-800 rounded-xl ml-1" title="Reordenar equipo">
                                         <span class="text-[9px] font-extrabold uppercase text-slate-400 px-1 tracking-wider">POS</span>
                                         <button onclick="reorderTech(${origIndex}, 'top')" ${isFirst ? 'disabled class="px-1.5 py-0.5 text-[10px] font-bold text-slate-300 dark:text-slate-600 cursor-not-allowed"' : 'class="px-1.5 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-all"'} title="Mover al inicio">▲▲</button>
@@ -3372,25 +3440,25 @@
                                         <button onclick="reorderTech(${origIndex}, 'down')" ${isLast ? 'disabled class="px-1.5 py-0.5 text-[10px] font-bold text-slate-300 dark:text-slate-600 cursor-not-allowed"' : 'class="px-1.5 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-all"'} title="Bajar 1 casilla">▼</button>
                                         <button onclick="reorderTech(${origIndex}, 'bottom')" ${isLast ? 'disabled class="px-1.5 py-0.5 text-[10px] font-bold text-slate-300 dark:text-slate-600 cursor-not-allowed"' : 'class="px-1.5 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-all"'} title="Mover al final">▼▼</button>
                                     </div>
-                                    <button onclick="generateSingleTeamReport(${techTeam.id})" class="px-3 py-1 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/80 rounded-xl transition-all inline-flex items-center gap-1 shadow-sm" title="Copiar reporte estructurado de este equipo">
+                                    <button onclick="generateSingleTeamReport(${techTeam.id})" class="px-2.5 sm:px-3 py-1 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/80 rounded-xl transition-all inline-flex items-center gap-1 shadow-sm" title="Copiar reporte estructurado de este equipo">
                                         <span>📋</span> Reporte
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
+                        <div class="overflow-x-auto custom-scrollbar w-full">
+                            <table class="w-full min-w-[780px]">
                                 <thead>
                                     <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
-                                        <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
-                                        <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipo</th>
-                                        <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zona / Ubicación</th>
-                                        <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Identificador</th>
-                                        <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
-                                        <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Motivo / Estatus</th>
-                                        <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detalle</th>
-                                        <th class="text-right px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                                        <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
+                                        <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipo</th>
+                                        <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zona / Ubicación</th>
+                                        <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Identificador</th>
+                                        <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</th>
+                                        <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Motivo / Estatus</th>
+                                        <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detalle</th>
+                                        <th class="text-right px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">`;
@@ -3412,23 +3480,23 @@
 
                         html += `
                             <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors" data-zone="${zonaVal}">
-                                <td class="px-6 py-4.5"><span class="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500">#${itm.id}</span></td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4"><span class="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500">#${itm.id}</span></td>
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4">
                                     ${isAfec ? `
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">AFECTACIÓN</span>
                                     ` : `
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/30">SOPORTE</span>
                                     `}
                                 </td>
-                                <td class="px-6 py-4.5"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 border border-brand-100 dark:border-brand-800/60">${zonaVal}</span></td>
-                                <td class="px-6 py-4.5"><span class="text-sm font-bold text-slate-800 dark:text-slate-200">${identVal}</span></td>
-                                <td class="px-6 py-4.5">${assignStatusBadge(status)}</td>
-                                <td class="px-6 py-4.5"><span class="text-sm text-slate-600 dark:text-slate-400 truncate max-w-[150px] block font-medium">${motivoVal}</span></td>
-                                <td class="px-6 py-4.5">${reasonHtml}</td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 border border-brand-100 dark:border-brand-800/60">${zonaVal}</span></td>
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4"><span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">${identVal}</span></td>
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4">${assignStatusBadge(status)}</td>
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4"><span class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate max-w-[150px] block font-medium">${motivoVal}</span></td>
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4">${reasonHtml}</td>
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4">
                                     <div class="flex items-center justify-end gap-1">
-                                        <button onclick="showAssignModal(${a.reportId}, '${a.itemType || 'SOPORTE'}')" class="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/30 rounded-xl transition-all" title="Editar asignación"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
-                                        <button onclick="deleteAssign(${a.reportId}, '${a.itemType || 'SOPORTE'}')" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Quitar asignación"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                        <button onclick="showAssignModal(${a.reportId}, '${a.itemType || 'SOPORTE'}')" class="p-1.5 sm:p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/30 rounded-xl transition-all" title="Editar asignación"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                        <button onclick="deleteAssign(${a.reportId}, '${a.itemType || 'SOPORTE'}')" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Quitar asignación"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
                                     </div>
                                 </td>
                             </tr>`;
@@ -4934,36 +5002,243 @@
         }
 
         function exportData() {
-            const data = { reports: getReports(), techs: getTechs(), exported: new Date().toISOString() };
+            const data = {
+                reports: getReports(),
+                techs: getTechs(),
+                motivos: getMotivos(),
+                zonas: getZonas(),
+                users: getUsers(),
+                assignments: getAssignments(),
+                afectaciones: getAfectaciones(),
+                logs: getLogs(),
+                exported: new Date().toISOString()
+            };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = `soporte_tecnico_backup_${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(a.href);
-            toast('Datos exportados');
+            logActivity('EXPORTAR_BD', 'SISTEMA', 'Exportó respaldo completo de la base de datos (reportes, cuadrillas, motivos, zonas, operadores, coordinación, afectaciones)');
+            toast('Base de datos exportada con éxito');
         }
 
-        function importData(e) {
+        async function importData(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function (ev) {
+            reader.onload = async function (ev) {
                 try {
                     const data = JSON.parse(ev.target.result);
-                    if (data.reports && data.techs) {
-                        saveReports([...getReports(), ...data.reports.filter(r => !getReports().find(x => x.id === r.id))]);
-                        saveTechs([...getTechs(), ...data.techs.filter(t => !getTechs().find(x => x.id === t.id))]);
-                        toast(`Datos importados: ${data.reports.length} reportes, ${data.techs.length} equipos`);
-                    } else if (Array.isArray(data)) {
-                        saveReports([...getReports(), ...data.filter(r => !getReports().find(x => x.id === r.id))]);
-                        toast(`${data.length} reportes importados`);
-                    } else {
-                        toast('Formato inválido');
+                    if (!data || typeof data !== 'object') {
+                        toast('Archivo JSON inválido o vacío');
                         return;
                     }
-                    renderApp('dashboard');
-                } catch { toast('Archivo inválido'); }
+
+                    const addedCounts = {
+                        reports: 0,
+                        techs: 0,
+                        motivos: 0,
+                        zonas: 0,
+                        users: 0,
+                        assignments: 0,
+                        afectaciones: 0,
+                        logs: 0
+                    };
+
+                    let changed = false;
+
+                    // 1. REPORTES DE SOPORTE
+                    const importReports = Array.isArray(data) ? data : (Array.isArray(data.reports) ? data.reports : null);
+                    if (importReports && importReports.length > 0) {
+                        let currentReports = getReports();
+                        importReports.forEach(r => {
+                            if (!r) return;
+                            const isDup = currentReports.some(x =>
+                                (r.id !== undefined && x.id !== undefined && String(x.id) === String(r.id)) ||
+                                (r.ticket && x.ticket && String(r.ticket).trim() === String(x.ticket).trim())
+                            );
+                            if (!isDup) {
+                                const newId = (r.id && !currentReports.some(x => String(x.id) === String(r.id))) ? r.id : genId();
+                                currentReports.push({ ...r, id: newId });
+                                addedCounts.reports++;
+                            }
+                        });
+                        if (addedCounts.reports > 0) {
+                            localStorage.setItem(DB_KEY, JSON.stringify(currentReports));
+                            changed = true;
+                        }
+                    }
+
+                    // 2. CUADRILLAS / TÉCNICOS
+                    if (Array.isArray(data.techs) && data.techs.length > 0) {
+                        let currentTechs = getTechs();
+                        data.techs.forEach(t => {
+                            if (!t) return;
+                            const isDup = currentTechs.some(x =>
+                                (t.id !== undefined && x.id !== undefined && String(x.id) === String(t.id)) ||
+                                (t.name && x.name && x.name.trim().toLowerCase() === t.name.trim().toLowerCase())
+                            );
+                            if (!isDup) {
+                                const newId = (t.id && !currentTechs.some(x => String(x.id) === String(t.id))) ? t.id : genId();
+                                currentTechs.push({ ...t, id: newId });
+                                addedCounts.techs++;
+                            }
+                        });
+                        if (addedCounts.techs > 0) {
+                            localStorage.setItem(TECHS_KEY, JSON.stringify(currentTechs));
+                            changed = true;
+                        }
+                    }
+
+                    // 3. MOTIVOS DE SOPORTE
+                    if (Array.isArray(data.motivos) && data.motivos.length > 0) {
+                        let currentMotivos = getMotivos();
+                        data.motivos.forEach(m => {
+                            if (!m) return;
+                            const isDup = currentMotivos.some(x =>
+                                (m.id !== undefined && x.id !== undefined && String(x.id) === String(m.id)) ||
+                                (m.name && x.name && x.name.trim().toLowerCase() === m.name.trim().toLowerCase())
+                            );
+                            if (!isDup) {
+                                const newId = (m.id && !currentMotivos.some(x => String(x.id) === String(m.id))) ? m.id : genId();
+                                currentMotivos.push({ ...m, id: newId, name: m.name ? m.name.trim() : '' });
+                                addedCounts.motivos++;
+                            }
+                        });
+                        if (addedCounts.motivos > 0) {
+                            localStorage.setItem(MOTIVOS_KEY, JSON.stringify(currentMotivos));
+                            changed = true;
+                        }
+                    }
+
+                    // 4. ZONAS
+                    if (Array.isArray(data.zonas) && data.zonas.length > 0) {
+                        let currentZonas = getZonas();
+                        data.zonas.forEach(z => {
+                            if (!z) return;
+                            const isDup = currentZonas.some(x =>
+                                (z.id !== undefined && x.id !== undefined && String(x.id) === String(z.id)) ||
+                                (z.name && x.name && x.name.trim().toUpperCase() === z.name.trim().toUpperCase())
+                            );
+                            if (!isDup) {
+                                const newId = (z.id && !currentZonas.some(x => String(x.id) === String(z.id))) ? z.id : genId();
+                                currentZonas.push({ ...z, id: newId, name: z.name ? z.name.trim().toUpperCase() : '' });
+                                addedCounts.zonas++;
+                            }
+                        });
+                        if (addedCounts.zonas > 0) {
+                            localStorage.setItem(ZONAS_KEY, JSON.stringify(currentZonas));
+                            changed = true;
+                        }
+                    }
+
+                    // 5. OPERADORES / USUARIOS
+                    if (Array.isArray(data.users) && data.users.length > 0) {
+                        let currentUsers = getUsers();
+                        data.users.forEach(u => {
+                            if (!u) return;
+                            const isDup = currentUsers.some(x =>
+                                (u.id !== undefined && x.id !== undefined && String(x.id) === String(u.id)) ||
+                                (u.username && x.username && x.username.trim().toLowerCase() === u.username.trim().toLowerCase())
+                            );
+                            if (!isDup) {
+                                const newId = (u.id && !currentUsers.some(x => String(x.id) === String(u.id))) ? u.id : genId();
+                                currentUsers.push({ ...u, id: newId });
+                                addedCounts.users++;
+                            }
+                        });
+                        if (addedCounts.users > 0) {
+                            localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+                            changed = true;
+                        }
+                    }
+
+                    // 6. COORDINACIÓN / ASIGNACIONES
+                    if (Array.isArray(data.assignments) && data.assignments.length > 0) {
+                        let currentAssignments = getAssignments();
+                        data.assignments.forEach(a => {
+                            if (!a) return;
+                            const isDup = currentAssignments.some(x =>
+                                (a.id !== undefined && x.id !== undefined && String(x.id) === String(a.id)) ||
+                                (a.reportId !== undefined && x.reportId !== undefined &&
+                                    String(x.reportId) === String(a.reportId) &&
+                                    (x.itemType || 'SOPORTE') === (a.itemType || 'SOPORTE'))
+                            );
+                            if (!isDup) {
+                                const newId = (a.id && !currentAssignments.some(x => String(x.id) === String(a.id))) ? a.id : genId();
+                                currentAssignments.push({ ...a, id: newId });
+                                addedCounts.assignments++;
+                            }
+                        });
+                        if (addedCounts.assignments > 0) {
+                            localStorage.setItem(ASSIGN_KEY, JSON.stringify(currentAssignments));
+                            changed = true;
+                        }
+                    }
+
+                    // 7. AFECTACIONES / ACTIVIDADES
+                    if (Array.isArray(data.afectaciones) && data.afectaciones.length > 0) {
+                        let currentAfectaciones = getAfectaciones();
+                        data.afectaciones.forEach(af => {
+                            if (!af) return;
+                            const isDup = currentAfectaciones.some(x =>
+                                (af.id !== undefined && x.id !== undefined && String(x.id) === String(af.id))
+                            );
+                            if (!isDup) {
+                                const newId = (af.id && !currentAfectaciones.some(x => String(x.id) === String(af.id))) ? af.id : genId();
+                                currentAfectaciones.push({ ...af, id: newId });
+                                addedCounts.afectaciones++;
+                            }
+                        });
+                        if (addedCounts.afectaciones > 0) {
+                            localStorage.setItem(AFECTACIONES_KEY, JSON.stringify(currentAfectaciones));
+                            changed = true;
+                        }
+                    }
+
+                    // 8. BITÁCORA / LOGS
+                    if (Array.isArray(data.logs) && data.logs.length > 0) {
+                        let currentLogs = getLogs();
+                        data.logs.forEach(l => {
+                            if (!l) return;
+                            const isDup = currentLogs.some(x =>
+                                (l.id !== undefined && x.id !== undefined && String(x.id) === String(l.id))
+                            );
+                            if (!isDup) {
+                                currentLogs.push(l);
+                                addedCounts.logs++;
+                            }
+                        });
+                        if (addedCounts.logs > 0) {
+                            localStorage.setItem(LOGS_KEY, JSON.stringify(currentLogs));
+                            changed = true;
+                        }
+                    }
+
+                    // Sincronizar inmediatamente con servidor y actualizar UI
+                    if (changed) {
+                        await syncServerDB();
+                        const summary = [];
+                        if (addedCounts.reports > 0) summary.push(`${addedCounts.reports} reporte(s)`);
+                        if (addedCounts.techs > 0) summary.push(`${addedCounts.techs} cuadrilla(s)`);
+                        if (addedCounts.motivos > 0) summary.push(`${addedCounts.motivos} motivo(s)`);
+                        if (addedCounts.zonas > 0) summary.push(`${addedCounts.zonas} zona(s)`);
+                        if (addedCounts.users > 0) summary.push(`${addedCounts.users} operador(es)`);
+                        if (addedCounts.assignments > 0) summary.push(`${addedCounts.assignments} asignación(es)`);
+                        if (addedCounts.afectaciones > 0) summary.push(`${addedCounts.afectaciones} afectación(es)`);
+
+                        logActivity('IMPORTAR_BD', 'SISTEMA', `Importó datos nuevos: ${summary.join(', ')}`);
+                        toast(`Importado exitosamente: ${summary.join(', ')}`);
+                    } else {
+                        toast('No se encontraron registros nuevos (toda la información del archivo ya existe)');
+                    }
+
+                    renderApp(currentView || 'dashboard');
+                } catch (err) {
+                    console.error('Error importando datos:', err);
+                    toast('Error al procesar el archivo JSON');
+                }
             };
             reader.readAsText(file);
             e.target.value = '';
@@ -5092,12 +5367,12 @@
             let html = `
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 fade-in">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Módulo de Afectaciones y Actividades</h2>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Módulo de Afectaciones y Actividades</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">${afectaciones.length} registro${afectaciones.length !== 1 ? 's' : ''} almacenado${afectaciones.length !== 1 ? 's' : ''}</p>
                 </div>
                 ${canWrite ? `
                 <div class="flex items-center gap-3">
-                    <button onclick="showAfectacionForm()" class="btn-modern inline-flex items-center gap-2 px-4.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl shadow-lg shadow-brand-500/25 transition-all">
+                    <button onclick="showAfectacionForm()" class="btn-modern inline-flex items-center gap-2 px-4 sm:px-4.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl shadow-lg shadow-brand-500/25 transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         <span>Nuevo Reporte</span>
                     </button>
@@ -5107,26 +5382,26 @@
 
             <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden animate-slide-up">
                 ${afectaciones.length > 0 ? `
-                <div class="overflow-x-auto">
-                    <table class="w-full">
+                <div class="overflow-x-auto custom-scrollbar w-full">
+                    <table class="w-full min-w-[750px]">
                         <thead>
                             <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipo</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zona / Ubicación</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">OLT / NAP</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detalles</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha</th>
-                                <th class="text-right px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                                <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
+                                <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tipo</th>
+                                <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zona / Ubicación</th>
+                                <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">OLT / NAP</th>
+                                <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detalles</th>
+                                <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha</th>
+                                <th class="text-right px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
                             ${afectaciones.map(a => `
                             <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4.5">
                                     <span class="text-xs font-mono font-semibold text-slate-400 dark:text-slate-500">#${a.id}</span>
                                 </td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4.5">
                                     ${a.tipo === 'ACTIVIDAD' ? `
                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/30">
                                             <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
@@ -5139,30 +5414,30 @@
                                         </span>
                                     `}
                                 </td>
-                                <td class="px-6 py-4.5">
-                                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">${a.zona || a.ubicacion || '—'}</span>
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4.5">
+                                    <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">${a.zona || a.ubicacion || '—'}</span>
                                 </td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4.5">
                                     <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 block">${a.caja_nap || a.olt || '—'}</span>
                                 </td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4.5">
                                     <span class="text-xs text-slate-500 dark:text-slate-400 block font-medium">${a.tipo === 'ACTIVIDAD' ? (a.estatus || '—') : (`${a.afectados || 0} Afectados`)}</span>
                                 </td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4.5">
                                     <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">${new Date(a.created_at).toLocaleString('es-VE')}</span>
                                 </td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3.5 sm:py-4.5">
                                     <div class="flex items-center justify-end gap-1">
-                                        <button onclick="viewAfectacion(${a.id})" class="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/30 rounded-xl transition-all" title="Ver / Copiar">
+                                        <button onclick="viewAfectacion(${a.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/30 rounded-xl transition-all" title="Ver / Copiar">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </button>
-                                        <button onclick="copyAfectacion(${a.id})" class="p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-xl transition-all" title="Copiar reporte">
+                                        <button onclick="copyAfectacion(${a.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-xl transition-all" title="Copiar reporte">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                                         </button>
-                                        <button onclick="downloadAfectacion(${a.id})" class="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-all" title="Descargar TXT">
+                                        <button onclick="downloadAfectacion(${a.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-all" title="Descargar TXT">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                         </button>
-                                        <button onclick="deleteAfectacion(${a.id})" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar">
+                                        <button onclick="deleteAfectacion(${a.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
@@ -5347,13 +5622,13 @@
 
             const users = getUsers();
             let html = `
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-5 sm:mb-6 fade-in">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Gestión de Usuarios</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">${users.length} usuario${users.length !== 1 ? 's' : ''} registrado${users.length !== 1 ? 's' : ''}</p>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Gestión de Usuarios</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 sm:mt-1">${users.length} usuario${users.length !== 1 ? 's' : ''} registrado${users.length !== 1 ? 's' : ''}</p>
                 </div>
                 ${hasPermission('users', 'write') ? `
-                <button onclick="showUserForm()" class="btn-modern inline-flex items-center gap-2 px-4.5 py-2 text-xs md:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl shadow-lg shadow-emerald-500/25 transition-all">
+                <button onclick="showUserForm()" class="btn-modern inline-flex items-center justify-center gap-2 px-4 py-2 sm:px-4.5 sm:py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl shadow-lg shadow-emerald-500/25 transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     <span>Nuevo Usuario</span>
                 </button>
@@ -5361,34 +5636,34 @@
             </div>
 
             <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden animate-slide-up">
-                <div class="overflow-x-auto">
-                    <table class="w-full">
+                <div class="overflow-x-auto custom-scrollbar w-full">
+                    <table class="w-full min-w-[640px]">
                         <thead>
                             <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre Completo</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rol</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Registro</th>
-                                <th class="text-right px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nombre Completo</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rol</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Registro</th>
+                                <th class="text-right px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
                             ${users.map(u => `
                             <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                                <td class="px-6 py-4.5">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-sm flex items-center justify-center shadow-md">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                                    <div class="flex items-center gap-2.5 sm:gap-3">
+                                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center shadow-md shrink-0">
                                             ${(u.username || 'U')[0].toUpperCase()}
                                         </div>
-                                        <div>
-                                            <span class="text-sm font-bold text-slate-900 dark:text-slate-100 block">${u.username}</span>
+                                        <div class="min-w-0">
+                                            <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 block truncate">${u.username}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4.5">
-                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">${u.name || u.username}</span>
+                                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                                    <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">${u.name || u.username}</span>
                                 </td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4">
                                     ${u.role === 'ADMIN' ? `
                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/30">
                                             👑 ADMIN
@@ -5403,17 +5678,17 @@
                                         </span>
                                     `}
                                 </td>
-                                <td class="px-6 py-4.5">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4">
                                     <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">${u.created_at ? new Date(u.created_at).toLocaleDateString('es-VE') : 'N/A'}</span>
                                 </td>
-                                <td class="px-6 py-4.5">
-                                    <div class="flex items-center justify-end gap-1.5">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4">
+                                    <div class="flex items-center justify-end gap-1 sm:gap-1.5">
                                         ${hasPermission('users', 'write') ? `
-                                        <button onclick="showUserForm(${u.id})" class="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl transition-all" title="Editar usuario">
+                                        <button onclick="showUserForm(${u.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl transition-all" title="Editar usuario">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                         </button>
                                         ${u.username.toLowerCase() !== 'admin' && (!currentUser || currentUser.id !== u.id) ? `
-                                        <button onclick="deleteUser(${u.id})" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar usuario">
+                                        <button onclick="deleteUser(${u.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all" title="Eliminar usuario">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                         ` : ''}
@@ -5632,18 +5907,18 @@
 
             const logs = getLogs();
             let html = `
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-5 sm:mb-6 fade-in">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Bitácora de Auditoría</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">${logs.length} evento${logs.length !== 1 ? 's' : ''} registrado${logs.length !== 1 ? 's' : ''} en el sistema</p>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Bitácora de Auditoría</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 sm:mt-1">${logs.length} evento${logs.length !== 1 ? 's' : ''} registrado${logs.length !== 1 ? 's' : ''} en el sistema</p>
                 </div>
-                <div class="flex items-center gap-2.5">
-                    <button onclick="exportLogsTxt()" class="btn-modern inline-flex items-center gap-1.5 px-4 py-2 text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-[#0c1427] border border-slate-200/80 dark:border-slate-800/80 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 shadow-sm transition-all">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                    <button onclick="exportLogsTxt()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-[#0c1427] border border-slate-200/80 dark:border-slate-800/80 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 shadow-sm transition-all">
                         <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span>Exportar TXT</span>
                     </button>
                     ${currentUser && currentUser.role === 'ADMIN' ? `
-                    <button onclick="clearLogs()" class="btn-modern inline-flex items-center gap-1.5 px-4 py-2 text-xs md:text-sm font-bold text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl hover:bg-red-500/20 shadow-sm transition-all">
+                    <button onclick="clearLogs()" class="btn-modern inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-bold text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl hover:bg-red-500/20 shadow-sm transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         <span>Limpiar Historial</span>
                     </button>
@@ -5654,41 +5929,41 @@
             <!-- Buscador -->
             <div class="mb-4">
                 <div class="relative">
-                    <input type="text" id="logsSearchInput" onkeyup="filterLogsTable()" placeholder="Buscar por usuario, acción, módulo o detalle..." class="input-modern w-full pl-10 pr-4 py-2.5 text-xs md:text-sm border border-slate-200/80 dark:border-slate-800/80 rounded-xl bg-white dark:bg-[#0c1427] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-brand-500 shadow-sm">
-                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" id="logsSearchInput" onkeyup="filterLogsTable()" placeholder="Buscar por usuario, acción, módulo o detalle..." class="input-modern w-full pl-10 pr-4 py-2 sm:py-2.5 text-xs sm:text-sm border border-slate-200/80 dark:border-slate-800/80 rounded-xl bg-white dark:bg-[#0c1427] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-brand-500 shadow-sm">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3 sm:top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden animate-slide-up">
-                <div class="overflow-x-auto max-h-[70vh] custom-scrollbar">
-                    <table class="w-full">
+                <div class="overflow-x-auto max-h-[70vh] custom-scrollbar w-full">
+                    <table class="w-full min-w-[720px]">
                         <thead class="sticky top-0 bg-slate-50/95 dark:bg-[#090e1a]/95 backdrop-blur-md z-10">
                             <tr class="border-b border-slate-100 dark:border-slate-800/80">
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha / Hora</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Módulo</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acción</th>
-                                <th class="text-left px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detalles</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha / Hora</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Módulo</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Acción</th>
+                                <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Detalles</th>
                             </tr>
                         </thead>
                         <tbody id="logsTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60">
                             ${logs.map(l => `
                             <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors" data-search="${(l.username + ' ' + l.action + ' ' + l.module + ' ' + l.details).toLowerCase()}">
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                     <span class="text-xs font-mono font-medium text-slate-500 dark:text-slate-400">${new Date(l.timestamp).toLocaleString('es-VE')}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/30">
                                         👤 ${l.username}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                     <span class="text-xs font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">${l.module}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                     <span class="text-xs font-mono font-bold text-brand-600 dark:text-brand-400 bg-slate-100 dark:bg-slate-800/60 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700/60">${l.action}</span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 sm:px-6 py-3 sm:py-4">
                                     <span class="text-xs text-slate-600 dark:text-slate-300 block max-w-md truncate font-medium" title="${l.details}">${l.details}</span>
                                 </td>
                             </tr>

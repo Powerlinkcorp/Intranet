@@ -17,7 +17,7 @@ for p in [PROJECT_ROOT, CORE_DIR, WEB_DIR, CLI_DIR]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from flasheo.core import profiles
+import profiles
 import web_station
 import flasheo
 

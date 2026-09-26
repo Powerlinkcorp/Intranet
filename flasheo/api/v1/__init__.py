@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from fastapi import APIRouter
-from flasheo.api.v1.endpoints import auth, onus, lotes, modelos, flasheo, ws
+from api.v1.endpoints import auth, onus, lotes, modelos, flasheo, ws
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(auth.router)
