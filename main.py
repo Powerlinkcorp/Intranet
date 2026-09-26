@@ -1692,7 +1692,7 @@ async def procesar_auditoria_api(
         "deudores": datosDeudores
     }
 
-def build_plan_aggregates(users):
+def build_plan_aggregates(users, is_corp=False, is_cons=False):
     total_activos = 0
     total_monto = 0.0
     datos_clientes_activos = []
@@ -1704,9 +1704,17 @@ def build_plan_aggregates(users):
             plan = str(item.get('plan', '')).strip() or 'Sin Plan'
             service_type = str(item.get('service_type', '')).strip().upper()
             
-            if service_type in ['PYME', 'CORPORATIVO', 'IPTV'] or plan.upper() == 'TV':
+            if plan.upper() == 'TV' or service_type == 'IPTV':
                 continue
                 
+            if is_corp:
+                if service_type not in ['PYME', 'CORPORATIVO']:
+                    continue
+            elif not is_cons:
+                # This is residential (not corp, not cons)
+                if service_type in ['PYME', 'CORPORATIVO']:
+                    continue
+                    
             try:
                 amount = float(item.get('amount') or 0.0)
             except:
@@ -1838,23 +1846,10 @@ def get_clientes_activos_por_plan(
             data_corp = json.load(f)
 
     users_gen = (data_gen or {}).get("data", [])
-    users_corp = (data_corp or {}).get("data", [])
 
-    corp_sids = {str(u.get('id_servicio', '')).strip() for u in users_corp if str(u.get('id_servicio', '')).strip()}
-    users_res = [u for u in users_gen if str(u.get('id_servicio', '')).strip() not in corp_sids]
-
-    all_dict = {}
-    for u in users_res:
-        sid = str(u.get('id_servicio', '')).strip()
-        if sid: all_dict[sid] = u
-    for u in users_corp:
-        sid = str(u.get('id_servicio', '')).strip()
-        if sid: all_dict[sid] = u
-    users_cons = list(all_dict.values())
-
-    resumen_res = build_plan_aggregates(users_res)
-    resumen_corp = build_plan_aggregates(users_corp)
-    resumen_cons = build_plan_aggregates(users_cons)
+    resumen_res = build_plan_aggregates(users_gen, is_corp=False, is_cons=False)
+    resumen_corp = build_plan_aggregates(users_gen, is_corp=True, is_cons=False)
+    resumen_cons = build_plan_aggregates(users_gen, is_corp=False, is_cons=True)
 
     return {
         "residencial": resumen_res,
