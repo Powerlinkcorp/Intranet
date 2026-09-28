@@ -254,6 +254,21 @@ async function syncDatabase(updatedData, logAction = '', logDetails = '') {
     }
 }
 
+function genReportId(reports = []) {
+    let maxId = 1000;
+    (reports || []).forEach(r => {
+        const idNum = Number(r.id);
+        if (!isNaN(idNum) && idNum >= 1000 && idNum < 1000000 && idNum > maxId) {
+            maxId = idNum;
+        }
+    });
+    let nextId = maxId + 1;
+    while ((reports || []).some(r => Number(r.id) === nextId)) {
+        nextId++;
+    }
+    return nextId;
+}
+
 // Llenar selects de Zonas y Motivos
 function populateSelects() {
     const selZona = document.getElementById('sop_zona');
@@ -864,7 +879,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const newReport = {
-                id: Date.now(),
+                id: genReportId(dbCache.reports),
                 zona,
                 cedula,
                 motivo,
