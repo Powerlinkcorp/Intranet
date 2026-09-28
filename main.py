@@ -2239,11 +2239,35 @@ async def view_reporte(request: Request, db: Session = Depends(get_db)):
 @app.get("/api/db")
 async def api_get_db():
     try:
-        with open("db.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = {}
+        if os.path.exists("db.json"):
+            with open("db.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+        
+        # Asegurar listas por defecto
+        for key in ['reports', 'afectaciones', 'techs', 'assignments', 'motivos', 'zonas', 'users', 'logs']:
+            if key not in data or not isinstance(data[key], list):
+                data[key] = []
+                
+        # Aliases para máxima compatibilidad
+        data['reportes'] = data.get('reports', [])
+        data['cuadrillas'] = data.get('techs', [])
+        data['coordinacion'] = data.get('assignments', [])
+        data['operadores'] = data.get('users', [])
+        data['bitacora'] = data.get('logs', [])
+        
         return data
     except Exception as e:
-        return {"reports": [], "afectaciones": [], "techs": [], "assignments": [], "motivos": [], "zonas": [], "users": [], "logs": []}
+        return {
+            "reports": [], "reportes": [],
+            "afectaciones": [],
+            "techs": [], "cuadrillas": [],
+            "assignments": [], "coordinacion": [],
+            "motivos": [],
+            "zonas": [],
+            "users": [], "operadores": [],
+            "logs": [], "bitacora": []
+        }
 
 @app.post("/api/db")
 async def api_post_db(request: Request):
@@ -2258,9 +2282,26 @@ async def api_post_db(request: Request):
             except Exception:
                 data = {}
                 
-        for key in ['reports', 'afectaciones', 'techs', 'assignments', 'motivos', 'zonas', 'users', 'logs']:
-            if key in payload and isinstance(payload[key], list):
-                data[key] = payload[key]
+        # Mapeo de campos compatibles tanto en inglés como en español
+        mappings = [
+            (['reports', 'reportes'], 'reports'),
+            (['techs', 'cuadrillas'], 'techs'),
+            (['assignments', 'coordinacion'], 'assignments'),
+            (['afectaciones'], 'afectaciones'),
+            (['motivos'], 'motivos'),
+            (['zonas'], 'zonas'),
+            (['users', 'operadores'], 'users'),
+            (['logs', 'bitacora'], 'logs'),
+        ]
+        
+        for keys, canonical_key in mappings:
+            for k in keys:
+                if k in payload and isinstance(payload[k], list):
+                    # Si el payload viene con lista vacía pero db.json ya tiene datos de motivos/zonas, no sobreescribir con vacío
+                    if len(payload[k]) == 0 and len(data.get(canonical_key, [])) > 0 and canonical_key in ['motivos', 'zonas']:
+                        continue
+                    data[canonical_key] = payload[k]
+                    break
                 
         with open("db.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)

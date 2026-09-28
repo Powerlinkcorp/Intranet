@@ -1775,6 +1775,37 @@
         const LOGS_KEY = 'soporte_tecnico_logs';
         const SESSION_KEY = 'soporte_tecnico_session';
 
+        const DEFAULT_MOTIVOS = [
+            { id: 1788572149228, name: "ONU LOS", desc: "FALLA FISICA" },
+            { id: 1788572638016, name: "VERIFICACION DE RED", desc: "LENTITUD E INTERMITENCIA" },
+            { id: 1788572649864, name: "VERIFICACION DE TENDIDO", desc: "POSIBLE TENDIDO AFECTADO" },
+            { id: 1788572659617, name: "CAMBIO DE ONU", desc: "ONU DEFECTUOSA O ONU DE PRUEBA" },
+            { id: 1788572680884, name: "VERIFICACION DE ONU", desc: "POSIBLE ONU DEFECTUOSA" },
+            { id: 1788572716363, name: "SUSTITUCION DE TENDIDO", desc: "REMPLAZO DE TENDIDO DE FIBRA" },
+            { id: 1788572751286, name: "CORRECION DE POTENCIA", desc: "POTENCIA ATENUADA" },
+            { id: 1788572771880, name: "REUBICACION DE TENDIDO", desc: "A SOLICITUD DEL ABONADO" },
+            { id: 1788572796241, name: "CAMBIO DE ONU ROUTER A ONU", desc: "SOLICITUD" },
+            { id: 1788572804299, name: "CAMBIO DE ONU A ONU ROUTER", desc: "SOLICITUD" },
+            { id: 1788572837269, name: "VERIFICACION DE CAJA NAP", desc: "POSIBLE CAJA AFECTADA" }
+        ];
+
+        const DEFAULT_ZONAS = [
+            { id: 1, name: "DISTRITO CAPITAL" },
+            { id: 1788572473240, name: "LOS TEQUES" },
+            { id: 1788572531053, name: "CARRIZAL" },
+            { id: 1788572534924, name: "SAN JOSE" },
+            { id: 1788572545356, name: "CUMBRE ROJA" },
+            { id: 1788572557792, name: "TEJERIAS" },
+            { id: 1788572578139, name: "EL VALLE" },
+            { id: 1788572581998, name: "PROPATRIA" },
+            { id: 1788572593339, name: "PARAISO" },
+            { id: 1788827292363, name: "SAN ANTONIO" },
+            { id: 2, name: "GUATIRE" },
+            { id: 3, name: "GUARENAS" },
+            { id: 4, name: "ZONA NORTE" },
+            { id: 5, name: "ZONA SUR" }
+        ];
+
         const DEFAULT_USER = {
             id: 1,
             username: 'admin',
@@ -1798,24 +1829,12 @@
             try {
                 let z = JSON.parse(localStorage.getItem(ZONAS_KEY));
                 if (!Array.isArray(z) || z.length === 0) {
-                    z = [
-                        { id: 1, name: 'DISTRITO CAPITAL' },
-                        { id: 2, name: 'GUATIRE' },
-                        { id: 3, name: 'GUARENAS' },
-                        { id: 4, name: 'ZONA NORTE' },
-                        { id: 5, name: 'ZONA SUR' }
-                    ];
+                    z = JSON.parse(JSON.stringify(DEFAULT_ZONAS));
                     localStorage.setItem(ZONAS_KEY, JSON.stringify(z));
                 }
                 return z;
             } catch (e) {
-                return [
-                    { id: 1, name: 'DISTRITO CAPITAL' },
-                    { id: 2, name: 'GUATIRE' },
-                    { id: 3, name: 'GUARENAS' },
-                    { id: 4, name: 'ZONA NORTE' },
-                    { id: 5, name: 'ZONA SUR' }
-                ];
+                return JSON.parse(JSON.stringify(DEFAULT_ZONAS));
             }
         }
         function saveZonas(z) { localStorage.setItem(ZONAS_KEY, JSON.stringify(z)); syncServerDB(); }
@@ -1946,14 +1965,33 @@
                 lastDBHash = text;
                 const data = JSON.parse(text);
                 isSyncing = true;
-                if (Array.isArray(data.reports)) localStorage.setItem(DB_KEY, JSON.stringify(data.reports));
+                const serverReports = Array.isArray(data.reports) ? data.reports : (Array.isArray(data.reportes) ? data.reportes : null);
+                if (serverReports) {
+                    localStorage.setItem(DB_KEY, JSON.stringify(serverReports));
+                    migrateReportIdsToShort();
+                }
                 if (Array.isArray(data.afectaciones)) localStorage.setItem(AFECTACIONES_KEY, JSON.stringify(data.afectaciones));
-                if (Array.isArray(data.techs)) localStorage.setItem(TECHS_KEY, JSON.stringify(data.techs));
-                if (Array.isArray(data.assignments)) localStorage.setItem(ASSIGN_KEY, JSON.stringify(data.assignments));
-                if (Array.isArray(data.motivos)) localStorage.setItem(MOTIVOS_KEY, JSON.stringify(data.motivos));
-                if (Array.isArray(data.zonas) && data.zonas.length > 0) localStorage.setItem(ZONAS_KEY, JSON.stringify(data.zonas));
-                if (Array.isArray(data.users) && data.users.length > 0) localStorage.setItem(USERS_KEY, JSON.stringify(data.users));
-                if (Array.isArray(data.logs)) localStorage.setItem(LOGS_KEY, JSON.stringify(data.logs));
+                const serverTechs = Array.isArray(data.techs) ? data.techs : (Array.isArray(data.cuadrillas) ? data.cuadrillas : null);
+                if (serverTechs) localStorage.setItem(TECHS_KEY, JSON.stringify(serverTechs));
+                const serverAssignments = Array.isArray(data.assignments) ? data.assignments : (Array.isArray(data.coordinacion) ? data.coordinacion : null);
+                if (serverAssignments) localStorage.setItem(ASSIGN_KEY, JSON.stringify(serverAssignments));
+
+                if (Array.isArray(data.motivos) && data.motivos.length > 0) {
+                    localStorage.setItem(MOTIVOS_KEY, JSON.stringify(data.motivos));
+                } else if (!localStorage.getItem(MOTIVOS_KEY) || getMotivos().length === 0) {
+                    localStorage.setItem(MOTIVOS_KEY, JSON.stringify(DEFAULT_MOTIVOS));
+                }
+
+                if (Array.isArray(data.zonas) && data.zonas.length > 0) {
+                    localStorage.setItem(ZONAS_KEY, JSON.stringify(data.zonas));
+                } else if (!localStorage.getItem(ZONAS_KEY) || getZonas().length === 0) {
+                    localStorage.setItem(ZONAS_KEY, JSON.stringify(DEFAULT_ZONAS));
+                }
+
+                const serverUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data.operadores) ? data.operadores : null);
+                if (serverUsers && serverUsers.length > 0) localStorage.setItem(USERS_KEY, JSON.stringify(serverUsers));
+                const serverLogs = Array.isArray(data.logs) ? data.logs : (Array.isArray(data.bitacora) ? data.bitacora : null);
+                if (serverLogs) localStorage.setItem(LOGS_KEY, JSON.stringify(serverLogs));
                 isSyncing = false;
                 return true;
             } catch (e) {
@@ -1965,15 +2003,29 @@
         async function syncServerDB() {
             if (isSyncing) return;
             try {
+                const reports = getReports();
+                const cuadrillas = getTechs();
+                const coordinacion = getAssignments();
+                const afectaciones = getAfectaciones();
+                const motivos = getMotivos();
+                const zonas = getZonas();
+                const users = getUsers();
+                const logs = getLogs();
+
                 const payload = {
-                    reports: getReports(),
-                    afectaciones: getAfectaciones(),
-                    techs: getTechs(),
-                    assignments: getAssignments(),
-                    motivos: getMotivos(),
-                    zonas: getZonas(),
-                    users: getUsers(),
-                    logs: getLogs()
+                    reports: reports,
+                    reportes: reports,
+                    techs: cuadrillas,
+                    cuadrillas: cuadrillas,
+                    assignments: coordinacion,
+                    coordinacion: coordinacion,
+                    afectaciones: afectaciones,
+                    motivos: motivos,
+                    zonas: zonas,
+                    users: users,
+                    operadores: users,
+                    logs: logs,
+                    bitacora: logs
                 };
                 const bodyStr = JSON.stringify(payload);
                 lastDBHash = bodyStr;
@@ -1991,11 +2043,78 @@
         function saveReports(r) { localStorage.setItem(DB_KEY, JSON.stringify(r)); syncServerDB(); }
         function getTechs() { try { return JSON.parse(localStorage.getItem(TECHS_KEY)) || []; } catch (e) { return []; } }
         function saveTechs(r) { localStorage.setItem(TECHS_KEY, JSON.stringify(r)); syncServerDB(); }
-        function getMotivos() { try { return JSON.parse(localStorage.getItem(MOTIVOS_KEY)) || []; } catch (e) { return []; } }
+        function getMotivos() {
+            try {
+                let m = JSON.parse(localStorage.getItem(MOTIVOS_KEY));
+                if (!Array.isArray(m) || m.length === 0) {
+                    m = JSON.parse(JSON.stringify(DEFAULT_MOTIVOS));
+                    localStorage.setItem(MOTIVOS_KEY, JSON.stringify(m));
+                }
+                return m;
+            } catch (e) {
+                return JSON.parse(JSON.stringify(DEFAULT_MOTIVOS));
+            }
+        }
         function saveMotivos(r) { localStorage.setItem(MOTIVOS_KEY, JSON.stringify(r)); syncServerDB(); }
         function getAssignments() { try { return JSON.parse(localStorage.getItem(ASSIGN_KEY)) || []; } catch (e) { return []; } }
         function saveAssignments(r) { localStorage.setItem(ASSIGN_KEY, JSON.stringify(r)); syncServerDB(); }
         function genId() { return Date.now(); }
+
+        function genReportId() {
+            const reports = getReports();
+            let maxId = 1000;
+            reports.forEach(r => {
+                const idNum = Number(r.id);
+                if (!isNaN(idNum) && idNum >= 1000 && idNum < 1000000 && idNum > maxId) {
+                    maxId = idNum;
+                }
+            });
+            let nextId = maxId + 1;
+            while (reports.some(r => Number(r.id) === nextId)) {
+                nextId++;
+            }
+            return nextId;
+        }
+
+        function migrateReportIdsToShort() {
+            let reports = getReports();
+            let assignments = getAssignments();
+            let changed = false;
+
+            const longIdReports = reports.filter(r => Number(r.id) > 10000000);
+            if (longIdReports.length > 0) {
+                let currentMax = 1000;
+                reports.forEach(r => {
+                    const n = Number(r.id);
+                    if (!isNaN(n) && n >= 1000 && n < 1000000 && n > currentMax) {
+                        currentMax = n;
+                    }
+                });
+
+                longIdReports.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+
+                longIdReports.forEach(r => {
+                    currentMax++;
+                    const oldId = r.id;
+                    const newId = currentMax;
+                    r.id = newId;
+
+                    assignments.forEach(a => {
+                        if ((a.itemType || 'SOPORTE') === 'SOPORTE' && String(a.reportId) === String(oldId)) {
+                            a.reportId = newId;
+                        }
+                    });
+                    changed = true;
+                });
+
+                if (changed) {
+                    localStorage.setItem(DB_KEY, JSON.stringify(reports));
+                    localStorage.setItem(ASSIGN_KEY, JSON.stringify(assignments));
+                    syncServerDB();
+                }
+            }
+        }
+
         function toast(msg) {
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;
@@ -2123,6 +2242,9 @@
             }
 
             getUsers();
+            getZonas();
+            getMotivos();
+            migrateReportIdsToShort();
             const loggedIn = checkLoginState();
 
             if (loggedIn) {
@@ -4884,12 +5006,12 @@
                 logActivity('EDITAR_REPORTE', 'REPORTES', `Actualizó reporte #${id} (${data.cedula})`);
                 toast('Reporte actualizado');
             } else {
-                data.id = genId();
+                data.id = genReportId();
                 data.created_at = new Date().toISOString();
                 data.updated_at = new Date().toISOString();
                 reports.unshift(data);
                 logActivity('CREAR_REPORTE', 'REPORTES', `Creó reporte #${data.id} para cliente ${data.cedula} (${data.zona})`);
-                toast('Reporte creado');
+                toast(`Reporte #${data.id} creado con éxito`);
             }
             saveReports(reports);
             closeModal();
@@ -5001,17 +5123,48 @@
             renderApp('dashboard');
         }
 
-        function exportData() {
+        async function exportData() {
+            try {
+                if (window.location.protocol !== 'file:') {
+                    await loadServerDB();
+                }
+            } catch (e) {
+                console.warn('Sincronización previa al exportar falló, usando datos locales:', e);
+            }
+
+            const reports = getReports();
+            const cuadrillas = getTechs();
+            const motivos = getMotivos();
+            const zonas = getZonas();
+            const users = getUsers();
+            const coordinacion = getAssignments();
+            const afectaciones = getAfectaciones();
+            const logs = getLogs();
+
             const data = {
-                reports: getReports(),
-                techs: getTechs(),
-                motivos: getMotivos(),
-                zonas: getZonas(),
-                users: getUsers(),
-                assignments: getAssignments(),
-                afectaciones: getAfectaciones(),
-                logs: getLogs(),
-                exported: new Date().toISOString()
+                reports: reports,
+                reportes: reports,
+                coordinacion: coordinacion,
+                assignments: coordinacion,
+                cuadrillas: cuadrillas,
+                techs: cuadrillas,
+                afectaciones: afectaciones,
+                motivos: motivos,
+                zonas: zonas,
+                users: users,
+                operadores: users,
+                logs: logs,
+                bitacora: logs,
+                exported: new Date().toISOString(),
+                total_registros: {
+                    reportes: reports.length,
+                    coordinacion: coordinacion.length,
+                    cuadrillas: cuadrillas.length,
+                    afectaciones: afectaciones.length,
+                    motivos: motivos.length,
+                    zonas: zonas.length,
+                    usuarios: users.length
+                }
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
@@ -5019,8 +5172,8 @@
             a.download = `soporte_tecnico_backup_${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(a.href);
-            logActivity('EXPORTAR_BD', 'SISTEMA', 'Exportó respaldo completo de la base de datos (reportes, cuadrillas, motivos, zonas, operadores, coordinación, afectaciones)');
-            toast('Base de datos exportada con éxito');
+            logActivity('EXPORTAR_BD', 'SISTEMA', `Exportó respaldo completo de la base de datos (${reports.length} reportes, ${coordinacion.length} coordinaciones, ${cuadrillas.length} cuadrillas, ${afectaciones.length} afectaciones, ${motivos.length} motivos, ${zonas.length} zonas)`);
+            toast(`Base de datos exportada con éxito (${motivos.length} motivos, ${zonas.length} zonas)`);
         }
 
         async function importData(e) {
@@ -5049,7 +5202,7 @@
                     let changed = false;
 
                     // 1. REPORTES DE SOPORTE
-                    const importReports = Array.isArray(data) ? data : (Array.isArray(data.reports) ? data.reports : null);
+                    const importReports = Array.isArray(data) ? data : (Array.isArray(data.reports) ? data.reports : (Array.isArray(data.reportes) ? data.reportes : null));
                     if (importReports && importReports.length > 0) {
                         let currentReports = getReports();
                         importReports.forEach(r => {
@@ -5059,7 +5212,7 @@
                                 (r.ticket && x.ticket && String(r.ticket).trim() === String(x.ticket).trim())
                             );
                             if (!isDup) {
-                                const newId = (r.id && !currentReports.some(x => String(x.id) === String(r.id))) ? r.id : genId();
+                                const newId = (r.id && Number(r.id) < 10000000 && !currentReports.some(x => String(x.id) === String(r.id))) ? Number(r.id) : genReportId();
                                 currentReports.push({ ...r, id: newId });
                                 addedCounts.reports++;
                             }
@@ -5071,9 +5224,10 @@
                     }
 
                     // 2. CUADRILLAS / TÉCNICOS
-                    if (Array.isArray(data.techs) && data.techs.length > 0) {
+                    const importTechs = Array.isArray(data.techs) ? data.techs : (Array.isArray(data.cuadrillas) ? data.cuadrillas : null);
+                    if (importTechs && importTechs.length > 0) {
                         let currentTechs = getTechs();
-                        data.techs.forEach(t => {
+                        importTechs.forEach(t => {
                             if (!t) return;
                             const isDup = currentTechs.some(x =>
                                 (t.id !== undefined && x.id !== undefined && String(x.id) === String(t.id)) ||
@@ -5092,9 +5246,10 @@
                     }
 
                     // 3. MOTIVOS DE SOPORTE
-                    if (Array.isArray(data.motivos) && data.motivos.length > 0) {
+                    const importMotivos = Array.isArray(data.motivos) ? data.motivos : null;
+                    if (importMotivos && importMotivos.length > 0) {
                         let currentMotivos = getMotivos();
-                        data.motivos.forEach(m => {
+                        importMotivos.forEach(m => {
                             if (!m) return;
                             const isDup = currentMotivos.some(x =>
                                 (m.id !== undefined && x.id !== undefined && String(x.id) === String(m.id)) ||
@@ -5113,9 +5268,10 @@
                     }
 
                     // 4. ZONAS
-                    if (Array.isArray(data.zonas) && data.zonas.length > 0) {
+                    const importZonas = Array.isArray(data.zonas) ? data.zonas : null;
+                    if (importZonas && importZonas.length > 0) {
                         let currentZonas = getZonas();
-                        data.zonas.forEach(z => {
+                        importZonas.forEach(z => {
                             if (!z) return;
                             const isDup = currentZonas.some(x =>
                                 (z.id !== undefined && x.id !== undefined && String(x.id) === String(z.id)) ||
@@ -5134,9 +5290,10 @@
                     }
 
                     // 5. OPERADORES / USUARIOS
-                    if (Array.isArray(data.users) && data.users.length > 0) {
+                    const importUsers = Array.isArray(data.users) ? data.users : (Array.isArray(data.operadores) ? data.operadores : null);
+                    if (importUsers && importUsers.length > 0) {
                         let currentUsers = getUsers();
-                        data.users.forEach(u => {
+                        importUsers.forEach(u => {
                             if (!u) return;
                             const isDup = currentUsers.some(x =>
                                 (u.id !== undefined && x.id !== undefined && String(x.id) === String(u.id)) ||
@@ -5155,9 +5312,10 @@
                     }
 
                     // 6. COORDINACIÓN / ASIGNACIONES
-                    if (Array.isArray(data.assignments) && data.assignments.length > 0) {
+                    const importAssignments = Array.isArray(data.assignments) ? data.assignments : (Array.isArray(data.coordinacion) ? data.coordinacion : null);
+                    if (importAssignments && importAssignments.length > 0) {
                         let currentAssignments = getAssignments();
-                        data.assignments.forEach(a => {
+                        importAssignments.forEach(a => {
                             if (!a) return;
                             const isDup = currentAssignments.some(x =>
                                 (a.id !== undefined && x.id !== undefined && String(x.id) === String(a.id)) ||
@@ -5178,9 +5336,10 @@
                     }
 
                     // 7. AFECTACIONES / ACTIVIDADES
-                    if (Array.isArray(data.afectaciones) && data.afectaciones.length > 0) {
+                    const importAfectaciones = Array.isArray(data.afectaciones) ? data.afectaciones : null;
+                    if (importAfectaciones && importAfectaciones.length > 0) {
                         let currentAfectaciones = getAfectaciones();
-                        data.afectaciones.forEach(af => {
+                        importAfectaciones.forEach(af => {
                             if (!af) return;
                             const isDup = currentAfectaciones.some(x =>
                                 (af.id !== undefined && x.id !== undefined && String(x.id) === String(af.id))
@@ -5198,9 +5357,10 @@
                     }
 
                     // 8. BITÁCORA / LOGS
-                    if (Array.isArray(data.logs) && data.logs.length > 0) {
+                    const importLogs = Array.isArray(data.logs) ? data.logs : (Array.isArray(data.bitacora) ? data.bitacora : null);
+                    if (importLogs && importLogs.length > 0) {
                         let currentLogs = getLogs();
-                        data.logs.forEach(l => {
+                        importLogs.forEach(l => {
                             if (!l) return;
                             const isDup = currentLogs.some(x =>
                                 (l.id !== undefined && x.id !== undefined && String(x.id) === String(l.id))
