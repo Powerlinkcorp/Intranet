@@ -2222,7 +2222,7 @@ async def view_reporte(request: Request, db: Session = Depends(get_db)):
             'username': 'admin',
             'full_name': 'Administrador',
             'role': 'admin',
-            'permissions': 'cargar_datos_usuarios,ver_integracion,ver_reportes,ver_helpdesk,ver_cajas_nac'
+            'permissions': 'cargar_datos_usuarios,ver_integracion,ver_reportes,ver_helpdesk,ver_cajas_nap'
         })()
     embed = request.query_params.get("embed") == "1"
     return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})

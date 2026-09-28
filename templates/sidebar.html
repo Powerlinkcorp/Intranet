@@ -330,7 +330,7 @@
             </ul>
         </li>
 
-        {% if user.role == 'admin' or 'ver_cajas_nac' in (user.permissions or '') or 'ver_flasheo' in (user.permissions or '') or 'ver_aprovisionamiento' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') %}
+        {% if user.role == 'admin' or 'ver_cajas_nap' in (user.permissions or '') or 'ver_flasheo' in (user.permissions or '') or 'ver_aprovisionamiento' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') %}
         <div class="menu-section">Soporte</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-soporte', this)">
