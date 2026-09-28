@@ -6,8 +6,6 @@ scratch/
 db.json
 static/uploads/*.json
 *.db
-*.db-shm
-*.db-wal
 intranet_local.db
 capturas/
 temp_brandon/Estacion de flasheo.zip
