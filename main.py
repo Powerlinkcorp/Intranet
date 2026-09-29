@@ -744,8 +744,7 @@ async def home_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        embed = request.query_params.get("embed") == "1"
-        return templates.TemplateResponse(request, "intranet.html", {"user": user, "embed": embed})
+        return templates.TemplateResponse(request, "home.html", {"request": request, "user": user})
     except HTTPException:
         return RedirectResponse(url="/login")
 

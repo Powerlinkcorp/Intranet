@@ -858,7 +858,7 @@
                         <td>{{ emp.department }}</td>
                         <td>{{ emp.email }}</td>
                         <td>
-                            <button onclick='editEmployee({{ emp.id }}, "{{ emp.cedula }}", "{{ emp.name }}", "{{ emp.apellido or "" }}", "{{ emp.email }}", "{{ emp.department }}", "{{ emp.birthday_date }}")' class="btn-action" style="padding:5px 10px; font-size:12px;">Editar</button>
+                            <button onclick='editEmployee({{ emp.id }}, "{{ emp.cedula }}", "{{ emp.name }}", "{{ emp.apellido or '' }}", "{{ emp.email }}", "{{ emp.department }}", "{{ emp.birthday_date }}")' class="btn-action" style="padding:5px 10px; font-size:12px;">Editar</button>
                         </td>
                     </tr>
                     {% endfor %}

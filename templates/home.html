@@ -594,12 +594,12 @@
     <div class="content-wrapper" id="contentWrapper">
 
 
-
-
-
+    <header class="hero" id="heroBanner">
+        <h1 id="heroTitle">Bienvenido a la Intranet Corporativa</h1>
+        <button id="heroBtn">Leer más →</button>
+    </header>
 
     <main class="main-container">
-
         <!-- COLUMNA 1: RECURSOS -->
         <section id="recursosSec">
             <div class="card">
@@ -664,12 +664,16 @@
                 </form>
             </div>
         </section>
-
     </main>
 
-
-
-
+    <!-- POP-UP BIENVENIDA -->
+    <div class="welcome-popup-overlay" id="welcomePopupOverlay">
+        <div class="welcome-popup">
+            <button class="close-popup" onclick="closeWelcomePopup()"><i class="fa-solid fa-xmark"></i></button>
+            <h2>¡Bienvenido/a, <span id="welcomeName"></span>!</h2>
+            <p id="welcomeMessage" style="margin-top: 10px;"></p>
+        </div>
+    </div>
 
     <script>
         let allResources = [];
