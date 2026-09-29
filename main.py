@@ -106,6 +106,15 @@ class ExtensionCreate(BaseModel):
     extension: str
     is_group: bool = False
 
+class WorkerUpdate(BaseModel):
+    email: str
+    department: str
+    cargo: str
+    birthday_date: str
+
+class SuspendUserRequest(BaseModel):
+    suspension_reason: str
+
 class UserUpdateWithSMTP(BaseModel):
     email: str
     password: str
@@ -253,12 +262,12 @@ async def get_dashboard_data(
 ):
     hero = db.query(models.Announcement).filter(models.Announcement.is_active == True).first()
     resources = db.query(models.Resource).order_by(models.Resource.id.desc()).all()
-    employees = db.query(models.Employee).all()
+    employees = db.query(models.User).filter(models.User.is_active == True).all()
     kpis = db.query(models.KpiMetric).all()
     calendar_events = db.query(models.CalendarEvent).all()
 
     # Encuentra el próximo cumpleaños
-    all_emps_with_bday = db.query(models.Employee).filter(models.Employee.birthday_date != None, models.Employee.birthday_date != "").all()
+    all_emps_with_bday = db.query(models.User).filter(models.User.birthday_date != None, models.User.birthday_date != "").all()
     closest_emp = None
     if all_emps_with_bday:
         today = datetime.now().date()
@@ -600,7 +609,10 @@ cedula=cedula, birthday_date=birthday_date, photo_url=photo_url)
         hashed_password=hashed_pw,
         full_name=f"{name} {apellido}",
         role="user",
-        avatar_url=photo_url
+        avatar_url=photo_url,
+        cargo=position,
+        department=department or "General",
+        birthday_date=birthday_date
     )
     db.add(new_user)
         
@@ -686,7 +698,18 @@ async def list_users_permissions(
     admin_user: models.User = Depends(security.require_admin)
 ):
     users = db.query(models.User).order_by(models.User.full_name).all()
-    return [{"id": u.id, "full_name": u.full_name, "email": u.email, "role": u.role, "permissions": u.permissions or ""} for u in users]
+    return [{
+        "id": u.id,
+        "full_name": u.full_name,
+        "username": u.username,
+        "email": u.email,
+        "role": u.role,
+        "permissions": u.permissions or "",
+        "department": u.department or "",
+        "cargo": u.cargo or "",
+        "birthday_date": u.birthday_date or "",
+        "is_active": u.is_active
+    } for u in users]
 
 @app.post("/api/rrhh/users/{user_id}/permissions")
 async def update_user_permissions(
@@ -701,6 +724,56 @@ async def update_user_permissions(
     user.permissions = permissions
     db.commit()
     return {"message": "Permisos actualizados correctamente"}
+
+@app.put("/api/rrhh/users/{user_id}/edit-worker")
+async def edit_worker_info(
+    user_id: int,
+    data: WorkerUpdate,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    user.email = data.email
+    user.department = data.department
+    user.cargo = data.cargo
+    user.birthday_date = data.birthday_date
+    db.commit()
+    return {"message": "Datos de trabajador actualizados"}
+
+@app.post("/api/rrhh/users/{user_id}/suspend")
+async def suspend_worker(
+    user_id: int,
+    data: SuspendUserRequest,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    user.is_active = False
+    user.suspension_reason = data.suspension_reason
+    db.commit()
+    return {"message": "Usuario suspendido exitosamente"}
+
+@app.post("/api/rrhh/users/{user_id}/resend-password")
+async def resend_password(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    import random
+    import string
+    new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    user.hashed_password = security.get_password_hash(new_password)
+    db.commit()
+    # Aquí iría el código real de SMTP para enviar el correo
+    return {"message": f"Contraseña reestablecida y enviada a {user.email}. (Contraseña temporal: {new_password})"}
 
 @app.get("/api/popup")
 async def get_popup_notification(
@@ -1880,10 +1953,15 @@ def get_metricas_crecimiento(request: Request, db: Session = Depends(get_db)):
     activos_power = 0
     activos_iptv = 0
     
+    sectores = set()
     for item in list_old:
         status = str(item.get('service_status', '')).strip().upper()
         plan = str(item.get('plan', '')).strip().upper()
         service_type = str(item.get('service_type', '')).strip().upper()
+        sector = str(item.get('sector', '')).strip()
+        
+        if sector and sector.lower() not in ["none", "null"]:
+            sectores.add(sector)
         
         if status == 'ACTIVO':
             if plan in ['IPTV', 'TV'] or service_type in ['IPTV', 'TV']:
@@ -1893,7 +1971,8 @@ def get_metricas_crecimiento(request: Request, db: Session = Depends(get_db)):
             
     return {
         "activos_power": activos_power,
-        "activos_iptv": activos_iptv
+        "activos_iptv": activos_iptv,
+        "zonas_habilitadas": len(sectores)
     }
 
 

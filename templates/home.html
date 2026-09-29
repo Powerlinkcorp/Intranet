@@ -138,12 +138,30 @@
         }
 
         /* CARRUSEL DE EMPLEADOS */
+        .carousel-btn {
+            background: var(--acento);
+            color: var(--blanco);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .carousel-btn:hover {
+            transform: scale(1.1);
+            background: #d93838;
+        }
         .employee-carousel {
             display: flex;
             gap: 20px;
-            overflow-x: auto;
             padding: 10px 0;
-            scrollbar-width: thin;
         }
 
         .employee-card {
@@ -159,6 +177,13 @@
             border: 3px solid var(--acento);
             margin-bottom: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .employee-card img:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
 
         .employee-card span {
@@ -166,6 +191,22 @@
             display: block;
             font-weight: 600;
             color: #334155;
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover {
+            background: #ef4444;
+            color: #fff;
         }
 
         /* MÉTRICAS KPI */
@@ -601,7 +642,7 @@
 
     <main class="main-container">
         <!-- COLUMNA 1: RECURSOS -->
-        <section id="recursosSec">
+        <section id="recursosSec" style="min-width: 0;">
             <div class="card">
                 <div class="section-title">Top Recursos</div>
                 <input type="text" id="resourceFilter" class="search-templates"
@@ -613,11 +654,16 @@
         </section>
 
         <!-- COLUMNA 2: EMPLEADOS Y MÉTRICAS -->
-        <section id="equipoSec">
-            <div class="card">
+        <section id="equipoSec" style="min-width: 0;">
+            <div class="card" style="min-width: 0; max-width: 100%; overflow: hidden;">
                 <div class="section-title">Nuestro Equipo</div>
-                <div class="employee-carousel" id="employeeCarousel">
-                    <!-- Dinámico -->
+                <div class="carousel-wrapper" style="position: relative; display: flex; align-items: center; min-width: 0;">
+                    <button class="carousel-btn left-btn" onclick="scrollCarousel(-1)" style="flex-shrink: 0; margin-right: 10px;"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div class="employee-carousel" id="employeeCarousel" style="flex: 1; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; min-width: 0;">
+                        <!-- Dinámico -->
+                    </div>
+                    <style>#employeeCarousel::-webkit-scrollbar { display: none; }</style>
+                    <button class="carousel-btn right-btn" onclick="scrollCarousel(1)" style="flex-shrink: 0; margin-left: 10px;"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -630,7 +676,7 @@
         </section>
 
         <!-- COLUMNA 3: CALENDARIO, CUMPLEAÑOS, FEEDBACK -->
-        <section>
+        <section style="min-width: 0;">
             <div class="card">
                 <div class="section-title">Calendario Institucional</div>
                 <div class="calendar-wrapper">
@@ -688,8 +734,7 @@
                 const data = await res.json();
 
                 // User profile
-                const fullName = data.user.full_name;
-                document.getElementById('userNavName').textContent = fullName;
+                const fullName = data.user.full_name || data.user.username;
                 const avatarEl = document.getElementById('userNavAvatar');
                 if (data.user.avatar_url && avatarEl) avatarEl.src = data.user.avatar_url;
                 if (data.user.role === 'admin' || data.user.role === 'rrhh' || (data.user.permissions || '').includes('cargar_datos_usuarios')) {
@@ -720,9 +765,12 @@
                 (data.employees || []).forEach(emp => {
                     const div = document.createElement('div');
                     div.className = 'employee-card';
+                    const empName = emp.name || emp.full_name || 'Usuario';
+                    const empPhoto = emp.photo_url || emp.avatar_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
                     div.innerHTML = `
-                        <img src="${emp.photo_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png'}" alt="${emp.name}">
-                        <span>${emp.name}</span>
+                        <img src="${empPhoto}" alt="${empName}">
+                        <span>${empName}</span>
+                        <span style="font-size: 10px; color: var(--texto-gris); font-weight: normal; margin-top: 2px;">${emp.department || ''}</span>
                     `;
                     empContainer.appendChild(div);
                 });
@@ -737,10 +785,11 @@
                     const bName = document.getElementById('birthdayName');
                     const bDate = document.getElementById('birthdayDate');
                     const bPhoto = document.getElementById('birthdayPhoto');
-                    if (bName) bName.textContent = data.birthday_employee.name;
-                    if (bDate) bDate.textContent = data.birthday_employee.birthday_date || 'Próximamente';
-                    if (bPhoto && data.birthday_employee.photo_url) {
-                        bPhoto.src = data.birthday_employee.photo_url;
+                    const empB = data.birthday_employee;
+                    if (bName) bName.textContent = empB.name || empB.full_name;
+                    if (bDate) bDate.textContent = empB.birthday_date || 'Próximamente';
+                    if (bPhoto) {
+                        bPhoto.src = empB.photo_url || empB.avatar_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
                     }
                 }
 
@@ -848,12 +897,13 @@
         async function loadMetricasCrecimiento() {
             try {
                 const res = await fetch('/api/metricas/crecimiento');
-                let activos = 0, iptv = 0;
+                let activos = 0, iptv = 0, zonas = 0;
                 
                 if (res.ok) {
                     const data = await res.json();
                     activos = data.activos_power || 0;
                     iptv = data.activos_iptv || 0;
+                    zonas = data.zonas_habilitadas || 0;
                 }
                 
                 const kpiContainer = document.getElementById('kpiContainer');
@@ -878,12 +928,12 @@
                     <span class="kpi-value">${fmt.format(iptv)} <i class="fa-solid fa-arrow-trend-up ml-1 text-sm text-green-600"></i></span>
                 `;
                 
-                // Zonas habilitadas (0)
+                // Zonas habilitadas
                 const div3 = document.createElement('div');
                 div3.className = 'kpi-card';
                 div3.innerHTML = `
                     <span class="kpi-title">Zonas habilitadas</span>
-                    <span class="kpi-value">0 <i class="fa-solid fa-minus ml-1 text-sm text-gray-500"></i></span>
+                    <span class="kpi-value">${fmt.format(zonas)} <i class="fa-solid fa-map-location-dot ml-1 text-sm text-gray-500"></i></span>
                 `;
                 
                 kpiContainer.appendChild(div1);
@@ -1030,6 +1080,11 @@
             }
         }
 
+        function scrollCarousel(direction) {
+            const carousel = document.getElementById('employeeCarousel');
+            const scrollAmount = 300; // Pixels to scroll
+            carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
     </script>
 {% if not embed %}
 {% include 'global_chat.html' %}

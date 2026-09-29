@@ -179,6 +179,23 @@
     display: none;
 }
 
+.btn-logout {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
 .sidebar.collapsed .btn-logout,
 .sidebar.collapsed .btn-admin-nav {
     display: none !important;
@@ -368,6 +385,7 @@
                 <li><a href="/historico"><i class="fa-solid fa-history" style="margin-right: 8px;"></i> Histórico</a></li>
                 {% if user.role == 'admin' %}
                 <li><a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
+                <li><a href="/admin?tab=trabajadores"><i class="fa-solid fa-id-card-clip" style="margin-right: 8px;"></i> Trabajadores</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
                 <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> Panel Admin</a></li>

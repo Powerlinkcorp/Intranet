@@ -15,6 +15,10 @@ class User(Base):
     permissions = Column(String, default="") # e.g. "cargar_datos_usuarios,ver_integracion"
     avatar_url = Column(String, default="/static/img/default-avatar.png")
     is_active = Column(Boolean, default=True)
+    department = Column(String, default="")
+    cargo = Column(String, default="")
+    birthday_date = Column(String, default="")
+    suspension_reason = Column(String, default="")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class Announcement(Base):
