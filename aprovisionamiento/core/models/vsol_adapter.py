@@ -262,6 +262,8 @@ class VSOLAdapter(BaseONU):
                 pon_info = data_b.get("pon_info_list", [{}])[0]
 
                 mac, pon_serial = _extract_mac_pon(basic)
+                if not mac and self.mac:
+                    mac = self.mac
                 model = dev_base.get("devicemodel", "VSOL ONU")
                 hw_ver = dev_base.get("hwversion", "")
                 fw_ver = dev_base.get("softwareversion", "")

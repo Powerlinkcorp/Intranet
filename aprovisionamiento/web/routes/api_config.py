@@ -52,17 +52,24 @@ def handle_system_status() -> tuple:
 
 def handle_get_vlans_catalog(olt_id: str = None) -> tuple:
     import re
-    from core.services.history_service import HistoryService
-    from core.services.smartolt_service import SmartOLTService
+    try:
+        from aprovisionamiento.core.services.history_service import HistoryService
+        from aprovisionamiento.core.services.smartolt_service import SmartOLTService
+    except ImportError:
+        from core.services.history_service import HistoryService
+        from core.services.smartolt_service import SmartOLTService
 
     cfg = _load_settings()
     hub_vlans = cfg.get("hub_vlans", [])
-    counts = HistoryService.get_vlan_usage_counts()
+    try:
+        counts = HistoryService.get_vlan_usage_counts()
+    except Exception:
+        counts = {}
 
     catalog = []
     seen_vlans = set()
 
-    # 1. Obtener catálogo dinámico desde SmartOLT con descripciones (planes de velocidad)
+    # 1. Obtener catálogo dinámico desde SmartOLT para la OLT específica
     smart_vlans = SmartOLTService.get_vlans(olt_id=olt_id)
     for v in smart_vlans:
         raw_vlan = str(v.get("vlan") or "").strip()
@@ -94,12 +101,17 @@ def handle_get_vlans_catalog(olt_id: str = None) -> tuple:
         max_cap = 100
         available = max(0, max_cap - used)
 
-        label = f"{vlan_num} - {display_desc}" if display_desc else f"VLAN {vlan_num}"
+        # Limpiar redundancia de nombre (ej: "VLAN110-400MB" -> "400MB")
+        clean_desc = display_desc
+        if clean_desc:
+            clean_desc = re.sub(rf"^VLAN[-_ ]*{vlan_num}[-_ ]*", "", clean_desc, flags=re.IGNORECASE).strip()
+
+        label = f"VLAN {vlan_num} - {clean_desc}" if clean_desc else f"VLAN {vlan_num}"
 
         catalog.append({
             "vlan": vlan_num,
             "hub": label,
-            "description": display_desc,
+            "description": clean_desc or display_desc,
             "label": label,
             "olt_id": v.get("olt_id"),
             "olt_name": v.get("olt_name", ""),
@@ -108,50 +120,50 @@ def handle_get_vlans_catalog(olt_id: str = None) -> tuple:
             "available": available
         })
 
-    # 2. Agregar los HUBs configurados manualmente en settings que no estén ya en la lista
-    configured_vlan_nums = {c["vlan"] for c in catalog}
-    for item in hub_vlans:
-        vlan = str(item.get("vlan", "")).strip()
-        if vlan and vlan not in configured_vlan_nums and vlan != "3":
-            hub = item.get("hub", f"HUB VLAN {vlan}")
-            desc = item.get("description", hub)
-            max_cap = int(item.get("max_capacity", 100))
-            used = counts.get(vlan, 0)
-            available = max(0, max_cap - used)
-            configured_vlan_nums.add(vlan)
-            label = f"{vlan} - {hub}" if not hub.startswith(vlan) else hub
-            catalog.append({
-                "vlan": vlan,
-                "hub": label,
-                "description": desc,
-                "label": label,
-                "olt_id": None,
-                "olt_name": "",
-                "used": used,
-                "max_capacity": max_cap,
-                "available": available
-            })
+    # 2. Si no se especificó OLT, agregar HUBs configurados manualmente
+    if not olt_id:
+        configured_vlan_nums = {c["vlan"] for c in catalog}
+        for item in hub_vlans:
+            vlan = str(item.get("vlan", "")).strip()
+            if vlan and vlan not in configured_vlan_nums and vlan != "3":
+                hub = item.get("hub", f"HUB VLAN {vlan}")
+                desc = item.get("description", hub)
+                max_cap = int(item.get("max_capacity", 100))
+                used = counts.get(vlan, 0)
+                available = max(0, max_cap - used)
+                configured_vlan_nums.add(vlan)
+                label = f"{vlan} - {hub}" if not hub.startswith(vlan) else hub
+                catalog.append({
+                    "vlan": vlan,
+                    "hub": label,
+                    "description": desc,
+                    "label": label,
+                    "olt_id": None,
+                    "olt_name": "",
+                    "used": used,
+                    "max_capacity": max_cap,
+                    "available": available
+                })
 
-    # 3. Agregar cualquier otra VLAN que haya sido usada en el historial
-    for vlan, used in counts.items():
-        if vlan not in configured_vlan_nums and vlan != "3":
-            label = f"{vlan} - Histórica"
-            catalog.append({
-                "vlan": vlan,
-                "hub": label,
-                "description": "Histórica",
-                "label": label,
-                "olt_id": None,
-                "olt_name": "",
-                "used": used,
-                "max_capacity": 100,
-                "available": max(0, 100 - used)
-            })
+        for vlan, used in counts.items():
+            if vlan not in configured_vlan_nums and vlan != "3":
+                label = f"{vlan} - Histórica"
+                catalog.append({
+                    "vlan": vlan,
+                    "hub": label,
+                    "description": "Histórica",
+                    "label": label,
+                    "olt_id": None,
+                    "olt_name": "",
+                    "used": used,
+                    "max_capacity": 100,
+                    "available": max(0, 100 - used)
+                })
 
     # Ordenar numéricamente por VLAN ID
-    catalog.sort(key=lambda x: int(x["vlan"]) if x["vlan"].isdigit() else 999999)
+    catalog.sort(key=lambda x: int(x["vlan"]) if str(x["vlan"]).isdigit() else 999999)
 
-    return ({"success": True, "vlans": catalog, "catalog": catalog, "total": len(catalog)}, 200)
+    return ({"success": True, "vlans": catalog, "catalog": catalog, "total": len(catalog), "olt_id": olt_id}, 200)
 
 
 def handle_flasheo_traceability(query_str: str) -> tuple:

@@ -85,9 +85,26 @@ async def smartolt_release(data: dict = Body(...)):
 async def smartolt_config_save(data: dict = Body(...)):
     return wrap_handler(handle_save_smartolt_config, data)
 
+@api_router.get("/smartolt/status")
+async def smartolt_status(sn: str = ""):
+    res, code = handle_get_onu_status(sn)
+    return JSONResponse(content=res, status_code=code)
+
 @api_router.get("/smartolt/mac")
+@api_router.get("/smartolt/mac_vlan3")
 async def smartolt_mac(sn: str = ""):
     res, code = handle_get_onu_mac(sn)
+    return JSONResponse(content=res, status_code=code)
+
+@api_router.post("/smartolt/migrate_vlan")
+async def smartolt_migrate_vlan(data: dict = Body(...), request: Request = None, db: Session = Depends(get_db)):
+    user = None
+    try:
+        user = security.get_current_user(request, db)
+    except Exception:
+        pass
+    user_dict = {"username": user.username} if user else {"username": "admin"}
+    res, code = handle_smartolt_migrate_vlan(data, auth_user=user_dict)
     return JSONResponse(content=res, status_code=code)
 
 @api_router.get("/export_excel")
