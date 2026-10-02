@@ -4514,15 +4514,144 @@
             }
         }
 
+        const KNOWN_SECTORS = [
+            // EL VALLE / CARACAS
+            { pattern: /\b(AV\.?\s*INTERCOMUNAL|AVENIDA\s+INTERCOMUNAL|INTERCOMUNAL)\b/i, name: 'AV. INTERCOMUNAL' },
+            { pattern: /\b(LOS\s+ROSALES|ROSALES)\b/i, name: 'LOS ROSALES' },
+            { pattern: /\b(COCHE)\b/i, name: 'COCHE' },
+            { pattern: /\b(SAN\s+ANDRES|SAN\s+ANDRÉS)\b/i, name: 'SAN ANDRES' },
+            { pattern: /\b(LONGARAY)\b/i, name: 'LONGARAY' },
+
+            // SAN ANTONIO
+            { pattern: /\b(LAS\s+CHURUATAS|CHURUATAS)\b/i, name: 'LAS CHURUATAS' },
+            { pattern: /\b(LOS\s+CASTORES|CASTORES)\b/i, name: 'LOS CASTORES' },
+            { pattern: /\b(LA\s+ROSALEDA|ROSALEDA)\b/i, name: 'LA ROSALEDA' },
+            { pattern: /\b(EL\s+PICACHO|PICACHO)\b/i, name: 'EL PICACHO' },
+            { pattern: /\b(LA\s+CASONA|CASONA)\b/i, name: 'LA CASONA' },
+            { pattern: /\b(POTRERITO)\b/i, name: 'POTRERITO' },
+            { pattern: /\b(EL\s+AMARILLO|AMARILLO)\b/i, name: 'EL AMARILLO' },
+            { pattern: /\b(TIQUITIRE)\b/i, name: 'TIQUITIRE' },
+
+            // LOS TEQUES
+            { pattern: /\b(EL\s+TRIGO|TRIGO)\b/i, name: 'EL TRIGO' },
+            { pattern: /\b(SANTA\s+ROSA)\b/i, name: 'SANTA ROSA' },
+            { pattern: /\b(GUAREMAL)\b/i, name: 'GUAREMAL' },
+            { pattern: /\b(LOS\s+LAGOS|LAGOS)\b/i, name: 'LOS LAGOS' },
+            { pattern: /\b(LAGUNETICA)\b/i, name: 'LAGUNETICA' },
+            { pattern: /\b(LA\s+MATICA|MATICA)\b/i, name: 'MATICA' },
+            { pattern: /\b(EL\s+PASO|PASO)\b/i, name: 'EL PASO' },
+            { pattern: /\b(SAN\s+PEDRO)\b/i, name: 'SAN PEDRO' },
+            { pattern: /\b(RIVAS)\b/i, name: 'RIVAS' },
+            { pattern: /\b(SIMON\s+BOLIVAR|SIMÓN\s+BOLÍVAR)\b/i, name: 'SIMON BOLIVAR' },
+            { pattern: /\b(LOS\s+NUEVOS\s+TEQUES)\b/i, name: 'LOS NUEVOS TEQUES' },
+            { pattern: /\b(EL\s+VIGIA|EL\s+VIGÍA|VIGIA|VIGÍA)\b/i, name: 'EL VIGIA' },
+            { pattern: /\b(QUENDA)\b/i, name: 'QUENDA' },
+            { pattern: /\b(MIRAFLORES)\b/i, name: 'MIRAFLORES' },
+            { pattern: /\b(PAN\s+DE\s+AZUCAR|PAN\s+DE\s+AZÚCAR)\b/i, name: 'PAN DE AZUCAR' },
+
+            // TEJERIAS
+            { pattern: /\b(EL\s+TRAPICHE|TRAPICHE)\b/i, name: 'TRAPICHE' },
+            { pattern: /\b(CURIEPE)\b/i, name: 'CURIEPE' },
+            { pattern: /\b(EL\s+CAOBAL|CAOBAL)\b/i, name: 'CAOBAL' },
+            { pattern: /\b(CA[ÑN]AOTE)\b/i, name: 'CAÑAOTE' },
+            { pattern: /\b(EL\s+BEISBOL|EL\s+BÉISBOL|BEISBOL|BÉISBOL)\b/i, name: 'BEISBOL' },
+            { pattern: /\b(BUEN\s+CONSEJO)\b/i, name: 'BUEN CONSEJO' },
+            { pattern: /\b(TIQUIRE\s+FLORES)\b/i, name: 'TIQUIRE FLORES' },
+
+            // CARRIZAL / PANAMERICANA
+            { pattern: /\b(CORRALITO)\b/i, name: 'CORRALITO' },
+            { pattern: /\b(LLANO\s+ALTO)\b/i, name: 'LLANO ALTO' },
+            { pattern: /\b(MONTES\s+VERDES)\b/i, name: 'MONTES VERDES' },
+            { pattern: /\b(COLINAS\s+DE\s+CARRIZAL)\b/i, name: 'COLINAS DE CARRIZAL' },
+            { pattern: /\b(BAROLA)\b/i, name: 'BAROLA' },
+            { pattern: /\b(YERBA\s+BUENA)\b/i, name: 'YERBA BUENA' },
+            { pattern: /\b(MONTIERRA)\b/i, name: 'MONTIERRA' },
+
+            // SAN DIEGO
+            { pattern: /\b(SAN\s+DIEGO)\b/i, name: 'SAN DIEGO' },
+
+            // PROPATRIA / CATIA / PARAISO
+            { pattern: /\b(PROPATRIA)\b/i, name: 'PROPATRIA' },
+            { pattern: /\b(CATIA)\b/i, name: 'CATIA' },
+            { pattern: /\b(23\s+DE\s+ENERO)\b/i, name: '23 DE ENERO' },
+            { pattern: /\b(CASALTA)\b/i, name: 'CASALTA' },
+            { pattern: /\b(EL\s+PARAISO|EL\s+PARAÍSO|PARAISO|PARAÍSO)\b/i, name: 'PARAISO' },
+
+            // CUMBRE ROJA
+            { pattern: /\b(CUMBRE\s+ROJA|CUMBRE\s+ROJAS)\b/i, name: 'CUMBRE ROJA' },
+
+            // SAN JOSE
+            { pattern: /\b(SAN\s+JOSE|SAN\s+JOSÉ)\b/i, name: 'SAN JOSE' }
+        ];
+
+        function extractSectorName(ubicacion = '', zonaName = '') {
+            const raw = String(ubicacion || '').trim();
+            if (!raw) return (zonaName || 'GENERAL').toUpperCase();
+
+            for (const sec of KNOWN_SECTORS) {
+                if (sec.pattern.test(raw)) {
+                    return sec.name;
+                }
+            }
+
+            const ignoreWords = /^(DISTRITO CAPITAL|MIRANDA|ARAGUA|LIBERTADOR|GUAICAIPURO|LOS SALIAS|CARRIZAL|SANTOS MICHELENA|SUCRE|CHACAO|BARUTA|VENEZUELA)$/i;
+            const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const p = parts[i];
+                if (ignoreWords.test(p)) continue;
+                if (p.toUpperCase() === (zonaName || '').toUpperCase()) continue;
+                if (/^(CASA|VEREDA|CALLE|AVENIDA|EDIF|EDIFICIO|PISO|APTO|MANZANA)\b/i.test(p)) continue;
+                let cleaned = p.replace(/^(SECTOR|URB\.?|URBANIZACI[OÓ]N|BARRIO)\s+/i, '').trim().toUpperCase();
+                if (cleaned.length > 2) return cleaned;
+            }
+            return (zonaName || 'GENERAL').toUpperCase();
+        }
+
         function classifyZone(zonaName, ubicacion = '') {
+            const z = String(zonaName || '').trim().toUpperCase();
             const text = (String(zonaName || '') + ' ' + String(ubicacion || '')).toUpperCase();
-            if (text.includes('DISTRITO') || text.includes('CAPITAL') || text.includes('CARACAS')) return 'DISTRITO CAPITAL';
+
+            // 1. Direct or recognized zone names
+            if (z === 'EL VALLE' || z === 'COCHE') return 'EL VALLE';
+            if (z === 'SAN ANTONIO') return 'SAN ANTONIO';
+            if (z === 'LOS TEQUES' || z.includes('VICTOR BAPTISTA') || z.includes('VÍCTOR BAPTISTA')) return 'LOS TEQUES – VICTOR BAPTISTA';
+            if (z === 'TEJERIAS' || z === 'TEJERÍAS') return 'TEJERIAS';
+            if (z === 'CARRIZAL' || z.includes('PANAMERICANA')) return 'CARRIZAL';
+            if (z === 'SAN DIEGO') return 'SAN DIEGO';
+            if (z.includes('CUMBRE')) return 'CUMBRE ROJA';
+            if (z === 'PROPATRIA' || z === 'CATIA') return 'PROPATRIA';
+            if (z.includes('PARAISO') || z.includes('PARAÍSO')) return 'PARAISO';
+            if (z.includes('SAN JOSE') || z.includes('SAN JOSÉ')) return 'SAN JOSE';
+
+            // 2. Keyword detection from ubicacion if zona is generic or empty
+            if (text.includes('EL VALLE') || text.includes('COCHE') || text.includes('ROSALES') || text.includes('INTERCOMUNAL')) {
+                return 'EL VALLE';
+            }
+            if (text.includes('SAN ANTONIO') || text.includes('CHURUATAS') || text.includes('CASTORES') || text.includes('ROSALEDA')) {
+                return 'SAN ANTONIO';
+            }
+            if (text.includes('VICTOR BAPTISTA') || text.includes('VÍCTOR BAPTISTA') || text.includes('LOS TEQUES') || text.includes('TEQUES') || text.includes('TRIGO') || text.includes('LAGUNETICA') || text.includes('GUAREMAL') || text.includes('MATICA')) {
+                return 'LOS TEQUES – VICTOR BAPTISTA';
+            }
+            if (text.includes('TEJERIA') || text.includes('TEJERÍA') || text.includes('TRAPICHE') || text.includes('CURIEPE') || text.includes('CAOBAL') || text.includes('CAÑAOTE') || text.includes('BEISBOL')) {
+                return 'TEJERIAS';
+            }
+            if (text.includes('CARRIZAL') || text.includes('PANAMERICANA') || text.includes('LLANO ALTO') || text.includes('MONTES VERDES') || text.includes('CORRALITO')) {
+                return 'CARRIZAL';
+            }
             if (text.includes('SAN DIEGO')) return 'SAN DIEGO';
-            if (text.includes('SAN ANTONIO')) return 'SAN ANTONIO';
-            if (text.includes('PANAMERICANA') || text.includes('CARRIZAL') || text.includes('LLANO ALTO') || text.includes('MONTES VERDES') || text.includes('CORRALITO')) return 'LOS TEQUES PANAMERICANA';
-            if (text.includes('VICTOR BAPTISTA') || text.includes('VÍCTOR BAPTISTA') || text.includes('EL PASO') || text.includes('LOS TEQUES') || text.includes('TEQUES')) return 'LOS TEQUES VÍCTOR BAPTISTA';
-            if (text.includes('CUMBRE') || text.includes('ROJAS') || text.includes('TEJERIA') || text.includes('TEJERÍA')) return 'CUMBRE ROJAS Y TEJERÍAS';
-            return (zonaName || 'OTRAS ZONAS').toUpperCase();
+            if (text.includes('CUMBRE')) return 'CUMBRE ROJA';
+            if (text.includes('PROPATRIA') || text.includes('CATIA') || text.includes('23 DE ENERO') || text.includes('CASALTA')) return 'PROPATRIA';
+            if (text.includes('PARAISO') || text.includes('PARAÍSO')) return 'PARAISO';
+
+            // 3. Fallback to z if provided and not generic
+            if (z && z !== 'DISTRITO CAPITAL' && z !== 'OTRAS ZONAS') {
+                return z;
+            }
+
+            if (z === 'DISTRITO CAPITAL') return 'EL VALLE';
+
+            return 'OTRAS ZONAS';
         }
 
         function formatFichaTecnicaSoporte(r, obs = '') {
@@ -4878,12 +5007,16 @@
             out.push(sep);
 
             const CANONICAL_ZONES = [
-                'DISTRITO CAPITAL',
-                'SAN DIEGO',
+                'EL VALLE',
                 'SAN ANTONIO',
-                'LOS TEQUES PANAMERICANA',
-                'LOS TEQUES VÍCTOR BAPTISTA',
-                'CUMBRE ROJAS Y TEJERÍAS'
+                'LOS TEQUES – VICTOR BAPTISTA',
+                'TEJERIAS',
+                'CARRIZAL',
+                'SAN DIEGO',
+                'CUMBRE ROJA',
+                'PROPATRIA',
+                'PARAISO',
+                'SAN JOSE'
             ];
 
             const sopManana = reports.filter(r => !isCoordSop(r) && !r.a_disponibilidad && (r.fecha_visita === tomorrowIso || (!r.fecha_visita && !r.a_disponibilidad)));
@@ -4893,12 +5026,20 @@
 
             sopManana.forEach(r => {
                 const zKey = classifyZone(r.zona, r.ubicacion);
-                if (groupedByZone[zKey]) groupedByZone[zKey].push(r);
-                else groupedByZone['OTRAS ZONAS'].push(r);
+                if (!groupedByZone[zKey]) groupedByZone[zKey] = [];
+                groupedByZone[zKey].push(r);
             });
 
+            const activeSopZones = [
+                ...CANONICAL_ZONES.filter(z => groupedByZone[z] && groupedByZone[z].length > 0),
+                ...Object.keys(groupedByZone).filter(z => z !== 'OTRAS ZONAS' && !CANONICAL_ZONES.includes(z) && groupedByZone[z].length > 0)
+            ];
+            if (groupedByZone['OTRAS ZONAS'] && groupedByZone['OTRAS ZONAS'].length > 0) {
+                activeSopZones.push('OTRAS ZONAS');
+            }
+
             let renderedSopZones = 0;
-            CANONICAL_ZONES.forEach(z => {
+            activeSopZones.forEach(z => {
                 const items = groupedByZone[z] || [];
                 if (items.length > 0) {
                     renderedSopZones++;
@@ -4911,17 +5052,6 @@
                     out.push('');
                 }
             });
-
-            if (groupedByZone['OTRAS ZONAS'] && groupedByZone['OTRAS ZONAS'].length > 0) {
-                renderedSopZones++;
-                out.push(`ZONA: OTRAS ZONAS`);
-                out.push(sep);
-                groupedByZone['OTRAS ZONAS'].forEach(r => {
-                    out.push(formatFichaTecnicaSoporte(r));
-                    out.push(sep);
-                });
-                out.push('');
-            }
 
             if (renderedSopZones === 0) {
                 out.push('');
@@ -4951,35 +5081,31 @@
             // Subtotales de mañana: Zonas
             out.push('*-ZONA DE LOS SOPORTES-*');
             out.push(sep);
-            let hasSopZoneCount = false;
-            CANONICAL_ZONES.forEach(z => {
-                const items = groupedByZone[z] || [];
-                if (items.length > 0) {
-                    hasSopZoneCount = true;
-                    out.push(z);
-                    const subCounts = {};
-                    items.forEach(it => {
-                        const sec = (it.ubicacion || it.zona || z).trim();
-                        subCounts[sec] = (subCounts[sec] || 0) + 1;
-                    });
-                    Object.entries(subCounts).forEach(([sec, cnt]) => {
-                        if (sec.toUpperCase() !== z && cnt > 0) {
-                            out.push(`${sec} = ${cnt}`);
-                        }
-                    });
-                    out.push(`TOTAL = ${items.length}`);
-                    out.push(sep);
-                }
-            });
-            if (groupedByZone['OTRAS ZONAS'] && groupedByZone['OTRAS ZONAS'].length > 0) {
-                hasSopZoneCount = true;
-                out.push('OTRAS ZONAS');
-                out.push(`TOTAL = ${groupedByZone['OTRAS ZONAS'].length}`);
-                out.push(sep);
-            }
-            if (!hasSopZoneCount) {
+            if (activeSopZones.length > 0) {
+                out.push('');
+                activeSopZones.forEach(z => {
+                    const items = groupedByZone[z] || [];
+                    if (items.length > 0) {
+                        out.push(z);
+                        out.push('');
+                        const subCounts = {};
+                        items.forEach(it => {
+                            const sec = extractSectorName(it.ubicacion, it.zona || z);
+                            subCounts[sec] = (subCounts[sec] || 0) + 1;
+                        });
+                        Object.entries(subCounts).forEach(([sec, cnt]) => {
+                            if (cnt > 0) {
+                                out.push(`${sec} = ${cnt}`);
+                            }
+                        });
+                        out.push(sep);
+                        out.push('');
+                    }
+                });
+            } else {
                 out.push('');
                 out.push(sep);
+                out.push('');
             }
             out.push(`*-TOTAL DE SOPORTES PARA MAÑANA = ${sopManana.length}*`);
             out.push(sep);
@@ -4995,12 +5121,20 @@
 
             actManana.forEach(a => {
                 const zKey = classifyZone(a.zona, a.ubicacion);
-                if (actGroupedByZone[zKey]) actGroupedByZone[zKey].push(a);
-                else actGroupedByZone['OTRAS ZONAS'].push(a);
+                if (!actGroupedByZone[zKey]) actGroupedByZone[zKey] = [];
+                actGroupedByZone[zKey].push(a);
             });
 
+            const activeActZones = [
+                ...CANONICAL_ZONES.filter(z => actGroupedByZone[z] && actGroupedByZone[z].length > 0),
+                ...Object.keys(actGroupedByZone).filter(z => z !== 'OTRAS ZONAS' && !CANONICAL_ZONES.includes(z) && actGroupedByZone[z].length > 0)
+            ];
+            if (actGroupedByZone['OTRAS ZONAS'] && actGroupedByZone['OTRAS ZONAS'].length > 0) {
+                activeActZones.push('OTRAS ZONAS');
+            }
+
             let renderedActZones = 0;
-            CANONICAL_ZONES.forEach(z => {
+            activeActZones.forEach(z => {
                 const items = actGroupedByZone[z] || [];
                 if (items.length > 0) {
                     renderedActZones++;
@@ -5013,17 +5147,6 @@
                     out.push('');
                 }
             });
-
-            if (actGroupedByZone['OTRAS ZONAS'] && actGroupedByZone['OTRAS ZONAS'].length > 0) {
-                renderedActZones++;
-                out.push(`ZONA: OTRAS ZONAS`);
-                out.push(sep);
-                actGroupedByZone['OTRAS ZONAS'].forEach(a => {
-                    out.push(formatFichaTecnicaActividad(a));
-                    out.push(sep);
-                });
-                out.push('');
-            }
 
             if (renderedActZones === 0) {
                 out.push('');
@@ -5052,7 +5175,7 @@
             out.push('*-ZONA DE LAS ACTIVIDADES-*');
             out.push(sep);
             let hasActZoneCount = false;
-            CANONICAL_ZONES.forEach(z => {
+            activeActZones.forEach(z => {
                 const items = actGroupedByZone[z] || [];
                 if (items.length > 0) {
                     hasActZoneCount = true;
@@ -5061,12 +5184,6 @@
                     out.push(sep);
                 }
             });
-            if (actGroupedByZone['OTRAS ZONAS'] && actGroupedByZone['OTRAS ZONAS'].length > 0) {
-                hasActZoneCount = true;
-                out.push('OTRAS ZONAS');
-                out.push(`TOTAL = ${actGroupedByZone['OTRAS ZONAS'].length}`);
-                out.push(sep);
-            }
             if (!hasActZoneCount) {
                 out.push('');
                 out.push(sep);
