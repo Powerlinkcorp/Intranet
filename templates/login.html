@@ -620,10 +620,7 @@
                 localStorage.setItem('user_name', data.user.full_name);
 
                 setTimeout(() => {
-                    window.location.href =
-                        (data.user.role === 'admin' || data.user.role === 'rrhh')
-                            ? '/admin'
-                            : '/';
+                    window.location.href = '/';
                 }, 800);
 
             } catch (err) {

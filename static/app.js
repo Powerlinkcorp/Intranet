@@ -285,17 +285,79 @@ function bindEvents() {
   document.getElementById("btnStep1Accept").addEventListener("click", step1AcceptOnu);
   document.getElementById("btnGoToStep2").addEventListener("click", () => goToStep(2));
 
-  // Botón Copiar MAC (Paso 2)
+function formatMacWithColons(macStr) {
+  if (!macStr) return "";
+  const str = String(macStr).trim();
+  if (str === "--:--:--:--:--:--" || str === "N/A" || str === "--") return "";
+  const clean = str.replace(/[^a-fA-F0-9]/g, "");
+  if (clean.length === 12) {
+    return clean.match(/.{1,2}/g).join(":").toLowerCase();
+  }
+  if (str.includes(":")) {
+    return str.toLowerCase();
+  }
+  if (str.includes("-") || str.includes(".")) {
+    const parts = str.split(/[-.]/);
+    if (parts.length === 6) {
+      return parts.join(":").toLowerCase();
+    }
+  }
+  return str.toLowerCase();
+}
+
+async function copyToClipboardFallback(text) {
+  if (!text) return false;
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      console.warn("navigator.clipboard failed, using fallback:", err);
+    }
+  }
+  try {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    textArea.style.top = "-9999px";
+    textArea.setAttribute("readonly", "");
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const successful = document.execCommand("copy");
+    document.body.removeChild(textArea);
+    return successful;
+  } catch (err) {
+    console.error("Clipboard copy failed:", err);
+    return false;
+  }
+}
+
+  // Botón Copiar MAC con dos puntos ":" para MikroTik DHCP (Paso 2)
   const btnCopyStep2Mac = document.getElementById("btnCopyStep2Mac");
   if (btnCopyStep2Mac) {
-    btnCopyStep2Mac.addEventListener("click", () => {
-      const mac = document.getElementById("step2LearnedMac").innerText.trim();
-      if (mac && mac !== "--:--:--:--:--:--") {
-        navigator.clipboard.writeText(mac).then(() => {
-          showToast(`MAC copiada al portapapeles: ${mac}`, "info");
-        }).catch(() => {
-          showToast(`MAC: ${mac}`, "info");
-        });
+    btnCopyStep2Mac.addEventListener("click", async () => {
+      const rawMac = document.getElementById("step2LearnedMac")?.innerText?.trim() || sessionData.mac || "";
+      const formattedMac = formatMacWithColons(rawMac);
+      if (formattedMac) {
+        const ok = await copyToClipboardFallback(formattedMac);
+        if (ok) {
+          showToast(`MAC copiada para MikroTik: ${formattedMac}`, "success");
+          const originalHtml = btnCopyStep2Mac.innerHTML;
+          btnCopyStep2Mac.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiada!';
+          btnCopyStep2Mac.classList.remove("btn-primary");
+          btnCopyStep2Mac.classList.add("btn-success");
+          setTimeout(() => {
+            btnCopyStep2Mac.innerHTML = originalHtml;
+            btnCopyStep2Mac.classList.remove("btn-success");
+            btnCopyStep2Mac.classList.add("btn-primary");
+          }, 2000);
+        } else {
+          prompt("Copie la dirección MAC para MikroTik:", formattedMac);
+        }
+      } else {
+        showToast("No hay una dirección MAC aprendida para copiar", "warning");
       }
     });
   }
@@ -537,12 +599,32 @@ function goToStep(step) {
 
   if (step === 2) {
     const targetSn = sessionData.sn || document.getElementById("onuSn").value.trim().toUpperCase();
+
+    // Normalizar modelo VSOL con Wi-Fi a V2804AX30-H
+    if (!sessionData.model || sessionData.model.includes("VSOL") || sessionData.model.includes("V2804") || sessionData.model.includes("VSOLD64")) {
+      sessionData.model = "V2804AX30-H";
+      const diagModel = document.getElementById("diagModel");
+      if (diagModel) diagModel.innerText = "V2804AX30-H";
+    }
+
+    applyWifiVisibility(true, sessionData.model || "V2804AX30-H");
+    populateDefaultWifiCredentials(targetSn);
+
     if (targetSn && !sessionData.mac) {
       startMacPolling(targetSn);
     } else if (sessionData.mac) {
       setLearnedMac(sessionData.mac);
     }
     fetchFlasheoTraceability(targetSn || sessionData.mac);
+
+    // Asegurar carga de catálogo de VLANs de la OLT correspondiente
+    if (sessionData.olt_id) {
+      loadVlansCatalog(sessionData.olt_id);
+    } else if (targetSn) {
+      fetchSmartOltStatus(targetSn);
+    } else if (vlanCatalog.length === 0) {
+      loadVlansCatalog();
+    }
   } else if (step === 3) {
     updateStep3Summary();
     stopMacPolling();
@@ -582,14 +664,19 @@ async function detectUnconfiguredSmartOlt() {
         loadVlansCatalog(onu.olt_id);
       }
 
-      const modelVal = onu.onu_type_name || onu.model || "VSOLVD64";
+      const rawModel = onu.model_display || onu.onu_type_name || onu.model || "VSOLVD64";
+      const modelVal = (String(rawModel).toUpperCase().includes("VSOL") || String(rawModel).toUpperCase().includes("V2804")) ? "V2804AX30-H" : rawModel;
+      sessionData.model = modelVal;
+      sessionData.has_wifi = true;
       document.getElementById("diagModel").innerText = modelVal;
       document.getElementById("diagPon").innerText = snVal;
+      applyWifiVisibility(true, modelVal);
+      populateDefaultWifiCredentials(snVal);
 
       const infoText = `Detectada ONU VSOL: <strong>${snVal}</strong> (${modelVal}) en OLT: <strong>${onu.olt_name || onu.olt_id || 'Chasis 01'}</strong> Board: ${onu.board} / Port: ${onu.port}`;
       document.getElementById("step1StatusBox").innerHTML = `🟢 ${infoText}`;
       appendLog(`[Paso 1] ${infoText.replace(/<[^>]*>?/gm, '')}`, "ok");
-      showToast(`ONU VSOL detectada en SmartOLT: ${snVal}`, "success");
+      showToast(`ONU VSOL detectada en SmartOLT: ${snVal} (${modelVal})`, "success");
     } else {
       const discarded = (data.total_raw && data.total_raw > 0) ? ` (se descartaron ${data.total_raw} equipos de otros fabricantes/modelos no VSOL)` : '';
       document.getElementById("step1StatusBox").innerHTML = `⚠️ No se encontraron ONUs VSOL no configuradas en SmartOLT${discarded}.`;
@@ -618,7 +705,7 @@ function renderDbaList(items) {
   listEl.innerHTML = "";
 
   if (!items || items.length === 0) {
-    listEl.innerHTML = '<div style="padding: 12px; color: var(--text-muted); font-size: 13px; text-align: center;">No se encontraron perfiles</div>';
+    listEl.innerHTML = '<div style="padding: 14px; color: #64748b; font-size: 13px; text-align: center;">No se encontraron planes o perfiles DBA</div>';
     return;
   }
 
@@ -630,12 +717,19 @@ function renderDbaList(items) {
       div.classList.add("selected");
     }
 
+    const speedBadge = p.speed_label || (p.speed ? `${p.speed} kbps` : '');
+
     div.innerHTML = `
-      <div>
-        <span style="font-weight: 600; color: #fff;">${p.name}</span>
-        ${p.speed ? `<span style="font-size: 11px; color: #94a3b8; margin-left: 6px;">(${p.speed} kbps)</span>` : ""}
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-weight: 700; color: #0f172a; font-size: 13px;">${p.name}</span>
+          ${speedBadge ? `<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;">${speedBadge}</span>` : ''}
+        </div>
+        <div style="font-size: 11px; color: #64748b;">
+          Perfil DBA SmartOLT
+        </div>
       </div>
-      <span class="badge badge-step" style="font-size: 10px;">${p.direction || 'Simétrico'}</span>
+      <span class="badge badge-step" style="font-size: 10px; font-weight: 600;">Plan DBA</span>
     `;
 
     div.addEventListener("click", () => {
@@ -720,14 +814,20 @@ async function step1AcceptOnu() {
       sessionData.sn = sn;
       sessionData.name = name;
       sessionData.dba_profile = dba;
+      sessionData.model = "V2804AX30-H";
+      sessionData.has_wifi = true;
+      document.getElementById("diagModel").innerText = "V2804AX30-H";
 
       updateWizardNavBadges();
       appendLog(`[Paso 1] ¡ONU ${sn} autorizada exitosamente en SmartOLT con VLAN 3!`, "ok");
       updateProgress(35);
 
+      applyWifiVisibility(true, "V2804AX30-H");
+      populateDefaultWifiCredentials(sn);
+
       document.getElementById("step1SuccessBanner").style.display = "block";
       document.getElementById("step1SummaryText").innerHTML = 
-        `Serial PON: <strong>${sn}</strong> | Nombre: <strong>${name}</strong> | VLAN: <strong>3 (Confirmada)</strong> | Plan: <strong>${dba}</strong>`;
+        `Serial PON: <strong>${sn}</strong> | Modelo: <strong>V2804AX30-H (Wi-Fi 6)</strong> | Nombre: <strong>${name}</strong> | VLAN: <strong>3 (Confirmada)</strong> | Plan: <strong>${dba}</strong>`;
 
       showToast("Paso 1 completado: ONU aceptada en VLAN 3 ✅", "success");
 
@@ -752,7 +852,8 @@ async function step1AcceptOnu() {
 // =============================================================================
 async function loadVlansCatalog(oltId = null) {
   try {
-    const url = oltId ? `/api/vlans/catalog?olt_id=${encodeURIComponent(oltId)}` : "/api/vlans/catalog";
+    const effectiveOltId = oltId || sessionData.olt_id || null;
+    const url = effectiveOltId ? `/api/vlans/catalog?olt_id=${encodeURIComponent(effectiveOltId)}` : "/api/vlans/catalog";
     const res = await apiFetch(url);
     const data = await res.json();
     if (data.success && (data.catalog || data.vlans)) {
@@ -789,32 +890,35 @@ function renderVlanList(items) {
   listEl.innerHTML = "";
 
   if (!items || items.length === 0) {
-    listEl.innerHTML = '<div style="padding: 12px; color: var(--text-muted); font-size: 13px; text-align: center;">No se encontraron VLANs o planes con ese criterio</div>';
+    const oltMsg = sessionData.olt_name || (sessionData.olt_id ? `OLT #${sessionData.olt_id}` : "");
+    listEl.innerHTML = `<div style="padding: 14px; color: #64748b; font-size: 13px; text-align: center;">No se encontraron VLANs${oltMsg ? ` para ${oltMsg}` : ''} con ese criterio</div>`;
     return;
   }
 
   items.forEach(item => {
     const div = document.createElement("div");
     div.className = "vlan-option-item";
-    const badgeClass = item.available <= 5 ? "vlan-badge-full" : "vlan-badge-available";
     const currentSelected = document.getElementById("targetVlan").value;
     if (currentSelected === String(item.vlan)) {
       div.classList.add("selected");
     }
 
+    const descTag = item.description ? `<span class="vlan-plan-tag">${item.description}</span>` : '';
+    const oltTag = item.olt_name ? `<span style="font-size: 10px; background: #f1f5f9; color: #475569; padding: 1px 5px; border-radius: 3px;">OLT: ${item.olt_name}</span>` : '';
+
     div.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 3px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="vlan-opt-title">${item.label}</span>
-          ${item.description ? `<span class="vlan-plan-tag">${item.description}</span>` : ''}
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span class="vlan-opt-title">${item.label || `VLAN ${item.vlan}`}</span>
+          ${descTag}
+          ${oltTag}
         </div>
         <div class="vlan-opt-subtitle">
-          VLAN ID: <strong>${item.vlan}</strong>
-          ${item.olt_name ? ` • OLT: ${item.olt_name}` : ''}
+          VLAN ID: <strong>${item.vlan}</strong> ${item.description ? `• ${item.description}` : ''}
         </div>
       </div>
-      <div class="vlan-badge-count ${badgeClass}">
-        Usada: ${item.used} veces (${item.available} disp.)
+      <div class="vlan-badge-count vlan-badge-available" style="font-size: 11px;">
+        Disponible
       </div>
     `;
 
@@ -829,15 +933,20 @@ function renderVlanList(items) {
 
 function selectVlan(item) {
   sessionData.target_vlan = item.vlan;
-  sessionData.hub_name = item.hub;
+  sessionData.hub_name = item.description || item.hub || `VLAN ${item.vlan}`;
   document.getElementById("targetVlan").value = item.vlan;
-  document.getElementById("vlanSearchInput").value = item.label || `${item.vlan} - ${item.description || item.hub}`;
+  document.getElementById("vlanSearchInput").value = item.label || `VLAN ${item.vlan} - ${item.description || item.hub}`;
 
   const banner = document.getElementById("vlanSelectedBanner");
-  banner.style.display = "flex";
-  document.getElementById("vlanSelectedHubName").innerText = item.description ? `Plan / Nombre: ${item.description}` : item.hub;
-  document.getElementById("vlanSelectedBadge").innerText = `VLAN ${item.vlan}`;
-  document.getElementById("vlanSelectedUsage").innerText = `Usada: ${item.used} veces (${item.available} de ${item.max_capacity} disponibles)`;
+  if (banner) {
+    banner.style.display = "flex";
+    document.getElementById("vlanSelectedHubName").innerText = item.description ? `Plan / Servicio: ${item.description}` : (item.hub || `VLAN ${item.vlan}`);
+    document.getElementById("vlanSelectedBadge").innerText = `VLAN ${item.vlan}`;
+    const usageEl = document.getElementById("vlanSelectedUsage");
+    if (usageEl) {
+      usageEl.innerText = item.olt_name ? `Asignada a ${item.olt_name}` : "VLAN de destino seleccionada";
+    }
+  }
 }
 
 async function step2ConfigureOnu() {
@@ -1222,15 +1331,48 @@ let macCountdownTimer = null;
 let macCountdownSeconds = 5;
 let isMacPollingActive = false;
 
+function populateDefaultWifiCredentials(sn) {
+  const targetSn = sn || sessionData.sn || document.getElementById("onuSn")?.value?.trim()?.toUpperCase() || "";
+  const last4 = targetSn.length >= 4 ? targetSn.slice(-4) : "WIFI";
+  const ssid2g = document.getElementById("ssid2g");
+  const ssid5g = document.getElementById("ssid5g");
+  const pass2g = document.getElementById("pass2g");
+  const pass5g = document.getElementById("pass5g");
+
+  if (ssid2g && (!ssid2g.value.trim() || ssid2g.value.trim().startsWith("VSOL-"))) {
+    ssid2g.value = `VSOL-${last4}`;
+  }
+  if (ssid5g && (!ssid5g.value.trim() || ssid5g.value.trim().startsWith("VSOL-5G-"))) {
+    ssid5g.value = `VSOL-5G-${last4}`;
+  }
+  if (pass2g && !pass2g.value.trim()) {
+    pass2g.value = "12345678";
+  }
+  if (pass5g && !pass5g.value.trim()) {
+    pass5g.value = "12345678";
+  }
+}
+
 function applyWifiVisibility(hasWifi, modelName) {
-  sessionData.has_wifi = (hasWifi !== false);
+  const m = String(modelName || sessionData.model || "").toUpperCase();
+  const isVsol = (!m || m.includes("VSOL") || m.includes("V2804") || m.includes("AX30") || m.includes("HG3232"));
+
+  // Para equipos VSOL V2804AX30-H siempre habilitar interfaz Wi-Fi
+  if (isVsol) {
+    sessionData.has_wifi = true;
+  } else if (hasWifi !== undefined) {
+    sessionData.has_wifi = (hasWifi !== false);
+  } else {
+    sessionData.has_wifi = true;
+  }
+
   const wifiCard = document.getElementById("wifiConfigCard");
   const noWifiCard = document.getElementById("noWifiNoticeCard");
   const modelBadge = document.getElementById("noWifiModelBadge");
   const ssid2g = document.getElementById("ssid2g");
   const pass2g = document.getElementById("pass2g");
 
-  if (hasWifi === false) {
+  if (sessionData.has_wifi === false) {
     if (wifiCard) wifiCard.style.display = "none";
     if (noWifiCard) noWifiCard.style.display = "block";
     if (modelBadge && modelName) modelBadge.innerText = modelName;
@@ -1245,9 +1387,14 @@ function applyWifiVisibility(hasWifi, modelName) {
 }
 
 function setLearnedMac(mac, ip, hasWifi, model) {
-  if (!mac || mac === "--:--:--:--:--:--") return;
-  sessionData.mac = mac;
+  if (!mac || mac === "--:--:--:--:--:--" || mac === "N/A") return;
+  const formattedMac = formatMacWithColons(mac);
+  sessionData.mac = formattedMac;
   stopMacPolling();
+
+  const cleanModel = String(model || sessionData.model || "").toUpperCase();
+  const finalModel = (cleanModel.includes("VSOL") || cleanModel.includes("V2804") || cleanModel.includes("AX30") || !cleanModel) ? "V2804AX30-H" : (model || sessionData.model);
+  sessionData.model = finalModel;
 
   const lbl2 = document.getElementById("step2LearnedMac");
   const card = document.getElementById("step2MacCard");
@@ -1255,16 +1402,18 @@ function setLearnedMac(mac, ip, hasWifi, model) {
   const spinner = document.getElementById("step2MacSpinner");
   const copyBtn = document.getElementById("btnCopyStep2Mac");
   const diagMac = document.getElementById("diagMac");
+  const diagModel = document.getElementById("diagModel");
 
   if (card) card.style.display = "block";
   if (waitingText) waitingText.style.display = "none";
   if (spinner) spinner.style.display = "none";
   if (lbl2) {
-    lbl2.innerText = mac;
+    lbl2.innerText = formattedMac;
     lbl2.style.display = "block";
   }
   if (copyBtn) copyBtn.style.display = "inline-flex";
-  if (diagMac) diagMac.innerText = mac;
+  if (diagMac) diagMac.innerText = formattedMac;
+  if (diagModel) diagModel.innerText = finalModel;
 
   // Auto-completar IP si está disponible
   if (ip && ip !== "0.0.0.0" && ip !== "N/A") {
@@ -1275,13 +1424,12 @@ function setLearnedMac(mac, ip, hasWifi, model) {
     }
   }
 
-  // Discriminar Wi-Fi
-  if (typeof hasWifi === "boolean") {
-    applyWifiVisibility(hasWifi, model || sessionData.model);
-  }
+  // Habilitar Wi-Fi y autocompletar credenciales de fábrica
+  applyWifiVisibility(true, finalModel);
+  populateDefaultWifiCredentials(sessionData.sn);
 
-  appendLog(`[SmartOLT] MAC detectada en VLAN 3: ${mac}${ip ? ` | IP WAN: ${ip}` : ''}`, "ok");
-  fetchFlasheoTraceability(mac);
+  appendLog(`[SmartOLT] MAC detectada en VLAN 3: ${formattedMac}${ip ? ` | IP WAN: ${ip}` : ''}`, "ok");
+  fetchFlasheoTraceability(formattedMac);
 }
 
 async function fetchFlasheoTraceability(query) {
@@ -1297,6 +1445,7 @@ async function fetchFlasheoTraceability(query) {
       const lote = data.lote || {};
       const creds = data.credenciales || {};
       
+      const elStation = document.getElementById("step2FlasheoStation");
       const elLote = document.getElementById("step2FlasheoLote");
       const elCaja = document.getElementById("step2FlasheoCaja");
       const elUser = document.getElementById("step2FlasheoUser");
@@ -1304,18 +1453,19 @@ async function fetchFlasheoTraceability(query) {
       const elFw = document.getElementById("step2FlasheoFw");
       const elBadge = document.getElementById("step2FlasheoBadge");
 
+      const stationName = data.station_id || "Estación Central";
+      if (elStation) elStation.innerText = stationName;
       if (elLote) elLote.innerText = lote.codigo_lote || "Lote S/N";
       if (elCaja) elCaja.innerText = lote.numero_caja || "Caja N/A";
       if (elUser) elUser.innerText = creds.usuario || "Powerlink";
       if (elClave) elClave.innerText = creds.clave || "********";
       if (elFw) elFw.innerText = data.firmware || data.modelo || "Firmware Oficial";
       if (elBadge) {
-        const origen = data.origen_datos === "API_REST_8080" ? "API Estación" : "Base de Datos";
-        elBadge.innerText = `Sincronizado (${origen})`;
+        elBadge.innerText = `Sincronizado (${stationName})`;
         elBadge.style.background = "#059669";
       }
 
-      appendLog(`[Flasheo] ONU vinculada a ${lote.codigo_lote || 'Lote'} (Caja: ${lote.numero_caja || 'N/A'}). Clave de lote inyectada: ${creds.usuario} / ********`, "ok");
+      appendLog(`[Flasheo] ONU vinculada a ${lote.codigo_lote || 'Lote'} (Caja: ${lote.numero_caja || 'N/A'}, Estación: ${stationName}). Clave inyectada: ${creds.usuario} / ********`, "ok");
     } else {
       card.style.display = "none";
     }
@@ -1382,14 +1532,19 @@ async function checkMacNow(sn) {
       }
     }
 
-    // Discriminar Wi-Fi
-    if (typeof data.has_wifi === "boolean") {
-      applyWifiVisibility(data.has_wifi, data.model || sessionData.model);
-    }
+    // Discriminar Wi-Fi y Modelo
+    const cleanModel = String(data.model || sessionData.model || "").toUpperCase();
+    const finalModel = (cleanModel.includes("VSOL") || cleanModel.includes("V2804") || cleanModel.includes("AX30") || !cleanModel) ? "V2804AX30-H" : (data.model || sessionData.model);
+    sessionData.model = finalModel;
+    const diagModel = document.getElementById("diagModel");
+    if (diagModel) diagModel.innerText = finalModel;
+
+    applyWifiVisibility(true, finalModel);
+    populateDefaultWifiCredentials(sn);
 
     if (data.success && data.mac && data.mac !== "--:--:--:--:--:--") {
-      setLearnedMac(data.mac, data.ip, data.has_wifi, data.model);
-      showToast(`¡MAC detectada en VLAN 3: ${data.mac}!`, "success");
+      setLearnedMac(data.mac, data.ip, true, finalModel);
+      showToast(`¡MAC detectada en VLAN 3: ${formatMacWithColons(data.mac)}!`, "success");
       return true;
     }
   } catch (e) {
@@ -1417,7 +1572,11 @@ async function fetchSmartOltStatus(sn) {
     const data = await res.json();
     if (data.success && data.onu) {
       const o = data.onu;
-      document.getElementById("diagModel").innerText = o.onu_type_name || o.model || "VSOLVD64";
+      const cleanModel = String(o.detected_model || o.onu_type_name || o.model || "").toUpperCase();
+      const finalModel = (cleanModel.includes("VSOL") || cleanModel.includes("V2804") || cleanModel.includes("AX30") || !cleanModel) ? "V2804AX30-H" : (o.detected_model || o.onu_type_name || o.model);
+
+      sessionData.model = finalModel;
+      document.getElementById("diagModel").innerText = finalModel;
       document.getElementById("diagPon").innerText = o.sn || sn;
       document.getElementById("diagRx").innerText = o.signal_1490 ? `${o.signal_1490} dBm` : (o.signal || "--");
 
@@ -1429,13 +1588,21 @@ async function fetchSmartOltStatus(sn) {
         }
       }
 
-      if (typeof o.has_wifi === "boolean") {
-        applyWifiVisibility(o.has_wifi, o.detected_model || o.onu_type_name || o.model);
+      if (o.olt_id) {
+        const prevOltId = sessionData.olt_id;
+        sessionData.olt_id = o.olt_id;
+        sessionData.olt_name = o.olt_name || "";
+        if (String(prevOltId) !== String(o.olt_id) || vlanCatalog.length === 0) {
+          loadVlansCatalog(o.olt_id);
+        }
       }
+
+      applyWifiVisibility(true, finalModel);
+      populateDefaultWifiCredentials(o.sn || sn);
 
       const macVal = o.mac || o.mac_vlan3 || data.mac_vlan3;
       if (macVal && macVal !== "N/A") {
-        setLearnedMac(macVal, o.ip, o.has_wifi, o.detected_model || o.onu_type_name);
+        setLearnedMac(macVal, o.ip, true, finalModel);
       }
     }
   } catch (e) {
@@ -1449,6 +1616,12 @@ async function probeOnu(ip) {
   const rawMac = sessionData.mac || document.getElementById("step2LearnedMac")?.innerText?.trim();
   const targetMac = (rawMac && rawMac !== "--:--:--:--:--:--") ? rawMac : undefined;
 
+  const btn = document.getElementById("btnProbe");
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Conectando...';
+  }
+
   try {
     const res = await apiFetch("/api/probe", {
       method: "POST",
@@ -1459,17 +1632,68 @@ async function probeOnu(ip) {
       })
     });
     const data = await res.json();
-    if (data.success) {
-      appendLog(`[Acceso] Conexión establecida con la ONU en ${ip} (${data.model || 'VSOL'}).`, "ok");
-      document.getElementById("diagModel").innerText = data.model || "--";
-      document.getElementById("diagMac").innerText = data.mac || "--";
-      document.getElementById("diagRx").innerText = data.optical_rx ? `${data.optical_rx} dBm` : "--";
-      showToast(`ONU conectada: ${data.model || ip}`, "success");
+    if (data.success && data.job_id) {
+      appendLog(`[Acceso] Sondeo iniciado (Job: ${data.job_id}). Conectando a la interfaz web de la ONU...`, "info");
+      pollJob(data.job_id, (result) => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '🔍 Consultar ONU';
+        }
+        if (!result) return;
+        const modelName = result.model || "V2804AX30-H";
+        sessionData.model = modelName;
+        sessionData.has_wifi = true;
+
+        document.getElementById("diagModel").innerText = modelName;
+        if (result.mac) {
+          const formatted = formatMacWithColons(result.mac);
+          document.getElementById("diagMac").innerText = formatted;
+          setLearnedMac(formatted, ip, true, modelName);
+        }
+        if (result.optical_signal && result.optical_signal.rx_power_dbm) {
+          document.getElementById("diagRx").innerText = `${result.optical_signal.rx_power_dbm} dBm`;
+        }
+
+        applyWifiVisibility(true, modelName);
+
+        // Pre-cargar SSIDs leídos de la ONU o establecer los de fábrica
+        if (result.wifi_2g && result.wifi_2g.ssid) {
+          const el2g = document.getElementById("ssid2g");
+          if (el2g && (!el2g.value || el2g.value.startsWith("VSOL-"))) {
+            el2g.value = result.wifi_2g.ssid;
+          }
+        }
+        if (result.wifi_5g && result.wifi_5g.ssid) {
+          const el5g = document.getElementById("ssid5g");
+          if (el5g && (!el5g.value || el5g.value.startsWith("VSOL-5G-"))) {
+            el5g.value = result.wifi_5g.ssid;
+          }
+        }
+        populateDefaultWifiCredentials(targetSn);
+
+        appendLog(`[Acceso] Conexión establecida con la ONU en ${ip}. Modelo reconocido: ${modelName} | Potencia Rx: ${result.optical_signal?.rx_power_dbm || '--'} dBm | Wi-Fi: Activo.`, "ok");
+        showToast(`ONU conectada y reconocida: ${modelName}`, "success");
+      }, (err) => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '🔍 Consultar ONU';
+        }
+        appendLog(`[Acceso] Error al consultar la ONU: ${err}`, "warning");
+        showToast(`No se pudo conectar a la ONU: ${err}`, "warning");
+      });
     } else {
-      appendLog(`[Acceso] No se pudo conectar con la ONU en ${ip}: ${data.error}`, "warning");
-      showToast(`No se pudo conectar: ${data.error}`, "warning");
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '🔍 Consultar ONU';
+      }
+      appendLog(`[Acceso] No se pudo iniciar el sondeo en ${ip}: ${data.error || 'Error'}`, "warning");
+      showToast(`Error: ${data.error || 'No se pudo iniciar el sondeo'}`, "warning");
     }
   } catch (e) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '🔍 Consultar ONU';
+    }
     appendLog(`[Acceso] Error de conexión hacia ${ip}: ${e.message}`, "error");
     showToast(`Error de red: ${e.message}`, "danger");
   }

@@ -80,12 +80,19 @@ def get_engine():
         engine = create_engine(SQLITE_FALLBACK_URL, connect_args={"check_same_thread": False})
         print(f"[DATABASE] OK Usando SQLite local: {SQLITE_FALLBACK_URL}")
 
-    # Auto-migrate: add permissions column if it doesn't exist
-    try:
-        with engine.begin() as conn:
-            conn.execute(text("ALTER TABLE users ADD COLUMN permissions VARCHAR DEFAULT ''"))
-    except Exception:
-        pass # Column likely already exists
+    # Auto-migrate: add user columns if they don't exist
+    for col_def in [
+        "permissions VARCHAR DEFAULT ''",
+        "department VARCHAR DEFAULT ''",
+        "cargo VARCHAR DEFAULT ''",
+        "birthday_date VARCHAR DEFAULT ''",
+        "suspension_reason VARCHAR DEFAULT ''"
+    ]:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_def}"))
+        except Exception:
+            pass
 
     # Auto-migrate flasheo tables and columns
     for col_def in [

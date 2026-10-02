@@ -32,14 +32,28 @@ def handle_get_onu_status(sn: str) -> tuple:
             # Intentar obtener la MAC aprendida en VLAN 3, IP e info Wi-Fi desde SmartOLT
             mac_info = SmartOLTService.get_onu_learned_mac_vlan3(sn_clean)
             if mac_info.get("mac"):
+                onu["mac"] = mac_info.get("mac")
                 onu["mac_vlan3"] = mac_info.get("mac")
                 onu["all_macs"] = mac_info.get("all_macs", [])
             if mac_info.get("ip"):
                 onu["ip"] = mac_info.get("ip")
-            onu["has_wifi"] = mac_info.get("has_wifi", True)
-            if mac_info.get("model"):
-                onu["detected_model"] = mac_info.get("model")
-            return ({"success": True, "configured": True, "onu": onu}, 200)
+            
+            # Normalizar modelo real y Wi-Fi para modelos VSOL
+            raw_model = str(onu.get("onu_type_name") or onu.get("model") or mac_info.get("model") or "")
+            if any(x in raw_model.upper() for x in ["VSOLD64", "VSOLVD64", "V2804", "AX30", "VSOL"]):
+                onu["onu_type_name"] = "V2804AX30-H"
+                onu["model"] = "V2804AX30-H"
+                onu["detected_model"] = "V2804AX30-H"
+                onu["has_wifi"] = True
+            elif any(x in raw_model.upper() for x in ["V2801", "VSOLD501", "1GE", "SFU"]):
+                onu["has_wifi"] = False
+            else:
+                onu["has_wifi"] = mac_info.get("has_wifi", True)
+                onu["detected_model"] = mac_info.get("model") or raw_model or "V2804AX30-H"
+
+            if mac_info.get("optical_rx") is not None and not onu.get("signal_1490"):
+                onu["signal_1490"] = mac_info.get("optical_rx")
+            return ({"success": True, "configured": True, "onu": onu, "mac_vlan3": mac_info.get("mac")}, 200)
         return ({"success": True, "configured": False, "message": "ONU no registrada como configurada"}, 200)
     return ({"success": False, "error": res.get("error", "Error al consultar detalles en SmartOLT")}, 400)
 
@@ -49,6 +63,17 @@ def handle_get_onu_mac(sn: str) -> tuple:
     if not sn_clean:
         return ({"success": False, "error": "Número de serie PON requerido"}, 400)
     res = SmartOLTService.get_onu_learned_mac_vlan3(sn_clean)
+    raw_model = str(res.get("model") or "")
+    if any(x in raw_model.upper() for x in ["VSOLD64", "VSOLVD64", "V2804", "AX30", "VSOL"]):
+        model = "V2804AX30-H"
+        has_wifi = True
+    elif any(x in raw_model.upper() for x in ["V2801", "VSOLD501", "1GE", "SFU"]):
+        model = raw_model
+        has_wifi = False
+    else:
+        model = raw_model or "V2804AX30-H"
+        has_wifi = res.get("has_wifi", True)
+
     if res.get("status"):
         return ({
             "success": True,
@@ -56,16 +81,16 @@ def handle_get_onu_mac(sn: str) -> tuple:
             "vlan": res.get("vlan", "3"),
             "all_macs": res.get("all_macs", []),
             "ip": res.get("ip"),
-            "has_wifi": res.get("has_wifi", True),
-            "model": res.get("model", "VSOL")
+            "has_wifi": has_wifi,
+            "model": model
         }, 200)
     # Si aún no aprende MAC pero ya tiene IP o información del modelo
     return ({
         "success": False,
         "error": res.get("error", "MAC no disponible aún en la OLT"),
         "ip": res.get("ip"),
-        "has_wifi": res.get("has_wifi", True),
-        "model": res.get("model", "VSOL")
+        "has_wifi": has_wifi,
+        "model": model
     }, 404)
 
 

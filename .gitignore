@@ -9,3 +9,8 @@ static/uploads/*.json
 intranet_local.db
 capturas/
 temp_brandon/Estacion de flasheo.zip
+chat.json
+mensajes.json
+mensajes_chat.json
+chat.db
+*.log

@@ -104,6 +104,12 @@ class SmartOLTService:
                 vendor = str(o.get("vendor") or "").strip().lower()
                 model = str(o.get("model") or "").strip().lower()
                 if sn.startswith("VSOL") or "vsol" in m_type or "vsol" in vendor or "vsol" in model:
+                    # Normalizar visualización de modelo a V2804AX30-H para modelos VSOL
+                    if any(x in (m_type + " " + model).upper() for x in ["VSOLD64", "VSOLVD64", "V2804", "AX30", "VSOL"]):
+                        o["model_display"] = "V2804AX30-H"
+                    else:
+                        o["model_display"] = o.get("onu_type_name") or o.get("model") or "V2804AX30-H"
+                    o["has_wifi"] = True
                     vsol_onus.append(o)
             return {"status": True, "onus": vsol_onus, "total_raw": len(raw_onus)}
         return res
@@ -143,10 +149,12 @@ class SmartOLTService:
                 "onu": target_onu
             }
 
+        norm_model = "V2804AX30-H" if any(x in detected_model.upper() for x in ["VSOLD64", "VSOLVD64", "V2804", "AX30", "VSOL"]) else (detected_model or "V2804AX30-H")
         return {
             "valid": True,
             "onu": target_onu,
-            "model": detected_model
+            "model": norm_model,
+            "has_wifi": True
         }
 
     @staticmethod
@@ -328,42 +336,98 @@ class SmartOLTService:
     def get_speed_profiles() -> list:
         res = SmartOLTService._api_request("system/get_speed_profiles", method="GET")
         if res.get("status"):
-            return res.get("response") or res.get("speed_profiles") or []
+            raw_profiles = res.get("response") or res.get("speed_profiles") or []
+            seen = set()
+            unique_profiles = []
+            for p in raw_profiles:
+                name = (p.get("name") or "").strip()
+                if not name or name in seen:
+                    continue
+                seen.add(name)
+
+                raw_speed = p.get("speed")
+                speed_str = ""
+                try:
+                    if raw_speed:
+                        kbps = int(raw_speed)
+                        if kbps >= 1000000:
+                            speed_str = f"{kbps // 1000000} Gbps" if kbps % 1000000 == 0 else f"{kbps / 1000000:.1f} Gbps"
+                        elif kbps >= 1000:
+                            speed_str = f"{kbps // 1000} Mbps" if kbps % 1000 == 0 else f"{kbps / 1000:.0f} Mbps"
+                        else:
+                            speed_str = f"{kbps} kbps"
+                except Exception:
+                    pass
+
+                p_copy = dict(p)
+                p_copy["name"] = name
+                p_copy["speed_label"] = speed_str or (f"{raw_speed} kbps" if raw_speed else "")
+                p_copy["direction"] = "Simétrico"
+                unique_profiles.append(p_copy)
+
+            def profile_sort_key(item):
+                n = item["name"].lower()
+                cat = 4
+                if "domiciliario" in n:
+                    cat = 0
+                elif "juridico" in n:
+                    cat = 1
+                elif "microempresa" in n:
+                    cat = 2
+                elif "corporativo" in n:
+                    cat = 3
+                return (cat, n)
+
+            unique_profiles.sort(key=profile_sort_key)
+            return unique_profiles
         return []
 
     @staticmethod
     def get_dba_profiles() -> list:
         res = SmartOLTService._api_request("system/get_dba_profiles", method="GET")
-        if res.get("status"):
-            return res.get("response") or res.get("dba_profiles") or []
+        if res.get("status") and res.get("response"):
+            return res.get("response")
         return SmartOLTService.get_speed_profiles()
 
-    _vlans_cache = None
-    _vlans_cache_time = 0
+    _vlans_cache_map = {}
 
     @staticmethod
     def get_vlans(olt_id: str = None, force_refresh: bool = False) -> list:
         """
-        Obtiene el catálogo de VLANs desde SmartOLT vía endpoint onu/get_vlans.
-        Opcionalmente filtra por olt_id y cuenta con caché en memoria de 5 minutos.
+        Obtiene el catálogo de VLANs desde SmartOLT.
+        Si se especifica olt_id, consulta directamente olt/get_vlans/{olt_id} (más rápido y filtrado a ese chasis).
+        Si no se especifica olt_id, consulta onu/get_vlans.
+        Cuenta con caché en memoria de 5 minutos por OLT.
         """
         import time
         if not SmartOLTService.is_configured():
             return []
 
         now = time.time()
-        if force_refresh or SmartOLTService._vlans_cache is None or (now - SmartOLTService._vlans_cache_time) > 300:
-            res = SmartOLTService._api_request("onu/get_vlans", method="GET")
-            if res.get("status"):
-                SmartOLTService._vlans_cache = res.get("response") or res.get("vlans") or []
-                SmartOLTService._vlans_cache_time = now
-            else:
-                if SmartOLTService._vlans_cache is None:
-                    SmartOLTService._vlans_cache = []
+        cache_key = str(olt_id) if olt_id else "all"
+        if not hasattr(SmartOLTService, "_vlans_cache_map"):
+            SmartOLTService._vlans_cache_map = {}
 
-        raw_vlans = SmartOLTService._vlans_cache or []
+        cached = SmartOLTService._vlans_cache_map.get(cache_key)
+        if not force_refresh and cached and (now - cached.get("time", 0)) < 300:
+            return cached.get("data", [])
+
         if olt_id:
-            raw_vlans = [v for v in raw_vlans if str(v.get("olt_id")) == str(olt_id)]
+            res = SmartOLTService._api_request(f"olt/get_vlans/{olt_id}", method="GET")
+        else:
+            res = SmartOLTService._api_request("onu/get_vlans", method="GET")
+
+        if res.get("status"):
+            raw_vlans = res.get("response") or res.get("vlans") or []
+        else:
+            raw_vlans = []
+
+        if olt_id:
+            for v in raw_vlans:
+                if not v.get("olt_id"):
+                    v["olt_id"] = str(olt_id)
+
+        SmartOLTService._vlans_cache_map[cache_key] = {"data": raw_vlans, "time": now}
         return raw_vlans
 
     @staticmethod
@@ -403,19 +467,92 @@ class SmartOLTService:
     @staticmethod
     def get_onu_learned_mac_vlan3(sn: str) -> dict:
         """
-        Consulta el estado completo de la ONU en SmartOLT y extrae la dirección MAC
+        Consulta el estado de la ONU en SmartOLT y extrae la dirección MAC
         aprendida en la OLT para la VLAN 3 (usada para ubicar la IP asignada en el DHCP de MikroTik),
-        así como la IP de gestión WAN reportada y la discriminación de capacidades (ej. sin Wi-Fi).
+        así como la IP de gestión WAN reportada, potencia óptica y la discriminación de capacidades (ej. sin Wi-Fi).
         """
         sn_clean = str(sn).strip().upper()
+        if not sn_clean:
+            return {"status": False, "error": "Número de serie PON requerido"}
+
+        found_macs = []
+        # 1. Intentar primero con el endpoint ligero y directo de MACs en SmartOLT
+        # Este endpoint no sufre del límite de 30 consultas/hora de OLT CLI
+        try:
+            res_macs = SmartOLTService._api_request(f"onu/get_onu_macs/{sn_clean}", method="GET")
+            if res_macs.get("status"):
+                raw_mac_list = res_macs.get("mac_addresses") or []
+                for m in raw_mac_list:
+                    c = str(m).replace(":", "").replace("-", "").strip().lower()
+                    if len(c) == 12:
+                        fmt_mac = ":".join(c[i:i+2] for i in range(0, 12, 2))
+                        found_macs.append({"mac": fmt_mac, "vlan": "3"})
+                    elif ":" in str(m) or "-" in str(m):
+                        found_macs.append({"mac": str(m).replace("-", ":").lower(), "vlan": "3"})
+        except Exception as e:
+            print(f"[SmartOLT] Error consultando onu/get_onu_macs: {e}")
+
+        # 2. Consultar detalles de la ONU para modelo, potencia óptica Rx y capacidades Wi-Fi
+        model = "V2804AX30-H"
+        has_wifi = True
+        optical_rx = None
+        try:
+            res_det = SmartOLTService.get_onu_details(sn_clean)
+            if res_det.get("status"):
+                onu_info = (res_det.get("onus") or [{}])[0]
+                raw_model = onu_info.get("onu_type_name") or onu_info.get("model") or ""
+                optical_rx = onu_info.get("signal_1490")
+                
+                # Normalizar modelo para equipos VSOL
+                # En SmartOLT estos equipos se registran como VSOLD64 o VSOLVD64 por omisión de catálogo,
+                # pero el hardware físico con Wi-Fi corresponde al modelo V2804AX30-H
+                if any(x in str(raw_model).upper() for x in ["VSOLD64", "VSOLVD64", "V2804", "AX30", "VSOL"]):
+                    model = "V2804AX30-H"
+                    has_wifi = True
+                elif any(x in str(raw_model).upper() for x in ["V2801", "VSOLD501", "1GE", "SFU"]):
+                    model = raw_model or "V2801"
+                    has_wifi = False
+                else:
+                    model = raw_model or "V2804AX30-H"
+                    has_wifi = True
+        except Exception as e:
+            print(f"[SmartOLT] Error consultando onu/get_onu_details: {e}")
+
+        # Si ya se obtuvo la MAC directamente de SmartOLT, retornar de inmediato sin gastar cuota OLT CLI
+        if found_macs:
+            target_mac = found_macs[0]["mac"]
+            return {
+                "status": True,
+                "mac": target_mac,
+                "vlan": "3",
+                "all_macs": found_macs,
+                "ip": None,
+                "has_wifi": has_wifi,
+                "model": model or "V2804AX30-H",
+                "optical_rx": optical_rx
+            }
+
+        # 3. Fallback: Sólo si get_onu_macs no arrojó resultados, probar con get_onu_full_status_info
         res = SmartOLTService._api_request(f"onu/get_onu_full_status_info/{sn_clean}", method="GET")
         if not res.get("status", True) and res.get("error"):
-            return {"status": False, "error": res.get("error")}
+            return {
+                "status": False,
+                "error": res.get("error"),
+                "has_wifi": has_wifi,
+                "model": model or "V2804AX30-H",
+                "optical_rx": optical_rx
+            }
 
         full_info = res.get("full_status_info") or ""
         full_json = res.get("full_status_json") or {}
         if not full_info and not full_json:
-            return {"status": False, "error": "No se obtuvo información de estado completo de la ONU"}
+            return {
+                "status": False,
+                "error": "No se obtuvo información de estado completo de la ONU",
+                "has_wifi": has_wifi,
+                "model": model or "V2804AX30-H",
+                "optical_rx": optical_rx
+            }
 
         pattern = re.compile(r'([0-9a-fA-F]{2}(?:[:\-][0-9a-fA-F]{2}){5})\s+(\d+)', re.IGNORECASE)
         matches = pattern.findall(full_info)
@@ -441,32 +578,6 @@ class SmartOLTService:
             if m_ip and m_ip.group(1) not in ("0.0.0.0", "N/A"):
                 wan_ip = m_ip.group(1)
 
-        # Detectar modelo y si posee Wi-Fi
-        model = ""
-        has_wifi = True
-        if isinstance(full_json, dict):
-            onu_d = full_json.get("ONU details", {})
-            if isinstance(onu_d, dict):
-                model = onu_d.get("Detected ONU type") or onu_d.get("Type") or ""
-
-        # Modelos monopuerto / Ethernet conocidos sin interfaz Wi-Fi
-        if any(x in str(model).upper() for x in ["V2801", "VSOLD64", "VSOLD501", "1GE", "SFU"]):
-            has_wifi = False
-        else:
-            try:
-                details = SmartOLTService.get_onu_details(sn_clean)
-                onu_info = (details.get("onus") or [{}])[0]
-                wifi_ports = onu_info.get("wifi_ports")
-                if wifi_ports is not None and len(wifi_ports) == 0:
-                    has_wifi = False
-                det_model = onu_info.get("onu_type_name") or onu_info.get("model") or ""
-                if det_model:
-                    model = det_model
-                    if any(x in str(det_model).upper() for x in ["V2801", "VSOLD64", "VSOLD501", "1GE", "SFU"]):
-                        has_wifi = False
-            except Exception:
-                pass
-
         target_mac = mac_vlan3 or (all_macs[0]["mac"] if all_macs else None)
         if target_mac:
             return {
@@ -476,7 +587,8 @@ class SmartOLTService:
                 "all_macs": all_macs,
                 "ip": wan_ip,
                 "has_wifi": has_wifi,
-                "model": model or "VSOL"
+                "model": model or "V2804AX30-H",
+                "optical_rx": optical_rx
             }
         else:
             return {
@@ -484,6 +596,8 @@ class SmartOLTService:
                 "error": "La OLT aún no ha reportado ninguna dirección MAC aprendida para esta ONU",
                 "ip": wan_ip,
                 "has_wifi": has_wifi,
-                "model": model or "VSOL"
+                "model": model or "V2804AX30-H",
+                "optical_rx": optical_rx
             }
+
 

@@ -10,7 +10,21 @@ import os
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
+
 import urllib.parse
+
+INTRANET_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if INTRANET_ROOT not in sys.path:
+    sys.path.insert(0, INTRANET_ROOT)
+
+try:
+    from logger_config import get_logger
+    logger = get_logger("aprovisionamiento")
+except ImportError:
+    import logging
+    logger = logging.getLogger("aprovisionamiento")
+    logger.setLevel(logging.INFO)
+
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
@@ -199,6 +213,7 @@ class AppRequestHandler(BaseHTTPRequestHandler):
                         self.wfile.write(content)
                         return
                     except Exception as e:
+                        logger.error(f"Error detectado en aprovisionamiento: {e}", exc_info=True)
                         return self._send_json({"error": str(e)}, 500)
                 return self._send_json({"error": "Archivo no encontrado"}, 404)
 
@@ -220,6 +235,7 @@ class AppRequestHandler(BaseHTTPRequestHandler):
                     res, code = handle_get_onu_status(sn)
                     return self._send_json(res, code)
                 except Exception as exc:
+                    logger.error(f"Error detectado en aprovisionamiento: {exc}", exc_info=True)
                     return self._send_json({"success": False, "error": f"Error interno: {str(exc)}"}, 500)
 
             if path == "/api/smartolt/mac_vlan3":
@@ -228,6 +244,7 @@ class AppRequestHandler(BaseHTTPRequestHandler):
                     res, code = handle_get_onu_mac(sn)
                     return self._send_json(res, code)
                 except Exception as exc:
+                    logger.error(f"Error detectado en aprovisionamiento: {exc}", exc_info=True)
                     return self._send_json({"success": False, "error": f"Error interno: {str(exc)}"}, 500)
 
             if path == "/api/smartolt/profiles":
@@ -273,6 +290,7 @@ class AppRequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(content)
                 return
             except Exception as e:
+                logger.error(f"Error detectado en aprovisionamiento: {e}", exc_info=True)
                 return self._send_json({"error": str(e)}, 500)
 
         self.send_error(404, f"Archivo no encontrado: {path}")
@@ -411,15 +429,15 @@ def run_server(host="0.0.0.0", port=8088):
     try:
         httpd = ThreadedHTTPServer(server_address, AppRequestHandler)
     except OSError as e:
-        print(f"\n[AVISO] No se pudo iniciar el servidor en el puerto {port}: {e}")
-        print(f"[INFO] Compruebe si el servidor ya se encuentra ejecutándose en http://localhost:{port}/")
+        logger.warning(f"No se pudo iniciar el servidor en el puerto {port}: {e}")
+        logger.info(f"Compruebe si el servidor ya se encuentra ejecutándose en http://localhost:{port}/")
         return
 
-    print(f"[Powerlink Server] Escuchando en http://localhost:{port}/")
+    logger.info(f"Powerlink Server: Escuchando en http://localhost:{port}/")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\nServidor detenido por el usuario.")
+        logger.info("Servidor detenido por el usuario.")
     finally:
         httpd.server_close()
 

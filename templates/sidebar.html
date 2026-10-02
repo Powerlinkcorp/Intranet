@@ -179,6 +179,23 @@
     display: none;
 }
 
+.btn-logout {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
 .sidebar.collapsed .btn-logout,
 .sidebar.collapsed .btn-admin-nav {
     display: none !important;
@@ -368,6 +385,7 @@
                 <li><a href="/historico"><i class="fa-solid fa-history" style="margin-right: 8px;"></i> Histórico</a></li>
                 {% if user.role == 'admin' %}
                 <li><a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
+                <li><a href="/admin?tab=trabajadores"><i class="fa-solid fa-id-card-clip" style="margin-right: 8px;"></i> Trabajadores</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
                 <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> Panel Admin</a></li>
@@ -375,6 +393,7 @@
             </ul>
         </li>
 
+        <!-- 
         <div class="menu-section">Proyecto</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-proyecto', this)">
@@ -388,6 +407,7 @@
                 <li><a href="#"><i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> Proyectos Nuevos</a></li>
             </ul>
         </li>
+        -->
     </ul>
 
     <div class="sidebar-footer">
@@ -395,11 +415,7 @@
             <span id="userNavName" style="font-size: 13px; font-weight:600;">{{ user.username if user else 'admin' }}</span>
             <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
         </div>
-        {% if user and user.role == 'admin' %}
-        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:block; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel Admin</a>
-        {% else %}
-        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:none; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel Admin</a>
-        {% endif %}
+
         <button class="btn-logout" onclick="logout()" style="width:100%;">Salir</button>
     </div>
 </aside>
@@ -462,29 +478,45 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Marcar activo según la URL actual
     const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
     const links = document.querySelectorAll('.submenu a');
     
     let pathFound = false;
+    let bestMatch = null;
+    let maxScore = -1;
 
     links.forEach(link => {
-        const linkUrl = new URL(link.href, window.location.origin).pathname;
+        const linkObj = new URL(link.href, window.location.origin);
         
-        // Match path
-        if (linkUrl === currentPath || (currentPath === '/' && linkUrl === '/')) {
-            pathFound = true;
-            link.style.color = 'var(--acento)'; // Resaltar el texto del enlace
+        if (linkObj.pathname === currentPath) {
+            let score = -1;
+            if (linkObj.search === currentSearch) {
+                score = 2; // Match exacto (ruta y parámetros)
+            } else if (linkObj.search === '') {
+                score = 1; // Fallback genérico
+            }
             
-            const submenu = link.closest('.submenu');
-            if(submenu && (!sidebar || !sidebar.classList.contains('collapsed'))) {
-                submenu.classList.add('open');
-                
-                const parentMenuItem = submenu.previousElementSibling;
-                if(parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
-                    parentMenuItem.classList.add('active');
-                }
+            if (score > maxScore) {
+                maxScore = score;
+                bestMatch = link;
             }
         }
     });
+
+    if (bestMatch) {
+        pathFound = true;
+        bestMatch.style.color = 'var(--acento)';
+        
+        const submenu = bestMatch.closest('.submenu');
+        if(submenu && (!sidebar || !sidebar.classList.contains('collapsed'))) {
+            submenu.classList.add('open');
+            
+            const parentMenuItem = submenu.previousElementSibling;
+            if(parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
+                parentMenuItem.classList.add('active');
+            }
+        }
+    }
     
     // Si no encontramos un match (ej: sub-páginas), por fallback abrimos el inicio si es root
     if (!pathFound && currentPath === '/') {
