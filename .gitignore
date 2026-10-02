@@ -14,3 +14,7 @@ mensajes.json
 mensajes_chat.json
 chat.db
 *.log
+*.db-shm
+*.db-wal
+*.sqlite3
+*.db
