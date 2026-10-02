@@ -541,13 +541,26 @@
                             </select>
                         </div>
                         <div>
-                            <label
-                                class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">C.I./RIF
-                                <span class="text-red-400">*</span></label>
-                            <input type="text" id="f_cedula" required placeholder="Ej: 20327752" inputmode="numeric"
-                                pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                                class="input-modern w-full px-3 py-2.5 text-sm border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:border-brand-400 placeholder:text-slate-300 dark:placeholder:text-slate-500">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">C.I./RIF
+                                    <span class="text-red-400">*</span></label>
+                                <span id="clienteSearchFeedback" class="text-xs font-normal"></span>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="f_cedula" required placeholder="Ej: 20327752 o J-502471057"
+                                    autocomplete="off"
+                                    class="input-modern w-full px-3 py-2.5 text-sm border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:border-brand-400 placeholder:text-slate-300 dark:placeholder:text-slate-500 pr-10">
+                                <div id="cedulaSearchStatus" class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-magnifying-glass text-xs opacity-40"></i>
+                                </div>
+                            </div>
+                            <div id="clienteFoundBadge" class="hidden mt-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-between transition-all">
+                                <div class="flex items-center gap-1.5 truncate">
+                                    <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
+                                    <span id="clienteFoundName" class="font-semibold truncate"></span>
+                                </div>
+                                <span id="clienteFoundType" class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-200/60 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 shrink-0"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1211,16 +1224,54 @@
                             </svg>
                         </div>
                         <span id="assignTargetLabel"
-                            class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Reporte
+                            class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Soportes
                             a Asignar</span>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Seleccionar
-                            Elemento <span class="text-red-400">*</span></label>
-                        <select id="af_report" required
+
+                    <!-- Modo Edición (un solo elemento) -->
+                    <div id="af_single_select_container" class="hidden">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Elemento a editar <span class="text-red-400">*</span></label>
+                        <select id="af_report"
                             class="input-modern w-full px-3 py-2.5 text-sm border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:border-brand-400">
                             <option value="">Seleccionar...</option>
                         </select>
+                    </div>
+
+                    <!-- Modo Nueva Asignación (Múltiples elementos seleccionables) -->
+                    <div id="af_multi_select_container" class="space-y-2.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <div class="sm:col-span-7 relative">
+                                <i class="fa-solid fa-magnifying-glass text-xs text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                <input type="text" id="af_search_items" placeholder="Buscar por #ID, cliente, falla..." oninput="filterAssignItemsList()"
+                                    class="input-modern w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-brand-400">
+                            </div>
+                            <div class="sm:col-span-5">
+                                <select id="af_zone_filter" onchange="filterAssignItemsList()"
+                                    class="input-modern w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-brand-400">
+                                    <option value="">Todas las zonas</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="selectAllAssignItems(true)" class="hover:text-brand-600 dark:hover:text-brand-400 font-semibold transition-colors">
+                                    <i class="fa-solid fa-check-double mr-1"></i>Marcar todos
+                                </button>
+                                <span>·</span>
+                                <button type="button" onclick="selectAllAssignItems(false)" class="hover:text-red-500 font-semibold transition-colors">
+                                    Desmarcar
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="af_visible_counter" class="text-[11px] font-medium">Mostrando 0</span>
+                                <span id="af_selected_counter" class="text-xs font-bold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">0 seleccionados</span>
+                            </div>
+                        </div>
+
+                        <div id="af_items_list" class="max-h-56 overflow-y-auto space-y-1.5 custom-scrollbar pr-1 border border-slate-200 dark:border-slate-700/80 rounded-xl p-2 bg-white dark:bg-slate-900/60 divide-y divide-slate-100 dark:divide-slate-800/40">
+                            <!-- Items dinámicos con checkboxes -->
+                        </div>
                     </div>
                 </div>
                 <div
@@ -2041,8 +2092,49 @@
 
         function getReports() { try { return JSON.parse(localStorage.getItem(DB_KEY)) || []; } catch (e) { return []; } }
         function saveReports(r) { localStorage.setItem(DB_KEY, JSON.stringify(r)); syncServerDB(); }
-        function getTechs() { try { return JSON.parse(localStorage.getItem(TECHS_KEY)) || []; } catch (e) { return []; } }
-        function saveTechs(r) { localStorage.setItem(TECHS_KEY, JSON.stringify(r)); syncServerDB(); }
+        function normalizeTechItem(t) {
+            if (!t || typeof t !== 'object') return null;
+            const raw1 = t.t1 || t.tech1 || {};
+            const raw2 = t.t2 || t.tech2 || {};
+            const t1 = {
+                name: (raw1.name || '').trim(),
+                cedula: (raw1.cedula || '').trim(),
+                telefono: (raw1.telefono || '').trim(),
+                email: (raw1.email || '').trim()
+            };
+            const t2 = {
+                name: (raw2.name || '').trim(),
+                cedula: (raw2.cedula || '').trim(),
+                telefono: (raw2.telefono || '').trim(),
+                email: (raw2.email || '').trim()
+            };
+            return {
+                ...t,
+                id: Number(t.id) || t.id || genId(),
+                name: (t.name || 'Equipo Técnico').trim(),
+                area: (t.area || '').trim(),
+                for_afectaciones: Boolean(t.for_afectaciones),
+                t1: t1,
+                t2: t2,
+                tech1: t1,
+                tech2: t2
+            };
+        }
+
+        function getTechs() {
+            try {
+                let arr = JSON.parse(localStorage.getItem(TECHS_KEY)) || [];
+                if (!Array.isArray(arr)) return [];
+                return arr.map(normalizeTechItem).filter(Boolean);
+            } catch (e) {
+                return [];
+            }
+        }
+        function saveTechs(r) {
+            const normalized = (Array.isArray(r) ? r : []).map(normalizeTechItem).filter(Boolean);
+            localStorage.setItem(TECHS_KEY, JSON.stringify(normalized));
+            syncServerDB();
+        }
         function getMotivos() {
             try {
                 let m = JSON.parse(localStorage.getItem(MOTIVOS_KEY));
@@ -2617,6 +2709,7 @@
                         <td class="px-4 sm:px-6 py-3.5 sm:py-4">${estatusBadge(r)}</td>
                         <td class="px-4 sm:px-6 py-3.5 sm:py-4">${fechaCell}</td>
                         <td class="px-4 sm:px-6 py-3.5 sm:py-4"><div class="flex items-center justify-end gap-1 sm:gap-1.5">
+                            <button onclick="showAssignModal(${r.id}, 'SOPORTE')" class="p-1.5 sm:p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all" title="Asignar a Coordinación"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg></button>
                             <button onclick="viewReport(${r.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all" title="Ver / Copiar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
                             <button onclick="editReport(${r.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-xl transition-all" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
                             <button onclick="downloadReport(${r.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-xl transition-all" title="Descargar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
@@ -2646,47 +2739,122 @@
 
             const canWrite = hasPermission('techs', 'write');
             const techs = getTechs();
+            const assignments = getAssignments();
+
+            const countSoportes = techs.filter(t => !t.for_afectaciones).length;
+            const countAfectaciones = techs.filter(t => Boolean(t.for_afectaciones)).length;
+            const teamsWithActiveCases = new Set(assignments.map(a => String(a.teamId))).size;
+
             let html = `
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 fade-in">
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">Equipos Técnicos</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">${techs.length} equipo${techs.length !== 1 ? 's' : ''} registrado${techs.length !== 1 ? 's' : ''} · Cada equipo tiene 2 técnicos (el segundo es opcional)</p>
+            <div class="space-y-6 fade-in">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100">Cuadrillas y Equipos Técnicos</h2>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-500/10 text-brand-700 dark:text-brand-300 border border-brand-500/20">
+                                ${techs.length} ${techs.length === 1 ? 'Cuadrilla' : 'Cuadrillas'}
+                            </span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Gestión operativa de cuadrillas de campo para soporte técnico y afectaciones de red.</p>
+                    </div>
+                    ${canWrite ? `
+                    <button onclick="showTechForm()" class="btn-modern inline-flex items-center gap-2 px-4.5 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 rounded-xl shadow-lg shadow-brand-500/25 transition-all self-start sm:self-auto">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nueva Cuadrilla</span>
+                    </button>
+                    ` : ''}
                 </div>
-                ${canWrite ? `
-                <button onclick="showTechForm()" class="btn-modern inline-flex items-center gap-2 px-4.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-brand-500 to-brand-600 rounded-xl shadow-lg shadow-brand-500/25 self-start sm:self-auto">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Nuevo Equipo
-                </button>
-                ` : ''}
-            </div>`;
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-white dark:bg-[#0c1427] rounded-xl p-3.5 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Cuadrillas</span>
+                            <i class="fa-solid fa-users text-brand-500 text-sm"></i>
+                        </div>
+                        <p class="text-xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">${techs.length}</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#0c1427] rounded-xl p-3.5 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Para Soportes</span>
+                            <span class="text-xs">🎫</span>
+                        </div>
+                        <p class="text-xl font-extrabold text-brand-600 dark:text-brand-400 mt-1">${countSoportes}</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#0c1427] rounded-xl p-3.5 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Para Afectaciones</span>
+                            <span class="text-xs">⚠️</span>
+                        </div>
+                        <p class="text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">${countAfectaciones}</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#0c1427] rounded-xl p-3.5 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Con Casos Activos</span>
+                            <i class="fa-solid fa-clipboard-check text-emerald-500 text-sm"></i>
+                        </div>
+                        <p class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">${teamsWithActiveCases}</p>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="bg-white dark:bg-[#0c1427] p-3 rounded-xl border border-slate-200/90 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="techSearchInput" oninput="filterTechsCards()" placeholder="Buscar cuadrilla por nombre, técnico, cédula o área..."
+                            class="input-modern w-full pl-8 pr-3 py-1.5 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select id="techTypeFilter" onchange="filterTechsCards()" class="input-modern px-3 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-brand-500">
+                            <option value="ALL">Todas las categorías</option>
+                            <option value="SOPORTE">Solo Soportes (🎫)</option>
+                            <option value="AFECTACION">Solo Afectaciones (⚠️)</option>
+                        </select>
+                        <span id="techVisibleCounter" class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap font-medium px-2">Mostrando ${techs.length}</span>
+                    </div>
+                </div>
+            `;
 
             if (techs.length === 0) {
                 html += `
                 <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div class="px-6 py-16 text-center">
                         <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-slate-200/60 dark:border-slate-700/60">
-                            <svg class="w-10 h-10 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <i class="fa-solid fa-users-gear text-slate-400 dark:text-slate-500 text-3xl"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">No hay equipos técnicos registrados</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">Registra tu primer equipo técnico con sus respectivos técnicos operativos.</p>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">No hay cuadrillas registradas</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">Registra la primera cuadrilla para poder coordinar visitas y asignar soportes técnicos.</p>
                         ${canWrite ? `
                         <button onclick="showTechForm()" class="btn-modern inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-brand-500 rounded-xl shadow-lg shadow-brand-500/25">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Crear Primer Equipo
+                            <i class="fa-solid fa-plus"></i> Registrar Primer Equipo
                         </button>
                         ` : ''}
                     </div>
                 </div>`;
             } else {
-                html += `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 slide-up">`;
+                html += `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 slide-up" id="techsGridContainer">`;
                 techs.forEach(t => {
+                    const t1 = t.t1 || t.tech1 || {};
+                    const t2 = t.t2 || t.tech2 || {};
+                    const hasT2 = Boolean(t2 && t2.name && t2.name.trim() !== '');
+                    const isAfect = Boolean(t.for_afectaciones);
+
+                    const teamAssignments = assignments.filter(a => String(a.teamId) === String(t.id));
+                    const assignedCount = teamAssignments.length;
+
+                    const searchTokens = `${t.name || ''} ${t.area || ''} ${t1.name || ''} ${t1.cedula || ''} ${t1.telefono || ''} ${t2.name || ''} ${t2.cedula || ''} ${t2.telefono || ''}`.toLowerCase();
+
                     html += `
-                    <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm card-hover overflow-hidden flex flex-col justify-between">
+                    <div class="tech-card bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm card-hover overflow-hidden flex flex-col justify-between"
+                        data-search="${escapeAssignHtml(searchTokens)}" data-type="${isAfect ? 'AFECTACION' : 'SOPORTE'}">
                         <div>
-                            <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30 gap-2">
+                            <!-- Header de Cuadrilla -->
+                            <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-900/40 gap-2">
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base truncate">${t.name}</h3>
-                                        ${t.for_afectaciones ? `
+                                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base truncate">${escapeAssignHtml(t.name || 'Sin nombre')}</h3>
+                                        ${isAfect ? `
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                                                 ⚠️ AFECTACIONES
                                             </span>
@@ -2696,45 +2864,118 @@
                                             </span>
                                         `}
                                     </div>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium truncate">${t.area || 'Sin área especificada'}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium truncate flex items-center gap-1.5">
+                                        <i class="fa-solid fa-location-dot text-[11px] text-slate-400"></i>
+                                        <span>${escapeAssignHtml(t.area || 'Sin área asignada')}</span>
+                                    </p>
                                 </div>
                                 ${canWrite ? `
                                 <div class="flex items-center gap-1 flex-shrink-0">
-                                    <button onclick="editTech(${t.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
-                                    <button onclick="deleteTech(${t.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+                                    <button onclick="editTech(${t.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-xl transition-all" title="Editar Cuadrilla">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    </button>
+                                    <button onclick="deleteTech(${t.id})" class="p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all" title="Eliminar Cuadrilla">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
                                 </div>
                                 ` : ''}
                             </div>
-                            <div class="p-4 sm:p-5 space-y-3 sm:space-y-4">
-                                <div class="bg-emerald-500/5 dark:bg-emerald-950/20 rounded-xl p-3.5 sm:p-4 border border-emerald-500/20">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <div class="w-6 h-6 bg-emerald-500/10 rounded-full flex items-center justify-center flex-shrink-0"><svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
-                                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Técnico 1</span>
+
+                            <!-- Integrantes -->
+                            <div class="p-4 sm:p-5 space-y-3">
+                                <!-- Técnico 1 -->
+                                <div class="bg-emerald-500/5 dark:bg-emerald-950/20 rounded-xl p-3.5 border border-emerald-500/20">
+                                    <div class="flex items-center justify-between gap-2 mb-1.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center text-[10px] font-bold text-emerald-700 dark:text-emerald-300">1</div>
+                                            <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Técnico Principal</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Líder</span>
                                     </div>
-                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${t.t1.name || 'Sin nombre'}</p>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">${t.t1.cedula || ''} ${t.t1.telefono ? '· ' + t.t1.telefono : ''}</p>
-                                    ${t.t1.email ? `<p class="text-xs text-brand-600 dark:text-brand-400 truncate">${t.t1.email}</p>` : ''}
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${escapeAssignHtml(t1.name || 'Sin nombre registrado')}</p>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5 space-x-1">
+                                        ${t1.cedula ? `<span>C.I: ${escapeAssignHtml(t1.cedula)}</span>` : ''}
+                                        ${t1.telefono ? `<span>· 📞 ${escapeAssignHtml(t1.telefono)}</span>` : ''}
+                                    </div>
                                 </div>
-                                ${t.t2.name ? `
-                                <div class="bg-blue-500/5 dark:bg-blue-950/20 rounded-xl p-3.5 sm:p-4 border border-blue-500/20">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <div class="w-6 h-6 bg-blue-500/10 rounded-full flex items-center justify-center flex-shrink-0"><svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
-                                        <span class="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">Técnico 2</span>
+
+                                <!-- Técnico 2 -->
+                                ${hasT2 ? `
+                                <div class="bg-blue-500/5 dark:bg-blue-950/20 rounded-xl p-3.5 border border-blue-500/20">
+                                    <div class="flex items-center justify-between gap-2 mb-1.5">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-5 h-5 bg-blue-500/20 rounded-full flex items-center justify-center text-[10px] font-bold text-blue-700 dark:text-blue-300">2</div>
+                                            <span class="text-[11px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">Técnico Acompañante</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">Apoyo</span>
                                     </div>
-                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${t.t2.name || ''}</p>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">${t.t2.cedula || ''} ${t.t2.telefono ? '· ' + t.t2.telefono : ''}</p>
-                                    ${t.t2.email ? `<p class="text-xs text-brand-600 dark:text-brand-400 truncate">${t.t2.email}</p>` : ''}
-                                </div>` : `
-                                <div class="bg-slate-50 dark:bg-slate-800/40 rounded-xl p-3.5 sm:p-4 border border-dashed border-slate-200 dark:border-slate-700/60 text-center">
-                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Técnico 2: <em>opcional (no asignado)</em></p>
-                                </div>`}
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${escapeAssignHtml(t2.name || '')}</p>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5 space-x-1">
+                                        ${t2.cedula ? `<span>C.I: ${escapeAssignHtml(t2.cedula)}</span>` : ''}
+                                        ${t2.telefono ? `<span>· 📞 ${escapeAssignHtml(t2.telefono)}</span>` : ''}
+                                    </div>
+                                </div>
+                                ` : `
+                                <div class="bg-slate-50 dark:bg-slate-800/40 rounded-xl p-3 border border-dashed border-slate-200 dark:border-slate-700/60 text-center">
+                                    <p class="text-xs text-slate-400 dark:text-slate-500 font-medium flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-user-plus text-[11px]"></i>
+                                        <span>Técnico 2: <em>Opcional (no asignado)</em></span>
+                                    </p>
+                                </div>
+                                `}
                             </div>
+                        </div>
+
+                        <!-- Card Footer / Casos asignados y Acciones rápidas -->
+                        <div class="px-4 sm:px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                ${assignedCount > 0 ? `
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 truncate" title="${assignedCount} caso(s) activo(s) en Coordinación">
+                                        <i class="fa-solid fa-clipboard-list text-[10px]"></i>
+                                        <span>${assignedCount} caso${assignedCount === 1 ? '' : 's'} activo${assignedCount === 1 ? '' : 's'}</span>
+                                    </span>
+                                ` : `
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 truncate">
+                                        <span>Sin casos asignados</span>
+                                    </span>
+                                `}
+                            </div>
+                            ${canWrite ? `
+                            <button onclick="showAssignModal(null, '${isAfect ? 'AFECTACION' : 'SOPORTE'}')" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-white hover:bg-brand-500 rounded-lg border border-brand-500/30 transition-all shrink-0" title="Asignar casos a esta cuadrilla">
+                                <i class="fa-solid fa-calendar-plus text-[10px]"></i>
+                                <span>Asignar</span>
+                            </button>
+                            ` : ''}
                         </div>
                     </div>`;
                 });
                 html += `</div>`;
             }
+            html += `</div>`;
             app.innerHTML = html;
+        }
+
+        function filterTechsCards() {
+            const q = (document.getElementById('techSearchInput')?.value || '').toLowerCase().trim();
+            const type = document.getElementById('techTypeFilter')?.value || 'ALL';
+            const cards = document.querySelectorAll('.tech-card');
+            let visible = 0;
+            cards.forEach(c => {
+                const search = c.getAttribute('data-search') || '';
+                const cType = c.getAttribute('data-type') || 'ALL';
+                const matchQuery = !q || search.includes(q);
+                const matchType = type === 'ALL' || cType === type;
+                if (matchQuery && matchType) {
+                    c.style.display = '';
+                    visible++;
+                } else {
+                    c.style.display = 'none';
+                }
+            });
+            const counterEl = document.getElementById('techVisibleCounter');
+            if (counterEl) {
+                counterEl.textContent = `Mostrando ${visible} de ${cards.length}`;
+            }
         }
 
         // Technicians CRUD
@@ -2758,18 +2999,23 @@
 
         function editTech(id) {
             const techs = getTechs();
-            const t = techs.find(x => x.id === id);
-            if (!t) return;
+            const t = techs.find(x => String(x.id) === String(id));
+            if (!t) {
+                toast('No se encontró el equipo técnico');
+                return;
+            }
+            const t1 = t.t1 || t.tech1 || {};
+            const t2 = t.t2 || t.tech2 || {};
             document.getElementById('tf_id').value = t.id;
-            document.getElementById('tf_name').value = t.name;
+            document.getElementById('tf_name').value = t.name || '';
             document.getElementById('tf_area').value = t.area || '';
-            document.getElementById('tf_for_afectaciones').checked = t.for_afectaciones || false;
-            document.getElementById('tf_t1_name').value = (t.t1 && t.t1.name) || '';
-            document.getElementById('tf_t1_cedula').value = (t.t1 && t.t1.cedula) || '';
-            document.getElementById('tf_t1_telefono').value = (t.t1 && t.t1.telefono) || '';
-            document.getElementById('tf_t2_name').value = (t.t2 && t.t2.name) || '';
-            document.getElementById('tf_t2_cedula').value = (t.t2 && t.t2.cedula) || '';
-            document.getElementById('tf_t2_telefono').value = (t.t2 && t.t2.telefono) || '';
+            document.getElementById('tf_for_afectaciones').checked = Boolean(t.for_afectaciones);
+            document.getElementById('tf_t1_name').value = t1.name || '';
+            document.getElementById('tf_t1_cedula').value = t1.cedula || '';
+            document.getElementById('tf_t1_telefono').value = t1.telefono || '';
+            document.getElementById('tf_t2_name').value = t2.name || '';
+            document.getElementById('tf_t2_cedula').value = t2.cedula || '';
+            document.getElementById('tf_t2_telefono').value = t2.telefono || '';
             document.getElementById('techFormTitle').textContent = `Editar: ${t.name}`;
             document.getElementById('techSubmitText').textContent = 'Actualizar';
             document.getElementById('modalTech').classList.remove('hidden');
@@ -2792,38 +3038,67 @@
                 telefono: document.getElementById('tf_t1_telefono').value.trim(),
                 email: ''
             };
+            const t2Name = document.getElementById('tf_t2_name').value.trim();
             const t2 = {
-                name: document.getElementById('tf_t2_name').value.trim() || null,
-                cedula: document.getElementById('tf_t2_cedula').value.trim() || null,
-                telefono: document.getElementById('tf_t2_telefono').value.trim() || null,
-                email: null
+                name: t2Name,
+                cedula: document.getElementById('tf_t2_cedula').value.trim(),
+                telefono: document.getElementById('tf_t2_telefono').value.trim(),
+                email: ''
             };
-            if (!name || !t1.name) { toast('Completa al menos el nombre del equipo y el Técnico 1'); return; }
-            const data = { name, area, for_afectaciones, t1, t2 };
+
+            if (!name || !t1.name) {
+                toast('Completa al menos el nombre del equipo y el Técnico 1');
+                return;
+            }
+
+            const data = {
+                name,
+                area,
+                for_afectaciones,
+                t1,
+                t2,
+                tech1: t1,
+                tech2: t2
+            };
+
             const id = document.getElementById('tf_id').value;
             let techs = getTechs();
+
             if (id) {
-                const idx = techs.findIndex(x => x.id === parseInt(id));
-                if (idx !== -1) techs[idx] = { ...techs[idx], ...data };
-                logActivity('EDITAR_EQUIPO', 'TECNICOS', `Actualizó equipo técnico "${name}" (#${id})`);
-                toast('Equipo actualizado');
+                const idx = techs.findIndex(x => String(x.id) === String(id));
+                if (idx !== -1) {
+                    techs[idx] = { ...techs[idx], ...data, id: techs[idx].id };
+                    logActivity('EDITAR_EQUIPO', 'TECNICOS', `Actualizó equipo técnico "${name}" (#${id})`);
+                    toast('Equipo técnico actualizado exitosamente');
+                }
             } else {
                 data.id = genId();
                 techs.unshift(data);
                 logActivity('CREAR_EQUIPO', 'TECNICOS', `Creó equipo técnico "${name}" (#${data.id})`);
-                toast('Equipo creado');
+                toast('Equipo técnico registrado exitosamente');
             }
+
             saveTechs(techs);
             closeTechModal();
             renderApp('techs');
         });
 
         function deleteTech(id) {
-            if (!confirm('¿Eliminar este equipo técnico?')) return;
-            const t = getTechs().find(x => x.id === id);
-            saveTechs(getTechs().filter(t => t.id !== id));
-            logActivity('ELIMINAR_EQUIPO', 'TECNICOS', `Eliminó equipo técnico "${t ? t.name : id}" (#${id})`);
-            toast('Eliminado');
+            const techs = getTechs();
+            const t = techs.find(x => String(x.id) === String(id));
+            if (!t) return;
+
+            const assignments = getAssignments();
+            const assignedCount = assignments.filter(a => String(a.teamId) === String(t.id)).length;
+            let msg = `¿Eliminar el equipo técnico "${t.name}"?`;
+            if (assignedCount > 0) {
+                msg = `⚠️ El equipo "${t.name}" tiene ${assignedCount} caso(s) asignado(s) en Coordinación.\n\n¿Estás seguro de que deseas eliminar este equipo?`;
+            }
+            if (!confirm(msg)) return;
+
+            saveTechs(techs.filter(x => String(x.id) !== String(t.id)));
+            logActivity('ELIMINAR_EQUIPO', 'TECNICOS', `Eliminó equipo técnico "${t.name}" (#${t.id})`);
+            toast('Equipo técnico eliminado');
             renderApp('techs');
         }
 
@@ -3109,29 +3384,211 @@
         }
 
         // ========== COORDINACIÓN CRUD ==========
-        function switchAssignTargetType(targetType, currentReportId, currentTeamId) {
+        function escapeAssignHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function switchAssignTargetType(targetType, currentReportId, currentTeamId, preselectedIds) {
             targetType = targetType || document.querySelector('input[name="af_target_type"]:checked')?.value || 'SOPORTE';
             const isAfectacion = targetType === 'AFECTACION';
 
             const labelEl = document.getElementById('assignTargetLabel');
             if (labelEl) {
-                labelEl.textContent = isAfectacion ? 'Afectación / Actividad a Asignar' : 'Soporte Técnico a Asignar';
+                labelEl.textContent = isAfectacion ? 'Afectaciones / Actividades a Asignar' : 'Soportes Técnicos a Asignar';
             }
 
+            const singleContainer = document.getElementById('af_single_select_container');
+            const multiContainer = document.getElementById('af_multi_select_container');
             const reportSel = document.getElementById('af_report');
             const teamSel = document.getElementById('af_team');
+            const itemsList = document.getElementById('af_items_list');
+            const zoneFilter = document.getElementById('af_zone_filter');
+
+            const isEditMode = Boolean(document.getElementById('af_assignId')?.value);
             const assignments = getAssignments();
-            const usedReportIds = new Set(assignments.filter(a => (a.itemType || 'SOPORTE') === targetType).map(a => a.reportId));
+            const usedReportIds = new Set(
+                assignments
+                    .filter(a => (a.itemType || 'SOPORTE') === targetType && (isEditMode ? a.reportId !== currentReportId : true))
+                    .map(a => a.reportId)
+            );
 
+            // Determinar IDs preseleccionados si vienen por parámetro
+            let preselectedSet = new Set();
+            if (preselectedIds) {
+                if (Array.isArray(preselectedIds)) {
+                    preselectedIds.forEach(id => preselectedSet.add(parseInt(id)));
+                } else {
+                    preselectedSet.add(parseInt(preselectedIds));
+                }
+            } else if (currentReportId) {
+                preselectedSet.add(parseInt(currentReportId));
+            }
+
+            if (isEditMode) {
+                // Modo Edición: un solo select clásico
+                if (singleContainer) singleContainer.classList.remove('hidden');
+                if (multiContainer) multiContainer.classList.add('hidden');
+                if (reportSel) {
+                    reportSel.required = true;
+                    if (isAfectacion) {
+                        const afectaciones = getAfectaciones();
+                        reportSel.innerHTML = '<option value="">Seleccionar Afectación / Actividad...</option>';
+                        afectaciones.forEach(a => {
+                            const label = `#${a.id} · ${a.tipo} · ${a.zona || a.ubicacion} · ${a.caja_nap || a.olt || '—'}`;
+                            reportSel.innerHTML += `<option value="${a.id}" ${a.id === currentReportId ? 'selected' : ''}>${escapeAssignHtml(label)}</option>`;
+                        });
+                    } else {
+                        const reports = getReports();
+                        reportSel.innerHTML = '<option value="">Seleccionar reporte de soporte...</option>';
+                        reports.forEach(r => {
+                            reportSel.innerHTML += `<option value="${r.id}" ${r.id === currentReportId ? 'selected' : ''}>#${r.id} · ${escapeAssignHtml(r.zona)} · ${escapeAssignHtml(r.cedula)} · ${escapeAssignHtml(r.motivo || r.estatus)}</option>`;
+                        });
+                    }
+                }
+            } else {
+                // Modo Nueva Asignación: Múltiples elementos con checkbox, filtro y buscador
+                if (singleContainer) singleContainer.classList.add('hidden');
+                if (multiContainer) multiContainer.classList.remove('hidden');
+                if (reportSel) {
+                    reportSel.required = false;
+                    reportSel.value = '';
+                }
+
+                // Limpiar buscador
+                const searchInput = document.getElementById('af_search_items');
+                if (searchInput) searchInput.value = '';
+
+                if (isAfectacion) {
+                    const afectaciones = getAfectaciones();
+                    const available = afectaciones.filter(a => !usedReportIds.has(a.id));
+
+                    // Llenar filtro de zonas
+                    const zones = [...new Set(available.map(a => a.zona || a.ubicacion).filter(Boolean))].sort();
+                    if (zoneFilter) {
+                        zoneFilter.innerHTML = '<option value="">Todas las zonas (' + available.length + ')</option>';
+                        zones.forEach(z => {
+                            zoneFilter.innerHTML += `<option value="${escapeAssignHtml(z)}">${escapeAssignHtml(z)}</option>`;
+                        });
+                    }
+
+                    if (itemsList) {
+                        if (available.length === 0) {
+                            itemsList.innerHTML = `
+                                <div class="text-center py-8 px-4 text-xs text-slate-400 dark:text-slate-500">
+                                    <i class="fa-solid fa-check-circle text-amber-500 text-lg mb-1 block"></i>
+                                    No hay afectaciones ni actividades pendientes por asignar
+                                </div>
+                            `;
+                        } else {
+                            itemsList.innerHTML = available.map(a => {
+                                const isChecked = preselectedSet.has(a.id);
+                                const zone = a.zona || a.ubicacion || '';
+                                const searchStr = `${a.id} ${a.tipo || ''} ${zone} ${a.caja_nap || ''} ${a.olt || ''} ${a.comentarios || a.detalles || ''}`.toLowerCase();
+                                return `
+                                    <label class="assign-item-card flex items-start gap-3 p-2.5 rounded-xl border ${isChecked ? 'bg-amber-500/10 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/60' : 'border-slate-100 dark:border-slate-800/80 hover:bg-slate-50/80 dark:hover:bg-slate-800/50'} cursor-pointer transition-all" 
+                                        data-search="${escapeAssignHtml(searchStr)}" data-zone="${escapeAssignHtml(zone.toLowerCase())}">
+                                        <input type="checkbox" name="af_report_multi" value="${a.id}" ${isChecked ? 'checked' : ''} onchange="onAssignItemCheckChange(this)"
+                                            class="mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-400 cursor-pointer">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between gap-2 mb-1">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300">
+                                                        #${a.id}
+                                                    </span>
+                                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                                                        ${escapeAssignHtml(a.tipo || 'Afectación')}
+                                                    </span>
+                                                </div>
+                                                ${zone ? `
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100/70 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 shrink-0">
+                                                        ${escapeAssignHtml(zone)}
+                                                    </span>
+                                                ` : ''}
+                                            </div>
+                                            <div class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                                                ${a.caja_nap ? `<span class="font-medium text-slate-600 dark:text-slate-300">NAP: ${escapeAssignHtml(a.caja_nap)}</span>` : ''}
+                                                ${a.olt ? ` · <span>OLT: ${escapeAssignHtml(a.olt)}</span>` : ''}
+                                                ${a.comentarios || a.detalles ? ` · <span class="text-slate-400">${escapeAssignHtml(a.comentarios || a.detalles)}</span>` : ''}
+                                            </div>
+                                        </div>
+                                    </label>
+                                `;
+                            }).join('');
+                        }
+                    }
+                } else {
+                    const reports = getReports();
+                    const available = reports.filter(r => !usedReportIds.has(r.id));
+
+                    // Llenar filtro de zonas
+                    const zones = [...new Set(available.map(r => r.zona).filter(Boolean))].sort();
+                    if (zoneFilter) {
+                        zoneFilter.innerHTML = '<option value="">Todas las zonas (' + available.length + ')</option>';
+                        zones.forEach(z => {
+                            zoneFilter.innerHTML += `<option value="${escapeAssignHtml(z)}">${escapeAssignHtml(z)}</option>`;
+                        });
+                    }
+
+                    if (itemsList) {
+                        if (available.length === 0) {
+                            itemsList.innerHTML = `
+                                <div class="text-center py-8 px-4 text-xs text-slate-400 dark:text-slate-500">
+                                    <i class="fa-solid fa-check-circle text-emerald-500 text-lg mb-1 block"></i>
+                                    No hay soportes pendientes por asignar
+                                </div>
+                            `;
+                        } else {
+                            itemsList.innerHTML = available.map(r => {
+                                const isChecked = preselectedSet.has(r.id);
+                                const zone = r.zona || '';
+                                const searchStr = `${r.id} ${r.cedula || ''} ${r.nombre || ''} ${zone} ${r.falla || ''} ${r.motivo || ''} ${r.sector || ''} ${r.direccion || ''}`.toLowerCase();
+                                return `
+                                    <label class="assign-item-card flex items-start gap-3 p-2.5 rounded-xl border ${isChecked ? 'bg-brand-500/10 dark:bg-brand-950/30 border-brand-300 dark:border-brand-700/60' : 'border-slate-100 dark:border-slate-800/80 hover:bg-slate-50/80 dark:hover:bg-slate-800/50'} cursor-pointer transition-all" 
+                                        data-search="${escapeAssignHtml(searchStr)}" data-zone="${escapeAssignHtml(zone.toLowerCase())}">
+                                        <input type="checkbox" name="af_report_multi" value="${r.id}" ${isChecked ? 'checked' : ''} onchange="onAssignItemCheckChange(this)"
+                                            class="mt-1 w-4 h-4 rounded text-brand-600 focus:ring-brand-400 cursor-pointer">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between gap-2 mb-1">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300">
+                                                        #${r.id}
+                                                    </span>
+                                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                                                        ${escapeAssignHtml(r.nombre || r.cedula || 'Sin nombre')}
+                                                    </span>
+                                                    ${r.cedula ? `<span class="text-[11px] text-slate-400 font-medium">(${escapeAssignHtml(r.cedula)})</span>` : ''}
+                                                </div>
+                                                ${zone ? `
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100/70 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 shrink-0">
+                                                        ${escapeAssignHtml(zone)}
+                                                    </span>
+                                                ` : ''}
+                                            </div>
+                                            <div class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                                                <span class="font-medium text-slate-600 dark:text-slate-300">${escapeAssignHtml(r.motivo || r.falla || 'Soporte')}</span>
+                                                ${r.sector ? ` · <span class="text-slate-400">${escapeAssignHtml(r.sector)}</span>` : ''}
+                                                ${r.telefono1 || r.telefono ? ` · 📞 ${escapeAssignHtml(r.telefono1 || r.telefono)}` : ''}
+                                            </div>
+                                        </div>
+                                    </label>
+                                `;
+                            }).join('');
+                        }
+                    }
+                }
+
+                filterAssignItemsList();
+                updateAssignSelectionCount();
+            }
+
+            // Llenar equipos según la categoría
             if (isAfectacion) {
-                const afectaciones = getAfectaciones();
-                const available = currentReportId ? afectaciones : afectaciones.filter(a => !usedReportIds.has(a.id));
-                reportSel.innerHTML = '<option value="">Seleccionar Afectación / Actividad...</option>';
-                available.forEach(a => {
-                    const label = `#${a.id} · ${a.tipo} · ${a.zona || a.ubicacion} · ${a.caja_nap || a.olt || '—'}`;
-                    reportSel.innerHTML += `<option value="${a.id}" ${a.id === currentReportId ? 'selected' : ''}>${label}</option>`;
-                });
-
                 const techs = getTechs().filter(t => Boolean(t.for_afectaciones));
                 teamSel.innerHTML = '<option value="">Seleccionar equipo de Afectaciones...</option>';
                 if (techs.length === 0) {
@@ -3142,17 +3599,10 @@
                         const m2 = t.t2?.name ? t.t2.name : '';
                         const members = [m1, m2].filter(Boolean).join(' & ');
                         const label = members ? `${t.name} — ${members} (Afectaciones)` : `${t.name} (Afectaciones)`;
-                        teamSel.innerHTML += `<option value="${t.id}" ${String(t.id) === String(currentTeamId) ? 'selected' : ''}>${label}</option>`;
+                        teamSel.innerHTML += `<option value="${t.id}" ${String(t.id) === String(currentTeamId) ? 'selected' : ''}>${escapeAssignHtml(label)}</option>`;
                     });
                 }
             } else {
-                const reports = getReports();
-                const available = currentReportId ? reports : reports.filter(r => !usedReportIds.has(r.id));
-                reportSel.innerHTML = '<option value="">Seleccionar reporte de soporte...</option>';
-                available.forEach(r => {
-                    reportSel.innerHTML += `<option value="${r.id}" ${r.id === currentReportId ? 'selected' : ''}>#${r.id} · ${r.zona} · ${r.cedula} · ${r.motivo || r.estatus}</option>`;
-                });
-
                 const techs = getTechs().filter(t => !t.for_afectaciones);
                 teamSel.innerHTML = '<option value="">Seleccionar equipo de soporte...</option>';
                 techs.forEach(t => {
@@ -3160,11 +3610,93 @@
                     const m2 = t.t2?.name ? t.t2.name : '';
                     const members = [m1, m2].filter(Boolean).join(' & ');
                     const label = members ? `${t.name} — ${members}` : t.name;
-                    teamSel.innerHTML += `<option value="${t.id}" ${String(t.id) === String(currentTeamId) ? 'selected' : ''}>${label}</option>`;
+                    teamSel.innerHTML += `<option value="${t.id}" ${String(t.id) === String(currentTeamId) ? 'selected' : ''}>${escapeAssignHtml(label)}</option>`;
                 });
             }
 
             renderTeamMembersInfo();
+        }
+
+        function onAssignItemCheckChange(cb) {
+            const card = cb.closest('.assign-item-card');
+            if (card) {
+                const isAfectacion = document.querySelector('input[name="af_target_type"]:checked')?.value === 'AFECTACION';
+                const activeBg = isAfectacion ? 'bg-amber-500/10' : 'bg-brand-500/10';
+                const activeDarkBg = isAfectacion ? 'dark:bg-amber-950/30' : 'dark:bg-brand-950/30';
+                const activeBorder = isAfectacion ? 'border-amber-300' : 'border-brand-300';
+                const activeDarkBorder = isAfectacion ? 'dark:border-amber-700/60' : 'dark:border-brand-700/60';
+
+                if (cb.checked) {
+                    card.classList.add(activeBg, activeDarkBg, activeBorder, activeDarkBorder);
+                    card.classList.remove('border-slate-100', 'dark:border-slate-800/80');
+                } else {
+                    card.classList.remove(activeBg, activeDarkBg, activeBorder, activeDarkBorder);
+                    card.classList.add('border-slate-100', 'dark:border-slate-800/80');
+                }
+            }
+            updateAssignSelectionCount();
+        }
+
+        function updateAssignSelectionCount() {
+            const selected = document.querySelectorAll('input[name="af_report_multi"]:checked').length;
+            const counterEl = document.getElementById('af_selected_counter');
+            if (counterEl) {
+                counterEl.textContent = `${selected} seleccionado${selected === 1 ? '' : 's'}`;
+                if (selected > 0) {
+                    counterEl.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-700 dark:text-brand-300 border border-brand-500/30';
+                } else {
+                    counterEl.className = 'text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700';
+                }
+            }
+        }
+
+        function filterAssignItemsList() {
+            const query = (document.getElementById('af_search_items')?.value || '').toLowerCase().trim();
+            const zone = (document.getElementById('af_zone_filter')?.value || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('#af_items_list .assign-item-card');
+            let visible = 0;
+            cards.forEach(card => {
+                const itemSearch = card.getAttribute('data-search') || '';
+                const itemZone = card.getAttribute('data-zone') || '';
+                const matchesQuery = !query || itemSearch.includes(query);
+                const matchesZone = !zone || itemZone === zone;
+                if (matchesQuery && matchesZone) {
+                    card.style.display = '';
+                    visible++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            const visCounter = document.getElementById('af_visible_counter');
+            if (visCounter) {
+                visCounter.textContent = `Mostrando ${visible} de ${cards.length}`;
+            }
+        }
+
+        function selectAllAssignItems(selectAll) {
+            const cards = document.querySelectorAll('#af_items_list .assign-item-card');
+            const isAfectacion = document.querySelector('input[name="af_target_type"]:checked')?.value === 'AFECTACION';
+            const activeBg = isAfectacion ? 'bg-amber-500/10' : 'bg-brand-500/10';
+            const activeDarkBg = isAfectacion ? 'dark:bg-amber-950/30' : 'dark:bg-brand-950/30';
+            const activeBorder = isAfectacion ? 'border-amber-300' : 'border-brand-300';
+            const activeDarkBorder = isAfectacion ? 'dark:border-amber-700/60' : 'dark:border-brand-700/60';
+
+            cards.forEach(card => {
+                if (card.style.display !== 'none') {
+                    const cb = card.querySelector('input[name="af_report_multi"]');
+                    if (cb) {
+                        cb.checked = selectAll;
+                        if (selectAll) {
+                            card.classList.add(activeBg, activeDarkBg, activeBorder, activeDarkBorder);
+                            card.classList.remove('border-slate-100', 'dark:border-slate-800/80');
+                        } else {
+                            card.classList.remove(activeBg, activeDarkBg, activeBorder, activeDarkBorder);
+                            card.classList.add('border-slate-100', 'dark:border-slate-800/80');
+                        }
+                    }
+                }
+            });
+            updateAssignSelectionCount();
         }
 
         function renderTeamMembersInfo() {
@@ -3198,9 +3730,9 @@
                     <div class="flex items-center justify-between border-b border-emerald-100 dark:border-emerald-900/40 pb-2">
                         <div class="flex items-center gap-2 min-w-0">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300">
-                                Equipo: ${tech.name}
+                                Equipo: ${escapeAssignHtml(tech.name)}
                             </span>
-                            ${tech.area ? `<span class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Área: ${tech.area}</span>` : ''}
+                            ${tech.area ? `<span class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Área: ${escapeAssignHtml(tech.area)}</span>` : ''}
                         </div>
                         <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
                             ${hasT2 ? '2 Integrantes' : '1 Integrante'}
@@ -3212,13 +3744,13 @@
                         <div class="bg-emerald-50/70 dark:bg-slate-800/80 rounded-lg p-2.5 border border-emerald-200/70 dark:border-emerald-800/50 space-y-1">
                             <div class="flex items-center gap-1.5">
                                 <div class="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-[10px] font-bold">1</div>
-                                <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${t1.name || 'Sin nombre'}</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeAssignHtml(t1.name || 'Sin nombre')}</span>
                                 <span class="text-[10px] font-medium px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 ml-auto">Principal</span>
                             </div>
                             <div class="text-[11px] text-slate-600 dark:text-slate-300 space-y-0.5 pl-6">
-                                ${t1.cedula ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">C.I.:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${t1.cedula}</span></p>` : ''}
-                                ${t1.telefono ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">Tlf:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${t1.telefono}</span></p>` : ''}
-                                ${t1.email ? `<p class="flex items-center gap-1 truncate"><span class="text-slate-400 font-medium">Email:</span> <span class="truncate">${t1.email}</span></p>` : ''}
+                                ${t1.cedula ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">C.I.:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${escapeAssignHtml(t1.cedula)}</span></p>` : ''}
+                                ${t1.telefono ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">Tlf:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${escapeAssignHtml(t1.telefono)}</span></p>` : ''}
+                                ${t1.email ? `<p class="flex items-center gap-1 truncate"><span class="text-slate-400 font-medium">Email:</span> <span class="truncate">${escapeAssignHtml(t1.email)}</span></p>` : ''}
                             </div>
                         </div>
 
@@ -3227,13 +3759,13 @@
                         <div class="bg-emerald-50/70 dark:bg-slate-800/80 rounded-lg p-2.5 border border-emerald-200/70 dark:border-emerald-800/50 space-y-1">
                             <div class="flex items-center gap-1.5">
                                 <div class="w-5 h-5 rounded-full bg-emerald-200 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-[10px] font-bold">2</div>
-                                <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${t2.name}</span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeAssignHtml(t2.name)}</span>
                                 <span class="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 ml-auto">Secundario</span>
                             </div>
                             <div class="text-[11px] text-slate-600 dark:text-slate-300 space-y-0.5 pl-6">
-                                ${t2.cedula ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">C.I.:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${t2.cedula}</span></p>` : ''}
-                                ${t2.telefono ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">Tlf:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${t2.telefono}</span></p>` : ''}
-                                ${t2.email ? `<p class="flex items-center gap-1 truncate"><span class="text-slate-400 font-medium">Email:</span> <span class="truncate">${t2.email}</span></p>` : ''}
+                                ${t2.cedula ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">C.I.:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${escapeAssignHtml(t2.cedula)}</span></p>` : ''}
+                                ${t2.telefono ? `<p class="flex items-center gap-1"><span class="text-slate-400 font-medium">Tlf:</span> <span class="font-semibold text-slate-700 dark:text-slate-200">${escapeAssignHtml(t2.telefono)}</span></p>` : ''}
+                                ${t2.email ? `<p class="flex items-center gap-1 truncate"><span class="text-slate-400 font-medium">Email:</span> <span class="truncate">${escapeAssignHtml(t2.email)}</span></p>` : ''}
                             </div>
                         </div>
                         ` : ''}
@@ -3242,7 +3774,7 @@
             `;
         }
 
-        function showAssignModal(id, presetTargetType) {
+        function showAssignModal(idOrArray, presetTargetType) {
             document.getElementById('assignForm').reset();
             document.getElementById('af_reportId').value = '';
             document.getElementById('af_assignId').value = '';
@@ -3254,25 +3786,34 @@
             let targetType = presetTargetType || 'SOPORTE';
             let currentReportId = null;
             let currentTeamId = null;
+            let preselectedIds = [];
 
-            if (id) {
-                const assignments = getAssignments();
-                const a = assignments.find(x => x.reportId === id || x.id === id);
-                if (a) {
-                    targetType = a.itemType || 'SOPORTE';
-                    currentReportId = a.reportId;
-                    currentTeamId = a.teamId;
-                    document.getElementById('af_reportId').value = a.reportId;
-                    document.getElementById('af_assignId').value = a.id;
-                    document.getElementById('af_status').value = a.status;
-                    document.getElementById('af_genCoordinado').checked = Boolean(a.genCoordinado);
-                    document.getElementById('af_fueraCoordinacion').checked = Boolean(a.fueraCoordinacion);
-                    document.getElementById('af_reasonRealizadaVal').value = (a.status === 'REALIZADA' && a.reason) ? a.reason : '';
-                    document.getElementById('af_reasonReagendadaVal').value = (a.status === 'REAGENDADA' && a.reason) ? a.reason : '';
-                    document.getElementById('af_reasonAnuladaVal').value = (a.status === 'ANULADA' && a.reason) ? a.reason : '';
-                    document.getElementById('af_status').dispatchEvent(new Event('change'));
-                    document.getElementById('assignFormTitle').textContent = 'Editar Asignación';
-                    document.getElementById('assignSubmitText').textContent = 'Actualizar';
+            if (idOrArray) {
+                if (Array.isArray(idOrArray)) {
+                    preselectedIds = idOrArray.map(x => parseInt(x));
+                } else {
+                    const assignments = getAssignments();
+                    // Buscar si es un ID de asignación o reporte existente
+                    const a = assignments.find(x => x.id === idOrArray || (x.reportId === idOrArray && (!presetTargetType || (x.itemType || 'SOPORTE') === presetTargetType)));
+                    if (a) {
+                        targetType = a.itemType || 'SOPORTE';
+                        currentReportId = a.reportId;
+                        currentTeamId = a.teamId;
+                        document.getElementById('af_reportId').value = a.reportId;
+                        document.getElementById('af_assignId').value = a.id;
+                        document.getElementById('af_status').value = a.status;
+                        document.getElementById('af_genCoordinado').checked = Boolean(a.genCoordinado);
+                        document.getElementById('af_fueraCoordinacion').checked = Boolean(a.fueraCoordinacion);
+                        document.getElementById('af_reasonRealizadaVal').value = (a.status === 'REALIZADA' && a.reason) ? a.reason : '';
+                        document.getElementById('af_reasonReagendadaVal').value = (a.status === 'REAGENDADA' && a.reason) ? a.reason : '';
+                        document.getElementById('af_reasonAnuladaVal').value = (a.status === 'ANULADA' && a.reason) ? a.reason : '';
+                        document.getElementById('af_status').dispatchEvent(new Event('change'));
+                        document.getElementById('assignFormTitle').textContent = 'Editar Asignación';
+                        document.getElementById('assignSubmitText').textContent = 'Actualizar';
+                    } else {
+                        // Preseleccionar un reporte específico en modo nuevo
+                        preselectedIds = [parseInt(idOrArray)];
+                    }
                 }
             }
 
@@ -3280,7 +3821,7 @@
             const radios = document.querySelectorAll('input[name="af_target_type"]');
             if (radios[radioIdx]) radios[radioIdx].checked = true;
 
-            switchAssignTargetType(targetType, currentReportId, currentTeamId);
+            switchAssignTargetType(targetType, currentReportId, currentTeamId, preselectedIds);
 
             document.getElementById('modalAssign').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -3303,15 +3844,17 @@
 
         document.getElementById('assignForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            const targetType = document.querySelector('input[name="af_target_type"]:checked').value;
-            const reportId = parseInt(document.getElementById('af_report').value);
+            const targetType = document.querySelector('input[name="af_target_type"]:checked')?.value || 'SOPORTE';
             const teamId = parseInt(document.getElementById('af_team').value);
             const status = document.getElementById('af_status').value;
             const genCoordinado = document.getElementById('af_genCoordinado').checked;
             const fueraCoordinacion = document.getElementById('af_fueraCoordinacion').checked;
             const assignId = document.getElementById('af_assignId').value;
 
-            if (!reportId || !teamId) { toast('Selecciona el elemento y el equipo técnico'); return; }
+            if (!teamId) { 
+                toast('Selecciona el equipo técnico'); 
+                return; 
+            }
 
             let reason = '';
             if (status === 'REALIZADA') {
@@ -3326,10 +3869,25 @@
             }
 
             let assignments = getAssignments();
+
             if (assignId) {
+                // Modo Edición (un solo elemento)
+                const reportId = parseInt(document.getElementById('af_report').value);
+                if (!reportId) { toast('Selecciona el elemento a actualizar'); return; }
+
                 const idx = assignments.findIndex(x => x.id === parseInt(assignId));
                 if (idx !== -1) {
-                    assignments[idx] = { ...assignments[idx], itemType: targetType, reportId, teamId, status, reason, genCoordinado, fueraCoordinacion, updated_at: new Date().toISOString() };
+                    assignments[idx] = { 
+                        ...assignments[idx], 
+                        itemType: targetType, 
+                        reportId, 
+                        teamId, 
+                        status, 
+                        reason, 
+                        genCoordinado, 
+                        fueraCoordinacion, 
+                        updated_at: new Date().toISOString() 
+                    };
                 }
                 if (targetType === 'SOPORTE') {
                     let reports = getReports();
@@ -3350,35 +3908,76 @@
                     }
                 }
                 logActivity('ACTUALIZAR_ASIGNACION', 'COORDINACION', `Actualizó asignación de ${targetType} #${reportId} (Estado: ${status})`);
-                toast('Asignación actualizada');
+                toast('Asignación actualizada exitosamente');
             } else {
-                if (assignments.some(x => x.reportId === reportId && (x.itemType || 'SOPORTE') === targetType)) {
-                    toast('Este elemento ya tiene asignación'); return;
+                // Modo Nueva Asignación: Soporta múltiples elementos simultáneos
+                const checkedBoxes = Array.from(document.querySelectorAll('input[name="af_report_multi"]:checked'));
+                if (checkedBoxes.length === 0) {
+                    toast(`Selecciona al menos un ${targetType === 'AFECTACION' ? 'caso de afectación' : 'soporte técnico'} para asignar`);
+                    return;
                 }
-                assignments.push({ id: genId(), itemType: targetType, reportId, teamId, status, reason, genCoordinado, fueraCoordinacion, created_at: new Date().toISOString() });
+
+                const reportIds = checkedBoxes.map(cb => parseInt(cb.value)).filter(Boolean);
+                let assignedCount = 0;
+                let reports = targetType === 'SOPORTE' ? getReports() : [];
+                let afectaciones = targetType === 'AFECTACION' ? getAfectaciones() : [];
+
+                reportIds.forEach(rId => {
+                    const existingIdx = assignments.findIndex(x => x.reportId === rId && (x.itemType || 'SOPORTE') === targetType);
+                    if (existingIdx !== -1) {
+                        assignments[existingIdx] = {
+                            ...assignments[existingIdx],
+                            teamId,
+                            status,
+                            reason,
+                            genCoordinado,
+                            fueraCoordinacion,
+                            updated_at: new Date().toISOString()
+                        };
+                    } else {
+                        assignments.push({
+                            id: genId(),
+                            itemType: targetType,
+                            reportId: rId,
+                            teamId,
+                            status,
+                            reason,
+                            genCoordinado,
+                            fueraCoordinacion,
+                            created_at: new Date().toISOString()
+                        });
+                    }
+                    assignedCount++;
+
+                    if (targetType === 'SOPORTE') {
+                        const rIdx = reports.findIndex(r => r.id === rId);
+                        if (rIdx !== -1) {
+                            reports[rIdx].estatus = 'PENDIENTE';
+                            reports[rIdx].assigned = true;
+                            reports[rIdx].fecha_visita = null;
+                            reports[rIdx].visit_date = null;
+                        }
+                    } else {
+                        const aIdx = afectaciones.findIndex(a => a.id === rId);
+                        if (aIdx !== -1) {
+                            afectaciones[aIdx].assigned = true;
+                            afectaciones[aIdx].fecha_visita = null;
+                        }
+                    }
+                });
 
                 if (targetType === 'SOPORTE') {
-                    let reports = getReports();
-                    const rIdx = reports.findIndex(r => r.id === reportId);
-                    if (rIdx !== -1) {
-                        reports[rIdx].estatus = 'PENDIENTE';
-                        reports[rIdx].assigned = true;
-                        reports[rIdx].fecha_visita = null;
-                        reports[rIdx].visit_date = null;
-                        saveReports(reports);
-                    }
+                    saveReports(reports);
                 } else {
-                    let afectaciones = getAfectaciones();
-                    const aIdx = afectaciones.findIndex(a => a.id === reportId);
-                    if (aIdx !== -1) {
-                        afectaciones[aIdx].assigned = true;
-                        afectaciones[aIdx].fecha_visita = null;
-                        saveAfectaciones(afectaciones);
-                    }
+                    saveAfectaciones(afectaciones);
                 }
-                logActivity('ASIGNAR_CASO', 'COORDINACION', `Asignó ${targetType} #${reportId} a equipo #${teamId} (Estado: ${status})`);
-                toast('Asignado exitosamente a Coordinación');
+
+                const techTeam = getTechs().find(t => t.id === teamId);
+                const teamName = techTeam ? techTeam.name : `#${teamId}`;
+                logActivity('ASIGNAR_CASO', 'COORDINACION', `Asignó ${assignedCount} ${targetType}(s) [${reportIds.join(', ')}] al equipo ${teamName} (Estado: ${status})`);
+                toast(`Se asignaron ${assignedCount} ${targetType === 'AFECTACION' ? 'actividades' : 'soportes'} a ${teamName} exitosamente`);
             }
+
             saveAssignments(assignments);
             closeAssignModal();
             renderApp('coordinacion');
@@ -4975,9 +5574,148 @@
             setFormDisponibilidad(!current);
         }
 
+        let _cedulaSearchTimeout = null;
+        let _lastSearchedCedula = '';
+
+        async function consultarClientePorCedula(forzar = false) {
+            const input = document.getElementById('f_cedula');
+            if (!input) return;
+            
+            const rawVal = input.value.trim().toUpperCase();
+            const cleanDigits = rawVal.replace(/[^0-9]/g, '');
+            
+            if (!cleanDigits || (cleanDigits.length < 5 && !forzar)) {
+                resetClienteSearchStatus();
+                return;
+            }
+
+            if (!forzar && rawVal === _lastSearchedCedula) {
+                return;
+            }
+
+            _lastSearchedCedula = rawVal;
+            const statusIcon = document.getElementById('cedulaSearchStatus');
+            const feedbackText = document.getElementById('clienteSearchFeedback');
+            const badge = document.getElementById('clienteFoundBadge');
+            const nameSpan = document.getElementById('clienteFoundName');
+            const typeSpan = document.getElementById('clienteFoundType');
+
+            if (statusIcon) {
+                statusIcon.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-brand-500 text-xs"></i>';
+            }
+            if (feedbackText) {
+                feedbackText.textContent = 'Buscando cliente...';
+                feedbackText.className = 'text-xs text-brand-600 dark:text-brand-400 font-medium';
+            }
+
+            try {
+                const res = await fetch(`/api/clientes/consulta?q=${encodeURIComponent(rawVal)}`);
+                if (!res.ok) throw new Error('Error al consultar');
+                const data = await res.json();
+
+                if (data && data.encontrado) {
+                    // 1. C.I./RIF
+                    if (data.cedula) {
+                        input.value = data.cedula;
+                        _lastSearchedCedula = data.cedula.toUpperCase();
+                    }
+
+                    // 2. ONU
+                    const onuInput = document.getElementById('f_onu');
+                    if (onuInput) {
+                        onuInput.value = data.onu || '';
+                        resaltarCampo(onuInput);
+                    }
+
+                    // 3. Teléfono en Teléfono 1
+                    const tel1Input = document.getElementById('f_telefono1');
+                    if (tel1Input) {
+                        tel1Input.value = data.telefono1 || data.telefono_raw || '';
+                        resaltarCampo(tel1Input);
+                    }
+
+                    // Teléfono 2 (opcional, si existe y campo vacío)
+                    const tel2Input = document.getElementById('f_telefono2');
+                    if (tel2Input && data.telefono2 && !tel2Input.value) {
+                        tel2Input.value = data.telefono2;
+                    }
+
+                    // Ubicación (si está vacía)
+                    const ubiInput = document.getElementById('f_ubicacion');
+                    if (ubiInput && data.ubicacion && !ubiInput.value) {
+                        ubiInput.value = data.ubicacion;
+                        resaltarCampo(ubiInput);
+                    }
+
+                    // Zona (si coincide y está vacía)
+                    const zonaSelect = document.getElementById('f_zona');
+                    if (zonaSelect && (!zonaSelect.value || zonaSelect.value === '')) {
+                        const targetZone = (data.urban || data.zona || '').trim().toUpperCase();
+                        if (targetZone) {
+                            for (let i = 0; i < zonaSelect.options.length; i++) {
+                                const optVal = zonaSelect.options[i].value.trim().toUpperCase();
+                                if (optVal && (optVal === targetZone || targetZone.includes(optVal) || optVal.includes(targetZone))) {
+                                    zonaSelect.selectedIndex = i;
+                                    resaltarCampo(zonaSelect);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Feedback visual exitoso
+                    if (statusIcon) {
+                        statusIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>';
+                    }
+                    if (feedbackText) {
+                        feedbackText.textContent = 'Cliente verificado';
+                        feedbackText.className = 'text-xs text-emerald-600 dark:text-emerald-400 font-medium';
+                    }
+                    if (badge && nameSpan && typeSpan) {
+                        nameSpan.textContent = data.nombre || 'Cliente Registrado';
+                        typeSpan.textContent = data.tipo_cliente || 'Cliente';
+                        badge.classList.remove('hidden');
+                    }
+                } else {
+                    if (statusIcon) {
+                        statusIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs" title="No registrado"></i>';
+                    }
+                    if (feedbackText) {
+                        feedbackText.textContent = 'No registrado en base de datos';
+                        feedbackText.className = 'text-xs text-amber-600 dark:text-amber-400 font-normal';
+                    }
+                    if (badge) badge.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error('Error al consultar cliente:', err);
+                resetClienteSearchStatus();
+            }
+        }
+
+        function resetClienteSearchStatus() {
+            const statusIcon = document.getElementById('cedulaSearchStatus');
+            const feedbackText = document.getElementById('clienteSearchFeedback');
+            const badge = document.getElementById('clienteFoundBadge');
+            if (statusIcon) {
+                statusIcon.innerHTML = '<i class="fa-solid fa-magnifying-glass text-xs opacity-40"></i>';
+            }
+            if (feedbackText) feedbackText.textContent = '';
+            if (badge) badge.classList.add('hidden');
+        }
+
+        function resaltarCampo(elem) {
+            if (!elem) return;
+            elem.classList.add('ring-2', 'ring-emerald-400', 'bg-emerald-50/40', 'dark:bg-emerald-950/20');
+            setTimeout(() => {
+                elem.classList.remove('ring-2', 'ring-emerald-400', 'bg-emerald-50/40', 'dark:bg-emerald-950/20');
+            }, 1800);
+        }
+
         function showForm() {
             document.getElementById('reportForm').reset();
             document.getElementById('f_id').value = '';
+            resetClienteSearchStatus();
+            _lastSearchedCedula = '';
             const fVisita = document.getElementById('f_fecha_visita');
             if (fVisita) {
                 fVisita.value = '';
@@ -5021,6 +5759,8 @@
         function editReport(id) {
             const r = getReports().find(x => String(x.id) === String(id));
             if (!r) return;
+            resetClienteSearchStatus();
+            _lastSearchedCedula = r.cedula ? String(r.cedula).toUpperCase() : '';
             document.getElementById('f_id').value = r.id;
             document.getElementById('f_cedula').value = r.cedula;
             document.getElementById('f_onu').value = r.onu || '';
@@ -5054,6 +5794,8 @@
         function closeModal() {
             document.getElementById('modalForm').classList.add('hidden');
             document.body.style.overflow = '';
+            resetClienteSearchStatus();
+            _lastSearchedCedula = '';
         }
 
         function openExtensionModal() {
@@ -5084,6 +5826,26 @@
             }
         });
 
+        const fCedulaInput = document.getElementById('f_cedula');
+        if (fCedulaInput) {
+            fCedulaInput.addEventListener('input', function () {
+                clearTimeout(_cedulaSearchTimeout);
+                _cedulaSearchTimeout = setTimeout(() => {
+                    consultarClientePorCedula(false);
+                }, 400);
+            });
+            fCedulaInput.addEventListener('blur', function () {
+                consultarClientePorCedula(false);
+            });
+            fCedulaInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(_cedulaSearchTimeout);
+                    consultarClientePorCedula(true);
+                }
+            });
+        }
+
         document.getElementById('reportForm').addEventListener('submit', function (e) {
             e.preventDefault();
             const id = document.getElementById('f_id').value;
@@ -5099,7 +5861,7 @@
 
             const data = {
                 zona: document.getElementById('f_zona').value.trim(),
-                cedula: document.getElementById('f_cedula').value.replace(/[^0-9]/g, '').trim(),
+                cedula: document.getElementById('f_cedula').value.trim().toUpperCase(),
                 onu: document.getElementById('f_onu').value.trim() || null,
                 caja_nap: document.getElementById('f_caja_nap').value.trim() || null,
                 precinto: document.getElementById('f_precinto').value.trim() || null,

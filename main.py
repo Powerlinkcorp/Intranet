@@ -2147,6 +2147,163 @@ async def api_get_historico(cedula: str, db: Session = Depends(get_db)):
         ]
     }
 
+_clients_index = {}
+_clients_mtimes = (0, 0)
+
+def _get_clients_index():
+    global _clients_index, _clients_mtimes
+    path_res = os.path.join(UPLOAD_DIR, "last_snapshot.json")
+    path_corp = os.path.join(UPLOAD_DIR, "last_snapshot_corporativo.json")
+    
+    mtime_res = os.path.getmtime(path_res) if os.path.exists(path_res) else 0
+    mtime_corp = os.path.getmtime(path_corp) if os.path.exists(path_corp) else 0
+    current_mtimes = (mtime_res, mtime_corp)
+    
+    if _clients_index and _clients_mtimes == current_mtimes:
+        return _clients_index
+        
+    new_index = {}
+    import re
+    
+    def _format_phone(p):
+        p = str(p or '').strip()
+        if not p: return ''
+        digits = re.sub(r'[^0-9]', '', p)
+        if digits.startswith('58') and len(digits) == 12:
+            return '0' + digits[2:5] + '-' + digits[5:]
+        if digits.startswith('0') and len(digits) == 11:
+            return digits[:4] + '-' + digits[4:]
+        return p
+
+    # Cargar residencial
+    if os.path.exists(path_res):
+        try:
+            with open(path_res, "r", encoding="utf-8") as f:
+                res_data = json.load(f).get("data", [])
+                for u in res_data:
+                    doc = str(u.get('doc', '')).strip()
+                    if not doc:
+                        continue
+                    dt = str(u.get('doc_type', '')).strip().upper()
+                    onu = u.get('onu_sn') or u.get('onu') or u.get('onu_mac') or ''
+                    item = {
+                        'encontrado': True,
+                        'cedula': f"{dt}-{doc}" if dt else doc,
+                        'doc': doc,
+                        'doc_type': dt,
+                        'nombre': u.get('name', ''),
+                        'onu': onu,
+                        'telefono1': _format_phone(u.get('phone')),
+                        'telefono_raw': u.get('phone') or '',
+                        'telefono2': _format_phone(u.get('phone_2')),
+                        'ubicacion': u.get('address') or '',
+                        'urban': u.get('urban') or '',
+                        'plan': u.get('plan') or '',
+                        'estado_servicio': u.get('service_status') or '',
+                        'tipo_cliente': 'Residencial',
+                        'id_servicio': u.get('id_servicio')
+                    }
+                    new_index[doc] = item
+                    if dt:
+                        new_index[f"{dt}-{doc}"] = item
+                        new_index[f"{dt}{doc}"] = item
+        except Exception as e:
+            print(f"Error indexando last_snapshot.json: {e}")
+
+    # Cargar corporativo
+    if os.path.exists(path_corp):
+        try:
+            with open(path_corp, "r", encoding="utf-8") as f:
+                corp_data = json.load(f).get("data", [])
+                for u in corp_data:
+                    doc = str(u.get('doc', '')).strip()
+                    if not doc:
+                        continue
+                    dt = str(u.get('doc_type', '')).strip().upper()
+                    onu_val = u.get('onu') or u.get('onu_sn') or ''
+                    if ' / ' in onu_val:
+                        onu_val = onu_val.split(' / ')[0].strip()
+                    item = {
+                        'encontrado': True,
+                        'cedula': f"{dt}-{doc}" if dt else doc,
+                        'doc': doc,
+                        'doc_type': dt,
+                        'nombre': u.get('name', ''),
+                        'onu': onu_val,
+                        'telefono1': _format_phone(u.get('phone')),
+                        'telefono_raw': u.get('phone') or '',
+                        'telefono2': _format_phone(u.get('phone_2')),
+                        'ubicacion': u.get('address') or '',
+                        'urban': u.get('urban') or '',
+                        'plan': u.get('plan') or '',
+                        'estado_servicio': u.get('service_status') or '',
+                        'tipo_cliente': 'Corporativo',
+                        'id_servicio': u.get('id_servicio')
+                    }
+                    new_index[doc] = item
+                    if dt:
+                        new_index[f"{dt}-{doc}"] = item
+                        new_index[f"{dt}{doc}"] = item
+        except Exception as e:
+            print(f"Error indexando last_snapshot_corporativo.json: {e}")
+
+    _clients_index = new_index
+    _clients_mtimes = current_mtimes
+    return _clients_index
+
+@app.get("/api/clientes/consulta")
+def api_consultar_cliente(q: str = Query(...), db: Session = Depends(get_db)):
+    import re
+    query_str = q.strip().upper()
+    if not query_str:
+        return {"encontrado": False, "mensaje": "Parámetro de búsqueda vacío"}
+        
+    index = _get_clients_index()
+    
+    # 1. Búsqueda directa por la cadena ingresada
+    if query_str in index:
+        return index[query_str]
+        
+    # 2. Búsqueda por dígitos limpios
+    digits = re.sub(r'[^0-9]', '', query_str)
+    if digits and digits in index:
+        return index[digits]
+        
+    # 3. Intentos con prefijos comunes (V, J, E, G)
+    for prefix in ['V-', 'J-', 'E-', 'G-']:
+        test_key = f"{prefix}{digits}"
+        if test_key in index:
+            return index[test_key]
+            
+    # 4. Fallback a la base de datos SQL
+    if digits and hasattr(db, 'query'):
+        try:
+            client_sql = db.query(models.Client).filter(
+                (models.Client.cedula.ilike(f"%{digits}%")) | (models.Client.service_id == digits)
+            ).first()
+            
+            if client_sql:
+                return {
+                    "encontrado": True,
+                    "cedula": client_sql.cedula or digits,
+                    "doc": digits,
+                    "doc_type": "",
+                    "nombre": client_sql.name,
+                    "onu": "",
+                    "telefono1": "",
+                    "telefono2": "",
+                    "ubicacion": "",
+                    "urban": "",
+                    "plan": client_sql.current_plan or "",
+                    "estado_servicio": client_sql.status or "",
+                    "tipo_cliente": client_sql.client_type or "Residencial",
+                    "id_servicio": client_sql.service_id
+                }
+        except Exception as e:
+            print(f"Error consultando SQL client fallback: {e}")
+        
+    return {"encontrado": False, "mensaje": f"No se encontró cliente con documento: {q}"}
+
 def scheduled_snapshot_job():
     try:
         data = fetch_powerlink_data(is_natural=None)
