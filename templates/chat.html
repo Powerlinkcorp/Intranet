@@ -443,7 +443,7 @@
         <a href="/admin"><i class="fa-solid fa-users"></i> Panel Admin</a>
         {% endif %}
         {% if user.role == 'admin' %}
-        <a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
+        <a href="/admin/permisos"><i class="fa-solid fa-shield-halved"></i> Permisos</a>
         {% endif %}
         {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
         <a href="/integracion"><i class="fa-solid fa-network-wired"></i> Integración</a>

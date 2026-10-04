@@ -698,6 +698,7 @@ async def list_users_permissions(
     admin_user: models.User = Depends(security.require_admin)
 ):
     users = db.query(models.User).order_by(models.User.full_name).all()
+    employees_dict = {e.email: e.cedula for e in db.query(models.Employee).filter(models.Employee.email != None).all()}
     return [{
         "id": u.id,
         "full_name": u.full_name,
@@ -708,7 +709,8 @@ async def list_users_permissions(
         "department": u.department or "",
         "cargo": u.cargo or "",
         "birthday_date": u.birthday_date or "",
-        "is_active": u.is_active
+        "is_active": u.is_active,
+        "cedula": employees_dict.get(u.email) or ""
     } for u in users]
 
 @app.post("/api/rrhh/users/{user_id}/permissions")
@@ -842,6 +844,20 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
     except HTTPException:
         return RedirectResponse(url="/login")
 
+@app.get("/admin/permisos", response_class=HTMLResponse)
+async def admin_permisos_page(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+        if user.role != "admin":
+            return RedirectResponse(url="/")
+        users = db.query(models.User).all()
+        return templates.TemplateResponse(request, "permisos.html", {"user": user, "users": users})
+    except HTTPException:
+        return RedirectResponse(url="/login")
+
 @app.get("/integracion", response_class=HTMLResponse)
 async def integracion_page(request: Request, db: Session = Depends(get_db)):
     token = security.get_token_from_request(request)
@@ -863,8 +879,7 @@ async def helpdesk_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role not in ["admin"] and "ver_helpdesk" not in (user.permissions or ""):
-            return RedirectResponse(url="/")
+        # Permiso abierto por defecto para todos
         return templates.TemplateResponse(request, "helpdesk.html", {"user": user})
     except HTTPException:
         return RedirectResponse(url="/login")
@@ -2164,6 +2179,8 @@ async def view_historico(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
+        if user.role not in ["admin"] and "ver_historico" not in (user.permissions or ""):
+            return RedirectResponse(url="/")
         embed = request.query_params.get("embed") == "1"
         
         # Obtener los 50 últimos cambios históricos

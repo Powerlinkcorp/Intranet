@@ -338,12 +338,8 @@
             </div>
             <ul class="submenu open" id="submenu-principal">
                 <li><a href="/"><i class="fa-solid fa-house" style="margin-right: 8px;"></i> Dashboard</a></li>
-                {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
-                <li><a href="/directorio"><i class="fa-solid fa-address-book" style="margin-right: 8px;"></i> Directorio</a></li>
-                {% endif %}
-                {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
+                <!-- <li><a href="/directorio"><i class="fa-solid fa-address-book" style="margin-right: 8px;"></i> Directorio</a></li> -->
                 <li><a href="/helpdesk"><i class="fa-solid fa-headset" style="margin-right: 8px;"></i> Comunicaciones</a></li>
-                {% endif %}
             </ul>
         </li>
 
@@ -382,9 +378,11 @@
                 {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
                 <li><a href="/reportes"><i class="fa-solid fa-chart-line" style="margin-right: 8px;"></i> Reportes Admin</a></li>
                 {% endif %}
+                {% if user.role == 'admin' or 'ver_historico' in (user.permissions or '') %}
                 <li><a href="/historico"><i class="fa-solid fa-history" style="margin-right: 8px;"></i> Histórico</a></li>
+                {% endif %}
                 {% if user.role == 'admin' %}
-                <li><a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
+                <li><a href="/admin/permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
                 <li><a href="/admin?tab=trabajadores"><i class="fa-solid fa-id-card-clip" style="margin-right: 8px;"></i> Trabajadores</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}

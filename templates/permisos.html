@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet - Gestión de Permisos</title>
+    <link rel="icon" type="image/png"
+        href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --fondo-principal: #ffffff;
+            --blanco: #ffffff;
+            --cabeceras: #1A1A1A;
+            --acento: #FFC107;
+            --acento-hover: #F5C71D;
+            --texto-negro: #1A1A1A;
+            --texto-gris: #4A4A4A;
+            --exito: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--texto-negro);
+        }
+
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        .navbar {
+            background-color: var(--cabeceras);
+            color: var(--blanco);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .logo {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar .logo span {
+            color: var(--acento);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--acento);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            width: 200px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 200;
+        }
+
+        .dropdown-menu.active {
+            display: flex;
+        }
+
+        .dropdown-menu a {
+            padding: 12px 20px;
+            color: var(--texto-negro);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s ease, color 0.2s ease;
+            font-size: 14px;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f1f5f9;
+            color: var(--acento);
+        }
+
+        /* Toggles Modernos */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #FFC107;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 9999;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { background: var(--exito); }
+        .toast.error { background: var(--error); }
+    </style>
+</head>
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+    <div class="main-content" id="mainContent">
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fa-solid fa-bars" style="cursor:pointer;" onclick="toggleSidebar()"></i>
+                <span>Gestión Central de Permisos</span>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right; line-height: 1.2;">
+                    <span style="font-weight: 600; font-size: 14px; display: block;">{{ user.full_name }}</span>
+                    <span style="font-size: 12px; color: #ccc;">{{ user.role|upper }}</span>
+                </div>
+                <img src="https://ui-avatars.com/api/?name={{ user.full_name }}&background=FFC107&color=fff"
+                    alt="Perfil" onclick="toggleDropdown()">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/?embed=1"><i class="fa-solid fa-house"></i> Ir al Inicio</a>
+                    <a href="/logout" style="color: var(--error);"><i class="fa-solid fa-sign-out-alt"></i> Cerrar Sesión</a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="p-8">
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-shield-halved text-[#FFC107] mr-2"></i> Matriz de Permisos Global</h2>
+                        <p class="text-sm text-slate-500 mt-1">Configura el acceso granular a las vistas y módulos para cada usuario.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold">
+                            <tr>
+                                <th class="px-4 py-4 whitespace-nowrap border-b border-slate-200">Usuario</th>
+                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-blue-50/50" colspan="3">RRHH & Admin</th>
+                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-purple-50/50" colspan="2">Reportes / Dashboard</th>
+                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-orange-50/50" colspan="2">Técnicos & Afectaciones</th>
+                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-green-50/50" colspan="3">Config & Logs</th>
+                                <th class="px-4 py-4 text-center border-b border-slate-200">Acción</th>
+                            </tr>
+                            <tr class="text-[10px] tracking-wider text-slate-500 bg-slate-50 border-b border-slate-200">
+                                <th class="px-4 py-2"></th>
+                                <!-- RRHH -->
+                                <th class="px-2 py-2 text-center" title="Cargar Datos Usuarios"><i class="fa-solid fa-upload"></i> Carga Usr</th>
+                                <th class="px-2 py-2 text-center" title="Ver Integración"><i class="fa-solid fa-network-wired"></i> Integ.</th>
+                                <th class="px-2 py-2 text-center" title="Editar Directorio"><i class="fa-solid fa-address-book"></i> Dir. Edición</th>
+                                <!-- Reportes -->
+                                <th class="px-2 py-2 text-center" title="Ver Dashboards"><i class="fa-regular fa-eye"></i> Dash. Ver</th>
+                                <th class="px-2 py-2 text-center" title="Editar/Crear Dashboards"><i class="fa-solid fa-pen"></i> Dash. Editar</th>
+                                <!-- Techs & Afect. -->
+                                <th class="px-2 py-2 text-center" title="Ver Afectaciones y Técnicos"><i class="fa-regular fa-eye"></i> Técnicos Ver</th>
+                                <th class="px-2 py-2 text-center" title="Gestionar Afectaciones"><i class="fa-solid fa-pen"></i> Técnicos Edición</th>
+                                <!-- Config & Logs -->
+                                <th class="px-2 py-2 text-center" title="Ver Histórico"><i class="fa-solid fa-history"></i> Histórico</th>
+                                <th class="px-2 py-2 text-center" title="Ver Logs y Bitácora"><i class="fa-regular fa-eye"></i> Logs Ver</th>
+                                <th class="px-2 py-2 text-center" title="Gestionar Usuarios de Reportes"><i class="fa-solid fa-users"></i> Gest. Usr</th>
+                                <th class="px-4 py-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="permissionsTableBody" class="divide-y divide-slate-100">
+                            {% for u in users %}
+                            <tr class="hover:bg-slate-50/80 transition-colors {{ 'bg-amber-50/30' if u.role == 'admin' else '' }}">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="font-semibold text-slate-800">{{ u.full_name }}</div>
+                                    <div class="text-[11px] text-slate-500">{{ u.email }} | <span class="{{ 'text-amber-600 font-bold' if u.role == 'admin' else '' }}">{{ u.role|upper }}</span></div>
+                                </td>
+                                
+                                <!-- RRHH -->
+                                <td class="px-2 py-3 text-center bg-blue-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_cargar_datos_usuarios_{{ u.id }}" {% if 'cargar_datos_usuarios' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td class="px-2 py-3 text-center bg-blue-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_ver_integracion_{{ u.id }}" {% if 'ver_integracion' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td class="px-2 py-3 text-center bg-blue-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_editar_directorio_{{ u.id }}" {% if 'editar_directorio' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+
+                                <!-- Reportes -->
+                                <td class="px-2 py-3 text-center bg-purple-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_perm_dashboard_read_{{ u.id }}" {% if 'perm_dashboard_read' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td class="px-2 py-3 text-center bg-purple-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_perm_dashboard_write_{{ u.id }}" {% if 'perm_dashboard_write' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+
+                                <!-- Techs & Afect -->
+                                <td class="px-2 py-3 text-center bg-orange-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_perm_techs_read_{{ u.id }}" {% if 'perm_techs_read' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td class="px-2 py-3 text-center bg-orange-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_perm_techs_write_{{ u.id }}" {% if 'perm_techs_write' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+
+                                <!-- Config & Logs -->
+                                <td class="px-2 py-3 text-center bg-green-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_ver_historico_{{ u.id }}" {% if 'ver_historico' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td class="px-2 py-3 text-center bg-green-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_perm_logs_read_{{ u.id }}" {% if 'perm_logs_read' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td class="px-2 py-3 text-center bg-green-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_perm_users_write_{{ u.id }}" {% if 'perm_users_write' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+
+                                <td class="px-4 py-3 text-center">
+                                    {% if u.role != 'admin' %}
+                                    <button onclick="savePermissions({{ u.id }})" class="bg-[#1A1A1A] hover:bg-[#333] text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors">
+                                        Guardar
+                                    </button>
+                                    {% else %}
+                                    <span class="text-[11px] text-slate-400 font-medium">Admin Full Access</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.getElementById('mainContent').classList.toggle('expanded');
+        }
+
+        function toggleDropdown() {
+            document.getElementById('dropdownMenu').classList.toggle('active');
+        }
+
+        window.onclick = function (e) {
+            if (!e.target.matches('.user-profile img')) {
+                const dropdown = document.getElementById('dropdownMenu');
+                if (dropdown && dropdown.classList.contains('active')) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast ${type} show`;
+            setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
+        async function savePermissions(userId) {
+            // Lista de los IDs de los checkboxes para este usuario
+            const keys = [
+                'cargar_datos_usuarios', 'ver_integracion', 'editar_directorio',
+                'perm_dashboard_read', 'perm_dashboard_write',
+                'perm_techs_read', 'perm_techs_write',
+                'ver_historico', 'perm_logs_read', 'perm_users_write'
+            ];
+            
+            let perms = [];
+            
+            keys.forEach(key => {
+                const cb = document.getElementById(`perm_${key}_${userId}`);
+                if (cb && cb.checked) {
+                    perms.push(key);
+                }
+            });
+            
+            const formData = new FormData();
+            formData.append('permissions', perms.join(','));
+            
+            try {
+                // Asumiendo que el mismo endpoint sigue disponible
+                const res = await fetch(`/api/rrhh/users/${userId}/permissions`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    showToast('Permisos guardados con éxito', 'success');
+                } else {
+                    showToast('Error al guardar permisos', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

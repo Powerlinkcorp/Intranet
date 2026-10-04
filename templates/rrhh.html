@@ -798,48 +798,22 @@
         <iframe src="/integracion?embed=1" class="iframe-preview" title="Integración"></iframe>
     </div>
 
-    {% if user.role == 'admin' %}
-    <div id="subtab-permisos" class="subtab-content">
-        <main class="main-container" style="grid-template-columns: 1fr;">
-            <section>
-                <div class="card">
-                    <div class="section-title">🛡️ Gestión de Permisos de Usuarios</div>
-                    <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                            <thead>
-                                <tr style="background-color: var(--cabeceras); color: white;">
-                                    <th style="padding: 12px; text-align: left;">Nombre</th>
-                                    <th style="padding: 12px; text-align: left;">Email</th>
-                                    <th style="padding: 12px; text-align: center;">Cargar Datos Usuarios</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Integración</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Reportes</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Comunicaciones</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Directorio</th>
-                                    <th style="padding: 12px; text-align: center;">Editar Extensiones</th>
-                                    <th style="padding: 12px; text-align: center;">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="permissionsTableBody">
-                                <!-- Dinámico -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-    {% endif %}
+
 
     {% if user.role == 'admin' %}
     <div id="subtab-trabajadores" class="subtab-content">
         <main class="main-container" style="grid-template-columns: 1fr;">
             <section>
                 <div class="card">
-                    <div class="section-title"><i class="fa-solid fa-users"></i> Gestión de Trabajadores</div>
+                    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-solid fa-users"></i> Gestión de Trabajadores</span>
+                        <input type="text" id="searchTrabajadoresInput" placeholder="Buscar por nombre, usuario, depto..." style="padding: 8px 15px; border: 1px solid #e2e8f0; border-radius: 8px; width: 350px; font-size: 14px; font-weight: normal; outline: none;" onkeyup="filterTrabajadoresList()">
+                    </div>
                     <div style="overflow-x: auto;">
                         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                             <thead>
                                 <tr style="background-color: var(--cabeceras); color: white;">
+                                    <th style="padding: 12px; text-align: left;">Cédula</th>
                                     <th style="padding: 12px; text-align: left;">Nombre Completo</th>
                                     <th style="padding: 12px; text-align: left;">Usuario</th>
                                     <th style="padding: 12px; text-align: left;">Email</th>
@@ -940,6 +914,19 @@
             });
         }
         
+        function filterTrabajadoresList() {
+            const query = document.getElementById('searchTrabajadoresInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#subtab-trabajadores tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
         function switchSubTab(evt, subtabId) {
             const contents = document.querySelectorAll('.subtab-content');
             contents.forEach(content => content.classList.remove('active'));
@@ -1023,95 +1010,10 @@
                     }
                 }
                 
-                {% if user.role == 'admin' %}
-                loadUsersPermissions();
-                {% endif %}
+
             } catch (e) { }
         }
 
-        async function loadUsersPermissions() {
-            try {
-                const res = await fetch('/api/rrhh/users');
-                if (res.ok) {
-                    const users = await res.json();
-                    const tbody = document.getElementById('permissionsTableBody');
-                    tbody.innerHTML = '';
-                    users.forEach(u => {
-                        const tr = document.createElement('tr');
-                        tr.style.borderBottom = '1px solid #e2e8f0';
-                        
-                        const hasCargar = u.permissions.includes('cargar_datos_usuarios');
-                        const hasIntegracion = u.permissions.includes('ver_integracion');
-                        const hasReportes = u.permissions.includes('ver_reportes');
-                        const hasHelpdesk = u.permissions.includes('ver_helpdesk');
-                        const hasDirectorio = u.permissions.includes('ver_directorio');
-                        const hasEditarDirectorio = u.permissions.includes('editar_directorio');
-                        
-                        tr.innerHTML = `
-                            <td style="padding: 12px;">${u.full_name} <br><small style="color:#64748b;">${u.role}</small></td>
-                            <td style="padding: 12px;">${u.email}</td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_cargar_${u.id}" ${hasCargar ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_integ_${u.id}" ${hasIntegracion ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_reportes_${u.id}" ${hasReportes ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_helpdesk_${u.id}" ${hasHelpdesk ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_directorio_${u.id}" ${hasDirectorio ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_editar_directorio_${u.id}" ${hasEditarDirectorio ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                ${u.role !== 'admin' ? `<button onclick="savePermissions(${u.id})" class="btn-action btn-gold" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;">Guardar</button>` : '<span style="color:#64748b; font-size: 12px; margin-right: 5px;">Admin Full</span>'}
-                                <button onclick="openEditUserModal(${u.id}, '${u.email}')" class="btn-action" style="padding: 6px 12px; font-size: 12px; background: #64748b;">Editar</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-            } catch (e) { console.error('Error cargando usuarios', e); }
-        }
-
-        async function savePermissions(userId) {
-            const cargar = document.getElementById('perm_cargar_' + userId).checked;
-            const integ = document.getElementById('perm_integ_' + userId).checked;
-            const reportes = document.getElementById('perm_reportes_' + userId).checked;
-            const helpdesk = document.getElementById('perm_helpdesk_' + userId).checked;
-            const directorio = document.getElementById('perm_directorio_' + userId).checked;
-            const editarDirectorio = document.getElementById('perm_editar_directorio_' + userId).checked;
-            
-            let perms = [];
-            if (cargar) perms.push('cargar_datos_usuarios');
-            if (integ) perms.push('ver_integracion');
-            if (reportes) perms.push('ver_reportes');
-            if (helpdesk) perms.push('ver_helpdesk');
-            if (directorio) perms.push('ver_directorio');
-            if (editarDirectorio) perms.push('editar_directorio');
-            
-            const formData = new FormData();
-            formData.append('permissions', perms.join(','));
-            
-            try {
-                const res = await fetch(`/api/rrhh/users/${userId}/permissions`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (res.ok) {
-                    showToast('Permisos guardados con éxito');
-                } else {
-                    showToast('Error al guardar permisos', 'error');
-                }
-            } catch (e) {
-                showToast('Error de servidor', 'error');
-            }
-        }
 
         function renderResourcesList(list) {
             const container = document.getElementById('resourcesList');
@@ -1636,6 +1538,7 @@
                             ? `<span style="color:#10b981; font-weight:600;"><i class="fa-solid fa-check-circle"></i> Activo</span>`
                             : `<span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-ban"></i> Suspendido</span>`;
                         tr.innerHTML = `
+                            <td style="padding: 12px;">${u.cedula || '-'}</td>
                             <td style="padding: 12px;">${u.full_name}</td>
                             <td style="padding: 12px;">${u.username}</td>
                             <td style="padding: 12px;">${u.email}</td>
