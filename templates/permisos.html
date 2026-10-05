@@ -338,7 +338,7 @@
 
                                 <td class="px-4 py-3 text-center">
                                     {% if u.role != 'admin' %}
-                                    <button onclick="savePermissions({{ u.id }})" class="bg-[#1A1A1A] hover:bg-[#333] text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors">
+                                    <button type="button" onclick="savePermissions('{{ u.id }}')" class="bg-[#1A1A1A] hover:bg-[#333] text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors">
                                         Guardar
                                     </button>
                                     {% else %}
