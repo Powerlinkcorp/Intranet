@@ -13,7 +13,7 @@ def ssh_command(host, user, password, command):
     client.close()
     return out, err
 
-out, err = ssh_command('10.0.1.179', 'root', 'Redes2010', 'journalctl -u uvicorn -n 100 --no-pager')
+out, err = ssh_command('10.0.1.179', 'root', 'Redes2010', 'journalctl -u intranet_qa -n 100 --no-pager')
 print("STDOUT:")
 print(out)
 print("STDERR:")

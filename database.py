@@ -86,7 +86,9 @@ def get_engine():
         "department VARCHAR DEFAULT ''",
         "cargo VARCHAR DEFAULT ''",
         "birthday_date VARCHAR DEFAULT ''",
-        "suspension_reason VARCHAR DEFAULT ''"
+        "suspension_reason VARCHAR DEFAULT ''",
+        "cedula VARCHAR DEFAULT ''",
+        "avatar_url VARCHAR DEFAULT '/static/img/default-avatar.png'"
     ]:
         try:
             with engine.begin() as conn:

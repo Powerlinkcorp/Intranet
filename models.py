@@ -19,6 +19,7 @@ class User(Base):
     cargo = Column(String, default="")
     birthday_date = Column(String, default="")
     suspension_reason = Column(String, default="")
+    cedula = Column(String, unique=True, index=True, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class Announcement(Base):

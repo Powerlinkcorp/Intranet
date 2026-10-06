@@ -4,6 +4,8 @@ import io
 import asyncio
 import pandas as pd
 from typing import List, Optional
+import uuid
+from PIL import Image
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -111,6 +113,8 @@ class WorkerUpdate(BaseModel):
     department: str
     cargo: str
     birthday_date: str
+    full_name: str
+    cedula: str
 
 class SuspendUserRequest(BaseModel):
     suspension_reason: str
@@ -262,19 +266,20 @@ async def get_dashboard_data(
 ):
     hero = db.query(models.Announcement).filter(models.Announcement.is_active == True).first()
     resources = db.query(models.Resource).order_by(models.Resource.id.desc()).all()
-    employees = db.query(models.User).filter(models.User.is_active == True).all()
+    employees = db.query(models.Employee).all()
     kpis = db.query(models.KpiMetric).all()
     calendar_events = db.query(models.CalendarEvent).all()
 
     # Encuentra el próximo cumpleaños
-    all_emps_with_bday = db.query(models.User).filter(models.User.birthday_date != None, models.User.birthday_date != "").all()
+    all_emps_with_bday = db.query(models.Employee).filter(models.Employee.birthday_date != None, models.Employee.birthday_date != "").all()
     closest_emp = None
     if all_emps_with_bday:
         today = datetime.now().date()
         
         def get_next_bday(emp):
             try:
-                # El HTML envia YYYY-MM-DD
+                # El HTML envia YYYY-MM-DD o '18 de Julio'
+                # Intentamos parsear YYYY-MM-DD
                 bday = datetime.strptime(emp.birthday_date, '%Y-%m-%d').date()
                 this_year_bday = bday.replace(year=today.year)
                 if this_year_bday < today:
@@ -730,19 +735,57 @@ async def update_user_permissions(
 @app.put("/api/rrhh/users/{user_id}/edit-worker")
 async def edit_worker_info(
     user_id: int,
-    data: WorkerUpdate,
+    email: str = Form(...),
+    department: str = Form(""),
+    cargo: str = Form(""),
+    birthday_date: str = Form(""),
+    full_name: str = Form(""),
+    cedula: str = Form(""),
+    avatar: UploadFile = File(None),
     db: Session = Depends(get_db),
     admin_user: models.User = Depends(security.require_admin)
 ):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    user.email = data.email
-    user.department = data.department
-    user.cargo = data.cargo
-    user.birthday_date = data.birthday_date
+        
+    user.email = email
+    user.department = department
+    user.cargo = cargo
+    user.birthday_date = birthday_date
+    user.full_name = full_name
+    user.cedula = cedula
+    
+    if avatar and avatar.filename:
+        upload_dir = "static/uploads/avatars"
+        os.makedirs(upload_dir, exist_ok=True)
+        new_filename = f"{uuid.uuid4().hex}.webp"
+        filepath = os.path.join(upload_dir, new_filename)
+        try:
+            image = Image.open(avatar.file)
+            image = image.convert("RGB")
+            image.thumbnail((400, 400))
+            image.save(filepath, "WEBP", quality=85)
+            user.avatar_url = f"/{filepath.replace(os.sep, '/')}"
+        except Exception as e:
+            print("Error procesando imagen:", e)
+            
     db.commit()
     return {"message": "Datos de trabajador actualizados"}
+
+@app.post("/api/rrhh/users/{user_id}/activate")
+async def activate_worker(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    user.is_active = True
+    user.suspension_reason = ""
+    db.commit()
+    return {"message": "Usuario activado exitosamente"}
 
 @app.post("/api/rrhh/users/{user_id}/suspend")
 async def suspend_worker(

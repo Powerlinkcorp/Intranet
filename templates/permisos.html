@@ -228,6 +228,10 @@
                         <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-shield-halved text-[#FFC107] mr-2"></i> Matriz de Permisos Global</h2>
                         <p class="text-sm text-slate-500 mt-1">Configura el acceso granular a las vistas y módulos para cada usuario.</p>
                     </div>
+                    <div class="relative w-64">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="permisosSearch" placeholder="Buscar usuario o email..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onkeyup="filterPermisos()">
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -417,6 +421,25 @@
                 }
             } catch (e) {
                 showToast('Error de conexión', 'error');
+            }
+        }
+
+        function filterPermisos() {
+            const input = document.getElementById('permisosSearch');
+            const filter = input.value.toLowerCase();
+            const tbody = document.getElementById('permissionsTableBody');
+            const rows = tbody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const tdUser = rows[i].getElementsByTagName('td')[0];
+                if (tdUser) {
+                    const txtValue = tdUser.textContent || tdUser.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
             }
         }
     </script>
