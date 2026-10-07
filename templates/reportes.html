@@ -779,6 +779,25 @@
         let planSeleccionado = '';
         let detalleClientesList = [];
 
+        function formatAmountWithToggle(amountStr) {
+            return `<span class="amount-wrapper" style="display:inline-flex; align-items:center; gap:6px; justify-content: flex-end;">
+                <span class="amount-value" data-val="${amountStr}">***</span>
+                <i class="fa-solid fa-eye-slash text-slate-400 hover:text-slate-600 cursor-pointer" onclick="toggleAmountVisibility(this)" title="Mostrar/Ocultar monto" style="font-size: 13px;"></i>
+            </span>`;
+        }
+
+        function toggleAmountVisibility(btn) {
+            const wrapper = btn.closest('.amount-wrapper');
+            const valSpan = wrapper.querySelector('.amount-value');
+            if (btn.classList.contains('fa-eye-slash')) {
+                btn.classList.replace('fa-eye-slash', 'fa-eye');
+                valSpan.innerText = valSpan.getAttribute('data-val');
+            } else {
+                btn.classList.replace('fa-eye', 'fa-eye-slash');
+                valSpan.innerText = '***';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             cargarReporte(false);
         });
@@ -819,13 +838,13 @@
 
             // KPIs
             document.getElementById('kpiTotalClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('kpiSubClientes').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpiSubClientes').innerHTML = formatAmountWithToggle('$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
             
             document.getElementById('kpiResidencialCount').innerText = `${res.totales.total_clientes_activos.toLocaleString('en-US')}`;
-            document.getElementById('kpiResidencialMonto').innerText = `$${res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} facturación`;
+            document.getElementById('kpiResidencialMonto').innerHTML = formatAmountWithToggle(`$${res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`) + ' <span style="font-size: 11px; margin-left: 4px;">facturación</span>';
             
             document.getElementById('kpiCorporativoCount').innerText = `${corp.totales.total_clientes_activos.toLocaleString('en-US')}`;
-            document.getElementById('kpiCorporativoMonto').innerText = `$${corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('kpiCorporativoMonto').innerHTML = formatAmountWithToggle(`$${corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
 
             // Badges
             document.getElementById('badgeResCount').innerText = `${res.planes.length} planes`;
@@ -840,15 +859,15 @@
             // Render Footers
             document.getElementById('tfootPlanesResidencial').style.display = '';
             document.getElementById('footResTotalClientes').innerText = res.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('footResTotalCosto').innerText = '$' + res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('footResTotalCosto').innerHTML = formatAmountWithToggle('$' + res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
             document.getElementById('tfootPlanesCorporativo').style.display = '';
             document.getElementById('footCorpTotalClientes').innerText = corp.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('footCorpTotalCosto').innerText = '$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('footCorpTotalCosto').innerHTML = formatAmountWithToggle('$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
             document.getElementById('tfootPlanesConsolidado').style.display = '';
             document.getElementById('footConsTotalClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('footConsTotalCosto').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('footConsTotalCosto').innerHTML = formatAmountWithToggle('$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
             // Render Charts
             renderCharts(data);
@@ -873,7 +892,7 @@
                     <td style="text-align: center; font-weight: 700; color: #4338ca; font-size: 15px;">${p.Cantidad.toLocaleString('en-US')}</td>
                     <td style="text-align: center;"><span class="badge-pill yellow">${p['Porcentaje Clientes']}%</span></td>
                     <td style="text-align: right; font-family: monospace; font-weight: 600; color: #475569;">${p['Precio Unitario']}</td>
-                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857; font-size: 15px;">$${p['Sumatoria Costo'].toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857; font-size: 15px;">${formatAmountWithToggle('$' + p['Sumatoria Costo'].toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}))}</td>
                     <td style="text-align: center;"><span class="badge-pill green">${p['Porcentaje Ingresos']}%</span></td>
                     <td style="text-align: center;">
                         <button onclick="verDetallePlan('${p.Plan.replace(/'/g, "\\'")}', '${seccion}')" class="btn-action btn-secondary" style="padding: 4px 10px; font-size: 11px;">
@@ -1028,7 +1047,7 @@
                     <td>${c.Cédula || '-'}</td>
                     <td style="font-weight: 600; color: #1e293b;">${c.Nombres}</td>
                     <td style="color: #334155; font-weight: 500;">${c.Plan}</td>
-                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857;">$${parseFloat(c['Costo del plan'] || 0).toFixed(2)}</td>
+                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857;">${formatAmountWithToggle('$' + parseFloat(c['Costo del plan'] || 0).toFixed(2))}</td>
                     <td><span class="status-badge">Act.</span></td>
                     <td style="font-size: 12px; color: #64748b;">${c.Urbanismo || ''} ${c['Teléfono 1'] ? ' - ' + c['Teléfono 1'] : ''}</td>
                     <td style="font-size: 12px; color: #64748b;">${c['Fecha de instalación'] || '-'}</td>

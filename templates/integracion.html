@@ -14,6 +14,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        body:not(.show-amounts) .cost-amount-value { display: none !important; }
+        body:not(.show-amounts) .cost-amount-hidden { display: inline !important; font-weight: bold; }
+        body.show-amounts .cost-amount-value { display: inline !important; }
+        body.show-amounts .cost-amount-hidden { display: none !important; }
+
         /* ESTILOS CORPORATIVOS GLOBALES (NAVBAR) */
         :root {
             --fondo-principal: #ffffff;
@@ -481,6 +486,10 @@
                 <button id="btnProcesarApi"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all cursor-pointer">
                     <i class="fa-solid fa-code-compare mr-2"></i> Comparar API (Hoy) vs Excel / Registro
+                </button>
+                <button id="btnToggleAmountsGlobal" onclick="toggleAllAmounts()"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all cursor-pointer">
+                    <i class="fa-solid fa-eye-slash mr-2"></i> <span>Mostrar Montos</span>
                 </button>
             </div>
 
@@ -1380,6 +1389,22 @@
             }
         }
 
+        function formatAmountGlobal(amountStr) {
+            return `<span class="cost-amount-hidden">***</span><span class="cost-amount-value">${amountStr}</span>`;
+        }
+
+        function toggleAllAmounts() {
+            const isShowing = document.body.classList.toggle('show-amounts');
+            const btn = document.getElementById('btnToggleAmountsGlobal');
+            if (btn) {
+                if (isShowing) {
+                    btn.innerHTML = '<i class="fa-solid fa-eye mr-2"></i> <span>Ocultar Montos</span>';
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-eye-slash mr-2"></i> <span>Mostrar Montos</span>';
+                }
+            }
+        }
+
         // Cargar al inicio
         window.addEventListener('DOMContentLoaded', cargarEstadoRespaldos);
 
@@ -1499,12 +1524,12 @@
                     document.getElementById('cf_susp_mnt').innerText = formatMnt(Math.abs(cf.susp_mnt));
 
                     document.getElementById('cf_tot_ini_qty').innerText = cf.cant_ayer.toLocaleString('es-ES');
-                    document.getElementById('cf_tot_ini_mnt').innerText = cf.ingreso_ayer.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById('cf_tot_ini_mnt').innerHTML = formatAmountGlobal('$' + cf.ingreso_ayer.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                     document.getElementById('cf_tot_hoy_qty').innerText = cf.cant_hoy.toLocaleString('es-ES');
-                    document.getElementById('cf_tot_hoy_mnt').innerText = cf.ingreso_hoy.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById('cf_tot_hoy_mnt').innerHTML = formatAmountGlobal('$' + cf.ingreso_hoy.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
                     document.getElementById('cf_dif_qty').innerText = cf.cant_diferencia_neta.toLocaleString('es-ES');
-                    document.getElementById('cf_dif_mnt').innerText = (cf.ingreso_hoy - cf.ingreso_ayer).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById('cf_dif_mnt').innerHTML = formatAmountGlobal('$' + (cf.ingreso_hoy - cf.ingreso_ayer).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                 } else if (seccionCF) {
                     seccionCF.classList.add('hidden');
                 }
@@ -1543,9 +1568,9 @@
                     sumInstalaciones += parseFloat(item['Costo del plan'] || 0);
                 });
 
-                document.getElementById('resumenFinancieroEstatus').innerText = '$' + sumEstatus.toFixed(2);
-                document.getElementById('resumenFinancieroPlan').innerText = '$' + sumPlan.toFixed(2);
-                document.getElementById('resumenFinancieroInstalaciones').innerText = '$' + sumInstalaciones.toFixed(2);
+                document.getElementById('resumenFinancieroEstatus').innerHTML = formatAmountGlobal('$' + sumEstatus.toFixed(2));
+                document.getElementById('resumenFinancieroPlan').innerHTML = formatAmountGlobal('$' + sumPlan.toFixed(2));
+                document.getElementById('resumenFinancieroInstalaciones').innerHTML = formatAmountGlobal('$' + sumInstalaciones.toFixed(2));
 
                 // Llenar dropdown de planes
                 populatePlanFilter();
@@ -1681,7 +1706,7 @@
                 return;
             }
 
-            const formatM = (num) => '$' + Math.abs(num || 0).toFixed(2);
+            const formatM = (num) => formatAmountGlobal('$' + Math.abs(num || 0).toFixed(2));
 
             let html = '';
             filtrados.forEach(item => {
@@ -1817,7 +1842,7 @@
             if (currentTab === 'estatus') {
                 theadHtml = `<th>ID Servicio</th><th>Cédula</th><th>Cliente</th><th>Plan</th><th>Estado Anterior</th><th>Estado Nuevo</th><th>Variación</th><th>Fecha</th>`;
                 data.forEach(row => {
-                    const varHtml = row['Variación de Costo'] != null ? `<span class="${row['Variación de Costo'] > 0 ? 'text-green-600' : (row['Variación de Costo'] < 0 ? 'text-red-600' : '')} font-semibold">${row['Variación de Costo'] > 0 ? '+' : ''}${row['Variación de Costo']}</span>` : '-';
+                    const varHtml = row['Variación de Costo'] != null ? `<span class="${row['Variación de Costo'] > 0 ? 'text-green-600' : (row['Variación de Costo'] < 0 ? 'text-red-600' : '')} font-semibold">${formatAmountGlobal((row['Variación de Costo'] > 0 ? '+$' : '-$') + Math.abs(row['Variación de Costo']))}</span>` : '-';
                     tbodyHtml += `<tr>
                         <td><strong>${row['ID Servicio']}</strong></td>
                         <td>${row['Cédula']}</td>
@@ -1842,7 +1867,7 @@
                     <td class="font-medium text-gray-800">${row['Nombres']}</td>
                     <td>${row['Plan']}</td>
                     <td><span class="status-badge ${getStatusClass(row['Estado servicio'])}">${row['Estado servicio']}</span></td>
-                    <td><span class="font-semibold ${row['Saldo Actual'] < 0 ? 'text-red-600' : ''}">${row['Saldo Actual']}</span></td>
+                    <td><span class="font-semibold ${row['Saldo Actual'] < 0 ? 'text-red-600' : ''}">${formatAmountGlobal('$' + row['Saldo Actual'])}</span></td>
                     <td class="text-gray-500">${row['Fecha de instalación']}</td>
                 </tr>`;
 
@@ -1869,7 +1894,7 @@
                         ? `<div class="text-xs text-gray-500">${row['Plan Anterior']}</div><div class="font-medium">${row['Plan Nuevo']}</div>`
                         : `<div class="font-medium">${row['Plan Anterior']}</div>`;
 
-                    const varHtml = row['Variación de Costo'] != null ? `<span class="${row['Variación de Costo'] > 0 ? 'text-green-600' : (row['Variación de Costo'] < 0 ? 'text-red-600' : '')} font-semibold">${row['Variación de Costo'] > 0 ? '+' : ''}${row['Variación de Costo']}</span>` : '-';
+                    const varHtml = row['Variación de Costo'] != null ? `<span class="${row['Variación de Costo'] > 0 ? 'text-green-600' : (row['Variación de Costo'] < 0 ? 'text-red-600' : '')} font-semibold">${formatAmountGlobal((row['Variación de Costo'] > 0 ? '+$' : '-$') + Math.abs(row['Variación de Costo']))}</span>` : '-';
 
                     tbodyHtml += `<tr>
                         <td><strong>${row['ID Servicio']}</strong></td>
@@ -1877,8 +1902,8 @@
                         <td class="font-medium text-gray-800">${row['Nombres']}</td>
                         <td>${planHtml}</td>
                         <td class="whitespace-nowrap">${statusHtml}</td>
-                        <td class="text-gray-500">${row['Costo Anterior']}</td>
-                        <td class="font-medium">${row['Costo Nuevo']}</td>
+                        <td class="text-gray-500">${row['Costo Anterior'] ? formatAmountGlobal('$' + row['Costo Anterior']) : '-'}</td>
+                        <td class="font-medium">${row['Costo Nuevo'] ? formatAmountGlobal('$' + row['Costo Nuevo']) : '-'}</td>
                         <td>${varHtml}</td>
                         <td class="text-gray-500">${row['Fecha Plan Actual Desde'] || '-'}</td>
                     </tr>`;
@@ -1893,7 +1918,7 @@
                         <td class="font-medium text-gray-800">${row['Nombres']}</td>
                         <td>${row['Plan']}</td>
                         <td><span class="status-badge ${getStatusClass('ACTIVO')}">ACTIVO</span></td>
-                        <td class="font-bold text-red-600">${row['Saldo Actual (Deuda)']}</td>
+                        <td class="font-bold text-red-600">${formatAmountGlobal(row['Saldo Actual (Deuda)'])}</td>
                         <td class="text-gray-500">${row['Teléfono 1'] || 'N/A'}</td>
                     </tr>`;
                 });
@@ -1944,15 +1969,15 @@
             // Footers
             document.getElementById('tfootPlanesRes').classList.remove('hidden');
             document.getElementById('totResClientes').innerText = res.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('totResCosto').innerText = '$' + res.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('totResCosto').innerHTML = formatAmountGlobal('$' + res.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
             document.getElementById('tfootPlanesCorp').classList.remove('hidden');
             document.getElementById('totCorpClientes').innerText = corp.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('totCorpCosto').innerText = '$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('totCorpCosto').innerHTML = formatAmountGlobal('$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
             document.getElementById('tfootPlanesCons').classList.remove('hidden');
             document.getElementById('totConsClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('totConsCosto').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('totConsCosto').innerHTML = formatAmountGlobal('$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
         }
 
         function renderTablaSeccionIntegracion(tbodyId, planes, seccion) {
@@ -1976,8 +2001,8 @@
                     </td>
                     <td class="text-center font-bold text-indigo-700 font-mono text-xs py-2.5 px-3">${cant.toLocaleString('en-US')}</td>
                     <td class="text-center py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">${p['Porcentaje Clientes'] || 0}%</span></td>
-                    <td class="text-right font-mono text-gray-700 py-2.5 px-3">${p['Precio Unitario'] || '$0.00'}</td>
-                    <td class="text-right font-mono font-bold text-emerald-700 text-xs py-2.5 px-3">$${costo.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="text-right font-mono text-gray-700 py-2.5 px-3">${formatAmountGlobal(p['Precio Unitario'] || '$0.00')}</td>
+                    <td class="text-right font-mono font-bold text-emerald-700 text-xs py-2.5 px-3">${formatAmountGlobal('$' + costo.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</td>
                     <td class="text-center py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">${p['Porcentaje Ingresos'] || 0}%</span></td>
                     <td class="text-center py-2.5 px-3">
                         <button onclick="verClientesDeSeccion('${p.Plan.replace(/'/g, "\\'")}', '${seccion}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded shadow-2xs transition-all cursor-pointer">
@@ -2068,7 +2093,7 @@
                     <td class="py-2.5 px-3 text-gray-600">${c['Cédula'] || '-'}</td>
                     <td class="py-2.5 px-3 font-medium text-gray-900">${c['Nombres']}</td>
                     <td class="py-2.5 px-3 font-semibold text-gray-800">${c['Plan']}</td>
-                    <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">$${parseFloat(c['Costo del plan'] || 0).toFixed(2)}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">${formatAmountGlobal('$' + parseFloat(c['Costo del plan'] || 0).toFixed(2))}</td>
                     <td class="py-2.5 px-3 text-center"><span class="status-badge ${getStatusClass(c['Estado servicio'] || 'Act.')}">${c['Estado servicio'] || 'Act.'}</span></td>
                     <td class="py-2.5 px-3 text-xs text-gray-600">${c['Urbanismo'] || ''} ${c['Teléfono 1'] ? ' - ' + c['Teléfono 1'] : ''}</td>
                     <td class="py-2.5 px-3 text-center text-xs text-gray-500">${c['Fecha de instalación'] || '-'}</td>
