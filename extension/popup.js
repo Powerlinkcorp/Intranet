@@ -833,11 +833,189 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Restricción C.I. numérica
+    // ============================================================
+    // CONSULTA Y AUTOCOMPLETADO POR C.I. / RIF (NUEVO REPORTE)
+    // ============================================================
+    let _cedulaSearchTimer = null;
+    let _lastSearchedCedula = '';
+
+    function highlightField(el) {
+        if (!el) return;
+        el.style.transition = 'border-color 0.3s ease, box-shadow 0.3s ease';
+        el.style.borderColor = '#10b981';
+        el.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.25)';
+        setTimeout(() => {
+            el.style.borderColor = '';
+            el.style.boxShadow = '';
+        }, 1800);
+    }
+
+    function setClienteSearchStatus(state, message = '') {
+        const statusEl = document.getElementById('sop_cedula_status');
+        if (!statusEl) return;
+        if (!state) {
+            statusEl.style.display = 'none';
+            statusEl.textContent = '';
+            return;
+        }
+        statusEl.style.display = 'inline-block';
+        if (state === 'loading') {
+            statusEl.style.color = 'var(--info, #38bdf8)';
+            statusEl.textContent = 'Buscando...';
+        } else if (state === 'success') {
+            statusEl.style.color = 'var(--success, #10b981)';
+            statusEl.textContent = message || 'Cliente verificado';
+        } else if (state === 'not_found') {
+            statusEl.style.color = 'var(--warning, #fbbf24)';
+            statusEl.textContent = message || 'No registrado';
+        } else if (state === 'error') {
+            statusEl.style.color = 'var(--danger, #f87171)';
+            statusEl.textContent = message || 'Error de conexión';
+        }
+    }
+
+    async function fetchClientePorCedula(cedula) {
+        if (!cedula) return null;
+        const cleanDigits = cedula.replace(/[^0-9]/g, '');
+        if (cleanDigits.length < 5) return null;
+
+        try {
+            const url = `${currentServerUrl}/api/clientes/consulta?q=${encodeURIComponent(cleanDigits)}`;
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            });
+
+            if (!res.ok) {
+                console.warn(`[Extension] Error en consulta de cliente (${res.status})`);
+                return null;
+            }
+
+            const data = await res.json();
+            return (data && data.encontrado) ? data : null;
+        } catch (err) {
+            console.error('[Extension] Error al consultar cliente por cédula:', err);
+            return null;
+        }
+    }
+
+    function autocompletarCamposCliente(data) {
+        if (!data) return;
+
+        // 1. Zona (selector desplegable en "DATOS DEL CLIENTE")
+        const selZona = document.getElementById('sop_zona');
+        const targetZone = (data.urban || data.zona || '').trim().toUpperCase();
+        if (selZona && targetZone) {
+            for (let i = 0; i < selZona.options.length; i++) {
+                const optVal = selZona.options[i].value.trim().toUpperCase();
+                if (optVal && (optVal === targetZone || targetZone.includes(optVal) || optVal.includes(targetZone))) {
+                    selZona.selectedIndex = i;
+                    selZona.dispatchEvent(new Event('change', { bubbles: true }));
+                    highlightField(selZona);
+                    break;
+                }
+            }
+        }
+
+        // 2. ONU (en la sección "EQUIPAMIENTO")
+        const onuInput = document.getElementById('sop_onu');
+        if (onuInput && data.onu) {
+            onuInput.value = data.onu;
+            onuInput.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(onuInput);
+        }
+
+        // 3. Ubicación (en la sección "UBICACIÓN")
+        const ubiInput = document.getElementById('sop_ubicacion');
+        if (ubiInput && (data.ubicacion || data.address)) {
+            ubiInput.value = data.ubicacion || data.address || '';
+            ubiInput.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(ubiInput);
+        }
+
+        // 4. Teléfono 1 (en la sección "CONTACTO")
+        const tel1Input = document.getElementById('sop_tel1');
+        const tel1Val = data.telefono1 || data.telefono_raw || '';
+        if (tel1Input && tel1Val) {
+            tel1Input.value = tel1Val;
+            tel1Input.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(tel1Input);
+        }
+
+        // Teléfono 2 (opcional, si viene informado y el input está vacío)
+        const tel2Input = document.getElementById('sop_tel2');
+        if (tel2Input && data.telefono2 && !tel2Input.value) {
+            tel2Input.value = data.telefono2;
+            tel2Input.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(tel2Input);
+        }
+    }
+
+    async function ejecutarConsultaCedula(forzar = false) {
+        const cedulaInput = document.getElementById('sop_cedula');
+        if (!cedulaInput) return;
+
+        const rawVal = cedulaInput.value.trim();
+        const cleanDigits = rawVal.replace(/[^0-9]/g, '');
+
+        if (!cleanDigits || cleanDigits.length < 5) {
+            setClienteSearchStatus(null);
+            return;
+        }
+
+        if (!forzar && cleanDigits === _lastSearchedCedula) {
+            return;
+        }
+
+        _lastSearchedCedula = cleanDigits;
+        setClienteSearchStatus('loading');
+
+        try {
+            const cliente = await fetchClientePorCedula(cleanDigits);
+            if (cliente && cliente.encontrado) {
+                const primerNombre = (cliente.nombre || '').trim().split(' ')[0];
+                setClienteSearchStatus('success', primerNombre ? `✓ ${primerNombre}` : '✓ Registrado');
+                autocompletarCamposCliente(cliente);
+                showToast(`✅ Cliente encontrado: ${cliente.nombre || cleanDigits}`);
+            } else {
+                setClienteSearchStatus('not_found', 'No registrado');
+            }
+        } catch (err) {
+            setClienteSearchStatus('error', 'Error consulta');
+        }
+    }
+
+    // Captura de eventos en el input de C.I. / RIF
     const cedulaInput = document.getElementById('sop_cedula');
     if (cedulaInput) {
         cedulaInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            const val = e.target.value.replace(/[^0-9]/g, '');
+            if (e.target.value !== val) {
+                e.target.value = val;
+            }
+
+            clearTimeout(_cedulaSearchTimer);
+            if (val.length >= 5) {
+                _cedulaSearchTimer = setTimeout(() => {
+                    ejecutarConsultaCedula(false);
+                }, 450);
+            } else {
+                setClienteSearchStatus(null);
+            }
+        });
+
+        cedulaInput.addEventListener('change', () => {
+            clearTimeout(_cedulaSearchTimer);
+            ejecutarConsultaCedula(true);
+        });
+
+        cedulaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(_cedulaSearchTimer);
+                ejecutarConsultaCedula(true);
+            }
         });
     }
 
@@ -908,6 +1086,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (ok) {
                 showToast(`✅ Soporte #${newReport.id} guardado con éxito`);
                 formSoporte.reset();
+                _lastSearchedCedula = '';
+                setClienteSearchStatus(null);
                 sopIsDisponibilidad = false;
                 updateExtDisponibilidadUI();
                 // Cambiar a la pestaña de consulta para ver el reporte creado
