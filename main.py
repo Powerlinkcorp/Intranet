@@ -75,9 +75,11 @@ templates = Jinja2Templates(directory="templates")
 # Import new routers
 from routers.flasheo_router import router as flasheo_app_router
 from routers.aprovisionamiento_router import router as aprov_app_router
+from routers.operaciones_router import router as operaciones_router
 
 app.include_router(flasheo_app_router)
 app.include_router(aprov_app_router)
+app.include_router(operaciones_router)
 
 # Pydantic Schemas
 class FeedbackCreate(BaseModel):

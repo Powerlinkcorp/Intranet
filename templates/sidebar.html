@@ -362,6 +362,21 @@
         </li>
         {% endif %}
 
+        <div class="menu-section">Operaciones</div>
+        <li>
+            <div class="menu-item" onclick="toggleSubmenu('submenu-operaciones', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fa-solid fa-tools icon-main"></i>
+                    <span>Operaciones</span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <ul class="submenu" id="submenu-operaciones">
+                <li><a href="/admin/operaciones"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Eventos de Red</a></li>
+                <li><a href="/admin/operaciones"><i class="fa-solid fa-map-location-dot" style="margin-right: 8px;"></i> Validador Ozmap</a></li>
+            </ul>
+        </li>
+
         <div class="menu-section">Administración</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-admin', this)">
