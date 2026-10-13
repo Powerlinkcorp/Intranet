@@ -352,8 +352,7 @@
         <!-- CONTENIDO ESPECÍFICO DE INTEGRACIÓN (USER HTML) -->
         <div class="max-w-6xl mx-auto p-6 mt-6">
             <header class="mb-8 text-center">
-                <h1 class="text-3xl font-bold text-blue-700" style="color: var(--texto-negro) !important;">Extractor y
-                    Auditor de Clientes Corporativo</h1>
+                <h1 class="text-3xl font-bold text-blue-700" style="color: var(--texto-negro) !important;">Auditor de Clientes</h1>
                 <p class="text-gray-500 mt-2">Módulo avanzado con control de fechas diferenciadas para cambios de planes
                     y estatus.</p>
             </header>
@@ -370,19 +369,18 @@
                         <select id="tipoClienteInput"
                             class="w-full text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 font-semibold cursor-pointer">
                             <option value="todos">🌐 Todos los Clientes</option>
-                            <option value="corporativo">🏢 Corporativos / Jurídicos (is_natural=false)</option>
+                            <option value="corporativo">🏢 Corporativo</option>
                             <option value="residencial" selected>🏠 Residenciales / Naturales</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Cuadro Resumen (Contar Suspendidos
-                            desde):</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Suspendidos
+                            desde:</label>
                         <input type="date" id="fechaCorteInput" value="2026-07-01"
                             class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha Filtro Instalaciones (A
-                            buscar):</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha de Instalaciones:</label>
                         <input type="date" id="fechaInstalacionesInput" value="2026-07-13"
                             class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
@@ -487,9 +485,9 @@
                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all cursor-pointer">
                     <i class="fa-solid fa-code-compare mr-2"></i> Comparar API (Hoy) vs Excel / Registro
                 </button>
-                <button id="btnToggleAmountsGlobal" onclick="toggleAllAmounts()"
-                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all cursor-pointer">
-                    <i class="fa-solid fa-eye-slash mr-2"></i> <span>Mostrar Montos</span>
+                <button id="btnToggleAmountsGlobal" onclick="toggleAllAmounts()" title="Mostrar/Ocultar Montos"
+                    class="text-gray-500 hover:text-gray-700 text-xl py-3 px-4 rounded-lg transition-all cursor-pointer flex items-center justify-center">
+                    <i class="fa-solid fa-eye-slash"></i>
                 </button>
             </div>
 
@@ -541,7 +539,8 @@
                                 <i class="fa-solid fa-list-ul text-blue-600"></i> Resumen de Clientes (Lista)
                             </h3>
                         </div>
-                        <table class="w-full text-sm">
+                        <div class="overflow-x-auto w-full">
+<table class="w-full text-sm">
                             <thead
                                 class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
                                 <tr>
@@ -599,6 +598,7 @@
                                 </tr>
                             </tbody>
                         </table>
+</div>
                     </div>
 
                     <div class="flex items-center justify-center my-2">
@@ -737,7 +737,8 @@
 
                     <!-- Contenedor de Tabla con Scroll -->
                     <div class="overflow-x-auto" style="max-height: 500px;">
-                        <table class="w-full data-table" id="dataTable">
+                        <div class="overflow-x-auto w-full">
+<table class="w-full data-table" id="dataTable">
                             <thead class="sticky top-0 z-10">
                                 <tr id="tableHeader">
                                     <!-- Cabeceras Dinámicas -->
@@ -751,6 +752,7 @@
                                 </tr>
                             </tbody>
                         </table>
+</div>
                     </div>
                 </div>
 
@@ -762,7 +764,8 @@
                     </h3>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-500">
+                        <div class="overflow-x-auto w-full">
+<table class="w-full text-sm text-left text-gray-500">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 font-bold text-gray-900">Abonados</th>
@@ -777,12 +780,12 @@
                                     <td class="px-6 py-4 text-right" id="cf_emp_exo_mnt">-</td>
                                 </tr>
                                 <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">Residenciales exonerados</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900">Convenios exonerados</td>
                                     <td class="px-6 py-4 text-center" id="cf_res_exo_qty">-</td>
                                     <td class="px-6 py-4 text-right" id="cf_res_exo_mnt">-</td>
                                 </tr>
                                 <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">Subieron de Plan (Upgrades)</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900">Upgrades</td>
                                     <td class="px-6 py-4 text-center" id="cf_upgrades_qty">-</td>
                                     <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_upgrades_mnt">-
                                     </td>
@@ -800,20 +803,19 @@
                                     </td>
                                 </tr>
                                 <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (3 meses
-                                        beneficio)</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas</td>
                                     <td class="px-6 py-4 text-center" id="cf_inst_3m_qty">-</td>
                                     <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_3m_mnt">-
                                     </td>
                                 </tr>
                                 <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">Instalaciones nuevas (Normales)</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900">Reconexiones</td>
                                     <td class="px-6 py-4 text-center" id="cf_inst_norm_qty">-</td>
                                     <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_norm_mnt">
                                         -</td>
                                 </tr>
                                 <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">Bajaron de Plan (Downgrades)</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900">Downgrades</td>
                                     <td class="px-6 py-4 text-center" id="cf_downgrades_qty">-</td>
                                     <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_downgrades_mnt">-
                                     </td>
@@ -843,6 +845,7 @@
                                 </tr>
                             </tfoot>
                         </table>
+</div>
                     </div>
                 </div>
 
@@ -892,7 +895,8 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto flex-1">
-                                <table class="w-full data-table text-xs">
+                                <div class="overflow-x-auto w-full">
+<table class="w-full data-table text-xs">
                                     <thead
                                         class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
                                         <tr>
@@ -928,6 +932,7 @@
                                         </tr>
                                     </tfoot>
                                 </table>
+</div>
                             </div>
                         </div>
 
@@ -956,7 +961,8 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto flex-1">
-                                <table class="w-full data-table text-xs">
+                                <div class="overflow-x-auto w-full">
+<table class="w-full data-table text-xs">
                                     <thead
                                         class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
                                         <tr>
@@ -992,6 +998,7 @@
                                         </tr>
                                     </tfoot>
                                 </table>
+</div>
                             </div>
                         </div>
                     </div>
@@ -1019,7 +1026,8 @@
                             </div>
                         </div>
                         <div class="overflow-x-auto max-h-72">
-                            <table class="w-full data-table text-xs">
+                            <div class="overflow-x-auto w-full">
+<table class="w-full data-table text-xs">
                                 <thead
                                     class="sticky top-0 bg-gray-50 border-b border-gray-200 font-bold text-gray-600 uppercase">
                                     <tr>
@@ -1055,6 +1063,7 @@
                                     </tr>
                                 </tfoot>
                             </table>
+</div>
                         </div>
                     </div>
 
@@ -1086,7 +1095,8 @@
                         </div>
 
                         <div class="overflow-x-auto rounded-xl border border-gray-200" style="max-height: 420px;">
-                            <table class="w-full data-table text-xs">
+                            <div class="overflow-x-auto w-full">
+<table class="w-full data-table text-xs">
                                 <thead
                                     class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 font-semibold text-gray-600">
                                     <tr>
@@ -1104,12 +1114,14 @@
                                     <!-- Clientes del plan -->
                                 </tbody>
                             </table>
+</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto rounded-xl border border-gray-200" style="max-height: 420px;">
-                    <table class="w-full data-table text-xs">
+                    <div class="overflow-x-auto w-full">
+<table class="w-full data-table text-xs">
                         <thead
                             class="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 font-semibold text-gray-600">
                             <tr>
@@ -1127,6 +1139,7 @@
                             <!-- Clientes del plan -->
                         </tbody>
                     </table>
+</div>
                 </div>
             </div>
         </div>
@@ -1398,9 +1411,9 @@
             const btn = document.getElementById('btnToggleAmountsGlobal');
             if (btn) {
                 if (isShowing) {
-                    btn.innerHTML = '<i class="fa-solid fa-eye mr-2"></i> <span>Ocultar Montos</span>';
+                    btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
                 } else {
-                    btn.innerHTML = '<i class="fa-solid fa-eye-slash mr-2"></i> <span>Mostrar Montos</span>';
+                    btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
                 }
             }
         }

@@ -209,6 +209,24 @@
     flex-direction: column;
 }
 
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 260px !important;
+    }
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    .content-wrapper {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+    .content-wrapper.expanded {
+        margin-left: 0 !important;
+    }
+}
+
+
 .content-wrapper.expanded {
     margin-left: 70px;
 }
