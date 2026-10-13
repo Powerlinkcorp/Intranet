@@ -474,7 +474,7 @@
             <button onclick="toggleSection('motivos')" id="navMotivos" class="subnav-tab">
                 <i class="fa-solid fa-tags"></i> Motivos y Zonas
             </button>
-            <button onclick="toggleSection('users')" id="navUsers" class="subnav-tab">
+            <button onclick="toggleSection('users')" id="navUsers" class="subnav-tab" style="display: none !important;">
                 <i class="fa-solid fa-user-shield"></i> Operadores
             </button>
             <button onclick="toggleSection('logs')" id="navLogs" class="subnav-tab">
@@ -1907,7 +1907,7 @@
             }
             const navUsers = document.getElementById('navUsers');
             const navLogs = document.getElementById('navLogs');
-            if (navUsers) navUsers.style.display = hasPermission('users', 'read') ? 'flex' : 'none';
+            if (navUsers) navUsers.style.display = 'none';
             if (navLogs) navLogs.style.display = hasPermission('logs', 'read') ? 'flex' : 'none';
         }
 
