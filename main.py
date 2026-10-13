@@ -172,13 +172,23 @@ async def login_for_access_token(
             detail="Demasiados intentos fallidos. Tu IP está temporalmente bloqueada por 5 minutos.",
         )
 
-    user = db.query(models.User).filter(models.User.username == form_data.username.strip()).first()
+    clean_user = form_data.username.strip()
+    user = db.query(models.User).filter(
+        (models.User.username.ilike(clean_user)) |
+        (models.User.email.ilike(clean_user))
+    ).first()
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         security.record_failed_attempt(client_ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo electrónico o contraseña incorrectos.",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo o suspendido. Contacta a Administración/RRHH.",
         )
 
     # Success: reset rate limit attempts for this IP
@@ -2597,33 +2607,64 @@ async def api_post_db(request: Request):
         return JSONResponse(status_code=400, content={"status": "error", "message": str(e)})
 
 @app.post("/api/login")
-async def api_reporte_login(request: Request):
+async def api_reporte_login(request: Request, db: Session = Depends(get_db)):
     try:
         payload = await request.json()
-        username = payload.get("username", "").strip().lower()
-        password = payload.get("password", "").strip()
-        try:
-            with open("db.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
-        except Exception:
-            data = {"users": []}
-            
-        for user in data.get("users", []):
-            u_name = str(user.get("username", "")).strip().lower()
-            u_pass = str(user.get("password", "")).strip()
-            if u_name == username and u_pass == password:
-                return {
-                    "status": "ok",
-                    "success": True,
-                    "user": {
-                        "id": user.get("id"),
-                        "username": user.get("username"),
-                        "name": user.get("name") or user.get("username"),
-                        "role": user.get("role") or "OPERADOR",
-                        "permissions": user.get("permissions")
-                    }
-                }
-        return JSONResponse(status_code=401, content={"status": "error", "success": False, "message": "Usuario o contraseña incorrectos"})
+        raw_username = str(payload.get("username", "")).strip()
+        password = str(payload.get("password", "")).strip()
+
+        if not raw_username or not password:
+            return JSONResponse(status_code=400, content={"status": "error", "success": False, "message": "Debes ingresar usuario y contraseña"})
+
+        # Buscar en la tabla principal de Trabajadores (models.User) por username o email
+        user = db.query(models.User).filter(
+            (models.User.username.ilike(raw_username)) |
+            (models.User.email.ilike(raw_username))
+        ).first()
+
+        if not user:
+            return JSONResponse(status_code=401, content={"status": "error", "success": False, "message": "Usuario o correo no registrado en el sistema de trabajadores"})
+
+        # Validar si el trabajador se encuentra activo o suspendido
+        if not user.is_active:
+            reason = f": {user.suspension_reason}" if user.suspension_reason else ""
+            return JSONResponse(status_code=403, content={"status": "error", "success": False, "message": f"Usuario inactivo o suspendido{reason}. Contacta a Administración / RRHH."})
+
+        # Validar contraseña con el hash de seguridad
+        password_ok = False
+        if user.hashed_password:
+            try:
+                password_ok = security.verify_password(password, user.hashed_password)
+            except Exception:
+                password_ok = False
+            # Fallback en caso de contraseñas migradas en texto plano
+            if not password_ok and user.hashed_password == password:
+                password_ok = True
+
+        if not password_ok:
+            return JSONResponse(status_code=401, content={"status": "error", "success": False, "message": "Contraseña incorrecta"})
+
+        # Generar token de acceso
+        access_token = security.create_access_token(data={"sub": user.username, "role": user.role})
+
+        return {
+            "status": "ok",
+            "success": True,
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "name": user.full_name or user.username,
+                "full_name": user.full_name or user.username,
+                "role": user.role or "user",
+                "cargo": user.cargo or "",
+                "department": user.department or "",
+                "permissions": user.permissions or "",
+                "avatar_url": user.avatar_url or ""
+            }
+        }
     except Exception as e:
         return JSONResponse(status_code=400, content={"status": "error", "message": str(e)})
 
