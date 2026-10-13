@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet - Módulo Operaciones</title>
+    <link rel="icon" type="image/png" href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
+    
+    <!-- Iconos y Fuentes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- React Vite styles -->
+    <link rel="stylesheet" href="/static/operaciones/assets/index.css">
+
+    <style>
+        :root {
+            --fondo-principal: #ffffff;
+            --texto-negro: #1A1A1A;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--texto-negro);
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .react-container {
+            width: 100%;
+            height: auto;
+            min-height: calc(100vh - 60px);
+            padding: 20px;
+        }
+        
+        /* Ajustar el content-wrapper para la sidebar */
+        .content-wrapper {
+            transition: margin-left 0.3s ease;
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+        
+        .sidebar.collapsed ~ .content-wrapper {
+            margin-left: 70px;
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                margin-left: 0;
+                padding-bottom: 60px;
+            }
+            .sidebar.collapsed ~ .content-wrapper {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'sidebar.html' %}
+    
+    <div class="content-wrapper" id="contentWrapper">
+        <!-- React App Root -->
+        <div id="root" class="react-container"></div>
+    </div>
+
+    <!-- React Vite Bundle -->
+    <script type="module" src="/static/operaciones/assets/index.js"></script>
+    
+    <!-- Add window hash listener to change tabs from sidebar -->
+    <script>
+        // Make sure sidebar state restores correctly
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+            if(sidebar && isCollapsed) {
+                sidebar.classList.add('collapsed');
+            }
+            
+            // Listen for clicks on the sidebar menu items to navigate the React Tabs
+            const navLinks = document.querySelectorAll('#submenu-operaciones a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const text = link.innerText.toLowerCase();
+                    // Optional: You could communicate with React here via custom events
+                    // if you implement React Router with hash history
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

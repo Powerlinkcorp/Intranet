@@ -839,7 +839,8 @@
                         <input type="text" id="searchTrabajadoresInput" placeholder="Buscar por nombre, usuario, depto..." style="padding: 8px 15px; border: 1px solid #e2e8f0; border-radius: 8px; width: 350px; font-size: 14px; font-weight: normal; outline: none;" onkeyup="filterTrabajadoresList()">
                     </div>
                     <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <div class="overflow-x-auto w-full">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                             <thead>
                                 <tr style="background-color: var(--cabeceras); color: white;">
                                     <th style="padding: 12px; text-align: left;">Cédula</th>
@@ -857,6 +858,7 @@
                                 <!-- Dinámico -->
                             </tbody>
                         </table>
+</div>
                     </div>
                 </div>
             </section>
@@ -878,7 +880,8 @@
             <div class="section-title">
                 <span><i class="fa-solid fa-address-book"></i> Directorio de Trabajadores</span>
             </div>
-            <table style="width:100%; text-align:left; border-collapse: collapse; font-size:14px;">
+            <div class="overflow-x-auto w-full">
+<table style="width:100%; text-align:left; border-collapse: collapse; font-size:14px;">
                 <thead>
                     <tr style="border-bottom:2px solid var(--acento);">
                         <th style="padding:10px;">Cédula</th>
@@ -902,6 +905,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+</div>
         </div>
     </div>
 

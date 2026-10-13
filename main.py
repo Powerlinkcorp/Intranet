@@ -75,9 +75,11 @@ templates = Jinja2Templates(directory="templates")
 # Import new routers
 from routers.flasheo_router import router as flasheo_app_router
 from routers.aprovisionamiento_router import router as aprov_app_router
+from routers.operaciones_router import router as operaciones_router
 
 app.include_router(flasheo_app_router)
 app.include_router(aprov_app_router)
+app.include_router(operaciones_router)
 
 # Pydantic Schemas
 class FeedbackCreate(BaseModel):
@@ -1003,8 +1005,13 @@ def fetch_powerlink_data(is_natural: Optional[bool] = None):
         raise Exception("No se pudo obtener token de la API")
 
     if is_natural is None:
-        data_res = _do_fetch(api_token, True)
-        data_corp = _do_fetch(api_token, False)
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            future_res = executor.submit(_do_fetch, api_token, True)
+            future_corp = executor.submit(_do_fetch, api_token, False)
+            data_res = future_res.result()
+            data_corp = future_corp.result()
+            
         combined = data_res.get("data", []) + data_corp.get("data", [])
         return {"data": combined}
     else:
@@ -1369,6 +1376,27 @@ async def procesar_auditoria_api(
     count_activos_ayer_corp = 0
     count_activos_hoy_corp = 0
     
+    emp_exo_qty_corp = 0
+    emp_exo_mnt_corp = 0.0
+    res_exo_qty_corp = 0
+    res_exo_mnt_corp = 0.0
+    upgrades_qty_corp = 0
+    upgrades_mnt_corp = 0.0
+    cambios_3m_qty_corp = 0
+    cambios_3m_mnt_corp = 0.0
+    reconex_qty_corp = 0
+    reconex_mnt_corp = 0.0
+    reconex_exo_qty_corp = 0
+    reconex_exo_mnt_corp = 0.0
+    inst_3m_qty_corp = 0
+    inst_3m_mnt_corp = 0.0
+    inst_norm_qty_corp = 0
+    inst_norm_mnt_corp = 0.0
+    downgrades_qty_corp = 0
+    downgrades_mnt_corp = 0.0
+    susp_qty_corp = 0
+    susp_mnt_corp = 0.0
+    
     impacto_exclusion_tv = 0.0
     count_exclusion_tv = 0
     
@@ -1510,18 +1538,7 @@ async def procesar_auditoria_api(
                     else:
                         totalExoneradosReg += 1
                         
-        if tipoServicioNew in ['PYME', 'CORPORATIVO']:
-            row_old_corp = old_dict.get(sid)
-            if row_old_corp is not None:
-                estatusOldCorp = str(row_old_corp['Estado servicio']).strip().upper()
-                if estatusOldCorp == 'ACT.':
-                    try:
-                        costoOldCorp = parse_amount(row_old_corp['Costo del plan'])
-                    except:
-                        costoOldCorp = 0.0
-                    ingreso_ayer_corp += costoOldCorp
-                    count_activos_ayer_corp += 1
-            continue
+        is_this_corp = tipoServicioNew in ['PYME', 'CORPORATIVO']
                 
         is_missing_in_old = (sid not in old_dict)
         
@@ -1596,41 +1613,77 @@ async def procesar_auditoria_api(
             variacionNeta = billingHoy - billingAyer
             
             if estatusOld == 'ACT.':
-                ingreso_ayer += costoOld
-                count_activos_ayer += 1
+                if is_this_corp:
+                    ingreso_ayer_corp += costoOld
+                    count_activos_ayer_corp += 1
+                else:
+                    ingreso_ayer += costoOld
+                    count_activos_ayer += 1
                 
             # Finanzas - Bridge (Conciliación Financiera)
             if estatusOld != 'EXO.' and estatusNew == 'EXO.':
                 if 'EMP' in str(row.get('Nombres', '')).upper() or 'EMP' in row.get('Cédula', '').upper():
-                    emp_exo_qty += 1
-                    emp_exo_mnt += variacionNeta
+                    if is_this_corp:
+                        emp_exo_qty_corp += 1
+                        emp_exo_mnt_corp += variacionNeta
+                    else:
+                        emp_exo_qty += 1
+                        emp_exo_mnt += variacionNeta
                 else:
-                    res_exo_qty += 1
-                    res_exo_mnt += variacionNeta
-                    
+                    if is_this_corp:
+                        res_exo_qty_corp += 1
+                        res_exo_mnt_corp += variacionNeta
+                    else:
+                        res_exo_qty += 1
+                        res_exo_mnt += variacionNeta
+                        
             elif estatusOld == 'ACT.' and estatusNew == 'ACT.':
                 if costoDelPlanNew > costoOld:
                     if '3 MESES BENEFICIO' in planOld.upper() and '3 MESES BENEFICIO' not in planNew.upper():
-                        cambios_3m_qty += 1
-                        cambios_3m_mnt += variacionNeta
+                        if is_this_corp:
+                            cambios_3m_qty_corp += 1
+                            cambios_3m_mnt_corp += variacionNeta
+                        else:
+                            cambios_3m_qty += 1
+                            cambios_3m_mnt += variacionNeta
                     else:
-                        upgrades_qty += 1
-                        upgrades_mnt += variacionNeta
+                        if is_this_corp:
+                            upgrades_qty_corp += 1
+                            upgrades_mnt_corp += variacionNeta
+                        else:
+                            upgrades_qty += 1
+                            upgrades_mnt += variacionNeta
                 elif costoDelPlanNew < costoOld:
-                    downgrades_qty += 1
-                    downgrades_mnt += variacionNeta
-                    
+                    if is_this_corp:
+                        downgrades_qty_corp += 1
+                        downgrades_mnt_corp += variacionNeta
+                    else:
+                        downgrades_qty += 1
+                        downgrades_mnt += variacionNeta
+                        
             elif estatusOld in ['SUSP.', 'RET.', 'POR RET.', 'EXO.'] and estatusNew == 'ACT.':
                 if estatusOld == 'EXO.':
-                    reconex_exo_qty += 1
-                    reconex_exo_mnt += variacionNeta
+                    if is_this_corp:
+                        reconex_exo_qty_corp += 1
+                        reconex_exo_mnt_corp += variacionNeta
+                    else:
+                        reconex_exo_qty += 1
+                        reconex_exo_mnt += variacionNeta
                 else:
-                    reconex_qty += 1
-                    reconex_mnt += variacionNeta
+                    if is_this_corp:
+                        reconex_qty_corp += 1
+                        reconex_mnt_corp += variacionNeta
+                    else:
+                        reconex_qty += 1
+                        reconex_mnt += variacionNeta
                 
             elif estatusOld == 'ACT.' and estatusNew in ['SUSP.', 'RET.', 'POR RET.']:
-                susp_qty += 1
-                susp_mnt += variacionNeta
+                if is_this_corp:
+                    susp_qty_corp += 1
+                    susp_mnt_corp += variacionNeta
+                else:
+                    susp_qty += 1
+                    susp_mnt += variacionNeta
             
             if planOld != planNew and is_plan_in_range:
                 datosCambiosPlan.append({
@@ -1680,18 +1733,28 @@ async def procesar_auditoria_api(
         else:
             if estadoServicioNew == 'ACT.' and is_missing_in_old:
                 if '3 MESES BENEFICIO' in planNew.upper():
-                    inst_3m_qty += 1
-                    inst_3m_mnt += costoDelPlanNew
+                    if is_this_corp:
+                        inst_3m_qty_corp += 1
+                        inst_3m_mnt_corp += costoDelPlanNew
+                    else:
+                        inst_3m_qty += 1
+                        inst_3m_mnt += costoDelPlanNew
                 else:
-                    inst_norm_qty += 1
-                    inst_norm_mnt += costoDelPlanNew
+                    if is_this_corp:
+                        inst_norm_qty_corp += 1
+                        inst_norm_mnt_corp += costoDelPlanNew
+                    else:
+                        inst_norm_qty += 1
+                        inst_norm_mnt += costoDelPlanNew
 
     for sid, row_old in old_dict.items():
         if sid not in processed_sids:
             tipoServicioOld = str(row_old.get('Tipo de servicio', '')).strip().upper()
             planOld = str(row_old.get('Plan', '')).strip().upper()
-            if tipoServicioOld in ['PYME', 'CORPORATIVO', 'IPTV'] or planOld == 'TV':
+            if planOld == 'TV' or tipoServicioOld == 'IPTV':
                 continue
+                
+            is_this_corp = tipoServicioOld in ['PYME', 'CORPORATIVO']
                 
             estatusOld = str(row_old['Estado servicio']).strip().upper()
             try:
@@ -1700,10 +1763,17 @@ async def procesar_auditoria_api(
                 costoOld = 0.0
                 
             if estatusOld == 'ACT.':
-                ingreso_ayer += costoOld
-                count_activos_ayer += 1
-                susp_qty += 1
-                susp_mnt -= costoOld
+                if is_this_corp:
+                    ingreso_ayer_corp += costoOld
+                    count_activos_ayer_corp += 1
+                    susp_qty_corp += 1
+                    susp_mnt_corp -= costoOld
+                else:
+                    ingreso_ayer += costoOld
+                    count_activos_ayer += 1
+                    susp_qty += 1
+                    susp_mnt -= costoOld
+                    
                 datosConciliacionDetalle.append({
                     'ID Servicio': sid,
                     'Cédula': row_old.get('Cédula', '') or '-',
@@ -1733,9 +1803,10 @@ async def procesar_auditoria_api(
     # Generar cuadro resumen agrupado de Clientes Activos por Plan
     plan_aggregates = {}
     for c in datosClientesActivos:
-        if c.get('Tipo de servicio', '').strip().upper() in ['PYME', 'CORPORATIVO']:
-            continue
+        is_this_corp = c.get('Tipo de servicio', '').strip().upper() in ['PYME', 'CORPORATIVO']
         p_name = c['Plan'] or 'Sin Plan'
+        if is_this_corp:
+            p_name += " (Corp)"
         if p_name not in plan_aggregates:
             plan_aggregates[p_name] = {
                 'Plan': p_name,
@@ -1818,6 +1889,26 @@ async def procesar_auditoria_api(
             "cant_ayer": count_activos_ayer_corp,
             "ingreso_hoy": ingreso_hoy_corp,
             "cant_hoy": count_activos_hoy_corp,
+            "emp_exo_qty": emp_exo_qty_corp,
+            "emp_exo_mnt": emp_exo_mnt_corp,
+            "res_exo_qty": res_exo_qty_corp,
+            "res_exo_mnt": res_exo_mnt_corp,
+            "upgrades_qty": upgrades_qty_corp,
+            "upgrades_mnt": upgrades_mnt_corp,
+            "cambios_3m_qty": cambios_3m_qty_corp,
+            "cambios_3m_mnt": cambios_3m_mnt_corp,
+            "reconex_qty": reconex_qty_corp,
+            "reconex_mnt": reconex_mnt_corp,
+            "reconex_exo_qty": reconex_exo_qty_corp,
+            "reconex_exo_mnt": reconex_exo_mnt_corp,
+            "inst_3m_qty": inst_3m_qty_corp,
+            "inst_3m_mnt": inst_3m_mnt_corp,
+            "inst_norm_qty": inst_norm_qty_corp,
+            "inst_norm_mnt": inst_norm_mnt_corp,
+            "downgrades_qty": downgrades_qty_corp,
+            "downgrades_mnt": downgrades_mnt_corp,
+            "susp_qty": susp_qty_corp,
+            "susp_mnt": susp_mnt_corp,
             "cant_diferencia_neta": count_activos_hoy_corp - count_activos_ayer_corp
         },
         "conciliacion_detalle": datosConciliacionDetalle,
@@ -1991,10 +2082,16 @@ def get_clientes_activos_por_plan(
     resumen_corp = build_plan_aggregates(users_gen, is_corp=True, is_cons=False)
     resumen_cons = build_plan_aggregates(users_gen, is_corp=False, is_cons=True)
 
+    fecha_snapshot = ""
+    if os.path.exists(path_gen):
+        mtime = os.path.getmtime(path_gen)
+        fecha_snapshot = datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %I:%M %p")
+
     return {
         "residencial": resumen_res,
         "corporativo": resumen_corp,
         "consolidado": resumen_cons,
+        "fecha_snapshot": fecha_snapshot,
         # Compatibilidad directa
         "totales": resumen_cons["totales"],
         "planes": resumen_cons["planes"],

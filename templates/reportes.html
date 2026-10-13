@@ -495,7 +495,7 @@
         <div class="header-title-box">
             <div>
                 <h1 class="page-title"><i class="fa-solid fa-chart-pie text-amber-500"></i> Reporte y Cuadro de Clientes por Plan</h1>
-                <p class="page-subtitle">Consulta simultánea de contratos Residenciales, Corporativos (is_natural=false) y su Unión Consolidada.</p>
+                <p class="page-subtitle">Consulta simultánea de contratos Residenciales, Corporativos (is_natural=false) y su Unión Consolidada. <span id="lblSnapshotDate" style="display: none; margin-left: 8px; font-size: 12px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; color: #475569; font-weight: 500;"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i>Corte: <strong id="lblSnapshotDateVal" style="color: #0f172a;"></strong></span></p>
             </div>
             <div class="header-actions">
                 <button onclick="cargarReporte(true)" class="btn-action btn-secondary" title="Recargar datos de la API en vivo">
@@ -597,7 +597,8 @@
                 </div>
     
                 <div class="table-responsive" style="flex: 1;">
-                    <table id="tablaPlanesResidencial">
+                    <div class="overflow-x-auto w-full">
+<table id="tablaPlanesResidencial">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
@@ -625,6 +626,7 @@
                             </tr>
                         </tfoot>
                     </table>
+</div>
                 </div>
             </div>
     
@@ -648,7 +650,8 @@
                 </div>
     
                 <div class="table-responsive" style="flex: 1;">
-                    <table id="tablaPlanesCorporativo">
+                    <div class="overflow-x-auto w-full">
+<table id="tablaPlanesCorporativo">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
@@ -676,6 +679,7 @@
                             </tr>
                         </tfoot>
                     </table>
+</div>
                 </div>
             </div>
         </div>
@@ -700,7 +704,8 @@
             </div>
 
             <div class="table-responsive">
-                <table id="tablaPlanesConsolidado">
+                <div class="overflow-x-auto w-full">
+<table id="tablaPlanesConsolidado">
                     <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
@@ -728,6 +733,7 @@
                         </tr>
                     </tfoot>
                 </table>
+</div>
             </div>
         </div>
 
@@ -751,7 +757,8 @@
             </div>
 
             <div class="table-responsive">
-                <table id="tablaClientesDetalle">
+                <div class="overflow-x-auto w-full">
+<table id="tablaClientesDetalle">
                     <thead>
                         <tr>
                             <th>ID Servicio</th>
@@ -768,6 +775,7 @@
                         <!-- Dynamic clients -->
                     </tbody>
                 </table>
+</div>
             </div>
         </div>
     </div>
@@ -835,6 +843,16 @@
             const res = data.residencial;
             const corp = data.corporativo;
             const cons = data.consolidado;
+
+            // Snapshot timestamp
+            if (data.fecha_snapshot) {
+                const badgeDate = document.getElementById('lblSnapshotDate');
+                const valDate = document.getElementById('lblSnapshotDateVal');
+                if (badgeDate && valDate) {
+                    valDate.innerText = data.fecha_snapshot;
+                    badgeDate.style.display = 'inline-block';
+                }
+            }
 
             // KPIs
             document.getElementById('kpiTotalClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');

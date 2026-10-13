@@ -361,3 +361,72 @@ class FlasheoStation(Base):
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S") if self.created_at else "",
         }
 
+# ==========================================
+# MODELOS DEL MÓDULO DE OPERACIONES
+# ==========================================
+
+class NetworkEvent(Base):
+    __tablename__ = "network_events"
+
+    id = Column(String(50), primary_key=True, index=True)
+    date = Column(DateTime, nullable=False, index=True)
+    causa = Column(String(100), nullable=False)
+    proveedor = Column(String(100), nullable=True)
+    lugar = Column(String(150), nullable=False)
+    personal = Column(String(150), nullable=False)
+    motivo = Column(String(200), nullable=False)
+    hora_reporte = Column(String(50), nullable=True)
+    hora_solucion = Column(String(50), nullable=True)
+    duracion_minutos = Column(Integer, default=0)
+    reporte = Column(Text, nullable=False)
+    estado = Column(String(50), default="abierto") # abierto, en_seguimiento, solventado
+    
+    # Campos específicos guardados como JSON (para mayor flexibilidad según el tipo de causa)
+    custom_fields = Column(Text, default="{}") 
+
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updates = relationship("NetworkEventUpdate", back_populates="event", cascade="all, delete-orphan")
+
+
+class NetworkEventUpdate(Base):
+    __tablename__ = "network_event_updates"
+
+    id = Column(String(50), primary_key=True, index=True)
+    event_id = Column(String(50), ForeignKey("network_events.id"), nullable=False)
+    timestamp = Column(DateTime, nullable=False)
+    hora = Column(String(50), nullable=False)
+    autor = Column(String(100), nullable=False)
+    mensaje = Column(Text, nullable=False)
+
+    event = relationship("NetworkEvent", back_populates="updates")
+
+
+class OzmapBitacora(Base):
+    __tablename__ = "ozmap_bitacora"
+
+    id = Column(String(100), primary_key=True, index=True)
+    fecha = Column(String(20), nullable=False, index=True)
+    hora = Column(String(20), nullable=False)
+    id_servicio = Column(String(50), nullable=True, index=True)
+    id_usuario = Column(String(50), nullable=True)
+    cliente = Column(String(150), nullable=False)
+    cedula = Column(String(50), nullable=False, index=True)
+    serial_onu = Column(String(100), nullable=True)
+    precinto = Column(String(100), nullable=True)
+    caja_nap = Column(String(100), nullable=False)
+    caja_original = Column(String(100), nullable=True)
+    tipo_accion = Column(String(50), nullable=False)
+    codigo_ozmap = Column(String(100), nullable=False)
+    georreferenciado = Column(Boolean, default=True)
+    estado = Column(String(50), nullable=False)
+    timestamp = Column(Integer, nullable=True)
+
+
+class OzmapLearnedBox(Base):
+    __tablename__ = "ozmap_learned_boxes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    raw_original = Column(String(150), unique=True, nullable=False, index=True)
+    official_box = Column(String(150), nullable=False)
+    date = Column(String(50), nullable=False)
+    is_primary = Column(Boolean, default=False)

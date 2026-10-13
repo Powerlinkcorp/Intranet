@@ -2594,7 +2594,8 @@
                     </button>
                 </div>`;
             } else {
-                html += `<div class="overflow-x-auto custom-scrollbar w-full"><table class="w-full min-w-[720px]"><thead><tr class="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40">
+                html += `<div class="overflow-x-auto custom-scrollbar w-full"><div class="overflow-x-auto w-full">
+<table class="w-full min-w-[720px]"><thead><tr class="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/40">
                     <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
                     <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Zona</th>
                     <th class="text-left px-4 sm:px-6 py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">C.I./RIF</th>
@@ -2650,7 +2651,8 @@
                     </tr>`;
                 });
 
-                html += `</tbody></table></div>`;
+                html += `</tbody></table>
+</div></div>`;
             }
             html += `</div>`;
             app.innerHTML = html;
@@ -4101,7 +4103,8 @@
                         </div>
 
                         <div class="overflow-x-auto custom-scrollbar w-full">
-                            <table class="w-full min-w-[780px]">
+                            <div class="overflow-x-auto w-full">
+<table class="w-full min-w-[780px]">
                                 <thead>
                                     <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                                         <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
@@ -4154,7 +4157,8 @@
                                 </td>
                             </tr>`;
                     });
-                    html += `</tbody></table></div></div>`;
+                    html += `</tbody></table>
+</div></div></div>`;
                 });
                 html += `</div>`;
             }
@@ -6354,7 +6358,8 @@
             <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden animate-slide-up">
                 ${afectaciones.length > 0 ? `
                 <div class="overflow-x-auto custom-scrollbar w-full">
-                    <table class="w-full min-w-[750px]">
+                    <div class="overflow-x-auto w-full">
+<table class="w-full min-w-[750px]">
                         <thead>
                             <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                                 <th class="text-left px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">#</th>
@@ -6417,6 +6422,7 @@
                             `).join('')}
                         </tbody>
                     </table>
+</div>
                 </div>
                 ` : `
                 <div class="px-6 py-16 text-center">
@@ -6608,7 +6614,8 @@
 
             <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden animate-slide-up">
                 <div class="overflow-x-auto custom-scrollbar w-full">
-                    <table class="w-full min-w-[640px]">
+                    <div class="overflow-x-auto w-full">
+<table class="w-full min-w-[640px]">
                         <thead>
                             <tr class="border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30">
                                 <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuario</th>
@@ -6670,6 +6677,7 @@
                             `).join('')}
                         </tbody>
                     </table>
+</div>
                 </div>
             </div>`;
 
@@ -6907,7 +6915,8 @@
 
             <div class="bg-white dark:bg-[#0c1427] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm overflow-hidden animate-slide-up">
                 <div class="overflow-x-auto max-h-[70vh] custom-scrollbar w-full">
-                    <table class="w-full min-w-[720px]">
+                    <div class="overflow-x-auto w-full">
+<table class="w-full min-w-[720px]">
                         <thead class="sticky top-0 bg-slate-50/95 dark:bg-[#090e1a]/95 backdrop-blur-md z-10">
                             <tr class="border-b border-slate-100 dark:border-slate-800/80">
                                 <th class="text-left px-4 sm:px-6 py-3 sm:py-3.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha / Hora</th>
@@ -6941,6 +6950,7 @@
                             `).join('')}
                         </tbody>
                     </table>
+</div>
                 </div>
             </div>`;
 
