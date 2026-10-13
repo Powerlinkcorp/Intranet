@@ -7,6 +7,7 @@ import { GuardsScheduleModule } from "./guards-schedule"
 import { ProjectsModule } from "./projects"
 import { RequirementsModule } from "./requirements"
 import { OzmapModule } from "./ozmap"
+import { OzmapDatabaseModule } from "./ozmap-database"
 import {
   Home,
   ClipboardList,
@@ -15,6 +16,7 @@ import {
   FolderGit2,
   Zap,
   Globe2,
+  Database,
   Moon,
   Sun,
 } from "lucide-react"
@@ -27,6 +29,7 @@ export type NavView =
   | "projects"
   | "activities"
   | "ozmap"
+  | "ozmap-database"
 
 interface NavTab {
   id: NavView
@@ -43,6 +46,7 @@ const NAV_TABS: NavTab[] = [
   { id: "projects", label: "Proyectos", shortLabel: "Proyectos", icon: FolderGit2 },
   { id: "activities", label: "Requerimientos", shortLabel: "Requerimientos", icon: Zap },
   { id: "ozmap", label: "Módulo OZmap", shortLabel: "OZmap", icon: Globe2 },
+  { id: "ozmap-database", label: "Base de Datos OZmap", shortLabel: "BD OZmap", icon: Database },
 ]
 
 function App() {
@@ -172,6 +176,10 @@ function App() {
           {activeView === "activities" && <RequirementsModule />}
 
           {activeView === "ozmap" && <OzmapModule />}
+
+          {activeView === "ozmap-database" && (
+            <OzmapDatabaseModule onNavigate={handleSelectView} />
+          )}
         </div>
       </div>
     </div>
