@@ -88,19 +88,26 @@
                 </svg>
             </div>
             <div class="login-title">Iniciar Sesión</div>
-            <div class="login-subtitle">Ingresa con tus credenciales de usuario del sistema para gestionar y registrar
-                reportes.</div>
+            <div class="login-subtitle">Ingresa con tus credenciales registradas y gestionadas en el módulo de Trabajadores (Administración).</div>
 
             <form id="formLoginExt" class="login-form">
                 <div class="form-group">
-                    <label for="login_user">Usuario <span class="req">*</span></label>
-                    <input type="text" id="login_user" required placeholder="Ej: admin o nombre de usuario"
+                    <label for="login_user">Usuario o Correo <span class="req">*</span></label>
+                    <input type="text" id="login_user" required placeholder="Ej: usuario o correo corporativo"
                         autocomplete="username" autofocus>
                 </div>
                 <div class="form-group">
                     <label for="login_pass">Contraseña <span class="req">*</span></label>
-                    <input type="password" id="login_pass" required placeholder="••••••••"
-                        autocomplete="current-password">
+                    <div class="password-input-wrap">
+                        <input type="password" id="login_pass" required placeholder="••••••••"
+                            autocomplete="current-password">
+                        <button type="button" class="btn-toggle-password" id="btnTogglePassword" title="Mostrar contraseña" aria-label="Mostrar u ocultar contraseña">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="login-remember-row">
                     <label class="remember-label">
@@ -128,7 +135,7 @@
 
             <div class="login-footer">
                 <span class="login-hint-dot"></span>
-                <span>Los reportes registrados se vincularán a tu cuenta.</span>
+                <span>Los reportes registrados se vincularán a tu cuenta de trabajador.</span>
             </div>
         </div>
     </div>
