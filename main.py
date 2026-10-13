@@ -5,7 +5,10 @@ import asyncio
 import pandas as pd
 from typing import List, Optional
 import uuid
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -75,11 +78,15 @@ templates = Jinja2Templates(directory="templates")
 # Import new routers
 from routers.flasheo_router import router as flasheo_app_router
 from routers.aprovisionamiento_router import router as aprov_app_router
-from routers.operaciones_router import router as operaciones_router
 
 app.include_router(flasheo_app_router)
 app.include_router(aprov_app_router)
-app.include_router(operaciones_router)
+
+try:
+    from routers.operaciones_router import router as operaciones_router
+    app.include_router(operaciones_router)
+except ImportError:
+    pass
 
 # Pydantic Schemas
 class FeedbackCreate(BaseModel):
@@ -355,7 +362,7 @@ async def reportes_page(request: Request, db: Session = Depends(get_db)):
         user = db.query(models.User).filter(models.User.username == username).first()
         if not user:
             return RedirectResponse(url="/login")
-        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or ''):
+        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
             return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "reportes.html", {"request": request, "user": user})
     except:

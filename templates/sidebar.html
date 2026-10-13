@@ -361,7 +361,7 @@
             </ul>
         </li>
 
-        {% if user.role == 'admin' or 'ver_cajas_nap' in (user.permissions or '') or 'ver_flasheo' in (user.permissions or '') or 'ver_aprovisionamiento' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') %}
+        {% if user.role == 'admin' or 'ver_cajas_nap' in (user.permissions or '') or 'ver_flasheo' in (user.permissions or '') or 'ver_aprovisionamiento' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') or 'perm_reporte' in (user.permissions or '') or 'perm_aprov' in (user.permissions or '') %}
         <div class="menu-section">Soporte</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-soporte', this)">
@@ -373,9 +373,15 @@
             </div>
             <ul class="submenu" id="submenu-soporte">
                 <!-- <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas NAP</a></li> -->
+                {% if user.role == 'admin' or 'perm_reporte' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') %}
                 <li><a href="/reporte"><i class="fa-solid fa-file-invoice" style="margin-right: 8px;"></i> Reporte</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or 'ver_flasheo' in (user.permissions or '') or 'perm_aprov' in (user.permissions or '') %}
                 <li><a href="/soporte/flasheo"><i class="fa-solid fa-microchip" style="margin-right: 8px;"></i> Flasheo</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or 'ver_aprovisionamiento' in (user.permissions or '') or 'perm_aprov' in (user.permissions or '') %}
                 <li><a href="/soporte/aprovisionamiento"><i class="fa-solid fa-server" style="margin-right: 8px;"></i> Aprovisionamiento</a></li>
+                {% endif %}
             </ul>
         </li>
         {% endif %}
@@ -395,6 +401,7 @@
             </ul>
         </li>
 
+        {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') or 'perm_reporte' in (user.permissions or '') or 'ver_historico' in (user.permissions or '') or 'cargar_datos_usuarios' in (user.permissions or '') %}
         <div class="menu-section">Administración</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-admin', this)">
@@ -408,7 +415,7 @@
                 {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
                 <li><a href="/integracion"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Integración</a></li>
                 {% endif %}
-                {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
+                {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') or 'perm_reporte' in (user.permissions or '') %}
                 <li><a href="/reportes"><i class="fa-solid fa-chart-line" style="margin-right: 8px;"></i> Reportes Admin</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or 'ver_historico' in (user.permissions or '') %}
@@ -423,6 +430,7 @@
                 {% endif %}
             </ul>
         </li>
+        {% endif %}
 
         <!-- 
         <div class="menu-section">Proyecto</div>
