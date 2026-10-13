@@ -126,10 +126,11 @@ function updateAuthUI(user) {
         if (appSection) appSection.style.display = 'flex';
         if (userBadge) userBadge.style.display = 'flex';
 
-        const initial = (user.name || user.username || 'U').charAt(0).toUpperCase();
+        const displayName = user.full_name || user.name || user.username;
+        const initial = displayName.charAt(0).toUpperCase();
         if (userAvatarMini) userAvatarMini.textContent = initial;
-        if (userNameMini) userNameMini.textContent = user.name || user.username;
-        if (userRoleMini) userRoleMini.textContent = (user.role || 'OPERADOR').toUpperCase();
+        if (userNameMini) userNameMini.textContent = displayName;
+        if (userRoleMini) userRoleMini.textContent = (user.cargo || user.department || user.role || 'TRABAJADOR').toUpperCase();
     } else {
         if (loginSection) loginSection.style.display = 'flex';
         if (appSection) appSection.style.display = 'none';
@@ -297,11 +298,78 @@ function populateSelects() {
 
 // Determinar el Estatus Efectivo de un Soporte
 function getEffectiveStatus(report) {
-    const a = (dbCache.assignments || []).find(x => x.reportId === report.id && (x.itemType || 'SOPORTE') === 'SOPORTE');
-    if (a && a.status) {
-        return a.status.toUpperCase();
+    const reportIdStr = String(report.id);
+    const assignments = (dbCache.assignments || []);
+    for (let i = assignments.length - 1; i >= 0; i--) {
+        const item = assignments[i];
+        if (String(item.reportId) === reportIdStr && (item.itemType || 'SOPORTE').toUpperCase() === 'SOPORTE') {
+            if (item.status) return item.status.toUpperCase();
+        }
     }
     return (report.estatus || 'PENDIENTE').toUpperCase();
+}
+
+// Obtener la Cuadrilla/Equipo al cual está coordinado un reporte
+function getEffectiveTeam(report, itemType = 'SOPORTE') {
+    const reportIdStr = String(report.id);
+    const targetType = (itemType || 'SOPORTE').toUpperCase();
+    const assignments = (dbCache.assignments || []);
+
+    let a = null;
+    for (let i = assignments.length - 1; i >= 0; i--) {
+        const item = assignments[i];
+        if (String(item.reportId) === reportIdStr && (item.itemType || 'SOPORTE').toUpperCase() === targetType) {
+            a = item;
+            break;
+        }
+    }
+
+    if (!a || !a.teamId) {
+        return null;
+    }
+
+    const teamIdStr = String(a.teamId);
+
+    // 1. Buscar en técnicos/cuadrillas activas
+    const t = (dbCache.techs || []).find(tech => String(tech.id) === teamIdStr);
+    if (t) {
+        const teamName = t.name || (t.letter ? `Equipo "${t.letter}"` : `Equipo #${t.id}`);
+        const t1Name = (t.t1 && t.t1.name) || (t.tech1 && t.tech1.name) || '';
+        const t2Name = (t.t2 && t.t2.name) || (t.tech2 && t.tech2.name) || '';
+        const members = [t1Name, t2Name].filter(Boolean).join(' · ');
+        return {
+            id: t.id,
+            name: teamName,
+            letter: t.letter || '',
+            area: t.area || '',
+            members: members
+        };
+    }
+
+    // 2. Si el equipo fue eliminado, recuperar nombre histórico de la bitácora
+    for (const log of (dbCache.logs || [])) {
+        const details = log.details || '';
+        if (details.includes(teamIdStr)) {
+            const m = details.match(new RegExp('"([^"]+)"\\s*\\(#' + teamIdStr + '\\)'));
+            if (m && m[1]) {
+                return {
+                    id: a.teamId,
+                    name: m[1],
+                    letter: '',
+                    area: '',
+                    members: ''
+                };
+            }
+        }
+    }
+
+    return {
+        id: a.teamId,
+        name: `Equipo #${a.teamId}`,
+        letter: '',
+        area: '',
+        members: ''
+    };
 }
 
 // Renderizar la Pestaña de Consultas
@@ -322,13 +390,14 @@ function renderConsultas() {
 
     const enriched = reports.map(r => {
         const st = getEffectiveStatus(r);
+        const team = getEffectiveTeam(r, 'SOPORTE');
         cTodos++;
         if (st.includes('PENDIENTE')) cPendientes++;
         else if (st.includes('PROCESO')) cProceso++;
         else if (st.includes('ESPERA')) cEspera++;
         else if (st.includes('REALIZADA') || st.includes('RESUELTO')) cRealizadas++;
         else if (st.includes('ANULADA') || st.includes('CANCELADO')) cAnuladas++;
-        return { ...r, status: st };
+        return { ...r, status: st, team: team };
     });
 
     if (document.getElementById('countTodos')) document.getElementById('countTodos').textContent = cTodos;
@@ -348,9 +417,10 @@ function renderConsultas() {
             if (activeFilter === 'REALIZADA' && !r.status.includes('REALIZADA') && !r.status.includes('RESUELTO')) return false;
             if (activeFilter === 'ANULADA' && !r.status.includes('ANULADA') && !r.status.includes('CANCELADO')) return false;
         }
-        // Filtro de texto
+        // Filtro de texto (incluye búsqueda por nombre o integrantes de cuadrilla)
         if (query) {
-            const searchStr = `${r.cedula || ''} ${r.motivo || ''} ${r.caja_nap || ''} ${r.onu || ''} ${r.ubicacion || ''} ${r.zona || ''}`.toLowerCase();
+            const teamStr = r.team ? `${r.team.name || ''} ${r.team.letter || ''} ${r.team.members || ''}` : '';
+            const searchStr = `${r.cedula || ''} ${r.motivo || ''} ${r.caja_nap || ''} ${r.onu || ''} ${r.ubicacion || ''} ${r.zona || ''} ${teamStr}`.toLowerCase();
             return searchStr.includes(query);
         }
         return true;
@@ -377,6 +447,20 @@ function renderConsultas() {
         else if (r.status.includes('REAGENDADA')) badgeClass = 'badge-reagendada';
 
         const fechaStr = r.created_at ? new Date(r.created_at).toLocaleDateString() : 'N/A';
+        const teamObj = r.team;
+        const teamBadgeHtml = teamObj
+            ? `<div class="item-team is-assigned" title="${escapeHtml(teamObj.members ? `${teamObj.name} (${teamObj.members})` : teamObj.name)}">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span><strong>Cuadrilla:</strong> ${escapeHtml(teamObj.name)}</span>
+               </div>`
+            : `<div class="item-team unassigned" title="Este reporte no tiene cuadrilla asignada">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span>Sin coordinar</span>
+               </div>`;
 
         return `
             <div class="report-item" data-id="${r.id}">
@@ -392,6 +476,7 @@ function renderConsultas() {
                     <div class="item-location" title="${escapeHtml(r.ubicacion || '')}">
                         📍 ${escapeHtml(r.ubicacion || 'Sin ubicación')}
                     </div>
+                    ${teamBadgeHtml}
                 </div>
                 <div class="item-date">Registrado: ${fechaStr}</div>
             </div>
@@ -462,6 +547,12 @@ function openDetailModal(item) {
             <span class="detail-val">${escapeHtml(item.cedula || 'N/A')}</span>
         </div>
         <div class="detail-row">
+            <span class="detail-label">Cuadrilla Coordinada:</span>
+            <span class="detail-val" style="color: ${item.team ? '#0284c7' : 'var(--text-dim)'}; font-weight: 700;">
+                ${item.team ? `👷 ${escapeHtml(item.team.name)}${item.team.members ? ` (${escapeHtml(item.team.members)})` : ''}` : '⚠️ Sin coordinar'}
+            </span>
+        </div>
+        <div class="detail-row">
             <span class="detail-label">Zona:</span>
             <span class="detail-val">${escapeHtml(item.zona || 'N/A')}</span>
         </div>
@@ -516,6 +607,7 @@ function openDetailModal(item) {
     document.getElementById('btnCopyDetail').onclick = () => {
         const extraFecha = (item.fecha_visita && !isNextDayVisit(item.fecha_visita, item.created_at)) ? `\nFECHA DE VISITA: ${item.fecha_visita}` : '';
         const txt = `SOPORTE #${item.id}
+CUADRILLA COORDINADA: ${item.team ? item.team.name : 'Sin coordinar'}
 C.I: ${item.cedula}
 ZONA: ${item.zona}
 MOTIVO: ${item.motivo}${item.a_disponibilidad ? '\nMODALIDAD: A DISPONIBILIDAD' : extraFecha}
@@ -607,6 +699,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Toggle visibilidad de contraseña en login
+    const btnTogglePassword = document.getElementById('btnTogglePassword');
+    const loginPassInput = document.getElementById('login_pass');
+    if (btnTogglePassword && loginPassInput) {
+        btnTogglePassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const isPassword = loginPassInput.type === 'password';
+            loginPassInput.type = isPassword ? 'text' : 'password';
+
+            btnTogglePassword.setAttribute('title', isPassword ? 'Ocultar contraseña' : 'Ver contraseña');
+            btnTogglePassword.innerHTML = isPassword
+                ? `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path>
+                   </svg>`
+                : `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                   </svg>`;
+        });
+    }
+
     // Manejo de Inicio de Sesión
     const formLoginExt = document.getElementById('formLoginExt');
     if (formLoginExt) {
@@ -629,8 +743,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             let authenticatedUser = null;
+            let loginErrorMessage = 'Usuario o contraseña incorrectos';
 
-            // 1. Intentar autenticar mediante endpoint del servidor principal
+            // 1. Autenticar mediante /api/login contra la base de datos principal de Trabajadores
             try {
                 const res = await fetch(`${currentServerUrl}/api/login`, {
                     method: 'POST',
@@ -638,30 +753,50 @@ document.addEventListener('DOMContentLoaded', async () => {
                     body: JSON.stringify({ username, password })
                 });
 
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.success && data.user) {
-                        authenticatedUser = data.user;
+                const data = await res.json().catch(() => null);
+
+                if (res.ok && data && (data.success || data.status === 'ok') && data.user) {
+                    authenticatedUser = data.user;
+                    if (data.access_token) {
+                        try {
+                            localStorage.setItem('access_token', data.access_token);
+                            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                                chrome.storage.local.set({ access_token: data.access_token });
+                            }
+                        } catch (e) {}
                     }
+                } else if (data && (data.message || data.detail)) {
+                    loginErrorMessage = data.message || data.detail;
                 }
             } catch (err) {
-                console.warn('Endpoint /api/login no disponible o error de red, probando con dbCache.users:', err);
+                console.warn('Error conectando a /api/login:', err);
+                loginErrorMessage = 'Error de conexión con el servidor principal';
             }
 
-            // 2. Fallback con dbCache.users (mismos usuarios del servidor y sistema)
-            if (!authenticatedUser && dbCache.users && dbCache.users.length > 0) {
-                const matched = dbCache.users.find(u =>
-                    u.username && u.username.toLowerCase() === username.toLowerCase() &&
-                    String(u.password) === String(password)
-                );
-                if (matched) {
-                    authenticatedUser = {
-                        id: matched.id,
-                        username: matched.username,
-                        name: matched.name || matched.username,
-                        role: matched.role || 'OPERADOR',
-                        permissions: matched.permissions || []
-                    };
+            // 2. Si /api/login devolvió error de conexión, intentar con /api/auth/login
+            if (!authenticatedUser && loginErrorMessage.includes('Error de conexión')) {
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('username', username);
+                    formData.append('password', password);
+                    const authRes = await fetch(`${currentServerUrl}/api/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData
+                    });
+                    const authData = await authRes.json().catch(() => null);
+                    if (authRes.ok && authData && authData.user) {
+                        authenticatedUser = authData.user;
+                        if (authData.access_token) {
+                            try {
+                                localStorage.setItem('access_token', authData.access_token);
+                            } catch (e) {}
+                        }
+                    } else if (authData && authData.detail) {
+                        loginErrorMessage = authData.detail;
+                    }
+                } catch (e) {
+                    console.warn('Fallback /api/auth/login no disponible:', e);
                 }
             }
 
@@ -676,13 +811,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (authenticatedUser) {
                 await setCurrentUser(authenticatedUser);
                 updateAuthUI(authenticatedUser);
-                showToast(`¡Bienvenido, ${authenticatedUser.name || authenticatedUser.username}!`);
-                if (passwordInput) passwordInput.value = '';
+                const welcomeName = authenticatedUser.name || authenticatedUser.full_name || authenticatedUser.username;
+                showToast(`¡Bienvenido, ${welcomeName}!`);
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.type = 'password';
+                    if (btnTogglePassword) {
+                        btnTogglePassword.setAttribute('title', 'Mostrar contraseña');
+                        btnTogglePassword.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>`;
+                    }
+                }
 
                 // Registrar en la bitácora
-                syncDatabase({}, 'LOGIN_EXTENSION', `Usuario ${authenticatedUser.username} inició sesión desde la extensión`);
+                syncDatabase({}, 'LOGIN_EXTENSION', `Trabajador ${authenticatedUser.username} (${authenticatedUser.email || ''}) inició sesión desde la extensión`);
             } else {
-                showToast('Usuario o contraseña incorrectos', true);
+                showToast(loginErrorMessage, true);
             }
         });
     }
