@@ -310,13 +310,13 @@
                                 </td>
                                 <td class="px-2 py-3 text-center bg-purple-50/10">
                                     <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_reporte_{{ u.id }}" {% if 'perm_reporte' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <input type="checkbox" id="perm_perm_reporte_{{ u.id }}" {% if 'perm_reporte' in (u.permissions or '') or 'ver_reportes' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
                                 <td class="px-2 py-3 text-center bg-purple-50/10">
                                     <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_aprov_{{ u.id }}" {% if 'perm_aprov' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <input type="checkbox" id="perm_perm_aprov_{{ u.id }}" {% if 'perm_aprov' in (u.permissions or '') or 'ver_flasheo' in (u.permissions or '') or 'ver_aprovisionamiento' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -418,6 +418,8 @@
                 const cb = document.getElementById(`perm_${key}_${userId}`);
                 if (cb && cb.checked) {
                     perms.push(key);
+                    if (key === 'perm_reporte') perms.push('ver_reportes');
+                    if (key === 'perm_aprov') perms.push('ver_flasheo', 'ver_aprovisionamiento');
                 }
             });
             
