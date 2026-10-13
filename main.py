@@ -174,7 +174,10 @@ async def login_for_access_token(
             detail="Demasiados intentos fallidos. Tu IP está temporalmente bloqueada por 5 minutos.",
         )
 
-    user = db.query(models.User).filter(models.User.username == form_data.username.strip()).first()
+    user = db.query(models.User).filter(
+        (models.User.username == form_data.username.strip()) |
+        (models.User.email == form_data.username.strip().lower())
+    ).first()
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         security.record_failed_attempt(client_ip)
         raise HTTPException(

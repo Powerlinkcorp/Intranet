@@ -25,8 +25,12 @@ async def operaciones_page(request: Request, db: Session = Depends(get_db)):
     except HTTPException:
         return RedirectResponse(url="/login")
 
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query, Body, Response
+from fastapi.responses import HTMLResponse, RedirectResponse
+import io, csv
+
 @router.get("/api/operaciones/events")
-def get_events(db: Session = Depends(get_db)):
+def get_events(format: str = Query(None), db: Session = Depends(get_db)):
     events = db.query(models.NetworkEvent).order_by(models.NetworkEvent.date.desc()).all()
     # Serialize to match the React frontend
     result = []
@@ -34,7 +38,7 @@ def get_events(db: Session = Depends(get_db)):
         updates = [{"id": u.id, "timestamp": u.timestamp.isoformat(), "hora": u.hora, "autor": u.autor, "mensaje": u.mensaje} for u in ev.updates]
         result.append({
             "id": ev.id,
-            "date": ev.date.isoformat(),
+            "date": ev.date.isoformat() if ev.date else "",
             "causa": ev.causa,
             "proveedor": ev.proveedor,
             "lugar": ev.lugar,
@@ -48,29 +52,69 @@ def get_events(db: Session = Depends(get_db)):
             "customFields": ev.custom_fields,
             "updates": updates
         })
+
+    if format == "powerbi" or format == "csv":
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["ID", "Fecha", "Causa", "Proveedor", "Lugar", "Personal", "Motivo", "HoraReporte", "HoraSolucion", "DuracionMinutos", "Estado"])
+        for r in result:
+            writer.writerow([r["id"], r["date"], r["causa"], r["proveedor"], r["lugar"], r["personal"], r["motivo"], r["horaReporte"], r["horaSolucion"], r["duracionMinutos"], r["estado"]])
+        return Response(content=output.getvalue(), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=eventos_powerbi.csv"})
+
     return result
 
 @router.post("/api/operaciones/events")
-def create_event(event_data: Dict[Any, Any], db: Session = Depends(get_db)):
-    new_event = models.NetworkEvent(
-        id=event_data.get("id", str(uuid.uuid4())),
-        date=datetime.fromisoformat(event_data.get("date", datetime.utcnow().isoformat())),
-        causa=event_data.get("causa", ""),
-        proveedor=event_data.get("proveedor", ""),
-        lugar=event_data.get("lugar", ""),
-        personal=event_data.get("personal", ""),
-        motivo=event_data.get("motivo", ""),
-        hora_reporte=event_data.get("horaReporte", ""),
-        hora_solucion=event_data.get("horaSolucion", ""),
-        duracion_minutos=event_data.get("duracionMinutos", 0),
-        reporte=event_data.get("reporte", ""),
-        estado=event_data.get("estado", "abierto"),
-        custom_fields=event_data.get("customFields", "{}")
-    )
-    db.add(new_event)
+def create_event(data: Any = Body(...), db: Session = Depends(get_db)):
+    events_list = data if isinstance(data, list) else [data]
+    saved_ids = []
+    for event_data in events_list:
+        ev_id = str(event_data.get("id") or uuid.uuid4())
+        existing = db.query(models.NetworkEvent).filter(models.NetworkEvent.id == ev_id).first()
+        
+        date_raw = event_data.get("date")
+        if date_raw:
+            try:
+                date_val = datetime.fromisoformat(str(date_raw))
+            except Exception:
+                date_val = datetime.utcnow()
+        else:
+            date_val = datetime.utcnow()
+
+        if existing:
+            existing.date = date_val
+            existing.causa = event_data.get("causa", existing.causa)
+            existing.proveedor = event_data.get("proveedor", existing.proveedor)
+            existing.lugar = event_data.get("lugar", existing.lugar)
+            existing.personal = event_data.get("personal", existing.personal)
+            existing.motivo = event_data.get("motivo", existing.motivo)
+            existing.hora_reporte = event_data.get("horaReporte", existing.hora_reporte)
+            existing.hora_solucion = event_data.get("horaSolucion", existing.hora_solucion)
+            existing.duracion_minutos = event_data.get("duracionMinutos", existing.duracion_minutos)
+            existing.reporte = event_data.get("reporte", existing.reporte)
+            existing.estado = event_data.get("estado", existing.estado)
+            existing.custom_fields = str(event_data.get("customFields", existing.custom_fields))
+            saved_ids.append(existing.id)
+        else:
+            new_event = models.NetworkEvent(
+                id=ev_id,
+                date=date_val,
+                causa=event_data.get("causa", ""),
+                proveedor=event_data.get("proveedor", ""),
+                lugar=event_data.get("lugar", ""),
+                personal=event_data.get("personal", ""),
+                motivo=event_data.get("motivo", ""),
+                hora_reporte=event_data.get("horaReporte", ""),
+                hora_solucion=event_data.get("horaSolucion", ""),
+                duracion_minutos=event_data.get("duracionMinutos", 0),
+                reporte=event_data.get("reporte", ""),
+                estado=event_data.get("estado", "abierto"),
+                custom_fields=str(event_data.get("customFields", "{}"))
+            )
+            db.add(new_event)
+            saved_ids.append(new_event.id)
+            
     db.commit()
-    db.refresh(new_event)
-    return {"status": "success", "id": new_event.id}
+    return {"status": "success", "count": len(saved_ids), "ids": saved_ids}
 
 @router.post("/api/operaciones/events/{event_id}/update")
 def add_event_update(event_id: str, update_data: Dict[Any, Any], db: Session = Depends(get_db)):
@@ -151,3 +195,25 @@ def save_bitacora(records: List[Dict[Any, Any]], db: Session = Depends(get_db)):
             db.add(new_record)
     db.commit()
     return {"status": "success", "records_processed": len(records)}
+
+@router.get("/descargas_powerlink/{filename}")
+async def proxy_descargas_powerlink(filename: str):
+    """Proxy hacia el servidor IIS 10.0.1.243 para descargar las bases de datos Rubpi sin 404 ni CORS"""
+    import requests
+    target_url = f"http://10.0.1.243/descargas_powerlink/{filename}"
+    try:
+        resp = requests.get(target_url, timeout=30)
+        if resp.status_code == 200:
+            return Response(
+                content=resp.content,
+                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                headers={
+                    "Content-Disposition": f"attachment; filename={filename}",
+                    "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                }
+            )
+        else:
+            raise HTTPException(status_code=resp.status_code, detail=f"Servidor IIS devolvió error: {resp.status_code}")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"No se pudo conectar con el servidor IIS 10.0.1.243: {e}")
+

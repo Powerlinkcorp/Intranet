@@ -133,7 +133,7 @@ export interface CatalogsState {
 const STORAGE_EVENTS_KEY = "reportgen_v1_network_events";
 const STORAGE_CATALOGS_KEY = "reportgen_v1_network_catalogs";
 const STORAGE_TEMPLATES_KEY = "reportgen_v1_report_templates";
-const API_EVENTS_URL = "/operaciones/modulo_de_operaciones_migrado/v2/api/events.ashx";
+const API_EVENTS_URL = "/api/operaciones/events";
 const POWER_BI_URL = "https://app.powerbi.com/groups/e502575b-4581-45f0-8e85-64de9812c2c8/reports/63f3c560-266a-4cc9-8868-bacbd2120726/4c5eb1dca071d9a505cb?experience=power-bi";
 
 export const DEFAULT_REPORT_TEMPLATES: Record<string, ReportTemplateConfig> = {
@@ -4472,7 +4472,7 @@ export function EventsDashboardModule() {
                   variant="outline"
                   className="h-7 text-xs font-bold gap-1 text-primary border-primary/40 hover:bg-primary/10"
                   onClick={() => {
-                    const url = `${typeof window !== "undefined" ? window.location.origin : "http://10.0.1.243"}/operaciones/modulo_de_operaciones_migrado/v2/api/events.ashx?format=powerbi`;
+                    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/api/operaciones/events?format=powerbi`;
                     navigator.clipboard.writeText(url);
                     showToast("URL de API JSON copiada al portapapeles.", "success");
                   }}
@@ -4483,8 +4483,8 @@ export function EventsDashboardModule() {
               </div>
               <div className="rounded-lg bg-background p-2 font-mono text-[11px] text-primary break-all border border-border/60 select-all">
                 {typeof window !== "undefined"
-                  ? `${window.location.origin}/operaciones/modulo_de_operaciones_migrado/v2/api/events.ashx?format=powerbi`
-                  : "http://10.0.1.243/operaciones/modulo_de_operaciones_migrado/v2/api/events.ashx?format=powerbi"}
+                  ? `${window.location.origin}/api/operaciones/events?format=powerbi`
+                  : "/api/operaciones/events?format=powerbi"}
               </div>
               <p className="text-[11px] text-muted-foreground">
                 Devuelve las 13 columnas normalizadas (ID, Fecha, Causa, Proveedor, Lugar, Personal, Motivo, Horas, Duración, Reporte, Estado, etc.).
@@ -4500,7 +4500,7 @@ export function EventsDashboardModule() {
                   variant="outline"
                   className="h-7 text-xs font-bold gap-1 text-muted-foreground hover:bg-muted"
                   onClick={() => {
-                    const url = `${typeof window !== "undefined" ? window.location.origin : "http://10.0.1.243"}/operaciones/modulo_de_operaciones_migrado/v2/api/events.ashx?format=csv`;
+                    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/api/operaciones/events?format=csv`;
                     navigator.clipboard.writeText(url);
                     showToast("URL de API CSV copiada al portapapeles.", "success");
                   }}
@@ -4511,8 +4511,8 @@ export function EventsDashboardModule() {
               </div>
               <div className="rounded-lg bg-background p-2 font-mono text-[11px] text-muted-foreground break-all border border-border/60 select-all">
                 {typeof window !== "undefined"
-                  ? `${window.location.origin}/operaciones/modulo_de_operaciones_migrado/v2/api/events.ashx?format=csv`
-                  : "http://10.0.1.243/operaciones/modulo_de_operaciones_migrado/v2/api/events.ashx?format=csv"}
+                  ? `${window.location.origin}/api/operaciones/events?format=csv`
+                  : "/api/operaciones/events?format=csv"}
               </div>
             </div>
 

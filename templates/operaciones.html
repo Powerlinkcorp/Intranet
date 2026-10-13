@@ -16,13 +16,13 @@
 
     <style>
         :root {
-            --fondo-principal: #ffffff;
-            --texto-negro: #1A1A1A;
+            --fondo-principal: #09090b;
+            --texto-negro: #ffffff;
         }
 
         body {
-            background-color: #f8fafc;
-            color: var(--texto-negro);
+            background-color: #09090b;
+            color: #ffffff;
             margin: 0;
             padding: 0;
             font-family: 'Outfit', 'Segoe UI', sans-serif;
@@ -32,15 +32,16 @@
         .react-container {
             width: 100%;
             height: auto;
-            min-height: calc(100vh - 60px);
-            padding: 20px;
+            min-height: 100vh;
+            padding: 0;
         }
         
         /* Ajustar el content-wrapper para la sidebar */
         .content-wrapper {
             transition: margin-left 0.3s ease;
-            margin-left: 250px;
+            margin-left: 260px;
             min-height: 100vh;
+            background-color: transparent;
         }
         
         .sidebar.collapsed ~ .content-wrapper {
@@ -72,7 +73,6 @@
     
     <!-- Add window hash listener to change tabs from sidebar -->
     <script>
-        // Make sure sidebar state restores correctly
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
             const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
@@ -80,13 +80,14 @@
                 sidebar.classList.add('collapsed');
             }
             
-            // Listen for clicks on the sidebar menu items to navigate the React Tabs
             const navLinks = document.querySelectorAll('#submenu-operaciones a');
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
-                    const text = link.innerText.toLowerCase();
-                    // Optional: You could communicate with React here via custom events
-                    // if you implement React Router with hash history
+                    const href = link.getAttribute('href');
+                    if (href && href.includes('#')) {
+                        const hash = href.split('#')[1];
+                        window.location.hash = hash;
+                    }
                 });
             });
         });
