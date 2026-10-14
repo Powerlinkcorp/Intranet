@@ -1248,11 +1248,13 @@ export function EventsDashboardModule() {
       fields: [],
     };
 
+    const isActividad = formCausa === "Actividad" || currentTemplate.title?.toUpperCase().includes("ACTIVIDAD");
+
     let text = `${currentTemplate.icon} *${currentTemplate.title}*\n`;
-    text += `📅 *Fecha:* ${formDate}\n`;
-    text += `⏱️ *Hora Inicio / Detección:* ${formHoraReporte}\n`;
+    text += isActividad ? `*Fecha:* ${formDate}\n` : `📅 *Fecha:* ${formDate}\n`;
+    text += isActividad ? `*Hora Inicio / Detección:* ${formHoraReporte}\n` : `⏱️ *Hora Inicio / Detección:* ${formHoraReporte}\n`;
     if (formLugar && formLugar.trim()) {
-      text += `📍 *Ubicación / Hub:* ${formLugar.trim()}\n`;
+      text += isActividad ? `*Ubicación / Hub:* ${formLugar.trim()}\n` : `📍 *Ubicación / Hub:* ${formLugar.trim()}\n`;
     }
 
     // Campos especializados activos que tengan valor
@@ -1260,26 +1262,32 @@ export function EventsDashboardModule() {
       if (!field.enabled) return;
       const val = formFieldValues[field.id];
       if (val && val.trim() && val !== "No aplica") {
-        text += `${field.icon || "🔹"} *${field.label}:* ${val.trim()}\n`;
+        text += isActividad
+          ? `*${field.label}:* ${val.trim()}\n`
+          : `${field.icon || "🔹"} *${field.label}:* ${val.trim()}\n`;
       }
     });
 
     if (formMotivo && formMotivo.trim()) {
-      text += `📝 *Motivo:* ${formMotivo.trim()}\n`;
+      text += isActividad ? `*Motivo:* ${formMotivo.trim()}\n` : `📝 *Motivo:* ${formMotivo.trim()}\n`;
     }
     if (formPersonal && formPersonal.trim()) {
-      text += `👤 *Personal Responsable:* ${formPersonal.trim()}\n`;
+      text += isActividad ? `*Personal Responsable:* ${formPersonal.trim()}\n` : `👤 *Personal Responsable:* ${formPersonal.trim()}\n`;
     }
 
     // Campos dinámicos adicionales añadidos al vuelo
     customFieldsList.forEach((cf) => {
       if (cf.value && cf.value.trim()) {
-        text += `${cf.icon || "📌"} *${cf.label}:* ${cf.value.trim()}\n`;
+        text += isActividad
+          ? `*${cf.label}:* ${cf.value.trim()}\n`
+          : `${cf.icon || "📌"} *${cf.label}:* ${cf.value.trim()}\n`;
       }
     });
 
     if (formReporte && formReporte.trim()) {
-      text += `\n📋 *Diagnóstico / Detalle:*\n${formReporte.trim()}`;
+      text += isActividad
+        ? `\n*Diagnóstico / Detalle:*\n${formReporte.trim()}`
+        : `\n📋 *Diagnóstico / Detalle:*\n${formReporte.trim()}`;
     }
 
     return text;
@@ -1378,6 +1386,20 @@ export function EventsDashboardModule() {
     accion: string,
     causaR: string
   ) => {
+    const isAct = evt.causa === "Actividad" || evt.motivo?.toLowerCase().includes("actividad");
+    if (isAct) {
+      let msg = `🟢 *REPORTE DE ACTIVIDAD FINALIZADA*\n`;
+      msg += `*Ticket:* ${evt.id}\n`;
+      msg += `*Fecha:* ${evt.date || evt.dateRaw}\n`;
+      msg += `*Ubicación / Hub:* ${evt.lugar}\n`;
+      msg += `*Actividad:* ${evt.motivo}\n`;
+      msg += `*Horario:* ${evt.horaReporte || "—"} → ${solucionHora}\n`;
+      msg += `*Duración Total:* ${duracionTexto}\n`;
+      msg += `*Personal Responsable:* ${evt.personal || "Operaciones"}\n`;
+      msg += `\n*Acción Realizada / Conclusión:*\n${accion.trim() || "Actividad finalizada con éxito y servicio verificado operando normalmente."}`;
+      return msg;
+    }
+
     let msg = `🟢 *REPORTE DE INCIDENCIA SOLVENTADA*\n`;
     msg += `🆔 *Ticket:* ${evt.id}\n`;
     msg += `📅 *Fecha:* ${evt.date || evt.dateRaw}\n`;
@@ -1401,6 +1423,21 @@ export function EventsDashboardModule() {
     accionCurso: string,
     etaVal: string
   ) => {
+    const isAct = evt.causa === "Actividad" || evt.motivo?.toLowerCase().includes("actividad");
+    if (isAct) {
+      let msg = `📋 *SEGUIMIENTO DE ACTIVIDAD PROGRAMADA*\n`;
+      msg += `*Ticket:* ${evt.id}\n`;
+      msg += `*Ubicación / Hub:* ${evt.lugar}\n`;
+      msg += `*Actividad:* ${evt.motivo}\n`;
+      msg += `*Tiempo en Curso:* ${computeActiveTime(evt.horaReporte)}\n`;
+      msg += `*Hora Actualización:* ${actHora}\n`;
+      msg += `*Informó:* ${autor}\n`;
+      if (accionCurso && accionCurso.trim()) msg += `*Acción en Curso:* ${accionCurso.trim()}\n`;
+      if (etaVal && etaVal.trim()) msg += `*ETA Fin Estimado:* ${etaVal.trim()}\n`;
+      msg += `\n*Avance Reportado:*\n${nota.trim() || "[Detalle técnico del avance...]"}`;
+      return msg;
+    }
+
     let msg = `📢 *NOVEDAD / SEGUIMIENTO DE INCIDENCIA*\n`;
     msg += `🆔 *Ticket:* ${evt.id}\n`;
     msg += `📍 *Ubicación / Hub:* ${evt.lugar}\n`;
@@ -1612,10 +1649,134 @@ export function EventsDashboardModule() {
     showToast(`Archivo Excel exportado con éxito: ${fileName}`, "success");
   };
 
-  // --- Copiar Reporte WhatsApp al Portapapeles ---
-  const handleCopyWhatsApp = (text: string) => {
-    navigator.clipboard.writeText(text);
-    showToast("✅ Reporte copiado al portapapeles con formato WhatsApp.", "success");
+  // --- Helper ultra robusto para copiar al portapapeles (compatible con HTTP, HTTPS, localhost, IPs locales e iframes) ---
+  const copyTextToClipboard = async (text: string): Promise<boolean> => {
+    if (!text || !text.trim()) return false;
+    const content = text.trim();
+
+    // 1. Intento API moderna (disponible en localhost y HTTPS)
+    if (typeof navigator !== "undefined" && navigator?.clipboard && typeof navigator.clipboard.writeText === "function") {
+      try {
+        await navigator.clipboard.writeText(content);
+        return true;
+      } catch (err) {
+        console.warn("navigator.clipboard.writeText falló o fue denegado, intentando fallback execCommand:", err);
+      }
+    }
+
+    // 2. Fallback universal con textarea invisible (funciona 100% en HTTP, IPs locales, redes de oficina e iframes)
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = content;
+      textArea.style.position = "fixed";
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.width = "2em";
+      textArea.style.height = "2em";
+      textArea.style.padding = "0";
+      textArea.style.border = "none";
+      textArea.style.outline = "none";
+      textArea.style.boxShadow = "none";
+      textArea.style.background = "transparent";
+      textArea.style.opacity = "0";
+      textArea.setAttribute("readonly", "");
+
+      document.body.appendChild(textArea);
+      textArea.focus({ preventScroll: true });
+      textArea.select();
+      textArea.setSelectionRange(0, content.length);
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+      if (successful) return true;
+    } catch (err) {
+      console.error("document.execCommand('copy') fallback falló:", err);
+    }
+
+    return false;
+  };
+
+  const [copiedButtonId, setCopiedButtonId] = useState<string | null>(null);
+
+  // --- Copiar Reporte WhatsApp al Portapapeles con Feedback Visual ---
+  const handleCopyWhatsApp = async (text: string, buttonId?: string) => {
+    const cleanText = (text || "").trim();
+    if (!cleanText) {
+      showToast("⚠️ El contenido del reporte está vacío.", "info");
+      return;
+    }
+
+    const success = await copyTextToClipboard(cleanText);
+    if (success) {
+      if (buttonId) {
+        setCopiedButtonId(buttonId);
+        setTimeout(() => {
+          setCopiedButtonId((curr) => (curr === buttonId ? null : curr));
+        }, 2500);
+      }
+      showToast("✅ Reporte copiado al portapapeles con formato WhatsApp.", "success");
+    } else {
+      showToast("⚠️ No se pudo copiar automáticamente. Puedes seleccionar el texto y presionar Ctrl+C.", "error");
+    }
+  };
+
+  // Helper para armar el texto WhatsApp de solo las actualizaciones / novedades
+  const buildUpdatesOnlyWhatsApp = (evt: NetworkEvent): string => {
+    if (!evt.updates || evt.updates.length === 0) {
+      return `📢 *SIN ACTUALIZACIONES AÚN*\n*Ticket:* ${evt.id}\n*Lugar:* ${evt.lugar}\nNo se han registrado novedades de seguimiento en esta tarea todavía.`;
+    }
+
+    const isActividad = evt.causa === "Actividad" || evt.motivo?.toLowerCase().includes("actividad");
+    const headerIcon = isActividad ? "📋" : "📢";
+    const headerTitle = isActividad ? "ACTUALIZACIONES DE ACTIVIDAD PROGRAMADA" : "ACTUALIZACIONES DE SEGUIMIENTO";
+
+    let msg = `${headerIcon} *${headerTitle}*\n`;
+    msg += `*Ticket:* ${evt.id}\n`;
+    msg += `*Ubicación / Hub:* ${evt.lugar}\n`;
+    msg += `*Asunto:* ${evt.motivo || evt.causa}\n`;
+    msg += `*Estado:* ${evt.estado === "solventado" ? "Solventado" : "En Curso"}\n\n`;
+
+    msg += `*Avances y Novedades (${evt.updates.length} registrada${evt.updates.length > 1 ? "s" : ""}):*\n`;
+    msg += evt.updates
+      .map((upd) => `🔹 *[${upd.hora}] ${upd.autor}:*\n${upd.mensaje}`)
+      .join("\n\n");
+
+    return msg;
+  };
+
+  // Helper para obtener el reporte completo formateado de un ticket sin distorsiones
+  const getFullEventReportForCopy = (evt: NetworkEvent): string => {
+    if (evt.reporte && evt.reporte.trim().length > 15) {
+      if (evt.reporte.includes(evt.id) || evt.reporte.includes("*REPORTE")) {
+        return evt.reporte.trim();
+      }
+      return `🆔 *Ticket:* ${evt.id}\n${evt.reporte.trim()}`;
+    }
+
+    const isAct = evt.causa === "Actividad" || evt.motivo?.toLowerCase().includes("actividad");
+    if (isAct) {
+      return [
+        `📋 *REPORTE DE ACTIVIDAD PROGRAMADA*`,
+        `*Ticket:* ${evt.id}`,
+        `*Fecha:* ${evt.date || evt.dateRaw}`,
+        `*Ubicación / Hub:* ${evt.lugar}`,
+        `*Actividad:* ${evt.motivo}`,
+        `*Hora Inicio:* ${evt.horaReporte || "—"}`,
+        `*Personal Responsable:* ${evt.personal}`,
+        `\n*Diagnóstico / Detalle:*\n${evt.reporte || "Sin observaciones adicionales."}`,
+      ].join("\n");
+    }
+
+    return [
+      `🚨 *REPORTE DE INCIDENCIA ACTIVA*`,
+      `🆔 *Ticket:* ${evt.id}`,
+      `📅 *Fecha:* ${evt.date || evt.dateRaw}`,
+      `📍 *Ubicación / Hub:* ${evt.lugar}`,
+      `📋 *Causa:* ${evt.causa} (${evt.motivo})`,
+      `⏱️ *Hora Inicio:* ${evt.horaReporte || "—"}`,
+      `👤 *Personal Responsable:* ${evt.personal}`,
+      `\n📋 *Diagnóstico / Detalle:*\n${evt.reporte || "Sin observaciones adicionales."}`,
+    ].join("\n");
   };
 
   // --- Métricas KPI Dinámicas ---
@@ -2221,36 +2382,82 @@ export function EventsDashboardModule() {
                     {/* Última Actualización de Seguimiento si existe */}
                     {evt.updates && evt.updates.length > 0 && (
                       <div className="mt-2.5 p-2 rounded-lg bg-primary/10 border border-primary/20 text-[11px]">
-                        <span className="font-bold text-primary block mb-0.5">
-                          📢 Última Novedad ({evt.updates[0].hora}):
-                        </span>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-primary flex items-center gap-1">
+                            📢 Última Novedad ({evt.updates[0].hora}):
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 px-1.5 text-[10px] font-bold text-primary hover:bg-primary/20 gap-1"
+                            title="Copiar solo las actualizaciones de este ticket para WhatsApp"
+                            onClick={() => handleCopyWhatsApp(buildUpdatesOnlyWhatsApp(evt), `card-upd-mini-${evt.id}`)}
+                          >
+                            {copiedButtonId === `card-upd-mini-${evt.id}` ? (
+                              <>
+                                <Check className="h-3 w-3 text-emerald-400" />
+                                <span className="text-emerald-400 font-bold">¡Copiado!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-3 w-3" />
+                                <span>Copiar Novedad</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
                         <span className="text-foreground/90">{evt.updates[0].mensaje}</span>
                       </div>
                     )}
 
                     {/* Botones de Acción del Ticket */}
                     <div className="mt-4 pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <Button
                           variant="outline"
                           size="sm"
                           className="h-8 text-xs font-bold gap-1 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/10"
                           onClick={() => {
-                            const aperturaText = [
-                              `🚨 *INCIDENCIA ACTIVA*`,
-                              `🆔 *Ticket:* ${evt.id}`,
-                              `📍 *Lugar:* ${evt.lugar}`,
-                              `📝 *Motivo:* ${evt.motivo}`,
-                              `⏱️ *Hora Inicio:* ${evt.horaReporte}`,
-                              `👤 *Responsable:* ${evt.personal}`,
-                              `\n📋 *Detalle:*\n${evt.reporte}`,
-                            ].join("\n");
-                            handleCopyWhatsApp(aperturaText);
+                            const repText = getFullEventReportForCopy(evt);
+                            handleCopyWhatsApp(repText, `card-rep-${evt.id}`);
                           }}
+                          title="Copiar reporte principal de esta tarea / incidencia"
                         >
-                          <Copy className="h-3.5 w-3.5" />
-                          <span>Copiar Reporte</span>
+                          {copiedButtonId === `card-rep-${evt.id}` ? (
+                            <>
+                              <Check className="h-3.5 w-3.5 text-emerald-400" />
+                              <span className="text-emerald-400 font-bold">¡Reporte Copiado!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5" />
+                              <span>Copiar Reporte</span>
+                            </>
+                          )}
                         </Button>
+
+                        {evt.updates && evt.updates.length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs font-bold gap-1 text-primary border-primary/40 hover:bg-primary/10 shadow-sm"
+                            onClick={() => handleCopyWhatsApp(buildUpdatesOnlyWhatsApp(evt), `card-upd-${evt.id}`)}
+                            title="Copiar solo las actualizaciones y bitácora agregadas a esta tarea"
+                          >
+                            {copiedButtonId === `card-upd-${evt.id}` ? (
+                              <>
+                                <Check className="h-3.5 w-3.5 text-emerald-400" />
+                                <span className="text-emerald-400 font-bold">¡Actualizaciones Copiadas!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-3.5 w-3.5" />
+                                <span>Copiar Actualizaciones ({evt.updates.length})</span>
+                              </>
+                            )}
+                          </Button>
+                        )}
 
                         <Button
                           variant="ghost"
@@ -2258,16 +2465,8 @@ export function EventsDashboardModule() {
                           title="Abrir en WhatsApp Web"
                           className="h-8 px-2 text-xs font-bold text-emerald-400 hover:bg-emerald-500/15"
                           onClick={() => {
-                            const aperturaText = [
-                              `🚨 *INCIDENCIA ACTIVA*`,
-                              `🆔 *Ticket:* ${evt.id}`,
-                              `📍 *Lugar:* ${evt.lugar}`,
-                              `📝 *Motivo:* ${evt.motivo}`,
-                              `⏱️ *Hora Inicio:* ${evt.horaReporte}`,
-                              `👤 *Responsable:* ${evt.personal}`,
-                              `\n📋 *Detalle:*\n${evt.reporte}`,
-                            ].join("\n");
-                            openWhatsAppWebShare(aperturaText);
+                            const repText = getFullEventReportForCopy(evt);
+                            openWhatsAppWebShare(repText);
                           }}
                         >
                           <Send className="h-3.5 w-3.5" />
@@ -2280,7 +2479,7 @@ export function EventsDashboardModule() {
                           onClick={() => openUpdateModal(evt)}
                         >
                           <MessageSquare className="h-3.5 w-3.5" />
-                          <span>Novedad</span>
+                          <span>+ Novedad</span>
                         </Button>
                       </div>
 
@@ -3686,10 +3885,19 @@ export function EventsDashboardModule() {
                 type="button"
                 variant="outline"
                 className="border-emerald-500/50 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 font-bold gap-2 px-4 shadow-sm"
-                onClick={() => handleCopyWhatsApp(customReportText)}
+                onClick={() => handleCopyWhatsApp(customReportText || generatedWhatsAppApertura, "new-modal-copy")}
               >
-                <Copy className="h-4 w-4" />
-                <span>Copiar Reporte</span>
+                {copiedButtonId === "new-modal-copy" ? (
+                  <>
+                    <Check className="h-4 w-4 text-emerald-400" />
+                    <span className="text-emerald-400 font-bold">¡Reporte Copiado!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    <span>Copiar Reporte</span>
+                  </>
+                )}
               </Button>
 
               <div className="flex items-center gap-2">
@@ -4045,10 +4253,19 @@ export function EventsDashboardModule() {
                         size="sm"
                         variant="ghost"
                         className="h-6 text-[11px] font-bold text-emerald-400 hover:bg-emerald-500/20"
-                        onClick={() => handleCopyWhatsApp(closeReportText)}
+                        onClick={() => handleCopyWhatsApp(closeReportText, "modal-close-copy")}
                       >
-                        <Copy className="h-3 w-3 mr-1" />
-                        Copiar
+                        {copiedButtonId === "modal-close-copy" ? (
+                          <>
+                            <Check className="h-3 w-3 mr-1 text-emerald-400" />
+                            <span className="text-emerald-400">¡Copiado!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3 w-3 mr-1" />
+                            <span>Copiar</span>
+                          </>
+                        )}
                       </Button>
                       <Button
                         type="button"
@@ -4192,10 +4409,19 @@ export function EventsDashboardModule() {
                       size="sm"
                       variant="ghost"
                       className="h-6 text-[11px] font-bold text-primary hover:bg-primary/20"
-                      onClick={() => handleCopyWhatsApp(updateReportText)}
+                      onClick={() => handleCopyWhatsApp(updateReportText, "modal-update-copy")}
                     >
-                      <Copy className="h-3 w-3 mr-1" />
-                      Copiar
+                      {copiedButtonId === "modal-update-copy" ? (
+                        <>
+                          <Check className="h-3 w-3 mr-1 text-emerald-400" />
+                          <span className="text-emerald-400">¡Copiado!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3 mr-1" />
+                          <span>Copiar</span>
+                        </>
+                      )}
                     </Button>
                     <Button
                       type="button"
@@ -4313,9 +4539,31 @@ export function EventsDashboardModule() {
                 {/* Historial de Novedades de Seguimiento */}
                 {selectedEvent.updates && selectedEvent.updates.length > 0 && (
                   <div>
-                    <span className="text-primary font-bold block mb-1.5">
-                      Bitácora de Seguimiento ({selectedEvent.updates.length} novedades):
-                    </span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-primary font-bold">
+                        Bitácora de Seguimiento ({selectedEvent.updates.length} novedades):
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 text-[11px] font-bold text-primary border-primary/40 hover:bg-primary/20 gap-1"
+                        onClick={() => handleCopyWhatsApp(buildUpdatesOnlyWhatsApp(selectedEvent), `detail-upds-${selectedEvent.id}`)}
+                        title="Copiar solo las actualizaciones y bitácora de esta tarea para WhatsApp"
+                      >
+                        {copiedButtonId === `detail-upds-${selectedEvent.id}` ? (
+                          <>
+                            <Check className="h-3 w-3 text-emerald-400" />
+                            <span className="text-emerald-400 font-bold">¡Actualizaciones Copiadas!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3 w-3" />
+                            <span>Copiar Solo Actualizaciones</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {selectedEvent.updates.map((upd) => (
                         <div key={upd.id} className="p-2.5 rounded-xl bg-muted/40 border border-border/80 text-[11px]">
@@ -4332,28 +4580,52 @@ export function EventsDashboardModule() {
               </div>
 
               <DialogFooter className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs font-bold gap-1 text-emerald-400 border-emerald-500/40"
+                    className="text-xs font-bold gap-1 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/10"
                     onClick={() => {
-                      const text = [
-                        `📋 *REPORTE DE INCIDENCIA*`,
-                        `🆔 *Ticket:* ${selectedEvent.id}`,
-                        `📍 *Lugar:* ${selectedEvent.lugar}`,
-                        `📝 *Causa:* ${selectedEvent.causa} (${selectedEvent.motivo})`,
-                        `⏱️ *Horario:* ${selectedEvent.horaReporte || "—"} → ${selectedEvent.horaSolucion || "En curso"}`,
-                        `👤 *Personal:* ${selectedEvent.personal}`,
-                        `\n📋 *Detalle:*\n${selectedEvent.reporte}`,
-                        selectedEvent.accionTomada ? `\n✅ *Solución:*\n${selectedEvent.accionTomada}` : "",
-                      ].filter(Boolean).join("\n");
-                      handleCopyWhatsApp(text);
+                      const text = getFullEventReportForCopy(selectedEvent);
+                      handleCopyWhatsApp(text, `detail-report-${selectedEvent.id}`);
                     }}
                   >
-                    <Copy className="h-3.5 w-3.5" />
-                    <span>Copiar WhatsApp</span>
+                    {copiedButtonId === `detail-report-${selectedEvent.id}` ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <span className="text-emerald-400 font-bold">¡Reporte Copiado!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5" />
+                        <span>Copiar Reporte Completo</span>
+                      </>
+                    )}
                   </Button>
+
+                  {selectedEvent.updates && selectedEvent.updates.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs font-bold gap-1 text-primary border-primary/40 hover:bg-primary/10"
+                      onClick={() => {
+                        handleCopyWhatsApp(buildUpdatesOnlyWhatsApp(selectedEvent), `detail-footer-upd-${selectedEvent.id}`);
+                      }}
+                      title="Copiar solo las actualizaciones registradas"
+                    >
+                      {copiedButtonId === `detail-footer-upd-${selectedEvent.id}` ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-emerald-400" />
+                          <span className="text-emerald-400 font-bold">¡Actualizaciones Copiadas!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" />
+                          <span>Copiar Actualizaciones ({selectedEvent.updates.length})</span>
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
