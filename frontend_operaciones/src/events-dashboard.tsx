@@ -1206,10 +1206,10 @@ export function EventsDashboardModule() {
     try {
       localStorage.setItem(STORAGE_EVENTS_KEY, JSON.stringify(updated));
     } catch (e) {
-      console.warn("Error guardando eventos:", e);
+      console.warn("Error guardando eventos en localStorage:", e);
     }
 
-    // Sincronizar en tiempo real con la API del servidor IIS para alimentar Power BI
+    // Sincronización masiva de respaldo
     try {
       await fetch(API_EVENTS_URL, {
         method: "POST",
@@ -1218,6 +1218,77 @@ export function EventsDashboardModule() {
       });
     } catch (e) {
       console.warn("Error sincronizando eventos con el servidor API:", e);
+    }
+  };
+
+  // --- Endpoints individuales (CRUD granular para evitar sobreescritura concurrente) ---
+  const apiCreateEvent = async (event: NetworkEvent) => {
+    try {
+      const payload = {
+        id: event.id,
+        date: event.date || event.dateRaw || new Date().toISOString(),
+        causa: event.causa,
+        lugar: event.lugar,
+        personal: event.personal,
+        motivo: event.motivo,
+        proveedor: event.proveedor || "",
+        horaReporte: event.horaReporte || "",
+        horaSolucion: event.horaSolucion || "",
+        duracionMinutos: event.duracionMinutos || 0,
+        reporte: event.reporte,
+        estado: event.estado || "abierto",
+        customFields: event.customFields || {},
+        accionTomada: event.accionTomada || "",
+        causaRaiz: event.causaRaiz || "",
+        clientesAfectados: event.clientesAfectados || "",
+      };
+      await fetch(`${API_EVENTS_URL}/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (e) {
+      console.warn("Error creando evento individual en API:", e);
+    }
+  };
+
+  const apiCloseEvent = async (
+    eventId: string,
+    data: { horaSolucion: string; duracionMinutos: number; accionTomada: string; causaRaiz: string; reporte?: string }
+  ) => {
+    try {
+      await fetch(`${API_EVENTS_URL}/${encodeURIComponent(eventId)}/close`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    } catch (e) {
+      console.warn("Error cerrando evento en API:", e);
+    }
+  };
+
+  const apiAddEventUpdate = async (
+    eventId: string,
+    data: { id: string; timestamp: string; hora: string; autor: string; mensaje: string; new_status?: string }
+  ) => {
+    try {
+      await fetch(`${API_EVENTS_URL}/${encodeURIComponent(eventId)}/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    } catch (e) {
+      console.warn("Error registrando actualización en API:", e);
+    }
+  };
+
+  const apiDeleteEvent = async (eventId: string) => {
+    try {
+      await fetch(`${API_EVENTS_URL}/${encodeURIComponent(eventId)}`, {
+        method: "DELETE",
+      });
+    } catch (e) {
+      console.warn("Error eliminando evento en API:", e);
     }
   };
 
@@ -1366,7 +1437,13 @@ export function EventsDashboardModule() {
     };
 
     const updated = [newEvt, ...events];
-    saveEvents(updated);
+    setEvents(updated);
+    try {
+      localStorage.setItem(STORAGE_EVENTS_KEY, JSON.stringify(updated));
+    } catch (err) {
+      console.warn("Error guardando en localStorage:", err);
+    }
+    apiCreateEvent(newEvt);
 
     // Si se abrió en curso, cambiar a la pestaña seguidor
     if (formEstadoInicio === "abierto") {
@@ -1497,7 +1574,19 @@ export function EventsDashboardModule() {
       return ev;
     });
 
-    saveEvents(updatedEvents);
+    setEvents(updatedEvents);
+    try {
+      localStorage.setItem(STORAGE_EVENTS_KEY, JSON.stringify(updatedEvents));
+    } catch (err) {
+      console.warn("Error guardando en localStorage:", err);
+    }
+    apiCloseEvent(eventToClose.id, {
+      horaSolucion: closeHoraSolucion,
+      duracionMinutos: dur.minutes || getEventDurationMinutes(eventToClose),
+      accionTomada: closeAccionTomada.trim(),
+      causaRaiz: closeCausaRaiz.trim(),
+      reporte: closeReportText || eventToClose.reporte,
+    });
     setIsClosingModalOpen(false);
     setEventToClose(null);
     showToast(`🟢 Incidencia ${eventToClose.id} marcada como FINALIZADA.`, "success");
@@ -1508,7 +1597,13 @@ export function EventsDashboardModule() {
       return;
     }
     const updated = events.filter((ev) => ev.id !== eventId);
-    saveEvents(updated);
+    setEvents(updated);
+    try {
+      localStorage.setItem(STORAGE_EVENTS_KEY, JSON.stringify(updated));
+    } catch (err) {
+      console.warn("Error guardando en localStorage:", err);
+    }
+    apiDeleteEvent(eventId);
     showToast("Incidencia eliminada con éxito.", "info");
   };
 
@@ -1551,7 +1646,20 @@ export function EventsDashboardModule() {
       return ev;
     });
 
-    saveEvents(updatedEvents);
+    setEvents(updatedEvents);
+    try {
+      localStorage.setItem(STORAGE_EVENTS_KEY, JSON.stringify(updatedEvents));
+    } catch (err) {
+      console.warn("Error guardando en localStorage:", err);
+    }
+    apiAddEventUpdate(eventToUpdate.id, {
+      id: newUpdate.id,
+      timestamp: newUpdate.timestamp,
+      hora: newUpdate.hora,
+      autor: newUpdate.autor,
+      mensaje: newUpdate.mensaje,
+      new_status: "en_seguimiento",
+    });
     setIsUpdateModalOpen(false);
     setEventToUpdate(null);
     showToast(`📝 Seguimiento añadido al ticket ${eventToUpdate.id}.`, "info");
