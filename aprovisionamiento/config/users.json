@@ -1,0 +1,20 @@
+{
+  "users": {
+    "admin": {
+      "password_hash": "31d390c57ba41bb196323558ddd1830af46e393187428c7881ed52b0048b1323",
+      "salt": "4074dc1adf87a17727708e938b9d6774",
+      "role": "admin",
+      "created_at": "2026-09-04 15:25:06"
+    },
+    "laura": {
+      "password_hash": "dd4f0b1ce13dfbcfa14d1237dec57a96246ed4f4f4f58bd710afd7bbe5b0645f",
+      "salt": "276e9765972be9c585f19b830bb18feb",
+      "role": "aprovisionador",
+      "created_at": "2026-09-04 15:41:25"
+    }
+  },
+  "ip_whitelist": [
+    "10.0.0.0/22",
+    "192.169.0.0/22"
+  ]
+}

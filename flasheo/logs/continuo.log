@@ -1,0 +1,802 @@
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: PRUEBA1
+  Firmware : V2801D-B_all_V6.1.4-260805_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 20 ONU(s) simultaneas
+
+ Modo CONTINUO: 20 ONU(s) vigiladas.
+
+ Modo CONTINUO: monitoreando 20 puerto(s) de forma independiente.
+ Se configurara automaticamente cada ONU nueva que se conecte. Ctrl+C para salir.
+ MikroTik: 1 puerto(s) fisico(s) con ONU: [1]
+
+========================================
+[P1]  ONU en 10.100.1.1  (Puerto: 1)
+[P1] ========================================
+[17:18:34] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 10.100.1.1
+[P1] ========================================
+[P1]  Esperando ONU 10.100.1.1 ... 0s
+[17:18:38] [P1] OK   ONU respondiendo en 10.100.1.1
+[17:18:38] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[17:19:28] [P1]  ONU estable (45s continuos en linea).
+[17:19:29] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[17:19:32] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[17:19:35] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato ...
+[17:19:52] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default ...
+[17:19:54] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato ...
+[17:19:57] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato ...
+[17:19:58] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[17:20:58] [P1]  Reintentando candidato tras cooldown ...
+[17:20:59] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato-retry ...
+[17:22:01] [P1]  Reintentando candidato tras cooldown ...
+[17:22:02] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato-retry ...
+[17:22:05] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia ...
+[17:22:06] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[17:23:06] [P1]  Reintentando intermedia tras cooldown ...
+[17:23:07] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia-retry ...
+[17:24:08] [P1]  Reintentando intermedia tras cooldown ...
+[17:24:10] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia-retry ...
+[17:24:11] [P1] FAIL Error procesando 10.100.1.1: No se pudo autenticar (ningun juego de credenciales funciono)
+[17:24:11] [P1]  Captura guardada: C:\Users\bcarrero\Documents\Estacion de flasheo\capturas\20260921_172411_fin_proceso.png
+[P1] ========================================
+[P1]  RESULTADO [1 10.100.1.1]: ERROR  | VLAN3: NO
+[P1] ========================================
+
+========================================
+[P1]  ONU en 10.100.1.1  (Puerto: 1)
+[P1] ========================================
+[17:24:24] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 10.100.1.1
+[P1] ========================================
+[P1]  Esperando ONU 10.100.1.1 ... 0s
+[17:24:29] [P1] OK   ONU respondiendo en 10.100.1.1
+[17:24:29] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[17:25:19] [P1]  ONU estable (45s continuos en linea).
+[17:25:20] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[17:25:21] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[17:26:21] [P1]  Reintentando final tras cooldown ...
+[17:26:23] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final-retry ...
+[17:27:24] [P1]  Reintentando final tras cooldown ...
+[17:27:25] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final-retry ...
+[17:27:28] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[17:27:29] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[17:28:29] [P1]  Reintentando candidato tras cooldown ...
+[17:28:30] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[17:29:32] [P1]  Reintentando candidato tras cooldown ...
+[17:29:33] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[17:29:36] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato ...
+[P1]  Esperando ONU 10.100.1.1 ... 4s
+[P1]  Esperando ONU 10.100.1.1 ... 10s
+[P1]  Esperando ONU 10.100.1.1 ... 16s
+[P1]  Esperando ONU 10.100.1.1 ... 22s
+[P1]  Esperando ONU 10.100.1.1 ... 36s
+[P1]  Esperando ONU 10.100.1.1 ... 42s
+[P1]  Esperando ONU 10.100.1.1 ... 48s
+[P1]  Esperando ONU 10.100.1.1 ... 54s
+[P1]  Esperando ONU 10.100.1.1 ... 60s
+
+[17:31:54] [P1] FAIL Error procesando 10.100.1.1: Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigating to "http://10.100.1.1/", waiting until "load"
+
+[17:32:06] [P1]  Captura guardada: C:\Users\bcarrero\Documents\Estacion de flasheo\capturas\20260921_173154_fin_proceso.png
+[P1] ========================================
+[P1]  RESULTADO [1 10.100.1.1]: ERROR  | VLAN3: NO
+[P1] ========================================
+
+
+
+
+
+
+[17:35:21] OK  Modo continuo detenido por el usuario.
+[17:35:21] OK  Modo continuo finalizado.
+node:events:487
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at PipeTransport.send (C:\Users\bcarrero\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:34569:25)
+    at dispatcherConnection.onmessage (C:\Users\bcarrero\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:69266:59)
+    at DispatcherConnection.sendEvent (C:\Users\bcarrero\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:18641:14)
+    at BrowserDispatcher._dispatchEvent (C:\Users\bcarrero\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:18565:25)
+    at BrowserDispatcher._didClose (C:\Users\bcarrero\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:55063:14)
+    at _CRBrowser.<anonymous> (C:\Users\bcarrero\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\driver\package\lib\coreBundle.js:55055:74)
+Emitted 'error' event on Socket instance at:
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+
+Node.js v24.18.1
+
+[2026-09-21 18:41:29] Iniciando flasheo (continuo) modelo=V2801S-B paralelo=20 ip=None
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: PRUEBA1
+  Firmware : V2801D-B_all_V6.1.4-260805_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 20 ONU(s) simultaneas
+
+ Modo CONTINUO: 20 ONU(s) vigiladas.
+
+ Modo CONTINUO: monitoreando 20 puerto(s) de forma independiente.
+ Se configurara automaticamente cada ONU nueva que se conecte. Ctrl+C para salir.
+ MikroTik: 1 puerto(s) fisico(s) con ONU: [1]
+
+[2026-09-21 20:39:36] Iniciando flasheo (continuo) modelo=V2801S-B paralelo=20 ip=None
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: PRUEBA1
+  Firmware : V2801D-B_all_V6.1.4-260805_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 20 ONU(s) simultaneas
+
+ Modo CONTINUO: 20 ONU(s) vigiladas.
+
+ Modo CONTINUO: monitoreando 20 puerto(s) de forma independiente.
+ Se configurara automaticamente cada ONU nueva que se conecte. Ctrl+C para salir.
+ MikroTik sin conexion; modo por defecto (todos los puertos).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[2026-09-21 20:44:47] Iniciando flasheo (continuo) modelo=V2801S-B paralelo=20 ip=None
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: PRUEBA1
+  Firmware : V2801D-B_all_V6.1.4-260805_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 20 ONU(s) simultaneas
+
+ Modo CONTINUO: 20 ONU(s) vigiladas.
+
+ Modo CONTINUO: monitoreando 20 puerto(s) de forma independiente.
+ Se configurara automaticamente cada ONU nueva que se conecte. Ctrl+C para salir.
+ MikroTik: 1 puerto(s) fisico(s) con ONU: [1]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+========================================
+[P1]  ONU en 10.100.1.1  (Puerto: 1)
+[P1] ========================================
+[20:56:40] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 10.100.1.1
+[P1] ========================================
+[P1]  Esperando ONU 10.100.1.1 ... 0s
+[20:56:45] [P1] OK   ONU respondiendo en 10.100.1.1
+[20:56:45] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+
+[2026-09-21 20:57:14] Iniciando flasheo (continuo) modelo=V2801S-B paralelo=20 ip=None
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: PRUEBA1
+  Firmware : V2801D-B_all_V6.1.4-260805_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 20 ONU(s) simultaneas
+
+ Modo CONTINUO: 20 ONU(s) vigiladas.
+
+ Modo CONTINUO: monitoreando 20 puerto(s) de forma independiente.
+ Se configurara automaticamente cada ONU nueva que se conecte. Ctrl+C para salir.
+ MikroTik: 1 puerto(s) fisico(s) con ONU: [1]
+
+========================================
+[P1]  ONU en 10.100.1.1  (Puerto: 1)
+[P1] ========================================
+[20:57:17] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 10.100.1.1
+[P1] ========================================
+[P1]  Esperando ONU 10.100.1.1 ... 0s
+[20:57:22] [P1] OK   ONU respondiendo en 10.100.1.1
+[20:57:22] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[20:58:12] [P1]  ONU estable (45s continuos en linea).
+[20:58:16] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[20:58:19] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[20:58:21] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato ...
+[20:58:23] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:59:23] [P1]  Reintentando candidato tras cooldown ...
+[20:59:24] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[21:00:25] [P1]  Reintentando candidato tras cooldown ...
+[21:00:26] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[21:00:29] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default ...
+[21:00:30] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:01:30] [P1]  Reintentando default tras cooldown ...
+[21:01:31] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default-retry ...
+[21:02:33] [P1]  Reintentando default tras cooldown ...
+[21:02:34] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default-retry ...
+[21:02:37] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato ...
+[21:02:38] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:03:38] [P1]  Reintentando candidato tras cooldown ...
+[21:03:39] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[21:04:40] [P1]  Reintentando candidato tras cooldown ...
+[21:04:42] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[21:04:44] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato ...
+[21:04:45] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:05:45] [P1]  Reintentando candidato tras cooldown ...
+[21:05:47] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato-retry ...
+[21:06:48] [P1]  Reintentando candidato tras cooldown ...
+[21:06:50] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato-retry ...
+[21:06:52] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia ...
+[21:06:53] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:07:53] [P1]  Reintentando intermedia tras cooldown ...
+[21:07:55] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia-retry ...
+[21:08:56] [P1]  Reintentando intermedia tras cooldown ...
+[21:08:57] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia-retry ...
+[21:08:58] [P1] FAIL Error procesando 10.100.1.1: No se pudo autenticar (ningun juego de credenciales funciono)
+[21:08:58] [P1]  Captura guardada: C:\Users\bcarrero\Documents\Estacion de flasheo\capturas\20260921_210858_fin_proceso.png
+[P1] ========================================
+[P1]  RESULTADO [1 10.100.1.1]: ERROR  | VLAN3: NO
+[P1] ========================================
+
+========================================
+[P1]  ONU en 10.100.1.1  (Puerto: 1)
+[P1] ========================================
+[21:09:13] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 10.100.1.1
+[P1] ========================================
+[P1]  Esperando ONU 10.100.1.1 ... 0s
+[21:09:18] [P1] OK   ONU respondiendo en 10.100.1.1
+[21:09:18] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[21:10:07] [P1]  ONU estable (45s continuos en linea).
+[21:10:09] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[21:10:10] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:11:10] [P1]  Reintentando final tras cooldown ...
+[21:11:11] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final-retry ...
+[21:12:13] [P1]  Reintentando final tras cooldown ...
+[21:12:14] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final-retry ...
+[21:12:17] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[21:12:18] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:13:18] [P1]  Reintentando candidato tras cooldown ...
+[21:13:20] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[21:14:21] [P1]  Reintentando candidato tras cooldown ...
+[21:14:23] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[21:14:25] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato ...
+[21:14:27] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:15:27] [P1]  Reintentando candidato tras cooldown ...
+[21:15:28] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[21:16:29] [P1]  Reintentando candidato tras cooldown ...
+[21:16:31] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[21:16:33] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default ...
+[21:16:35] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:17:35] [P1]  Reintentando default tras cooldown ...
+[21:17:36] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default-retry ...
+[21:18:37] [P1]  Reintentando default tras cooldown ...
+[21:18:39] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default-retry ...
+[21:18:41] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato ...
+[21:18:43] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:19:43] [P1]  Reintentando candidato tras cooldown ...
+[21:19:44] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[21:20:45] [P1]  Reintentando candidato tras cooldown ...
+[21:20:47] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[21:20:49] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato ...
+[21:20:51] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:21:51] [P1]  Reintentando candidato tras cooldown ...
+[21:21:52] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato-retry ...
+[21:22:54] [P1]  Reintentando candidato tras cooldown ...
+[21:22:55] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato-retry ...
+[21:22:58] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia ...
+[21:22:59] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:23:59] [P1]  Reintentando intermedia tras cooldown ...
+[21:24:00] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia-retry ...
+[21:25:02] [P1]  Reintentando intermedia tras cooldown ...
+[21:25:03] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia-retry ...
+[21:25:04] [P1] FAIL Error procesando 10.100.1.1: No se pudo autenticar (ningun juego de credenciales funciono)
+[21:25:04] [P1]  Captura guardada: C:\Users\bcarrero\Documents\Estacion de flasheo\capturas\20260921_212504_fin_proceso.png
+[P1] ========================================
+[P1]  RESULTADO [1 10.100.1.1]: ERROR  | VLAN3: NO
+[P1] ========================================
+
+========================================
+[P1]  ONU en 10.100.1.1  (Puerto: 1)
+[P1] ========================================
+[21:25:17] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 10.100.1.1
+[P1] ========================================
+[P1]  Esperando ONU 10.100.1.1 ... 0s
+[21:25:22] [P1] OK   ONU respondiendo en 10.100.1.1
+[21:25:22] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[21:26:12] [P1]  ONU estable (45s continuos en linea).
+[21:26:13] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[21:26:14] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:27:14] [P1]  Reintentando final tras cooldown ...
+[21:27:16] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final-retry ...
+[21:28:17] [P1]  Reintentando final tras cooldown ...
+[21:28:18] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final-retry ...
+[21:28:21] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[21:28:22] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:29:22] [P1]  Reintentando candidato tras cooldown ...
+[21:29:23] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[21:30:24] [P1]  Reintentando candidato tras cooldown ...
+[21:30:26] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[21:30:28] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato ...
+[21:30:29] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:31:29] [P1]  Reintentando candidato tras cooldown ...
+[21:31:31] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[21:32:32] [P1]  Reintentando candidato tras cooldown ...
+[21:32:33] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[21:32:36] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default ...
+[21:32:37] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:33:37] [P1]  Reintentando default tras cooldown ...
+[21:33:38] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default-retry ...
+[21:34:39] [P1]  Reintentando default tras cooldown ...
+[21:34:41] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default-retry ...
+[21:34:43] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato ...
+[21:34:44] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[21:35:45] [P1]  Reintentando candidato tras cooldown ...
+[21:35:46] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[21:36:47] [P1]  Reintentando candidato tras cooldown ...
+[21:36:48] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[21:36:51] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato ...
+[21:36:52] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+
+[2026-09-22 19:54:10] Iniciando flasheo (individual, acción=full) modelo=V2801S-B paralelo=20 ip=192.168.1.1
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: PRUEBA1
+  Firmware : V2801D-B_all_V6.1.4-260914_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 1 ONU(s) simultaneas
+
+
+========================================
+[P1]  ONU en 192.168.1.1  (Puerto: 1)
+[P1] ========================================
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 192.168.1.1
+[P1] ========================================
+[P1]  Esperando ONU 192.168.1.1 ... 2s
+[P1]  Esperando ONU 192.168.1.1 ... 6s
+[P1]  Esperando ONU 192.168.1.1 ... 10s
+[P1]  Esperando ONU 192.168.1.1 ... 14s
+[P1]  Esperando ONU 192.168.1.1 ... 18s
+[P1]  Esperando ONU 192.168.1.1 ... 22s
+[P1]  Esperando ONU 192.168.1.1 ... 26s
+[P1]  Esperando ONU 192.168.1.1 ... 30s
+[P1]  Esperando ONU 192.168.1.1 ... 34s
+[P1]  Esperando ONU 192.168.1.1 ... 38s
+[P1]  Esperando ONU 192.168.1.1 ... 42s
+[P1]  Esperando ONU 192.168.1.1 ... 46s
+[P1]  Esperando ONU 192.168.1.1 ... 50s
+[P1]  Esperando ONU 192.168.1.1 ... 54s
+[P1]  Esperando ONU 192.168.1.1 ... 59s
+[P1]  Esperando ONU 192.168.1.1 ... 63s
+[P1]  Esperando ONU 192.168.1.1 ... 67s
+[P1]  Esperando ONU 192.168.1.1 ... 71s
+[P1]  Esperando ONU 192.168.1.1 ... 75s
+[P1]  Esperando ONU 192.168.1.1 ... 79s
+[P1]  Esperando ONU 192.168.1.1 ... 83s
+[P1]  Esperando ONU 192.168.1.1 ... 87s
+[P1]  Esperando ONU 192.168.1.1 ... 91s
+[P1]  Esperando ONU 192.168.1.1 ... 95s
+[P1]  Esperando ONU 192.168.1.1 ... 99s
+[P1]  Esperando ONU 192.168.1.1 ... 103s
+[P1]  Esperando ONU 192.168.1.1 ... 107s
+[P1]  Esperando ONU 192.168.1.1 ... 111s
+[P1]  Esperando ONU 192.168.1.1 ... 115s
+[P1]  Esperando ONU 192.168.1.1 ... 119s
+[P1]  Esperando ONU 192.168.1.1 ... 124s
+[P1]  Esperando ONU 192.168.1.1 ... 128s
+[P1]  Esperando ONU 192.168.1.1 ... 132s
+[P1]  Esperando ONU 192.168.1.1 ... 136s
+[P1]  Esperando ONU 192.168.1.1 ... 140s
+[P1]  Esperando ONU 192.168.1.1 ... 144s
+[P1]  Esperando ONU 192.168.1.1 ... 148s
+[P1]  Esperando ONU 192.168.1.1 ... 152s
+[P1]  Esperando ONU 192.168.1.1 ... 156s
+[P1]  Esperando ONU 192.168.1.1 ... 160s
+[P1]  Esperando ONU 192.168.1.1 ... 164s
+[P1]  Esperando ONU 192.168.1.1 ... 168s
+[P1]  Esperando ONU 192.168.1.1 ... 172s
+[P1]  Esperando ONU 192.168.1.1 ... 176s
+[P1]  Esperando ONU 192.168.1.1 ... 180s
+[P1]  Esperando ONU 192.168.1.1 ... 184s
+[P1]  Esperando ONU 192.168.1.1 ... 189s
+[P1]  Esperando ONU 192.168.1.1 ... 193s
+[P1]  Esperando ONU 192.168.1.1 ... 197s
+[P1]  Esperando ONU 192.168.1.1 ... 201s
+[P1]  Esperando ONU 192.168.1.1 ... 205s
+[P1]  Esperando ONU 192.168.1.1 ... 209s
+[P1]  Esperando ONU 192.168.1.1 ... 213s
+[P1]  Esperando ONU 192.168.1.1 ... 217s
+[P1]  Esperando ONU 192.168.1.1 ... 221s
+[P1]  Esperando ONU 192.168.1.1 ... 225s
+[P1]  Esperando ONU 192.168.1.1 ... 229s
+[P1]  Esperando ONU 192.168.1.1 ... 233s
+[P1]  Esperando ONU 192.168.1.1 ... 237s
+[P1]  Esperando ONU 192.168.1.1 ... 241s
+[P1]  Esperando ONU 192.168.1.1 ... 245s
+[P1]  Esperando ONU 192.168.1.1 ... 249s
+[P1]  Esperando ONU 192.168.1.1 ... 254s
+[P1]  Esperando ONU 192.168.1.1 ... 258s
+[P1]  Esperando ONU 192.168.1.1 ... 262s
+[P1]  Esperando ONU 192.168.1.1 ... 266s
+[P1]  Esperando ONU 192.168.1.1 ... 270s
+[P1]  Esperando ONU 192.168.1.1 ... 274s
+[P1]  Esperando ONU 192.168.1.1 ... 278s
+[P1]  Esperando ONU 192.168.1.1 ... 282s
+[P1]  Esperando ONU 192.168.1.1 ... 286s
+[P1]  Esperando ONU 192.168.1.1 ... 290s
+[P1]  Esperando ONU 192.168.1.1 ... 294s
+[P1]  Esperando ONU 192.168.1.1 ... 298s
+
+[19:59:14] [P1] FAIL Error procesando 192.168.1.1: ONU sin respuesta HTTP a tiempo
+[19:59:14] [P1]  Captura guardada: C:\Users\bcarrero\Documents\Estacion de flasheo\capturas\20260922_195914_fin_proceso.png
+[P1] ========================================
+[P1]  RESULTADO [1 192.168.1.1]: ERROR  | VLAN3: NO
+[P1] ========================================
+[progreso] 1/1 ONUs procesadas (100%)
+
+============================================================
+  RESUMEN GENERAL
+============================================================
+   Puerto 1     ERROR                VLAN3: NO  - Fallo: ONU sin respuesta HTTP a tiempo
+============================================================
+  LEYENDA
+    YA_CONFIGURADA     : ya tenia firmware final (Powerlink) y VLAN3 OK - no requiere flasheo
+    EXITO              : flasheo completo: firmware subido y VLAN3 verificado
+    EXITO_LOGIN_FINAL : login final OK pero VLAN3 no verificada (revisar)
+    SIN_ONU             : puerto vacio o ONU apagada
+    ERROR               : fallo en algun paso (revisar detalle)
+[19:59:16] OK  Proceso finalizado. Revisa el CSV de registro.
+
+[2026-09-22 20:09:35] Iniciando flasheo (individual, acción=full) modelo=V2801S-B paralelo=20 ip=192.168.1.1
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: SIN ASIGNAR
+  Firmware : V2801D-B_all_V6.1.4-260914_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 1 ONU(s) simultaneas
+
+
+========================================
+[P1]  ONU en 192.168.1.1  (Puerto: 1)
+[P1] ========================================
+[20:09:36] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 192.168.1.1
+[P1] ========================================
+[P1]  Esperando ONU 192.168.1.1 ... 0s
+[20:09:38] [P1] OK   ONU respondiendo en 192.168.1.1
+[20:09:38] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[20:10:28] [P1]  ONU estable (45s continuos en linea).
+[20:10:30] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[20:10:32] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default ...
+[20:10:35] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[20:10:36] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:11:51] [P1]  Reintentando candidato tras cooldown ...
+[20:11:52] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[20:13:09] [P1]  Reintentando candidato tras cooldown ...
+[20:13:10] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[20:13:12] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato ...
+[20:13:14] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+
+[2026-09-22 20:30:56] Iniciando flasheo (individual, acción=verify_vlan) modelo=V2801S-B paralelo=20 ip=192.168.1.1
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: SIN ASIGNAR
+  Firmware : V2801D-B_all_V6.1.4-260914_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 1 ONU(s) simultaneas
+
+
+========================================
+[P1]  ONU en 192.168.1.1  (Puerto: 1)
+[P1] ========================================
+[20:30:57] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 192.168.1.1
+[P1] ========================================
+[P1]  Esperando ONU 192.168.1.1 ... 0s
+[20:30:59] [P1] OK   ONU respondiendo en 192.168.1.1
+[20:30:59] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+
+[2026-09-22 20:31:06] Iniciando flasheo (individual, acción=full) modelo=V2801S-B paralelo=20 ip=192.168.1.1
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: SIN ASIGNAR
+  Firmware : V2801D-B_all_V6.1.4-260914_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 1 ONU(s) simultaneas
+
+
+========================================
+[P1]  ONU en 192.168.1.1  (Puerto: 1)
+[P1] ========================================
+[20:31:06] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 192.168.1.1
+[P1] ========================================
+[P1]  Esperando ONU 192.168.1.1 ... 0s
+[20:31:09] [P1] OK   ONU respondiendo en 192.168.1.1
+[20:31:09] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[20:31:58] [P1]  ONU estable (45s continuos en linea).
+[20:32:00] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[20:32:02] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default ...
+[20:32:04] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[20:32:06] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:33:21] [P1]  Reintentando candidato tras cooldown ...
+[20:33:22] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[20:34:38] [P1]  Reintentando candidato tras cooldown ...
+[20:34:40] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato-retry ...
+[20:34:42] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato ...
+[20:34:43] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:35:58] [P1]  Reintentando candidato tras cooldown ...
+[20:35:59] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[20:37:16] [P1]  Reintentando candidato tras cooldown ...
+[20:37:17] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con user/user candidato-retry ...
+[20:37:19] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato ...
+[20:37:21] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:38:36] [P1]  Reintentando candidato tras cooldown ...
+[20:38:37] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[20:39:53] [P1]  Reintentando candidato tras cooldown ...
+[20:39:54] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato-retry ...
+[20:39:57] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato ...
+[20:39:58] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:41:13] [P1]  Reintentando candidato tras cooldown ...
+[20:41:14] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato-retry ...
+
+[2026-09-22 20:49:22] Iniciando flasheo (individual, acción=full) modelo=V2801S-B paralelo=20 ip=192.168.1.1
+
+ VSOL Autopilot - VSOL V2801S-B / V2801D-B
+  Modelo   : V2801S-B (VSOL V2801S-B / V2801D-B)
+  Caja/Lote: SIN ASIGNAR
+  Firmware : V2801D-B_all_V6.1.4-260914_powerlink_GPON.bin
+  Existe   : SI
+  Log CSV  : C:\Users\bcarrero\Documents\Estacion de flasheo\logs\registro_flasheo.csv
+  Paralelo : 1 ONU(s) simultaneas
+
+
+========================================
+[P1]  ONU en 192.168.1.1  (Puerto: 1)
+[P1] ========================================
+[20:49:22] [P1]  Sesion previa cerrada (si existia).
+
+[P1] ========================================
+[P1] FASE 1 :: Esperando arranque de la ONU en 192.168.1.1
+[P1] ========================================
+[P1]  Esperando ONU 192.168.1.1 ... 0s
+[20:49:25] [P1] OK   ONU respondiendo en 192.168.1.1
+[20:49:25] [P1]  Esperando estabilizacion (auto-reinicio del 1er arranque) ...
+[20:50:14] [P1]  ONU estable (45s continuos en linea).
+[20:50:16] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con Powerlink/Powerlink2026* final ...
+[20:50:18] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/stdONU101 default ...
+[20:50:21] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin candidato ...
+[20:50:22] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:50:22] [P1] WARN ONU en bloqueo temporal: esperando 63s para que expire el contador...
+[20:51:27] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 candidato ...
+[20:51:30] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/Redes2010 candidato ...
+[20:51:32] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/123456 candidato ...
+[20:51:34] [P1] FAIL ONU en cooldown de login (bloqueo temporal 60s). Se reintentara tras una espera ...
+[20:51:34] [P1] WARN ONU en bloqueo temporal: esperando 63s para que expire el contador...
+[20:52:39] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/ClaveSecreta99* candidato ...
+[20:52:42] [P1]  Formulario clásico detectado (V2801). Iniciando sesión con admin/admin123 intermedia ...
+[20:52:43] [P1] FAIL Error procesando 192.168.1.1: No se pudo autenticar como Administrador en la ONU (todas las credenciales fueron rechazadas). Para restaurar las credenciales de fábrica (admin / stdONU101), por favor mantén presionado el botón físico de RESET en la ONU durante 10 a 15 segundos con el equipo encendido.
+[20:52:43] [P1]  Captura guardada: C:\Users\bcarrero\Documents\Estacion de flasheo\capturas\20260922_205243_fin_proceso.png
+[P1] ========================================
+[P1]  RESULTADO [1 192.168.1.1]: ERROR  | VLAN3: NO
+[P1] ========================================
+[progreso] 1/1 ONUs procesadas (100%)
+
+============================================================
+  RESUMEN GENERAL
+============================================================
+   Puerto 1     ERROR                VLAN3: NO  - Fallo: No se pudo autenticar como Administrador en la ONU (todas las credenciales fueron rechazadas). Para restaurar las credenciales de fábrica (admin / stdONU101); por favor mantén presionado el botón físico de RESET en la ONU durante 10 a 15 segundos con el equipo encendido.
+============================================================
+  LEYENDA
+    YA_CONFIGURADA     : ya tenia firmware final (Powerlink) y VLAN3 OK - no requiere flasheo
+    EXITO              : flasheo completo: firmware subido y VLAN3 verificado
+    EXITO_LOGIN_FINAL : login final OK pero VLAN3 no verificada (revisar)
+    SIN_ONU             : puerto vacio o ONU apagada
+    ERROR               : fallo en algun paso (revisar detalle)
+[20:52:44] OK  Proceso finalizado. Revisa el CSV de registro.

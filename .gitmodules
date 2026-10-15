@@ -1,0 +1,6 @@
+[submodule "reporte_externo"]
+	path = reporte_externo
+	url = https://github.com/cmtcedres/Reporte.git
+[submodule "Intranet"]
+	path = Intranet
+	url = https://github.com/Powerlinkcorp/Intranet.git

@@ -1,0 +1,36 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8088
+  },
+  "default_onu_ip": "3.3.",
+  "default_vlan": "3",
+  "common_vlans": [
+    "3",
+    "10",
+    "20",
+    "100",
+    "200",
+    "300",
+    "1000"
+  ],
+  "hub_vlans": [
+    {"hub": "HUB La Colina (C.C. La Colina)", "vlan": "100", "max_capacity": 100},
+    {"hub": "HUB San Antonio (Centro)", "vlan": "200", "max_capacity": 100},
+    {"hub": "HUB Los Teques (Zona Industrial)", "vlan": "300", "max_capacity": 100},
+    {"hub": "HUB Carrizal (Montaña Alta)", "vlan": "400", "max_capacity": 100},
+    {"hub": "HUB Las Minas (Recta)", "vlan": "500", "max_capacity": 100},
+    {"hub": "HUB San Diego / San José", "vlan": "600", "max_capacity": 100},
+    {"hub": "HUB Principal Corporativo", "vlan": "10", "max_capacity": 100},
+    {"hub": "HUB Respaldo / Secundario", "vlan": "20", "max_capacity": 100}
+  ],
+  "app_name": "Aprovisionamiento Automático",
+  "version": "2.0.0",
+  "smartolt": {
+    "base_url": "https://powerlinkcorp.telecomti.net/api",
+    "api_key": "6e78554e1d2153b39507fecb3797f895",
+    "default_model": "VSOLVD64",
+    "initial_vlan": "3",
+    "default_dba_profile": "Default_DBA"
+  }
+}

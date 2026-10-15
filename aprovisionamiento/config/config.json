@@ -1,0 +1,15 @@
+{
+  "server_host": "0.0.0.0",
+  "server_port": 8088,
+  "default_ip": "3.3.2.19",
+  "default_vlan": "3",
+  "default_wifi_2g_ssid": "Powerlink_Wi-Fi",
+  "default_wifi_5g_ssid": "Powerlink_Wi-Fi_5G",
+  "default_wifi_password": "Powerlink2026*",
+  "common_vlans": [
+    {"id": "3", "label": "VLAN 3 - Clientes Residencial / Padrón"},
+    {"id": "21", "label": "VLAN 21 - Administración / Cámaras"},
+    {"id": "100", "label": "VLAN 100 - Corporativo / Empresas"},
+    {"id": "200", "label": "VLAN 200 - IPTV / Streaming"}
+  ]
+}

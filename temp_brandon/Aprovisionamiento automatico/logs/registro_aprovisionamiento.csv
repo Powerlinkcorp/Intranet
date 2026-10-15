@@ -1,0 +1,348 @@
+﻿FechaHora,Usuario,IP,MAC,PON_Serial,Modelo,VLAN,SSID_2G,SSID_5G,Resultado,Detalles
+2026-09-01 21:00:56,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,3,Powerlink_Wi-Fi,Powerlink_Wi-Fi_5G,PARCIAL,VLAN 3: OK | Wi-Fi 2.4G: NO VERIFICADO | Wi-Fi 5G: OK
+2026-09-01 21:01:54,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,3,Powerlink_Wi-Fi,Powerlink_Wi-Fi_5G,PARCIAL,VLAN 3: OK | Wi-Fi 2.4G: NO VERIFICADO | Wi-Fi 5G: OK
+2026-09-01 21:07:36,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,127,Prueba,Prueba_5G,PARCIAL,VLAN 127: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-01 21:20:39,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,3,Powerlink_Wi-Fi,Powerlink_Wi-Fi_5G,EXITO,VLAN 3: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-01 21:21:30,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,3,Powerlink_Wi-Fi,Powerlink_Wi-Fi_5G,EXITO,VLAN 3: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-01 21:28:26,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,217,Prueba,Prueba_5G,EXITO,VLAN 217: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-01 21:30:51,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,127,Prueba,Prueba_5G,EXITO,VLAN 127: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-01 21:37:29,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,3,Powerlink_E2E,Powerlink_E2E_5G,EXITO,VLAN 3: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-01 21:48:11,admin,3.3.2.19,,4c46d1-4c46d1e4a079,V2804AX30-H,123,Test,Test_5G,EXITO,VLAN 123: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-03 19:17:09,admin,3.3.2.19,,,VSOL,3,Powerlink_E2E,Powerlink_E2E_5G,ERROR,La ONU en 3.3.2.19 no responde a peticiones HTTP.
+2026-09-03 22:41:53,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,100,Wifi prueba,Wifi prueba_5G,EXITO,VLAN 100: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-03 22:42:54,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,127,Wifi prueba,Wifi prueba_5G,EXITO,VLAN 127: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-03 22:44:31,admin,3.3.2.21,,VSOL00E4B181,VSOLVD64,127,Wifi prueba,Wifi prueba_5G,EXITO,Migrada a VLAN 127 en SmartOLT
+2026-09-03 22:45:04,admin,3.3.2.21,,VSOL00E4B181,VSOLVD64,127,Wifi prueba,Wifi prueba_5G,EXITO,Migrada a VLAN 127 en SmartOLT
+2026-09-03 22:50:37,admin,192.168.1.1,AA:BB:CC:DD:EE:FF,VSOL00E4B181,VSOLVD64,127,Test_2G,Test_5G,EXITO,Migrada a VLAN 127 en SmartOLT
+2026-09-03 22:50:43,admin,,,VSOL00E4B181,VSOLVD64,127,,,EXITO,Migrada a VLAN 127 en SmartOLT
+2026-09-04 13:11:54,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,127,Prueba de wifi,Prueba de wifi_5G,EXITO,VLAN 127: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-04 13:12:40,admin,3.3.2.21,,VSOL00E4B181,VSOLVD64,127,Prueba de wifi,Prueba de wifi_5G,EXITO,Migrada a VLAN 127 en SmartOLT
+2026-09-04 15:28:57,admin,3.3.2.19,AA:BB:CC,VSOLTEST1,VSOLVD64,127,Wifi2,Wifi5,EXITO,Prueba con usuario
+2026-09-04 16:09:09,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,127,Test,Test_5G,EXITO,VLAN 127: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-04 16:35:13,admin,3.3.,,,VSOL,127,Verifica,Verifica_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-04 16:36:34,admin,4c:46:d1:e4:b1:82,,,VSOL,127,Verifica,Verifica_5G,ERROR,La ONU en 4c:46:d1:e4:b1:82 no responde a peticiones HTTP.
+2026-09-04 16:43:12,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,127,Veri,Veri_5G,EXITO,VLAN 127: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-04 16:46:05,laura,3.3.2.21,,VSOL00E4B181,VSOLVD64,127,Veri,Veri_5G,EXITO (Liberada),VLAN 127 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Ruby.
+2026-09-04 17:04:30,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,127,Wifi prueba,Wifi prueba_5G,EXITO,VLAN 127: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-04 17:20:42,laura,3.3.2.21,4c:46:d1:e4:b1:82,VSOL00E4B181,VSOLVD64,127,Wifi prueba,Wifi prueba_5G,EXITO (Liberada),VLAN 127 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Ruby.
+2026-09-04 17:33:10,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,127,Denuevo,Denuevo_5G,EXITO,VLAN 127: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-04 17:38:50,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,123,Denuevo,Denuevo_5G,EXITO,VLAN 123: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-04 17:50:14,admin,3.3.2.21,,4c46d1-4c46d1e4b181,V2804AX30-H,123,Prueba de wifi,Prueba de wifi_5G,EXITO,VLAN 123: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-04 17:50:39,laura,3.3.2.21,4c:46:d1:e4:b1:82,VSOL00E4B181,VSOLVD64,123,Prueba de wifi,Prueba de wifi_5G,EXITO (Liberada),VLAN 123 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 10:55:38,admin,3.3.12.82,,4c46d1-4c46d1e3e581,V2804AX30-H,2005,JA express_2.4G,JA express_5G,EXITO,VLAN 2005: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 10:55:50,laura,3.3.12.82,4c:46:d1:e3:e5:82,VSOL00E3E581,VSOLVD64,2005,JA express_2.4G,JA express_5G,EXITO (Liberada),VLAN 2005 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 12:14:22,admin,3.3.5.84,,4c46d1-4c46d1e3dd41,V2804AX30-H,449,HAYATI_2.4G,HAYATI_5G,EXITO,VLAN 449: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 12:15:04,laura,3.3.5.84,4c:46:d1:e3:dd:42,VSOL00E3DD41,VSOLVD64,449,HAYATI_2.4G,HAYATI_5G,EXITO (Liberada),VLAN 449 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 12:30:33,admin,3.3.3.75,,4c46d1-4c46d1e3bd71,V2804AX30-H,1044,SOFIA_2.4G,SOFIA_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 12:30:55,laura,3.3.3.75,4c:46:d1:e3:bd:72,VSOL00E3BD71,VSOLVD64,1044,SOFIA_2.4G,SOFIA_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 12:36:39,admin,3.3.3.76,,4c46d1-4c46d1e43e61,V2804AX30-H,1044,Aries_2.4G,Aries_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 12:36:44,laura,3.3.3.76,4c:46:d1:e4:3e:62,VSOL00E43E61,VSOLVD64,1044,Aries_2.4G,Aries_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 12:50:03,admin,3.3.9.27,,4c46d1-4c46d1e4bc59,V2804AX30-H,200,Ismael_2.4G,Ismael_5G,EXITO,VLAN 200: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 12:53:03,laura,3.3.9.27,4c:46:d1:e4:bc:5a,VSOL00E4BC59,VSOLVD64,200,Ismael_2.4G,Ismael_5G,EXITO (Liberada),VLAN 200 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 13:55:01,admin,3.3.12.83,,4c46d1-4c46d1e46b41,V2804AX30-H,2020,Casajoks_2.4G,Casajoks_5G,EXITO,VLAN 2020: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 13:55:56,laura,3.3.12.83,4c:46:d1:e4:6b:42,VSOL00E46B41,VSOLVD64,2020,Casajoks_2.4G,Casajoks_5G,EXITO (Liberada),VLAN 2020 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 14:06:54,admin,3.3.3.78,,4c46d1-4c46d1e3e069,V2804AX30-H,1035,NATHASHA_2.4G,NATHASHA_5G,EXITO,VLAN 1035: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 14:06:59,laura,3.3.3.78,4c:46:d1:e3:e0:6a,VSOL00E3E069,VSOLVD64,1035,NATHASHA_2.4G,NATHASHA_5G,EXITO (Liberada),VLAN 1035 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 14:37:56,admin,3.3.7.106,,4c46d1-4c46d1e3bc91,V2804AX30-H,824,Cauchera MT_2.4G,Cauchera MT_5G,EXITO,VLAN 824: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 14:38:16,laura,3.3.7.106,4c:46:d1:e3:bc:92,VSOL00E3BC91,VSOLVD64,824,Cauchera MT_2.4G,Cauchera MT_5G,EXITO (Liberada),VLAN 824 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 15:09:04,admin,3.3.5.85,,4c46d1-4c46d1e47e69,V2804AX30-H,443,Maryuri_2.4G,Maryuri_5G,EXITO,VLAN 443: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 15:09:13,laura,3.3.5.85,4c:46:d1:e4:7e:6a,VSOL00E47E69,VSOLVD64,443,Maryuri_2.4G,Maryuri_5G,EXITO (Liberada),VLAN 443 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 15:13:19,admin,3.3.3.79,,4c46d1-4c46d1e4aa11,V2804AX30-H,1044,Kushnet_2.4G,Kushnet_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 15:13:29,laura,3.3.3.79,4c:46:d1:e4:aa:12,VSOL00E4AA11,VSOLVD64,1044,Kushnet_2.4G,Kushnet_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 15:43:32,admin,3.3.,,,VSOL,200,Princesa.1963_2.4G,Princesa.1963_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-15 15:44:20,admin,3.3.9.28,,4c46d1-4c46d1e3fce1,V2804AX30-H,200,Princesa.1963_2.4G,Princesa.1963_5G,EXITO,VLAN 200: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 15:44:27,laura,3.3.9.28,4c:46:d1:e3:fc:e2,VSOL00E3FCE1,VSOLVD64,200,Princesa.1963_2.4G,Princesa.1963_5G,EXITO (Liberada),VLAN 200 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 16:19:17,admin,3.3.3.80,,4c46d1-4c46d1e3d609,V2804AX30-H,200,Cocodrilo_2.4G,Cocodrilo_5G,EXITO,VLAN 200: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 16:21:35,laura,3.3.3.80,4c:46:d1:e3:d6:0a,VSOL00E3D609,VSOLVD64,200,Cocodrilo_2.4G,Cocodrilo_5G,EXITO (Liberada),VLAN 200 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 16:38:58,admin,3.3.5.86,,4c46d1-4c46d1e430e9,V2804AX30-H,480,Kysbel_2.4G,Kysbel_5G,EXITO,VLAN 480: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 16:39:17,laura,3.3.5.86,4c:46:d1:e4:30:ea,VSOL00E430E9,VSOLVD64,480,Kysbel_2.4G,Kysbel_5G,EXITO (Liberada),VLAN 480 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 17:06:17,admin,3.3.5.87,,4c46d1-4c46d1e44c51,V2804AX30-H,465,Elohim_2.4G,Elohim_5G,EXITO,VLAN 465: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 17:06:25,laura,3.3.5.87,,VSOL00E44C51,VSOLVD64,465,Elohim_2.4G,Elohim_5G,EXITO (Liberada),VLAN 465 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 17:09:09,admin,3.3.7.106,,4c46d1-4c46d1e3b389,V2804AX30-H,824,Arianna_2.4G,Arianna_5G,EXITO,VLAN 824: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 17:09:21,laura,3.3.7.106,,VSOL00E3B389,VSOLVD64,824,Arianna_2.4G,Arianna_5G,EXITO (Liberada),VLAN 824 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 17:19:45,admin,3.3.12.85,,4c46d1-4c46d1e3e699,V2804AX30-H,2007,Victoria_2.4G,Victoria_5G,EXITO,VLAN 2007: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 17:20:00,laura,3.3.12.85,4c:46:d1:e3:e6:9a,VSOL00E3E699,VSOLVD64,2007,Victoria_2.4G,Victoria_5G,EXITO (Liberada),VLAN 2007 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-15 18:45:54,admin,3.3.18.23,,4c46d1-4c46d1e48389,V2804AX30-H,605,Carol_2.4G,Carol_5G,EXITO,VLAN 605: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-15 18:46:05,laura,3.3.18.23,4c:46:d1:e4:83:8a,VSOL00E48389,VSOLVD64,605,Carol_2.4G,Carol_5G,EXITO (Liberada),VLAN 605 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 09:48:47,admin,3.3.8.96,,4c46d1-4c46d1e3fe11,V2804AX30-H,605,ARGENIS COVA_2.4G,ARGENIS COVA_5G,EXITO,VLAN 605: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 09:48:54,laura,3.3.8.96,4c:46:d1:e3:fe:12,VSOL00E3FE11,VSOLVD64,605,ARGENIS COVA_2.4G,ARGENIS COVA_5G,EXITO (Liberada),VLAN 605 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 09:53:28,admin,3.3.8.96,,,VSOL,3007,ARGENIS COVA_2.4G,ARGENIS COVA_5G,ERROR,La ONU en 3.3.8.96 no responde a peticiones HTTP.
+2026-09-16 09:54:30,admin,3.3.8.96,,4c46d1-4c46d1e3fe11,V2804AX30-H,3007,ARGENIS COVA_2.4G,ARGENIS COVA_5G,EXITO,VLAN 3007: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 10:01:55,admin,3.3.18.23,,4c46d1-4c46d1e3afd1,V2804AX30-H,629,Familia VP_2.4G,Familia VP_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 10:02:31,laura,3.3.18.23,4c:46:d1:e3:af:d2,VSOL00E3AFD1,VSOLVD64,629,Familia VP_2.4G,Familia VP_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 10:16:37,admin,3.3.7.106,,4c46d1-4c46d1e4bc89,V2804AX30-H,824,mariorivera_2.4G,mariorivera_5G,EXITO,VLAN 824: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 10:16:47,laura,3.3.7.106,4c:46:d1:e4:bc:8a,VSOL00E4BC89,VSOLVD64,824,mariorivera_2.4G,mariorivera_5G,EXITO (Liberada),VLAN 824 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 10:25:29,admin,3.3.3.81,,4c46d1-4c46d1e3b039,V2804AX30-H,1008,Familia Borges_2.4G,Familia Borges_5G,EXITO,VLAN 1008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 10:25:39,laura,3.3.3.81,4c:46:d1:e3:b0:3a,VSOL00E3B039,VSOLVD64,1008,Familia Borges_2.4G,Familia Borges_5G,EXITO (Liberada),VLAN 1008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 10:33:18,admin,3.3.3.82,,4c46d1-4c46d1e4c191,V2804AX30-H,1044,El koki_2.4G,El koki_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 10:33:30,laura,3.3.3.82,4c:46:d1:e4:c1:92,VSOL00E4C191,VSOLVD64,1044,El koki_2.4G,El koki_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 10:43:14,admin,3.3.12.85,,4c46d1-4c46d1e3c781,V2804AX30-H,2006,La niña_2.4G,La niña_5G,EXITO,VLAN 2006: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 10:43:51,laura,3.3.12.85,,VSOL00E3C781,VSOLVD64,2006,La niña_2.4G,La niña_5G,EXITO (Liberada),VLAN 2006 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 10:53:32,admin,3.3.12.86,,4c46d1-123454C46D1E41021,V2804AX30-H,2006,hospital Catia 2_2.4G,hospital Catia 2_5G,EXITO,VLAN 2006: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 10:54:46,laura,3.3.12.86,4c:46:d1:e4:10:22,VSOL00E41021,VSOLVD64,2006,hospital Catia 2_2.4G,hospital Catia 2_5G,EXITO (Liberada),VLAN 2006 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 11:12:40,admin,3.3.18.24,,4c46d1-4c46d1e4b691,V2804AX30-H,629,Martina_2.4G,Martina_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 11:13:13,laura,3.3.18.24,,VSOL00E4B691,VSOLVD64,629,Martina_2.4G,Martina_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 11:35:05,laura,3.3.18.24,,VSOL00E4B691,VSOLVD64,629,Martina_2.4G,Martina_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 11:37:18,admin,3.3.6.5,,4c46d1-4c46d1e3d929,V2804AX30-H,701,Carmen_2.4G,Carmen_5G,EXITO,VLAN 701: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 11:37:29,laura,3.3.6.5,,VSOL00E3D929,VSOLVD64,701,Carmen_2.4G,Carmen_5G,EXITO (Liberada),VLAN 701 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 11:42:53,admin,3.3.14.128,,4c46d1-4c46d1e3a8f1,V2804AX30-H,575,Fabiana_2.4G,Fabiana_5G,EXITO,VLAN 575: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 11:43:00,laura,3.3.14.128,,VSOL00E3A8F1,VSOLVD64,575,Fabiana_2.4G,Fabiana_5G,EXITO (Liberada),VLAN 575 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 11:45:15,admin,3.3.12.87,,4c46d1-4c46d1e40149,V2804AX30-H,2002,ezequiel_2.4G,ezequiel_5G,EXITO,VLAN 2002: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 11:45:50,laura,3.3.12.87,,VSOL00E40149,VSOLVD64,2002,ezequiel_2.4G,ezequiel_5G,EXITO (Liberada),VLAN 2002 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 11:55:46,admin,3.3.3.83,,4c46d1-4c46d1e43d91,V2804AX30-H,1044,Abreu_2.4G,Abreu_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 11:55:54,laura,3.3.3.83,4c:46:d1:e4:3d:92,VSOL00E43D91,VSOLVD64,1044,Abreu_2.4G,Abreu_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 12:12:21,admin,3.3.5.87,,4c46d1-4c46d1e45231,V2804AX30-H,473,Zaid_2.4G,Zaid_5G,EXITO,VLAN 473: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 12:12:26,laura,3.3.5.87,4c:46:d1:e4:52:32,VSOL00E45231,VSOLVD64,473,Zaid_2.4G,Zaid_5G,EXITO (Liberada),VLAN 473 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 12:23:41,admin,3.3.3.84.,,,VSOL,1044,tangamandapio_2.4G,tangamandapio_5G,ERROR,La ONU en 3.3.3.84. no responde a peticiones HTTP.
+2026-09-16 12:25:01,admin,3.3.3.84.,,,VSOL,1044,tangamandapio_2.4G,tangamandapio_5G,ERROR,La ONU en 3.3.3.84. no responde a peticiones HTTP.
+2026-09-16 12:25:15,admin,3.3.3.84.,,,VSOL,1044,tangamandapio_2.4G,tangamandapio_5G,ERROR,La ONU en 3.3.3.84. no responde a peticiones HTTP.
+2026-09-16 12:42:04,admin,3.3.3.85,,4c46d1-4c46d1e48719,V2804AX30-H,100,Zeus_2.4G,Zeus_5G,EXITO,VLAN 100: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 12:42:45,laura,3.3.3.85,,VSOL00E48719,VSOLVD64,100,Zeus_2.4G,Zeus_5G,EXITO (Liberada),VLAN 100 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 12:45:11,admin,3.3.3.85,,4c46d1-4c46d1e48719,V2804AX30-H,1044,Zeus_2.4G,Zeus_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 13:21:39,admin,3.3.8.97,,4c46d1-4c46d1e400f1,V2804AX30-H,3007,KIKE1974 _2.4G,KIKE1974_5G,EXITO,VLAN 3007: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 13:21:45,laura,3.3.8.97,4c:46:d1:e4:00:f2,VSOL00E400F1,VSOLVD64,3007,KIKE1974 _2.4G,KIKE1974_5G,EXITO (Liberada),VLAN 3007 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 13:56:25,admin,3.3.3.86,,4c46d1-4c46d1e40cf1,V2804AX30-H,1044,Martinez M_2.4G,Martinez M_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 13:56:31,laura,3.3.3.86,4c:46:d1:e4:0c:f2,VSOL00E40CF1,VSOLVD64,1044,Martinez M_2.4G,Martinez M_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 14:00:08,admin,3.3.12.88,,4c46d1-4c46d1e479d1,V2804AX30-H,2009,anyerbis_2.4G,anyerbis_5G,EXITO,VLAN 2009: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 14:00:13,laura,3.3.12.88,4c:46:d1:e4:79:d2,VSOL00E479D1,VSOLVD64,2009,anyerbis_2.4G,anyerbis_5G,EXITO (Liberada),VLAN 2009 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 14:31:46,admin,3.3.12.89,,4c46d1-4c46d1e3a631,V2804AX30-H,2020,Creaciones Winyor_2.4G,Creaciones Winyor_5G,EXITO,VLAN 2020: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 14:32:02,laura,3.3.12.89,4c:46:d1:e3:a6:32,VSOL00E3A631,VSOLVD64,2020,Creaciones Winyor_2.4G,Creaciones Winyor_5G,EXITO (Liberada),VLAN 2020 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 14:40:41,admin,3.3.3.87,,4c46d1-4c46d1e3ffe9,V2804AX30-H,2020,Yeferson_2.4G,Yeferson_5G,EXITO,VLAN 2020: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 14:41:05,laura,3.3.3.87,4c:46:d1:e3:ff:ea,VSOL00E3FFE9,VSOLVD64,2020,Yeferson_2.4G,Yeferson_5G,EXITO (Liberada),VLAN 2020 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 14:46:41,admin,3.3.3.87,,4c46d1-4c46d1e3ffe9,V2804AX30-H,2020,Yeferson_2.4G,Yeferson_5G,EXITO,VLAN 2020: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 14:51:55,admin,3.3.3.88,,4c46d1-4c46d1e3e271,V2804AX30-H,1044,Aleko_2.4G,Aleko_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 14:52:01,laura,3.3.3.88,4c:46:d1:e3:e2:72,VSOL00E3E271,VSOLVD64,1044,Aleko_2.4G,Aleko_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 14:59:03,admin,3.3.12.90,,4c46d1-4c46d1e3f3e1,V2804AX30-H,2005,los concha_2.4G,los concha_5G,EXITO,VLAN 2005: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 14:59:17,laura,3.3.12.90,4c:46:d1:e3:f3:e2,VSOL00E3F3E1,VSOLVD64,2005,los concha_2.4G,los concha_5G,EXITO (Liberada),VLAN 2005 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 15:02:53,admin,3.3.14.130,,4c46d1-4c46d1e3b719,V2804AX30-H,536,Enyer_2.4G,Enyer_5G,EXITO,VLAN 536: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 15:03:04,laura,3.3.14.130,4c:46:d1:e3:b7:1a,VSOL00E3B719,VSOLVD64,536,Enyer_2.4G,Enyer_5G,EXITO (Liberada),VLAN 536 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 15:15:48,admin,3.3.3.89,,4c46d1-4c46d1e3f169,V2804AX30-H,1044,FliaRauseo_2.4G,FliaRauseo_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 15:15:56,laura,3.3.3.89,4c:46:d1:e3:f1:6a,VSOL00E3F169,VSOLVD64,1044,FliaRauseo_2.4G,FliaRauseo_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 15:24:49,admin,3.3.12.91,,4c46d1-4c46d1e3ae19,V2804AX30-H,2004,Gucci_2.4G,Gucci_5G,PARCIAL,VLAN 2004: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 15:24:57,laura,3.3.12.91,,VSOL00E3AE19,VSOLVD64,2004,Gucci_2.4G,Gucci_5G,EXITO (Liberada),VLAN 2004 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 15:33:24,admin,3.3.7.106,,4c46d1-4c46d1e47db9,V2804AX30-H,2004,Estiben_2.4G,Estiben_5G,PARCIAL,VLAN 2004: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 15:33:51,laura,3.3.7.106,,VSOL00E47DB9,VSOLVD64,2004,Estiben_2.4G,Estiben_5G,EXITO (Liberada),VLAN 2004 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 15:44:00,admin,3.3.7.106,,4c46d1-4c46d1e47db9,V2804AX30-H,824,Estiben_2.4G,Estiben_5G,EXITO,VLAN 824: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 16:26:12,admin,3.3.12.92,,4c46d1-4c46d1e4b959,V2804AX30-H,2008,Carmen 26_2.4G,Carmen 26_5G,PARCIAL,VLAN 2008: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 16:26:33,laura,3.3.12.92,4c:46:d1:e4:b9:5a,VSOL00E4B959,VSOLVD64,2008,Carmen 26_2.4G,Carmen 26_5G,EXITO (Liberada),VLAN 2008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 17:09:12,admin,3.3.5.88,,4c46d1-4c46d1e3d391,V2804AX30-H,466,Girasol_2.4G,Girasol_5G,EXITO,VLAN 466: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 17:09:16,laura,3.3.5.88,4c:46:d1:e3:d3:92,VSOL00E3D391,VSOLVD64,466,Girasol_2.4G,Girasol_5G,EXITO (Liberada),VLAN 466 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 17:26:47,admin,3.3.12.93,,4c46d1-4c46d1e3e519,V2804AX30-H,466,ITALVEN_2.4G,ITALVEN_5G,EXITO,VLAN 466: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 17:26:54,laura,3.3.12.93,4c:46:d1:e3:e5:1a,VSOL00E3E519,VSOLVD64,466,ITALVEN_2.4G,ITALVEN_5G,EXITO (Liberada),VLAN 466 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 17:27:23,admin,3.3.12.93,,,VSOL,2018,ITALVEN_2.4G,ITALVEN_5G,ERROR,La ONU en 3.3.12.93 no responde a peticiones HTTP.
+2026-09-16 17:29:05,admin,3.3.12.93,,4c46d1-4c46d1e3e519,V2804AX30-H,2018,ITALVEN_2.4G,ITALVEN_5G,EXITO,VLAN 2018: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 17:29:12,laura,3.3.12.93,4c:46:d1:e3:e5:1a,VSOL00E3E519,VSOLVD64,2018,ITALVEN_2.4G,ITALVEN_5G,EXITO (Liberada),VLAN 2018 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 17:36:07,admin,3.3.5.89,,4c46d1-4c46d1e4c7b9,V2804AX30-H,2018,Yulimar_2.4G,Yulimar_5G,EXITO,VLAN 2018: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 17:36:56,admin,3.3.5.89,,4c46d1-4c46d1e4c7b9,V2804AX30-H,481,Yulimar_2.4G,Yulimar_5G,EXITO,VLAN 481: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 17:37:03,laura,3.3.5.89,4c:46:d1:e4:c7:ba,VSOL00E4C7B9,VSOLVD64,481,Yulimar_2.4G,Yulimar_5G,EXITO (Liberada),VLAN 481 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 18:08:46,admin,3.3.9.28,,4c46d1-4c46d1e3e559,V2804AX30-H,202,Eddy_2.4G,Eddy_5G,EXITO,VLAN 202: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 18:08:59,laura,3.3.9.28,4c:46:d1:e3:e5:5a,VSOL00E3E559,VSOLVD64,202,Eddy_2.4G,Eddy_5G,EXITO (Liberada),VLAN 202 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 18:37:10,admin,3.3.3.93,,4c46d1-4c46d1e41ce9,V2804AX30-H,1004,Juliangeles_2.4G,Juliangeles_5G,EXITO,VLAN 1004: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 18:37:19,laura,3.3.3.93,4c:46:d1:e4:1c:ea,VSOL00E41CE9,VSOLVD64,1004,Juliangeles_2.4G,Juliangeles_5G,EXITO (Liberada),VLAN 1004 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 18:43:44,admin,3.3.7.107,,4c46d1-4c46d1e4b441,V2804AX30-H,1004,Marien_2.4G,Marien_5G,EXITO,VLAN 1004: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 18:44:44,admin,3.3.7.107,,4c46d1-4c46d1e4b441,V2804AX30-H,817,Marien_2.4G,Marien_5G,PARCIAL,VLAN 817: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 18:45:00,laura,3.3.7.107,4c:46:d1:e4:b4:42,VSOL00E4B441,VSOLVD64,817,Marien_2.4G,Marien_5G,EXITO (Liberada),VLAN 817 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-16 19:12:54,admin,3.3.3.94,,4c46d1-4c46d1e42e19,V2804AX30-H,817,Samantha_2.4G,Samantha_5G,EXITO,VLAN 817: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-16 19:13:28,laura,3.3.3.94,4c:46:d1:e4:2e:1a,VSOL00E42E19,VSOLVD64,817,Samantha_2.4G,Samantha_5G,EXITO (Liberada),VLAN 817 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 09:55:50,admin,3.3.3.94,,4c46d1-4c46d1e401c1,V2804AX30-H,1044,Familia Herrera_2.4G,Familia Herrera_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 09:56:45,laura,3.3.3.94,4c:46:d1:e4:01:c2,VSOL00E401C1,VSOLVD64,1044,Familia Herrera_2.4G,Familia Herrera_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 10:00:50,admin,3.3.14.131,,4c46d1-4c46d1e3b1c9,V2804AX30-H,557,Familia Alba_2.4G,Familia Alba_5G,EXITO,VLAN 557: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 10:00:56,laura,3.3.14.131,4c:46:d1:e3:b1:ca,VSOL00E3B1C9,VSOLVD64,557,Familia Alba_2.4G,Familia Alba_5G,EXITO (Liberada),VLAN 557 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 10:03:03,admin,3.3.8.98,,4c46d1-4c46d1e3b9a1,V2804AX30-H,3007,SOSHIO12_2.4G,SOSHIO12_5G,EXITO,VLAN 3007: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 10:03:14,laura,3.3.8.98,,VSOL00E3B9A1,VSOLVD64,3007,SOSHIO12_2.4G,SOSHIO12_5G,EXITO (Liberada),VLAN 3007 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 10:13:56,admin,3.3.3.95,,4c46d1-4c46d1e3fee1,V2804AX30-H,100,Flia Fernandez_2.4G,Flia Fernandez_5G,EXITO,VLAN 100: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 10:14:02,laura,3.3.3.95,,VSOL00E3FEE1,VSOLVD64,100,Flia Fernandez_2.4G,Flia Fernandez_5G,EXITO (Liberada),VLAN 100 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 10:21:41,admin,3.3.3.95,,4c46d1-4c46d1e3fee1,V2804AX30-H,1044,Flia Fernandez_2.4G,Flia Fernandez_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 10:45:41,admin,3.3.5.89,,4c46d1-4c46d1e43e19,V2804AX30-H,461,CAIAN_2.4G,CAIAN_5G,EXITO,VLAN 461: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 10:46:07,laura,3.3.5.89,,VSOL00E43E19,VSOLVD64,461,CAIAN_2.4G,CAIAN_5G,EXITO (Liberada),VLAN 461 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 11:08:51,admin,3.3.3.96,,4c46d1-4c46d1e3ff69,V2804AX30-H,1044,Samuel_2.4G,Samuel_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 11:13:44,laura,3.3.3.96,4c:46:d1:e3:ff:6a,VSOL00E3FF69,VSOLVD64,1044,Samuel_2.4G,Samuel_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 11:26:33,admin,3.3.3.97,,4c46d1-4c46d1e3fbe9,V2804AX30-H,1044,Jeymar_2.4G,Jeymar_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 11:28:24,laura,3.3.3.97,4c:46:d1:e3:fb:ea,VSOL00E3FBE9,VSOLVD64,1044,Jeymar_2.4G,Jeymar_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 11:46:17,admin,3.3.7.107,,4c46d1-4c46d1e3fca9,V2804AX30-H,1044,Familia Nieves_2.4G,Familia Nieves_5G,PARCIAL,VLAN 1044: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 11:46:34,laura,3.3.7.107,4c:46:d1:e3:fc:aa,VSOL00E3FCA9,VSOLVD64,1044,Familia Nieves_2.4G,Familia Nieves_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 11:52:21,admin,3.3.12.93,,4c46d1-4c46d1e3ffa1,V2804AX30-H,1044,nails_2.4G,nails_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 11:53:02,admin,3.3.12.93,,4c46d1-4c46d1e3ffa1,V2804AX30-H,2008,nails_2.4G,nails_5G,EXITO,VLAN 2008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 11:53:08,laura,3.3.12.93,4c:46:d1:e3:ff:a2,VSOL00E3FFA1,VSOLVD64,2008,nails_2.4G,nails_5G,EXITO (Liberada),VLAN 2008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 12:05:58,admin,3.3.14.132,,4c46d1-4c46d1e446d1,V2804AX30-H,629,Renzo_2.4G,Renzo_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 12:06:04,laura,3.3.14.132,,VSOL00E446D1,VSOLVD64,629,Renzo_2.4G,Renzo_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 12:08:57,admin,3.3.14.132,,4c46d1-4c46d1e446d1,V2804AX30-H,629,Sofia_2.4G,Sofia_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 12:09:58,admin,3.3.14.132,,4c46d1-4c46d1e446d1,V2804AX30-H,567,Sofia_2.4G,Sofia_5G,EXITO,VLAN 567: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 12:10:05,laura,3.3.14.132,4c:46:d1:e4:46:d2,VSOL00E446D1,VSOLVD64,567,Sofia_2.4G,Sofia_5G,EXITO (Liberada),VLAN 567 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 12:13:16,admin,3.3.18.24,,4c46d1-4c46d1e3b6e9,V2804AX30-H,629,Renzo_2.4G,Renzo_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 12:14:06,laura,3.3.18.24,,VSOL00E3B6E9,VSOLVD64,629,Renzo_2.4G,Renzo_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 12:26:59,admin,3.3.3.98,,4c46d1-4c46d1e4a4c9,V2804AX30-H,1044,SosaBorges_2.4G,SosaBorges_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 12:27:05,laura,3.3.3.98,,VSOL00E4A4C9,VSOLVD64,1044,SosaBorges_2.4G,SosaBorges_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 12:32:28,admin,3.3.10.14,,4c46d1-4c46d1e40359,V2804AX30-H,301,Eloisa_2.4G,Eloisa_5G,EXITO,VLAN 301: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 12:33:02,laura,3.3.10.14,,VSOL00E40359,VSOLVD64,301,Eloisa_2.4G,Eloisa_5G,EXITO (Liberada),VLAN 301 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 13:25:31,admin,3.3.3.99,,4c46d1-4c46d1e3b841,V2804AX30-H,1035,Santiago_2.4G,Santiago_5G,EXITO,VLAN 1035: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 13:26:25,laura,3.3.3.99,4c:46:d1:e3:b8:42,VSOL00E3B841,VSOLVD64,1035,Santiago_2.4G,Santiago_5G,EXITO (Liberada),VLAN 1035 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 13:31:28,admin,3.3.3.100,,4c46d1-4c46d1e3adf1,V2804AX30-H,1035,PagaTuVaina_2.4G,PagaTuVaina_5G,EXITO,VLAN 1035: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 13:37:42,laura,3.3.3.100,4c:46:d1:e3:ad:f2,VSOL00E3ADF1,VSOLVD64,1035,PagaTuVaina_2.4G,PagaTuVaina_5G,EXITO (Liberada),VLAN 1035 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 14:01:02,admin,3.3.14.133,,4c46d1-4c46d1e402f1,V2804AX30-H,1035,Rey de reyes_2.4G,Rey de reyes_5G,EXITO,VLAN 1035: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 14:01:55,laura,3.3.14.133,4c:46:d1:e4:02:f2,VSOL00E402F1,VSOLVD64,1035,Rey de reyes_2.4G,Rey de reyes_5G,EXITO (Liberada),VLAN 1035 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 14:23:33,admin,3.3.10.15,,4c46d1-4c46d1e3c439,V2804AX30-H,307,Nojaris_2.4G,Nojaris_5G,EXITO,VLAN 307: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 14:25:00,laura,3.3.10.15,4c:46:d1:e4:a8:32,VSOL00E3C439,VSOLVD64,307,Nojaris_2.4G,Nojaris_5G,EXITO (Liberada),VLAN 307 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 14:51:02,admin,3.3.12.94,,4c46d1-4c46d1e402a9,V2804AX30-H,307,Dios es bueno_2.4G,Dios es bueno_5G,EXITO,VLAN 307: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 14:51:23,laura,3.3.12.94,4c:46:d1:e4:02:aa,VSOL00E402A9,VSOLVD64,307,Dios es bueno_2.4G,Dios es bueno_5G,EXITO (Liberada),VLAN 307 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 15:46:56,admin,3.3.3.101,,4c46d1-4c46d1e44101,V2804AX30-H,100,Almary_2.4G,Almary_5G,EXITO,VLAN 100: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 15:47:04,laura,3.3.3.101,4c:46:d1:e4:41:02,VSOL00E44101,VSOLVD64,100,Almary_2.4G,Almary_5G,EXITO (Liberada),VLAN 100 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 16:07:25,admin,3.3.12.95,,,VSOL,100,Froxking_2.4G,Froxking_5G,ERROR,Fallo de autenticación (credenciales no válidas).
+2026-09-17 16:08:05,admin,3.3.12.95,,4c46d1-4c46d1e40319,V2804AX30-H,100,Froxking_2.4G,Froxking_5G,EXITO,VLAN 100: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 16:08:19,laura,3.3.12.95,4c:46:d1:e4:03:1a,VSOL00E40319,VSOLVD64,100,Froxking_2.4G,Froxking_5G,EXITO (Liberada),VLAN 100 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 16:12:35,admin,3.3.3.102,,4c46d1-4c46d1e40039,V2804AX30-H,100,Luis_2.4G,Luis_5G,EXITO,VLAN 100: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 16:13:14,laura,3.3.3.102,4c:46:d1:e4:00:3a,VSOL00E40039,VSOLVD64,100,Luis_2.4G,Luis_5G,EXITO (Liberada),VLAN 100 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 16:21:09,admin,3.3.3.103,,4c46d1-4c46d1e3e529,V2804AX30-H,1035,Caripito_2.4G,Caripito_5G,EXITO,VLAN 1035: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 16:21:16,laura,3.3.3.103,,VSOL00E3E529,VSOLVD64,1035,Caripito_2.4G,Caripito_5G,EXITO (Liberada),VLAN 1035 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 16:24:24,admin,3.3.2.23,,,VSOL,129,Pleyadiano_2.4G,Pleyadiano_5G,ERROR,La ONU en 3.3.2.23 no responde a peticiones HTTP.
+2026-09-17 16:25:58,admin,3.3.2.24,,4c46d1-4c46d1e41f01,V2804AX30-H,129,Pleyadiano_2.4G,Pleyadiano_5G,EXITO,VLAN 129: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 16:26:06,laura,3.3.2.24,,VSOL00E41F01,VSOLVD64,129,Pleyadiano_2.4G,Pleyadiano_5G,EXITO (Liberada),VLAN 129 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 17:01:07,admin,3.3.8.99,,4c46d1-4c46d1e3c689,V2804AX30-H,3008,Mitomisa_2.4G,Mitomisa_5G,EXITO,VLAN 3008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 17:01:20,laura,3.3.8.99,4c:46:d1:e3:c6:8a,VSOL00E3C689,VSOLVD64,3008,Mitomisa_2.4G,Mitomisa_5G,EXITO (Liberada),VLAN 3008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-17 17:19:59,admin,3.3.3.104,,4c46d1-4c46d1e3bf89,V2804AX30-H,1044,Kerim_2.4G,Kerim_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-17 17:20:07,laura,3.3.3.104,4c:46:d1:e3:bf:8a,VSOL00E3BF89,VSOLVD64,1044,Kerim_2.4G,Kerim_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 09:53:37,admin,3.3.10.16,,4c46d1-4c46d1e49409,V2804AX30-H,306,Sofia_2.4G,Sofia_5G,EXITO,VLAN 306: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 09:53:55,laura,3.3.10.16,4c:46:d1:e4:94:0a,VSOL00E49409,VSOLVD64,306,Sofia_2.4G,Sofia_5G,EXITO (Liberada),VLAN 306 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 09:58:23,admin,3.3.3.104,,4c46d1-4c46d1e40ae9,V2804AX30-H,1044,Chichita_2.4G,Chichita_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 09:59:18,laura,3.3.3.104,4c:46:d1:e4:0a:ea,VSOL00E40AE9,VSOLVD64,1044,Chichita_2.4G,Chichita_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 10:27:10,admin,VSOL00E43A11,,,VSOL,558,Manuel_2.4G,Manuel_5G,ERROR,La ONU en VSOL00E43A11 no responde a peticiones HTTP.
+2026-09-18 10:27:25,admin,VSOL00E43A11,,,VSOL,558,Manuel_2.4G,Manuel_5G,ERROR,La ONU en VSOL00E43A11 no responde a peticiones HTTP.
+2026-09-18 10:29:46,admin,3.3.14.133,,4c46d1-4c46d1e43a11,V2804AX30-H,558,Manuel_2.4G,Manuel_5G,EXITO,VLAN 558: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 10:29:56,laura,3.3.14.133,4c:46:d1:e4:3a:12,VSOL00E43A11,VSOLVD64,558,Manuel_2.4G,Manuel_5G,EXITO (Liberada),VLAN 558 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 10:46:04,admin,3.3.12.95,,4c46d1-4c46d1e402d1,V2804AX30-H,2004,Familia Rodríguez_2.4G,Familia Rodríguez_5G,EXITO,VLAN 2004: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 10:46:40,laura,3.3.12.95,4c:46:d1:e4:02:d2,VSOL00E402D1,VSOLVD64,2004,Familia Rodríguez_2.4G,Familia Rodríguez_5G,EXITO (Liberada),VLAN 2004 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 11:06:59,admin,3.3.3.105,,4c46d1-4c46d1e3f5e1,V2804AX30-H,1044,Ehitan_2.4G,Ehitan_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 11:08:55,laura,3.3.3.105,4c:46:d1:e3:f5:e2,VSOL00E3F5E1,VSOLVD64,1044,Ehitan_2.4G,Ehitan_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 11:32:16,admin,3.3.5.90,,4c46d1-4c46d1e48361,V2804AX30-H,467,Alejandro_2.4G,Alejandro_5G,EXITO,VLAN 467: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 11:32:25,laura,3.3.5.90,4c:46:d1:e4:83:62,VSOL00E48361,VSOLVD64,467,Alejandro_2.4G,Alejandro_5G,EXITO (Liberada),VLAN 467 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 11:35:26,admin,3.3.5.90,,,VSOL,467,Alejandro_2.4G,Alejandro_5G,PARCIAL,VLAN 467: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 11:40:15,admin,3.3.3.107,,4c46d1-4c46d1e3e2a9,V2804AX30-H,1044,MARCELO_2.4G,MARCELO_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 11:40:29,laura,3.3.3.107,4c:46:d1:e3:e2:aa,VSOL00E3E2A9,VSOLVD64,1044,MARCELO_2.4G,MARCELO_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 11:44:50,admin,3.3.18.24,,4c46d1-4c46d1e3dde1,V2804AX30-H,629,Ismelia_2.4G,Ismelia_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 11:45:05,laura,3.3.18.24,4c:46:d1:e3:dd:e2,VSOL00E3DDE1,VSOLVD64,629,Ismelia_2.4G,Ismelia_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 12:04:57,admin,3.3.,,,VSOL,1044,Richard@_2.4G,Richard@_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-18 12:06:16,admin,3.3.3.108,,4c46d1-4c46d1e3c331,V2804AX30-H,1044,Richard@_2.4G,Richard@_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 12:06:21,laura,3.3.3.108,4c:46:d1:e3:c3:32,VSOL00E3C331,VSOLVD64,1044,Richard@_2.4G,Richard@_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 12:18:37,admin,3.3.,,,VSOL,629,Arianyer_2.4G,Arianyer_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-18 12:19:37,admin,3.3.18.25,,4c46d1-4c46d1e40199,V2804AX30-H,629,Arianyer_2.4G,Arianyer_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 12:20:50,laura,3.3.18.25,4c:46:d1:e4:01:9a,VSOL00E40199,VSOLVD64,629,Arianyer_2.4G,Arianyer_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 12:32:27,admin,3.3.5.91,,4c46d1-4c46d1e401c9,V2804AX30-H,439,Libni_2.4G,Libni_5G,EXITO,VLAN 439: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 12:32:57,laura,3.3.5.91,4c:46:d1:e4:01:ca,VSOL00E401C9,VSOLVD64,439,Libni_2.4G,Libni_5G,EXITO (Liberada),VLAN 439 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 13:37:30,admin,3.3.9.29,,4c46d1-4c46d1e3e591,V2804AX30-H,212,Rodrigo_2.4G,Rodrigo_5G,EXITO,VLAN 212: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 13:39:12,laura,3.3.9.29,4c:46:d1:e3:e5:92,VSOL00E3E591,VSOLVD64,212,Rodrigo_2.4G,Rodrigo_5G,EXITO (Liberada),VLAN 212 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 14:04:34,admin,3.3.6.5,,4c46d1-4c46d1e3d4c9,V2804AX30-H,709,Hanna_2.4G,Hanna_5G,EXITO,VLAN 709: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 14:05:02,laura,3.3.6.5,,VSOL00E3D4C9,VSOLVD64,709,Hanna_2.4G,Hanna_5G,EXITO (Liberada),VLAN 709 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 14:08:28,admin,3.3.3.109,,4c46d1-4c46d1e418b9,V2804AX30-H,1044,Moises_2.4G,Moises_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 14:08:36,laura,3.3.3.109,,VSOL00E418B9,VSOLVD64,1044,Moises_2.4G,Moises_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 14:15:43,admin,3.3.5.92,,4c46d1-4c46d1e3b861,V2804AX30-H,480,Vergara_2.4,Vergara_5G,EXITO,VLAN 480: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 14:15:52,laura,3.3.5.92,,VSOL00E3B861,VSOLVD64,480,Vergara_2.4,Vergara_5G,EXITO (Liberada),VLAN 480 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 14:25:40,admin,3.3.3.110,,4c46d1-4c46d1e3f651,V2804AX30-H,100,Aisha_2.4,Aisha_5G,EXITO,VLAN 100: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 14:26:13,laura,3.3.3.110,,VSOL00E3F651,VSOLVD64,100,Aisha_2.4,Aisha_5G,EXITO (Liberada),VLAN 100 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 14:28:43,admin,3.3.3.110,,4c46d1-4c46d1e3f651,V2804AX30-H,1035,Aisha_2.4,Aisha_5G,EXITO,VLAN 1035: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 14:49:08,admin,3.3.8.100,,4c46d1-4c46d1e3aed9,V2804AX30-H,3008,Mi Family_2.4G,Mi Family_5G,EXITO,VLAN 3008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 14:49:14,laura,3.3.8.100,4c:46:d1:e3:ae:da,VSOL00E3AED9,VSOLVD64,3008,Mi Family_2.4G,Mi Family_5G,EXITO (Liberada),VLAN 3008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 15:27:03,admin,3.3.,,,VSOL,3008,Familia Pacheco_2.4G,Familia Pacheco_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-18 15:29:05,admin,3.3.18.26,,,VSOL,629,Familia Pacheco_2.4G,Familia Pacheco_5G,ERROR,Fallo de autenticación (credenciales no válidas).
+2026-09-18 15:30:00,admin,3.3.18.26,,4c46d1-4c46d1e475a1,V2804AX30-H,629,Familia Pacheco_2.4G,Familia Pacheco_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 15:30:14,laura,3.3.18.26,4c:46:d1:e4:75:a2,VSOL00E475A1,VSOLVD64,629,Familia Pacheco_2.4G,Familia Pacheco_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 15:53:42,admin,3.3.14.135,,4c46d1-4c46d1e3d941,V2804AX30-H,547,Gatusima_2.4G,Gatusima_5G,EXITO,VLAN 547: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 15:57:15,laura,3.3.14.135,4c:46:d1:e3:d9:42,VSOL00E3D941,VSOLVD64,547,Gatusima_2.4G,Gatusima_5G,EXITO (Liberada),VLAN 547 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 16:11:35,admin,3.3.8.101,,4c46d1-4c46d1e3e211,V2804AX30-H,3008,NICOLE_2.4G,NICOLE_5G,EXITO,VLAN 3008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 16:15:35,laura,3.3.8.101,4c:46:d1:e3:e2:12,VSOL00E3E211,VSOLVD64,3008,NICOLE_2.4G,NICOLE_5G,EXITO (Liberada),VLAN 3008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 16:40:34,admin,3.3.14.136,,4c46d1-4c46d1e3f1e9,V2804AX30-H,3008,Magallanes_2.4G,Magallanes_5G,EXITO,VLAN 3008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 16:41:32,admin,3.3.14.136,,4c46d1-4c46d1e3f1e9,V2804AX30-H,556,Magallanes_2.4G,Magallanes_5G,EXITO,VLAN 556: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 16:43:29,laura,3.3.14.136,,VSOL00E3F1E9,VSOLVD64,556,Magallanes_2.4G,Magallanes_5G,EXITO (Liberada),VLAN 556 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 17:18:11,admin,3.3.14.137,,4c46d1-4c46d1e49321,V2804AX30-H,586,MULTIGAS_2.4G,MULTIGAS_5G,EXITO,VLAN 586: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 17:18:23,laura,3.3.14.137,4c:46:d1:e4:93:22,VSOL00E49321,VSOLVD64,586,MULTIGAS_2.4G,MULTIGAS_5G,EXITO (Liberada),VLAN 586 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 17:43:47,admin,3.3.5.93,,4c46d1-4c46d1e3f119,V2804AX30-H,411,Mi Bendición_2.4G,Mi Bendición_5G,PARCIAL,VLAN 411: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 17:47:22,laura,3.3.5.93,4c:46:d1:e3:f1:1a,VSOL00E3F119,VSOLVD64,411,Mi Bendición_2.4G,Mi Bendición_5G,EXITO (Liberada),VLAN 411 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 17:50:42,admin,3.3.3.111,,4c46d1-4c46d1e3fa81,V2804AX30-H,1044,Fernández_2.4,Fernández_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 17:50:57,laura,3.3.3.111,4c:46:d1:e3:fa:82,VSOL00E3FA81,VSOLVD64,1044,Fernández_2.4,Fernández_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 18:12:19,admin,3.3.5.94,,4c46d1-4c46d1e3c791,V2804AX30-H,411,ARM_2.4,ARM_5G,PARCIAL,VLAN 411: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 18:12:33,laura,3.3.5.94,4c:46:d1:e3:fa:82,VSOL00E3C791,VSOLVD64,411,ARM_2.4,ARM_5G,EXITO (Liberada),VLAN 411 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 18:16:35,admin,3.3.5.94,,4c46d1-4c46d1e3c791,V2804AX30-H,411,ARM_2.4,ARM_5G,PARCIAL,VLAN 411: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 18:16:50,laura,3.3.5.94,4c:46:d1:e3:fa:82,VSOL00E3C791,VSOLVD64,411,ARM_2.4,ARM_5G,EXITO (Liberada),VLAN 411 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 18:22:42,admin,3.3.5.94,,4c46d1-4c46d1e3c791,V2804AX30-H,411,ARM_2.4,ARM_5G,EXITO,VLAN 411: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 18:23:00,laura,3.3.5.94,4c:46:d1:e3:fa:82,VSOL00E3C791,VSOLVD64,411,ARM_2.4,ARM_5G,EXITO (Liberada),VLAN 411 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-18 19:31:09,admin,3.3.14.138,,4c46d1-4c46d1e4a079,V2804AX30-H,551,Chase_2.4G,Chase_5G,EXITO,VLAN 551: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-18 19:32:08,laura,3.3.14.138,4c:46:d1:e4:a0:7a,VSOL00E4A079,VSOLVD64,551,Chase_2.4G,Chase_5G,EXITO (Liberada),VLAN 551 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 10:16:06,admin,3.3.14.138,,4c46d1-4c46d1e3e269,V2804AX30-H,576,Familia Jupite_2.4G,Familia Jupite_5G,EXITO,VLAN 576: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 10:16:38,laura,3.3.14.138,4c:46:d1:e3:e2:6a,VSOL00E3E269,VSOLVD64,576,Familia Jupite_2.4G,Familia Jupite_5G,EXITO (Liberada),VLAN 576 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 10:22:02,admin,3.3.12.96,,,VSOL,2005,familia Aguilera_2.4G,familia Aguilera_5G,ERROR,Fallo de autenticación (credenciales no válidas).
+2026-09-19 10:22:46,admin,3.3.12.96,,4c46d1-4c46d1e3af19,V2804AX30-H,2005,familia Aguilera_2.4G,familia Aguilera_5G,EXITO,VLAN 2005: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 10:22:52,laura,3.3.12.96,4c:46:d1:e3:af:1a,VSOL00E3AF19,VSOLVD64,2005,familia Aguilera_2.4G,familia Aguilera_5G,EXITO (Liberada),VLAN 2005 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 10:25:06,admin,3.3.9.30,,4c46d1-4c46d1e3d8c1,V2804AX30-H,226,Obra1902_2.4G,Obra1902_5G,EXITO,VLAN 226: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 10:25:13,laura,3.3.9.30,,VSOL00E3D8C1,VSOLVD64,226,Obra1902_2.4G,Obra1902_5G,EXITO (Liberada),VLAN 226 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 10:57:04,admin,3.3.14.139,,4c46d1-4c46d1e3d6a9,V2804AX30-H,583,Fernandez_2.4G,Fernandez_5G,EXITO,VLAN 583: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 10:57:42,laura,3.3.14.139,,VSOL00E3D6A9,VSOLVD64,583,Fernandez_2.4G,Fernandez_5G,EXITO (Liberada),VLAN 583 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 11:50:31,admin,3.3.8.102,,4c46d1-4c46d1e497a1,V2804AX30-H,3008,FamiliaMartinez_2.4G,FamiliaMartinez_5G,EXITO,VLAN 3008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 11:54:16,laura,3.3.8.102,4c:46:d1:e4:97:a2,VSOL00E497A1,VSOLVD64,3008,FamiliaMartinez_2.4G,FamiliaMartinez_5G,EXITO (Liberada),VLAN 3008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 12:10:57,admin,3.3.14.140,,4c46d1-4c46d1e3e229,V2804AX30-H,557,familia Alvarez_2.4G,familia Alvarez_5G,EXITO,VLAN 557: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 12:16:05,laura,3.3.14.140,,VSOL00E3E229,VSOLVD64,557,familia Alvarez_2.4G,familia Alvarez_5G,EXITO (Liberada),VLAN 557 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 12:26:01,admin,3.3.12.97,,4c46d1-4c46d1e40071,V2804AX30-H,2005,Monica_2.4G,Monica_5G,EXITO,VLAN 2005: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 12:26:14,laura,3.3.12.97,,VSOL00E40071,VSOLVD64,2005,Monica_2.4G,Monica_5G,EXITO (Liberada),VLAN 2005 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 12:30:39,admin,3.3.14.141,,4c46d1-4c46d1e41c81,V2804AX30-H,564,Jecerly_2.4G,Jecerly_5G,EXITO,VLAN 564: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 12:39:35,laura,3.3.14.141,4c:46:d1:e4:1c:82,VSOL00E41C81,VSOLVD64,564,Jecerly_2.4G,Jecerly_5G,EXITO (Liberada),VLAN 564 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 13:11:29,admin,3.3.3.111,,4c46d1-4c46d1e48fc1,V2804AX30-H,1027,Aisha_2.4G,Aisha_5G,EXITO,VLAN 1027: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 13:11:56,laura,3.3.3.111,4c:46:d1:e4:8f:c2,VSOL00E48FC1,VSOLVD64,1027,Aisha_2.4G,Aisha_5G,EXITO (Liberada),VLAN 1027 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 14:29:06,admin,3.3.18.28,,4c46d1-4c46d1e43f69,V2804AX30-H,629,Acosta_2.4G,Acosta_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 14:31:48,laura,3.3.18.28,4c:46:d1:e4:3f:6a,VSOL00E43F69,VSOLVD64,629,Acosta_2.4G,Acosta_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 14:44:20,admin,3.3.14.142,,4c46d1-4c46d1e40771,V2804AX30-H,579,Morena_2.4G,Morena_5G,EXITO,VLAN 579: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 14:44:27,laura,3.3.14.142,,VSOL00E40771,VSOLVD64,579,Morena_2.4G,Morena_5G,EXITO (Liberada),VLAN 579 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 15:18:07,admin,3.3.3.112,,4c46d1-4c46d1e3f6d9,V2804AX30-H,1044,Flia. Ortiz_2.4G,Flia. Ortiz_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 15:18:17,laura,3.3.3.112,,VSOL00E3F6D9,VSOLVD64,1044,Flia. Ortiz_2.4G,Flia. Ortiz_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 15:44:24,admin,3.3.7.108,,4c46d1-4c46d1e47301,V2804AX30-H,825,Yeriksmar_2.4G,Yeriksmar_5G,EXITO,VLAN 825: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 15:44:36,laura,3.3.7.108,4c:46:d1:e4:73:02,VSOL00E47301,VSOLVD64,825,Yeriksmar_2.4G,Yeriksmar_5G,EXITO (Liberada),VLAN 825 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 16:08:25,admin,3.3.12.99,,4c46d1-4c46d1e40ba9,V2804AX30-H,2005,Familia Gelvez_2.4G,Familia Gelvez_5G,EXITO,VLAN 2005: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 16:09:13,laura,3.3.12.99,4c:46:d1:e4:0b:aa,VSOL00E40BA9,VSOLVD64,2005,Familia Gelvez_2.4G,Familia Gelvez_5G,EXITO (Liberada),VLAN 2005 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-19 17:56:52,admin,3.3.18.29,,4c46d1-4c46d1e47e51,V2804AX30-H,629,Ambar_2.4G,Ambar_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-19 17:57:35,laura,3.3.18.29,4c:46:d1:e4:7e:52,VSOL00E47E51,VSOLVD64,629,Ambar_2.4G,Ambar_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 09:29:48,admin,3.3.14.142,,4c46d1-4c46d1e3e0a1,V2804AX30-H,560,Mayu_2.4G,Mayu_5G,EXITO,VLAN 560: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 09:32:07,laura,3.3.14.142,4c:46:d1:e3:e0:a2,VSOL00E3E0A1,VSOLVD64,560,Mayu_2.4G,Mayu_5G,EXITO (Liberada),VLAN 560 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 09:34:39,admin,3.3.18.30,,4c46d1-4c46d1e3c729,V2804AX30-H,629,Familia Barrios_2.4G,Familia Barrios_5G,EXITO,VLAN 629: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 09:36:48,laura,3.3.18.30,4c:46:d1:e3:c7:2a,VSOL00E3C729,VSOLVD64,629,Familia Barrios_2.4G,Familia Barrios_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 09:48:29,admin,3.3.18.30,,,VSOL,629,Alexandra_2.4G,Alexandra_5G,ERROR,La ONU en 3.3.18.30 no responde a peticiones HTTP.
+2026-09-21 09:52:07,admin,3.3.18.30,,,VSOL,629,Alexandra_2.4G,Alexandra_5G,ERROR,La ONU en 3.3.18.30 no responde a peticiones HTTP.
+2026-09-21 09:53:34,admin,3.3.18.31,,4c46d1-4c46d1e42929,V2804AX30-H,629,Alexandra_2.4G,Alexandra_5G,PARCIAL,VLAN 629: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 09:53:41,laura,3.3.18.31,4c:46:d1:e4:29:2a,VSOL00E42929,VSOLVD64,629,Alexandra_2.4G,Alexandra_5G,EXITO (Liberada),VLAN 629 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 10:05:19,admin,3.3.3.112,,4c46d1-4c46d1e3c6f9,V2804AX30-H,1044,Ayla_2.4G,Ayla_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 10:05:27,laura,3.3.3.112,,VSOL00E3C6F9,VSOLVD64,1044,Ayla_2.4G,Ayla_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 10:08:04,admin,3.3.3.112,,,VSOL,1044,Felix Tovar_2.4G,Felix Tovar_5G,ERROR,La ONU en 3.3.3.112 no responde a peticiones HTTP.
+2026-09-21 10:10:35,admin,3.3.3.113,,4c46d1-4c46d1e43901,V2804AX30-H,1044,Felix Tovar_2.4G,Felix Tovar_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 10:10:42,laura,3.3.3.113,,VSOL00E43901,VSOLVD64,1044,Felix Tovar_2.4G,Felix Tovar_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 10:41:19,admin,3.3.5.94,,4c46d1-4c46d1e40291,V2804AX30-H,457,Familia Francia_2.4G,Familia Francia_5G,EXITO,VLAN 457: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 10:41:51,admin,3.3.5.94,,4c46d1-4c46d1e40291,V2804AX30-H,457,Familia Francia_2.4G,Familia Francia_5G,EXITO,VLAN 457: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 10:41:58,laura,3.3.5.94,4c:46:d1:e4:02:92,VSOL00E40291,VSOLVD64,457,Familia Francia_2.4G,Familia Francia_5G,EXITO (Liberada),VLAN 457 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 10:55:38,admin,3.3.14.144,,4c46d1-4c46d1e3e129,V2804AX30-H,561,Miranda_2.4G,Miranda_5G,EXITO,VLAN 561: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 10:55:50,laura,3.3.14.144,4c:46:d1:e3:e1:2a,VSOL00E3E129,VSOLVD64,561,Miranda_2.4G,Miranda_5G,EXITO (Liberada),VLAN 561 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 11:16:45,admin,3.3.3.114,,4c46d1-4c46d1e481a9,V2804AX30-H,1044,Yessenia_2.4G,Yessenia_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 11:17:00,laura,3.3.3.114,4c:46:d1:e4:81:aa,VSOL00E481A9,VSOLVD64,1044,Yessenia_2.4G,Yessenia_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 11:50:36,admin,3.3.8.103,,4c46d1-4c46d1e40311,V2804AX30-H,3008,Ruben_2.4G,Ruben_5G,EXITO,VLAN 3008: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 11:51:01,laura,3.3.8.103,4c:46:d1:e4:03:12,VSOL00E40311,VSOLVD64,3008,Ruben_2.4G,Ruben_5G,EXITO (Liberada),VLAN 3008 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 11:53:34,admin,3.3.5.95,,4c46d1-4c46d1e3ab59,V2804AX30-H,473,Family_2.4G,Family_5G,EXITO,VLAN 473: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 11:54:30,laura,3.3.5.95,4c:46:d1:e3:ab:5a,VSOL00E3AB59,VSOLVD64,473,Family_2.4G,Family_5G,EXITO (Liberada),VLAN 473 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 12:04:22,admin,3.3.7.109,,4c46d1-4c46d1e481b9,V2804AX30-H,822,Familia Coello_2.4G,Familia Coello_5G,PARCIAL,VLAN 822: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 12:04:45,laura,3.3.7.109,4c:46:d1:e4:81:ba,VSOL00E481B9,VSOLVD64,822,Familia Coello_2.4G,Familia Coello_5G,EXITO (Liberada),VLAN 822 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 13:09:33,admin,3.3.3.115,4C:46:D1:E3:C1:C9,4c46d1-4c46d1e3c1c9,V2804AX30-H,1044,ALFA_2.4G,ALFA_5G,PARCIAL,VLAN 1044: NO VERIFICADA | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 13:09:55,laura,3.3.3.115,4c:46:d1:e3:c1:ca,VSOL00E3C1C9,VSOLVD64,1044,ALFA_2.4G,ALFA_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 13:32:28,admin,3.3.14.145,,4c46d1-4c46d1e40221,V2804AX30-H,559,Jesus Paternina_2.4G,Jesus Paternina_5G,EXITO,VLAN 559: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 13:32:42,laura,3.3.14.145,4c:46:d1:e4:02:22,VSOL00E40221,VSOLVD64,559,Jesus Paternina_2.4G,Jesus Paternina_5G,EXITO (Liberada),VLAN 559 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 13:41:31,admin,3.3.,,,VSOL,3007,Wifi-Corona_2.4G,Wifi-Corona_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-21 13:42:37,admin,3.3.8.104,,4c46d1-4c46d1e3c819,V2804AX30-H,3007,Wifi-Corona_2.4G,Wifi-Corona_5G,EXITO,VLAN 3007: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 13:42:49,laura,3.3.8.104,4c:46:d1:e3:c8:1a,VSOL00E3C819,VSOLVD64,3007,Wifi-Corona_2.4G,Wifi-Corona_5G,EXITO (Liberada),VLAN 3007 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 14:25:27,admin,3.3.3.116,,4c46d1-4c46d1e3e019,V2804AX30-H,1044,Adhara_2.4G,Adhara_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 14:25:40,laura,3.3.3.116,4c:46:d1:e3:e0:1a,VSOL00E3E019,VSOLVD64,1044,Adhara_2.4G,Adhara_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 15:01:25,admin,3.3.,,,VSOL,2007,FAMILIA HERNANDEZ_2.4G,FAMILIA HERNANDEZ_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-21 15:02:13,admin,3.3.12.99,,4c46d1-4c46d1e3fe19,V2804AX30-H,2007,FAMILIA HERNANDEZ_2.4G,FAMILIA HERNANDEZ_5G,EXITO,VLAN 2007: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 15:03:17,laura,3.3.12.99,4c:46:d1:e3:fe:1a,VSOL00E3FE19,VSOLVD64,2007,FAMILIA HERNANDEZ_2.4G,FAMILIA HERNANDEZ_5G,EXITO (Liberada),VLAN 2007 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 15:24:35,admin,3.3.3.117,,4c46d1-4c46d1e3c7f1,V2804AX30-H,1044,Amanda15_2.4g,Amanda15_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 15:24:45,laura,3.3.3.117,4c:46:d1:e3:c7:f2,VSOL00E3C7F1,VSOLVD64,1044,Amanda15_2.4g,Amanda15_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 15:28:15,admin,3.3.10.17,,4c46d1-4c46d1e3e099,V2804AX30-H,306,V-SOL_2.4G,V-SOL_5G,EXITO,VLAN 306: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 15:28:30,laura,3.3.10.17,4c:46:d1:e3:e0:9a,VSOL00E3E099,VSOLVD64,306,V-SOL_2.4G,V-SOL_5G,EXITO (Liberada),VLAN 306 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 15:32:38,admin,3.3.,,,VSOL,1044,Perucho_2.4G,Perucho_5G,ERROR,La ONU en 3.3. no responde a peticiones HTTP.
+2026-09-21 15:38:49,admin,3.3.3.118,,4c46d1-4c46d1e3e819,V2804AX30-H,1044,Perucho_2.4G,Perucho_5G,EXITO,VLAN 1044: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 15:39:27,laura,3.3.3.118,4c:46:d1:e3:e8:1a,VSOL00E3E819,VSOLVD64,1044,Perucho_2.4G,Perucho_5G,EXITO (Liberada),VLAN 1044 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 16:04:45,admin,3.3.3.119,,4c46d1-4c46d1e46e89,V2804AX30-H,1041,Mis Hijos_2.4G,Mis Hijos_5G,EXITO,VLAN 1041: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 16:05:04,laura,3.3.3.119,,VSOL00E46E89,VSOLVD64,1041,Mis Hijos_2.4G,Mis Hijos_5G,EXITO (Liberada),VLAN 1041 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.
+2026-09-21 16:43:22,admin,3.3.7.110,,4c46d1-4c46d1e40061,V2804AX30-H,811,Keila0_2.4G,Keila0_5G,EXITO,VLAN 811: OK | Wi-Fi 2.4G: OK | Wi-Fi 5G: OK
+2026-09-21 16:44:34,laura,3.3.7.110,,VSOL00E40061,VSOLVD64,811,Keila0_2.4G,Keila0_5G,EXITO (Liberada),VLAN 811 grabada en ONU. Liberada en SmartOLT para aprovisionamiento por Rubpi.

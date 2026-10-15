@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión • Aprovisionamiento Automático Powerlink</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body.login-page-body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-primary, #0b0f19);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.8) 0px, transparent 100%);
+      background-attachment: fixed;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .login-box {
+      background: var(--bg-secondary, #111827);
+      border: 1px solid var(--border-color, #1f2937);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #6366f1, #3b82f6, #10b981);
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .login-logo-badge {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(16, 185, 129, 0.25));
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 8px 16px -4px rgba(99, 102, 241, 0.3);
+    }
+
+    .login-box-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #f9fafb;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .login-box-subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      margin: 0;
+    }
+
+    .login-input-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .login-input-group input {
+      width: 100%;
+      padding-right: 44px;
+    }
+
+    .btn-toggle-password {
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s, background-color 0.15s;
+    }
+
+    .btn-toggle-password:hover {
+      color: #f3f4f6;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .login-alert {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 20px;
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .login-alert-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .login-alert-info {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="login-page-body">
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-brand">
+        <div class="login-logo-badge">⚡</div>
+        <h1 class="login-box-title">Control de Acceso</h1>
+        <p class="login-box-subtitle">Powerlink Corp • Aprovisionamiento de ONUs</p>
+      </div>
+
+      <div id="loginAlert" class="login-alert login-alert-danger"></div>
+
+      <form id="standaloneLoginForm" autocomplete="on">
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label class="form-label" for="loginUser">Usuario *</label>
+          <input 
+            type="text" 
+            id="loginUser" 
+            class="form-control" 
+            placeholder="Ingrese su usuario asignado" 
+            autocomplete="username" 
+            required 
+            autofocus
+          >
+        </div>
+
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label class="form-label" for="loginPass">Clave de Acceso *</label>
+          <div class="login-input-group">
+            <input 
+              type="password" 
+              id="loginPass" 
+              class="form-control" 
+              placeholder="••••••••" 
+              autocomplete="current-password" 
+              required
+            >
+            <button 
+              type="button" 
+              id="btnTogglePass" 
+              class="btn-toggle-password" 
+              title="Mostrar / Ocultar clave"
+              aria-label="Alternar visibilidad de contraseña"
+            >
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btnSubmitLogin" class="btn btn-primary btn-lg" style="width: 100%;">
+          🔐 Ingresar al Sistema
+        </button>
+      </form>
+    </div>
+
+    <div class="login-footer">
+      Powerlink Corporation © 2026 • Plataforma de Aprovisionamiento Automático
+    </div>
+  </div>
+
+  <script>
+    (async function() {
+      const token = localStorage.getItem("powerlink_auth_token");
+      if (token) {
+        try {
+          const res = await fetch("/api/auth/session", {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data && data.success) {
+            window.location.replace("/");
+            return;
+          } else {
+            localStorage.removeItem("powerlink_auth_token");
+          }
+        } catch (e) {
+          // Permanecer en login
+        }
+      }
+
+      // Alternar visualización de clave
+      const passIn = document.getElementById("loginPass");
+      const toggleBtn = document.getElementById("btnTogglePass");
+      if (toggleBtn && passIn) {
+        toggleBtn.addEventListener("click", () => {
+          if (passIn.type === "password") {
+            passIn.type = "text";
+            toggleBtn.innerText = "🙈";
+            toggleBtn.title = "Ocultar clave";
+          } else {
+            passIn.type = "password";
+            toggleBtn.innerText = "👁️";
+            toggleBtn.title = "Mostrar clave";
+          }
+        });
+      }
+
+      // Procesar formulario
+      const form = document.getElementById("standaloneLoginForm");
+      const alertEl = document.getElementById("loginAlert");
+      const btnSubmit = document.getElementById("btnSubmitLogin");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("loginUser").value.trim();
+        const password = passIn.value;
+
+        if (!username || !password) {
+          showAlert("Por favor ingrese su usuario y contraseña", "danger");
+          return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = "⏳ Autenticando...";
+        alertEl.style.display = "none";
+
+        try {
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+
+          if (data && data.success) {
+            localStorage.setItem("powerlink_auth_token", data.token);
+            btnSubmit.innerHTML = "✓ Acceso Concedido...";
+            window.location.replace("/");
+          } else {
+            showAlert(data.error || "Credenciales incorrectas. Verifique usuario y clave.", "danger");
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = "🔐 Ingresar al Sistema";
+          }
+        } catch (err) {
+          showAlert("Error de conexión al validar credenciales: " + err.message, "danger");
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = "🔐 Ingresar al Sistema";
+        }
+      });
+
+      function showAlert(msg, type) {
+        alertEl.className = "login-alert login-alert-" + type;
+        alertEl.innerText = msg;
+        alertEl.style.display = "block";
+      }
+    })();
+  </script>
+</body>
+</html>

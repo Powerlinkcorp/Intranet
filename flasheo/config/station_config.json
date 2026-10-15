@@ -1,0 +1,9 @@
+{
+    "station_id": "ESTACION-GALPON-01",
+    "station_name": "Estación de Flasheo Laptop 1",
+    "server_url": "http://127.0.0.1:8000",
+    "auto_sync": true,
+    "sync_interval_seconds": 15,
+    "batch_size": 50,
+    "hostname": "Pow-ope03"
+}

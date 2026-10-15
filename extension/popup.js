@@ -1,0 +1,1403 @@
+// Configuración Inicial
+const DEFAULT_SERVER_URL = 'http://localhost:5000';
+let currentServerUrl = DEFAULT_SERVER_URL;
+let dbCache = {
+    reports: [],
+    afectaciones: [],
+    techs: [],
+    assignments: [],
+    motivos: [],
+    zonas: [],
+    users: [],
+    logs: []
+};
+let activeFilter = 'TODOS';
+let activeSearchQuery = '';
+let currentUser = null;
+
+// Helper Storage Chrome
+async function getCurrentUser() {
+    return new Promise((resolve) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['currentUser'], (res) => {
+                resolve(res.currentUser || null);
+            });
+        } else {
+            try {
+                const raw = localStorage.getItem('currentUser');
+                resolve(raw ? JSON.parse(raw) : null);
+            } catch (e) {
+                resolve(null);
+            }
+        }
+    });
+}
+
+async function setCurrentUser(user) {
+    currentUser = user;
+    return new Promise((resolve) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({ currentUser: user }, () => resolve(user));
+        } else {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            resolve(user);
+        }
+    });
+}
+
+async function clearCurrentUser() {
+    currentUser = null;
+    return new Promise((resolve) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.remove(['currentUser'], () => resolve());
+        } else {
+            localStorage.removeItem('currentUser');
+            resolve();
+        }
+    });
+}
+
+// Helper Storage Tema (Claro / Oscuro)
+async function getThemePreference() {
+    return new Promise((resolve) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['appTheme'], (res) => {
+                resolve(res.appTheme || 'light');
+            });
+        } else {
+            resolve(localStorage.getItem('appTheme') || 'light');
+        }
+    });
+}
+
+function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    if (isDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        if (document.body) {
+            document.body.classList.add('theme-dark');
+            document.body.classList.remove('theme-light');
+        }
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        if (document.body) {
+            document.body.classList.add('theme-light');
+            document.body.classList.remove('theme-dark');
+        }
+    }
+
+    const btnLight = document.getElementById('btnThemeLight');
+    const btnDark = document.getElementById('btnThemeDark');
+    if (btnLight && btnDark) {
+        if (isDark) {
+            btnDark.classList.add('active');
+            btnLight.classList.remove('active');
+        } else {
+            btnLight.classList.add('active');
+            btnDark.classList.remove('active');
+        }
+    }
+}
+
+async function setThemePreference(theme) {
+    applyTheme(theme);
+    try {
+        localStorage.setItem('appTheme', theme);
+    } catch (e) {}
+    return new Promise((resolve) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({ appTheme: theme }, () => resolve(theme));
+        } else {
+            resolve(theme);
+        }
+    });
+}
+
+function updateAuthUI(user) {
+    const loginSection = document.getElementById('loginSection');
+    const appSection = document.getElementById('appSection');
+    const userBadge = document.getElementById('userHeaderBadge');
+    const userAvatarMini = document.getElementById('userAvatarMini');
+    const userNameMini = document.getElementById('userNameMini');
+    const userRoleMini = document.getElementById('userRoleMini');
+
+    if (user && user.username) {
+        if (loginSection) loginSection.style.display = 'none';
+        if (appSection) appSection.style.display = 'flex';
+        if (userBadge) userBadge.style.display = 'flex';
+
+        const displayName = user.full_name || user.name || user.username;
+        const initial = displayName.charAt(0).toUpperCase();
+        if (userAvatarMini) userAvatarMini.textContent = initial;
+        if (userNameMini) userNameMini.textContent = displayName;
+        if (userRoleMini) userRoleMini.textContent = (user.cargo || user.department || user.role || 'TRABAJADOR').toUpperCase();
+    } else {
+        if (loginSection) loginSection.style.display = 'flex';
+        if (appSection) appSection.style.display = 'none';
+        if (userBadge) userBadge.style.display = 'none';
+    }
+}
+
+async function getServerUrl() {
+    return new Promise((resolve) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['serverUrl'], (res) => {
+                resolve(res.serverUrl || DEFAULT_SERVER_URL);
+            });
+        } else {
+            resolve(localStorage.getItem('serverUrl') || DEFAULT_SERVER_URL);
+        }
+    });
+}
+
+async function setServerUrl(url) {
+    const cleanUrl = url.trim().replace(/\/+$/, '');
+    return new Promise((resolve) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({ serverUrl: cleanUrl }, () => resolve(cleanUrl));
+        } else {
+            localStorage.setItem('serverUrl', cleanUrl);
+            resolve(cleanUrl);
+        }
+    });
+}
+
+// UI Toast
+function showToast(msg, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    if (!toast || !toastText) return;
+
+    toastText.textContent = msg;
+    toast.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(() => {
+        toast.className = 'toast';
+    }, 3200);
+}
+
+// Actualizar Indicador de Conexión
+function setConnectionStatus(online, message = '') {
+    const dot = document.getElementById('statusDot');
+    const label = document.getElementById('statusLabel');
+    if (!dot || !label) return;
+
+    if (online) {
+        dot.className = 'status-dot online';
+        label.textContent = 'Sistema en línea';
+    } else {
+        dot.className = 'status-dot offline';
+        label.textContent = message || 'Sin conexión';
+    }
+}
+
+// Cargar Base de Datos
+async function fetchDatabase() {
+    setConnectionStatus(false, 'Conectando...');
+    try {
+        const res = await fetch(`${currentServerUrl}/api/db`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        dbCache = {
+            reports: Array.isArray(data.reports) ? data.reports : [],
+            afectaciones: Array.isArray(data.afectaciones) ? data.afectaciones : [],
+            techs: Array.isArray(data.techs) ? data.techs : [],
+            assignments: Array.isArray(data.assignments) ? data.assignments : [],
+            motivos: Array.isArray(data.motivos) ? data.motivos : [],
+            zonas: Array.isArray(data.zonas) ? data.zonas : [],
+            users: Array.isArray(data.users) ? data.users : [],
+            logs: Array.isArray(data.logs) ? data.logs : []
+        };
+
+        setConnectionStatus(true);
+        populateSelects();
+        renderConsultas();
+    } catch (err) {
+        console.error('Error al conectar con servidor:', err);
+        setConnectionStatus(false, 'Desconectado');
+        showToast(`No se pudo conectar a ${currentServerUrl}`, true);
+    }
+}
+
+// Guardar Base de Datos
+async function syncDatabase(updatedData, logAction = '', logDetails = '') {
+    try {
+        if (logAction) {
+            const newLog = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                username: (currentUser && currentUser.username) ? currentUser.username : 'extension',
+                action: logAction,
+                module: 'EXTENSION',
+                details: logDetails
+            };
+            if (!Array.isArray(updatedData.logs)) updatedData.logs = dbCache.logs || [];
+            updatedData.logs.unshift(newLog);
+        }
+
+        const res = await fetch(`${currentServerUrl}/api/db`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData)
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const resp = await res.json();
+
+        // Actualizar caché local
+        Object.assign(dbCache, updatedData);
+        renderConsultas();
+        return true;
+    } catch (err) {
+        console.error('Error al guardar en el servidor:', err);
+        showToast('Error al sincronizar con el servidor', true);
+        return false;
+    }
+}
+
+function genReportId(reports = []) {
+    let maxId = 1000;
+    (reports || []).forEach(r => {
+        const idNum = Number(r.id);
+        if (!isNaN(idNum) && idNum >= 1000 && idNum < 1000000 && idNum > maxId) {
+            maxId = idNum;
+        }
+    });
+    let nextId = maxId + 1;
+    while ((reports || []).some(r => Number(r.id) === nextId)) {
+        nextId++;
+    }
+    return nextId;
+}
+
+// Llenar selects de Zonas y Motivos
+function populateSelects() {
+    const selZona = document.getElementById('sop_zona');
+    const selMotivo = document.getElementById('sop_motivo');
+
+    if (selZona) {
+        selZona.innerHTML = '<option value="">Seleccionar zona...</option>';
+        (dbCache.zonas || []).forEach(z => {
+            const opt = document.createElement('option');
+            opt.value = z.name;
+            opt.textContent = z.name;
+            selZona.appendChild(opt);
+        });
+    }
+
+    if (selMotivo) {
+        selMotivo.innerHTML = '<option value="">Seleccionar motivo...</option>';
+        (dbCache.motivos || []).forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.name;
+            opt.textContent = m.name;
+            selMotivo.appendChild(opt);
+        });
+    }
+}
+
+// Determinar el Estatus Efectivo de un Soporte
+function getEffectiveStatus(report) {
+    const reportIdStr = String(report.id);
+    const assignments = (dbCache.assignments || []);
+    for (let i = assignments.length - 1; i >= 0; i--) {
+        const item = assignments[i];
+        if (String(item.reportId) === reportIdStr && (item.itemType || 'SOPORTE').toUpperCase() === 'SOPORTE') {
+            if (item.status) return item.status.toUpperCase();
+        }
+    }
+    return (report.estatus || 'PENDIENTE').toUpperCase();
+}
+
+// Obtener la Cuadrilla/Equipo al cual está coordinado un reporte
+function getEffectiveTeam(report, itemType = 'SOPORTE') {
+    const reportIdStr = String(report.id);
+    const targetType = (itemType || 'SOPORTE').toUpperCase();
+    const assignments = (dbCache.assignments || []);
+
+    let a = null;
+    for (let i = assignments.length - 1; i >= 0; i--) {
+        const item = assignments[i];
+        if (String(item.reportId) === reportIdStr && (item.itemType || 'SOPORTE').toUpperCase() === targetType) {
+            a = item;
+            break;
+        }
+    }
+
+    if (!a || !a.teamId) {
+        return null;
+    }
+
+    const teamIdStr = String(a.teamId);
+
+    // 1. Buscar en técnicos/cuadrillas activas
+    const t = (dbCache.techs || []).find(tech => String(tech.id) === teamIdStr);
+    if (t) {
+        const teamName = t.name || (t.letter ? `Equipo "${t.letter}"` : `Equipo #${t.id}`);
+        const t1Name = (t.t1 && t.t1.name) || (t.tech1 && t.tech1.name) || '';
+        const t2Name = (t.t2 && t.t2.name) || (t.tech2 && t.tech2.name) || '';
+        const members = [t1Name, t2Name].filter(Boolean).join(' · ');
+        return {
+            id: t.id,
+            name: teamName,
+            letter: t.letter || '',
+            area: t.area || '',
+            members: members
+        };
+    }
+
+    // 2. Si el equipo fue eliminado, recuperar nombre histórico de la bitácora
+    for (const log of (dbCache.logs || [])) {
+        const details = log.details || '';
+        if (details.includes(teamIdStr)) {
+            const m = details.match(new RegExp('"([^"]+)"\\s*\\(#' + teamIdStr + '\\)'));
+            if (m && m[1]) {
+                return {
+                    id: a.teamId,
+                    name: m[1],
+                    letter: '',
+                    area: '',
+                    members: ''
+                };
+            }
+        }
+    }
+
+    return {
+        id: a.teamId,
+        name: `Equipo #${a.teamId}`,
+        letter: '',
+        area: '',
+        members: ''
+    };
+}
+
+// Renderizar la Pestaña de Consultas
+function renderConsultas() {
+    const list = document.getElementById('reportsList');
+    if (!list) return;
+
+    const reports = dbCache.reports || [];
+    const query = activeSearchQuery.trim().toLowerCase();
+
+    // Contadores
+    let cTodos = 0;
+    let cPendientes = 0;
+    let cProceso = 0;
+    let cEspera = 0;
+    let cRealizadas = 0;
+    let cAnuladas = 0;
+
+    const enriched = reports.map(r => {
+        const st = getEffectiveStatus(r);
+        const team = getEffectiveTeam(r, 'SOPORTE');
+        cTodos++;
+        if (st.includes('PENDIENTE')) cPendientes++;
+        else if (st.includes('PROCESO')) cProceso++;
+        else if (st.includes('ESPERA')) cEspera++;
+        else if (st.includes('REALIZADA') || st.includes('RESUELTO')) cRealizadas++;
+        else if (st.includes('ANULADA') || st.includes('CANCELADO')) cAnuladas++;
+        return { ...r, status: st, team: team };
+    });
+
+    if (document.getElementById('countTodos')) document.getElementById('countTodos').textContent = cTodos;
+    if (document.getElementById('countPendientes')) document.getElementById('countPendientes').textContent = cPendientes;
+    if (document.getElementById('countProceso')) document.getElementById('countProceso').textContent = cProceso;
+    if (document.getElementById('countEspera')) document.getElementById('countEspera').textContent = cEspera;
+    if (document.getElementById('countRealizadas')) document.getElementById('countRealizadas').textContent = cRealizadas;
+    if (document.getElementById('countAnuladas')) document.getElementById('countAnuladas').textContent = cAnuladas;
+
+    // Filtrado
+    const filtered = enriched.filter(r => {
+        // Filtro de estado
+        if (activeFilter !== 'TODOS') {
+            if (activeFilter === 'PENDIENTE' && !r.status.includes('PENDIENTE')) return false;
+            if (activeFilter === 'EN PROCESO' && !r.status.includes('PROCESO')) return false;
+            if (activeFilter === 'ESPERA' && !r.status.includes('ESPERA')) return false;
+            if (activeFilter === 'REALIZADA' && !r.status.includes('REALIZADA') && !r.status.includes('RESUELTO')) return false;
+            if (activeFilter === 'ANULADA' && !r.status.includes('ANULADA') && !r.status.includes('CANCELADO')) return false;
+        }
+        // Filtro de texto (incluye búsqueda por nombre o integrantes de cuadrilla)
+        if (query) {
+            const teamStr = r.team ? `${r.team.name || ''} ${r.team.letter || ''} ${r.team.members || ''}` : '';
+            const searchStr = `${r.cedula || ''} ${r.motivo || ''} ${r.caja_nap || ''} ${r.onu || ''} ${r.ubicacion || ''} ${r.zona || ''} ${teamStr}`.toLowerCase();
+            return searchStr.includes(query);
+        }
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        list.innerHTML = `
+            <div style="text-align: center; padding: 30px 10px; color: var(--text-dim);">
+                <svg style="width: 36px; height: 36px; margin: 0 auto 8px auto; display: block; opacity: 0.5;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                No se encontraron soportes con el criterio actual.
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = filtered.map(r => {
+        let badgeClass = 'badge-pendiente';
+        if (r.status.includes('PROCESO')) badgeClass = 'badge-proceso';
+        else if (r.status.includes('ESPERA')) badgeClass = 'badge-espera';
+        else if (r.status.includes('REALIZADA') || r.status.includes('RESUELTO')) badgeClass = 'badge-realizada';
+        else if (r.status.includes('ANULADA') || r.status.includes('CANCELADO')) badgeClass = 'badge-anulada';
+        else if (r.status.includes('REAGENDADA')) badgeClass = 'badge-reagendada';
+
+        const fechaStr = r.created_at ? new Date(r.created_at).toLocaleDateString() : 'N/A';
+        const teamObj = r.team;
+        const teamBadgeHtml = teamObj
+            ? `<div class="item-team is-assigned" title="${escapeHtml(teamObj.members ? `${teamObj.name} (${teamObj.members})` : teamObj.name)}">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span><strong>Cuadrilla:</strong> ${escapeHtml(teamObj.name)}</span>
+               </div>`
+            : `<div class="item-team unassigned" title="Este reporte no tiene cuadrilla asignada">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span>Sin coordinar</span>
+               </div>`;
+
+        return `
+            <div class="report-item" data-id="${r.id}">
+                <div class="item-header">
+                    <span class="item-id">#${r.id}</span>
+                    <span class="badge ${badgeClass}">${r.status}</span>
+                </div>
+                <div class="item-body">
+                    <div class="item-motivo">${escapeHtml(r.motivo || 'Sin motivo')}</div>
+                    <div class="item-cliente">
+                        <strong>C.I:</strong> ${escapeHtml(r.cedula || 'N/A')} &bull; <span>${escapeHtml(r.zona || 'N/A')}</span>
+                    </div>
+                    <div class="item-location" title="${escapeHtml(r.ubicacion || '')}">
+                        📍 ${escapeHtml(r.ubicacion || 'Sin ubicación')}
+                    </div>
+                    ${teamBadgeHtml}
+                </div>
+                <div class="item-date">Registrado: ${fechaStr}</div>
+            </div>
+        `;
+    }).join('');
+
+    // Listener para abrir detalles
+    list.querySelectorAll('.report-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const id = Number(el.getAttribute('data-id'));
+            const item = enriched.find(x => x.id === id);
+            if (item) openDetailModal(item);
+        });
+    });
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function isNextDayVisit(fechaVisita, createdAt) {
+    if (!fechaVisita) return false;
+    let iso = '';
+    const str = String(fechaVisita).trim();
+    if (str.includes('-')) {
+        iso = str.slice(0, 10);
+    } else if (str.includes('/')) {
+        const p = str.split('/');
+        if (p.length === 3) {
+            iso = `${p[2]}-${String(p[1]).padStart(2, '0')}-${String(p[0]).padStart(2, '0')}`;
+        }
+    }
+    if (!iso) return false;
+
+    if (createdAt) {
+        const base = new Date(createdAt);
+        if (!isNaN(base.getTime())) {
+            const next = new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1);
+            const nextIso = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-${String(next.getDate()).padStart(2, '0')}`;
+            if (iso === nextIso) return true;
+        }
+    }
+
+    const now = new Date();
+    const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const tomIso = `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, '0')}-${String(tom.getDate()).padStart(2, '0')}`;
+    if (iso === tomIso) return true;
+
+    return false;
+}
+
+// Modal Detalle de Soporte
+function openDetailModal(item) {
+    const modal = document.getElementById('detailModal');
+    const title = document.getElementById('detailTitle');
+    const body = document.getElementById('detailBody');
+    if (!modal || !body) return;
+
+    title.textContent = `Soporte #${item.id} - ${item.status}`;
+
+    body.innerHTML = `
+        <div class="detail-row">
+            <span class="detail-label">C.I. / RIF:</span>
+            <span class="detail-val">${escapeHtml(item.cedula || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Cuadrilla Coordinada:</span>
+            <span class="detail-val" style="color: ${item.team ? '#0284c7' : 'var(--text-dim)'}; font-weight: 700;">
+                ${item.team ? `👷 ${escapeHtml(item.team.name)}${item.team.members ? ` (${escapeHtml(item.team.members)})` : ''}` : '⚠️ Sin coordinar'}
+            </span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Zona:</span>
+            <span class="detail-val">${escapeHtml(item.zona || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Motivo:</span>
+            <span class="detail-val" style="color: var(--primary);">${escapeHtml(item.motivo || 'N/A')}</span>
+        </div>
+        ${item.a_disponibilidad ? `
+        <div class="detail-row">
+            <span class="detail-label">Modalidad:</span>
+            <span class="detail-val" style="color: #f59e0b; font-weight: 800;">⚡ A Disponibilidad</span>
+        </div>` : (item.fecha_visita ? `
+        <div class="detail-row">
+            <span class="detail-label">Fecha de Visita:</span>
+            <span class="detail-val" style="color: #0284c7; font-weight: 800;">📅 ${escapeHtml(item.fecha_visita)}</span>
+        </div>` : '')}
+        <div class="detail-row">
+            <span class="detail-label">Ubicación:</span>
+            <span class="detail-val" style="max-width: 60%;">${escapeHtml(item.ubicacion || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">ONU:</span>
+            <span class="detail-val">${escapeHtml(item.onu || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Caja NAP:</span>
+            <span class="detail-val">${escapeHtml(item.caja_nap || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Precinto:</span>
+            <span class="detail-val">${escapeHtml(item.precinto || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Coordenadas:</span>
+            <span class="detail-val">${escapeHtml(item.coordenadas || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Teléfono 1:</span>
+            <span class="detail-val">${escapeHtml(item.telefono1 || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Teléfono 2:</span>
+            <span class="detail-val">${escapeHtml(item.telefono2 || 'N/A')}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Fecha:</span>
+            <span class="detail-val">${item.created_at ? new Date(item.created_at).toLocaleString() : 'N/A'}</span>
+        </div>
+        <button class="btn-secondary" style="margin-top: 10px;" id="btnCopyDetail">📋 Copiar Resumen</button>
+    `;
+
+    document.getElementById('btnCopyDetail').onclick = () => {
+        const extraFecha = (item.fecha_visita && !isNextDayVisit(item.fecha_visita, item.created_at)) ? `\nFECHA DE VISITA: ${item.fecha_visita}` : '';
+        const txt = `SOPORTE #${item.id}
+CUADRILLA COORDINADA: ${item.team ? item.team.name : 'Sin coordinar'}
+C.I: ${item.cedula}
+ZONA: ${item.zona}
+MOTIVO: ${item.motivo}${item.a_disponibilidad ? '\nMODALIDAD: A DISPONIBILIDAD' : extraFecha}
+UBICACION: ${item.ubicacion}
+ONU: ${item.onu || 'N/A'} | CAJA-NAP: ${item.caja_nap || 'N/A'} | PRECINTO: ${item.precinto || 'N/A'}
+COORDENADAS: ${item.coordenadas || 'N/A'}
+CONTACTO: ${item.telefono1 || ''} / ${item.telefono2 || ''}`;
+        navigator.clipboard.writeText(txt).then(() => {
+            showToast('Copiado al portapapeles');
+        });
+    };
+
+    modal.classList.add('active');
+}
+
+function closeDetailModal() {
+    const modal = document.getElementById('detailModal');
+    if (modal) modal.classList.remove('active');
+}
+
+// Inicialización de la Extensión
+document.addEventListener('DOMContentLoaded', async () => {
+    // Inicializar tema guardado (Claro u Oscuro)
+    const savedTheme = await getThemePreference();
+    applyTheme(savedTheme);
+
+    const btnThemeLight = document.getElementById('btnThemeLight');
+    const btnThemeDark = document.getElementById('btnThemeDark');
+    if (btnThemeLight) {
+        btnThemeLight.addEventListener('click', async () => {
+            await setThemePreference('light');
+            showToast('☀️ Modo Claro activado');
+        });
+    }
+    if (btnThemeDark) {
+        btnThemeDark.addEventListener('click', async () => {
+            await setThemePreference('dark');
+            showToast('🌙 Modo Oscuro activado');
+        });
+    }
+
+    currentServerUrl = await getServerUrl();
+    const cfgInput = document.getElementById('cfg_server_url');
+    if (cfgInput) cfgInput.value = currentServerUrl;
+
+    const loginServerInput = document.getElementById('login_server_url');
+    if (loginServerInput) loginServerInput.value = currentServerUrl;
+
+    // Verificar sesión existente
+    currentUser = await getCurrentUser();
+    updateAuthUI(currentUser);
+
+    // Conectar y sincronizar con base de datos del servidor
+    await fetchDatabase();
+
+    // Re-verificar si la sesión sigue siendo válida en users
+    if (currentUser && dbCache.users && dbCache.users.length > 0) {
+        const stillValid = dbCache.users.find(u => u.username && u.username.toLowerCase() === currentUser.username.toLowerCase());
+        if (!stillValid) {
+            await clearCurrentUser();
+            updateAuthUI(null);
+            showToast('La sesión anterior ya no es válida', true);
+        }
+    }
+
+    // Toggle Configuración Servidor en Pantalla de Login
+    const btnToggleServerConfig = document.getElementById('btnToggleServerConfig');
+    const loginServerBox = document.getElementById('loginServerBox');
+    if (btnToggleServerConfig && loginServerBox) {
+        btnToggleServerConfig.addEventListener('click', () => {
+            const isHidden = loginServerBox.style.display === 'none' || !loginServerBox.style.display;
+            loginServerBox.style.display = isHidden ? 'block' : 'none';
+        });
+    }
+
+    // Guardar Servidor desde Pantalla de Login
+    const btnSaveLoginServer = document.getElementById('btnSaveLoginServer');
+    if (btnSaveLoginServer) {
+        btnSaveLoginServer.addEventListener('click', async () => {
+            const val = document.getElementById('login_server_url').value.trim();
+            if (!val) {
+                showToast('Ingresa una URL válida', true);
+                return;
+            }
+            currentServerUrl = await setServerUrl(val);
+            if (cfgInput) cfgInput.value = currentServerUrl;
+            showToast('Servidor actualizado. Conectando...');
+            await fetchDatabase();
+        });
+    }
+
+    // Toggle visibilidad de contraseña en login
+    const btnTogglePassword = document.getElementById('btnTogglePassword');
+    const loginPassInput = document.getElementById('login_pass');
+    if (btnTogglePassword && loginPassInput) {
+        btnTogglePassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const isPassword = loginPassInput.type === 'password';
+            loginPassInput.type = isPassword ? 'text' : 'password';
+
+            btnTogglePassword.setAttribute('title', isPassword ? 'Ocultar contraseña' : 'Ver contraseña');
+            btnTogglePassword.innerHTML = isPassword
+                ? `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path>
+                   </svg>`
+                : `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                   </svg>`;
+        });
+    }
+
+    // Manejo de Inicio de Sesión
+    const formLoginExt = document.getElementById('formLoginExt');
+    if (formLoginExt) {
+        formLoginExt.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usernameInput = document.getElementById('login_user');
+            const passwordInput = document.getElementById('login_pass');
+            const username = usernameInput ? usernameInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value : '';
+
+            if (!username || !password) {
+                showToast('Ingresa usuario y contraseña', true);
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btnLoginSubmit');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span>Verificando...</span>';
+            }
+
+            let authenticatedUser = null;
+            let loginErrorMessage = 'Usuario o contraseña incorrectos';
+
+            // 1. Autenticar mediante /api/login contra la base de datos principal de Trabajadores
+            try {
+                const res = await fetch(`${currentServerUrl}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json().catch(() => null);
+
+                if (res.ok && data && (data.success || data.status === 'ok') && data.user) {
+                    authenticatedUser = data.user;
+                    if (data.access_token) {
+                        try {
+                            localStorage.setItem('access_token', data.access_token);
+                            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                                chrome.storage.local.set({ access_token: data.access_token });
+                            }
+                        } catch (e) {}
+                    }
+                } else if (data && (data.message || data.detail)) {
+                    loginErrorMessage = data.message || data.detail;
+                }
+            } catch (err) {
+                console.warn('Error conectando a /api/login:', err);
+                loginErrorMessage = 'Error de conexión con el servidor principal';
+            }
+
+            // 2. Si /api/login devolvió error de conexión, intentar con /api/auth/login
+            if (!authenticatedUser && loginErrorMessage.includes('Error de conexión')) {
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('username', username);
+                    formData.append('password', password);
+                    const authRes = await fetch(`${currentServerUrl}/api/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData
+                    });
+                    const authData = await authRes.json().catch(() => null);
+                    if (authRes.ok && authData && authData.user) {
+                        authenticatedUser = authData.user;
+                        if (authData.access_token) {
+                            try {
+                                localStorage.setItem('access_token', authData.access_token);
+                            } catch (e) {}
+                        }
+                    } else if (authData && authData.detail) {
+                        loginErrorMessage = authData.detail;
+                    }
+                } catch (e) {
+                    console.warn('Fallback /api/auth/login no disponible:', e);
+                }
+            }
+
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<span>Acceder al Sistema</span>
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>`;
+            }
+
+            if (authenticatedUser) {
+                await setCurrentUser(authenticatedUser);
+                updateAuthUI(authenticatedUser);
+                const welcomeName = authenticatedUser.name || authenticatedUser.full_name || authenticatedUser.username;
+                showToast(`¡Bienvenido, ${welcomeName}!`);
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.type = 'password';
+                    if (btnTogglePassword) {
+                        btnTogglePassword.setAttribute('title', 'Mostrar contraseña');
+                        btnTogglePassword.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>`;
+                    }
+                }
+
+                // Registrar en la bitácora
+                syncDatabase({}, 'LOGIN_EXTENSION', `Trabajador ${authenticatedUser.username} (${authenticatedUser.email || ''}) inició sesión desde la extensión`);
+            } else {
+                showToast(loginErrorMessage, true);
+            }
+        });
+    }
+
+    // Botón Cerrar Sesión
+    const btnLogoutExt = document.getElementById('btnLogoutExt');
+    if (btnLogoutExt) {
+        btnLogoutExt.addEventListener('click', async () => {
+            const prevUser = currentUser ? currentUser.username : 'desconocido';
+            await clearCurrentUser();
+            updateAuthUI(null);
+            showToast('Sesión cerrada correctamente');
+            syncDatabase({}, 'LOGOUT_EXTENSION', `Usuario ${prevUser} cerró sesión en la extensión`);
+        });
+    }
+
+    // Event Listeners de Pestañas
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            btn.classList.add('active');
+            const targetId = btn.getAttribute('data-tab');
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) targetContent.classList.add('active');
+
+            if (targetId === 'tab-consultar') {
+                renderConsultas();
+            }
+        });
+    });
+
+    // Píldoras de Filtro
+    const pillBtns = document.querySelectorAll('.pill-btn');
+    pillBtns.forEach(p => {
+        p.addEventListener('click', () => {
+            pillBtns.forEach(x => x.classList.remove('active'));
+            p.classList.add('active');
+            activeFilter = p.getAttribute('data-filter');
+            renderConsultas();
+        });
+    });
+
+    // Búsqueda en vivo
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            activeSearchQuery = e.target.value;
+            renderConsultas();
+        });
+    }
+
+    // Modal Detalle
+    document.getElementById('btnCloseDetail').addEventListener('click', closeDetailModal);
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+        if (e.target.id === 'detailModal') closeDetailModal();
+    });
+
+    // Botón Refrescar Conexión
+    document.getElementById('btnCheckStatus').addEventListener('click', () => {
+        fetchDatabase();
+    });
+
+    // Helper fecha actual YYYY-MM-DD
+    function getTodayDateString() {
+        const d = new Date();
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getTomorrowDateString() {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Configuración y restricción de Fecha de Visita y Disponibilidad
+    let sopIsDisponibilidad = false;
+    const btnSopDisp = document.getElementById('btn_sop_disponibilidad');
+    const extDispDot = document.getElementById('ext_disp_dot');
+    const extDispLabel = document.getElementById('ext_disp_label');
+    const extDispHelp = document.getElementById('ext_disp_help');
+    const extFechaContainer = document.getElementById('ext_fecha_container');
+    const extFechaBadge = document.getElementById('ext_fecha_badge');
+    const extFechaNotice = document.getElementById('ext_fecha_notice');
+    const sopFechaVisitaInput = document.getElementById('sop_fecha_visita');
+
+    function updateExtDisponibilidadUI() {
+        if (!btnSopDisp) return;
+        if (sopIsDisponibilidad) {
+            btnSopDisp.style.background = '#f59e0b';
+            btnSopDisp.style.borderColor = '#d97706';
+            btnSopDisp.style.color = '#ffffff';
+            if (extDispDot) extDispDot.style.background = '#ffffff';
+            if (extDispLabel) extDispLabel.textContent = 'SÍ (A Disponibilidad)';
+            if (extDispHelp) extDispHelp.textContent = '✓ Visita a disponibilidad (sin fecha fija)';
+            if (sopFechaVisitaInput) {
+                sopFechaVisitaInput.value = '';
+                sopFechaVisitaInput.disabled = true;
+            }
+            if (extFechaContainer) extFechaContainer.style.opacity = '0.5';
+            if (extFechaBadge) {
+                extFechaBadge.textContent = 'A Disponibilidad';
+                extFechaBadge.style.color = '#f59e0b';
+            }
+            if (extFechaNotice) extFechaNotice.textContent = '⚡ Esta visita quedará registrada a disponibilidad.';
+        } else {
+            btnSopDisp.style.background = 'var(--bg-card)';
+            btnSopDisp.style.borderColor = 'var(--border-color)';
+            btnSopDisp.style.color = 'var(--text-muted)';
+            if (extDispDot) extDispDot.style.background = '#94a3b8';
+            if (extDispLabel) extDispLabel.textContent = 'NO';
+            if (extDispHelp) extDispHelp.textContent = 'No (se planifica para mañana o fecha fija)';
+            if (sopFechaVisitaInput) {
+                sopFechaVisitaInput.disabled = false;
+            }
+            if (extFechaContainer) extFechaContainer.style.opacity = '1';
+            if (extFechaBadge) {
+                extFechaBadge.textContent = 'Por defecto: Mañana';
+                extFechaBadge.style.color = '#38bdf8';
+            }
+            if (extFechaNotice) extFechaNotice.textContent = 'Si no seleccionas fecha, se planificará para mañana.';
+        }
+    }
+
+    if (btnSopDisp) {
+        btnSopDisp.addEventListener('click', () => {
+            sopIsDisponibilidad = !sopIsDisponibilidad;
+            updateExtDisponibilidadUI();
+        });
+    }
+
+    if (sopFechaVisitaInput) {
+        sopFechaVisitaInput.min = getTodayDateString();
+        sopFechaVisitaInput.addEventListener('change', (e) => {
+            const todayStr = getTodayDateString();
+            if (e.target.value && e.target.value < todayStr) {
+                showToast('No se pueden seleccionar días anteriores al actual', true);
+                e.target.value = '';
+            }
+        });
+    }
+
+    // ============================================================
+    // CONSULTA Y AUTOCOMPLETADO POR C.I. / RIF (NUEVO REPORTE)
+    // ============================================================
+    let _cedulaSearchTimer = null;
+    let _lastSearchedCedula = '';
+
+    function highlightField(el) {
+        if (!el) return;
+        el.style.transition = 'border-color 0.3s ease, box-shadow 0.3s ease';
+        el.style.borderColor = '#10b981';
+        el.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.25)';
+        setTimeout(() => {
+            el.style.borderColor = '';
+            el.style.boxShadow = '';
+        }, 1800);
+    }
+
+    function setClienteSearchStatus(state, message = '') {
+        const statusEl = document.getElementById('sop_cedula_status');
+        if (!statusEl) return;
+        if (!state) {
+            statusEl.style.display = 'none';
+            statusEl.textContent = '';
+            return;
+        }
+        statusEl.style.display = 'inline-block';
+        if (state === 'loading') {
+            statusEl.style.color = 'var(--info, #38bdf8)';
+            statusEl.textContent = 'Buscando...';
+        } else if (state === 'success') {
+            statusEl.style.color = 'var(--success, #10b981)';
+            statusEl.textContent = message || 'Cliente verificado';
+        } else if (state === 'not_found') {
+            statusEl.style.color = 'var(--warning, #fbbf24)';
+            statusEl.textContent = message || 'No registrado';
+        } else if (state === 'error') {
+            statusEl.style.color = 'var(--danger, #f87171)';
+            statusEl.textContent = message || 'Error de conexión';
+        }
+    }
+
+    async function fetchClientePorCedula(cedula) {
+        if (!cedula) return null;
+        const cleanDigits = cedula.replace(/[^0-9]/g, '');
+        if (cleanDigits.length < 5) return null;
+
+        try {
+            const url = `${currentServerUrl}/api/clientes/consulta?q=${encodeURIComponent(cleanDigits)}`;
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            });
+
+            if (!res.ok) {
+                console.warn(`[Extension] Error en consulta de cliente (${res.status})`);
+                return null;
+            }
+
+            const data = await res.json();
+            return (data && data.encontrado) ? data : null;
+        } catch (err) {
+            console.error('[Extension] Error al consultar cliente por cédula:', err);
+            return null;
+        }
+    }
+
+    function autocompletarCamposCliente(data) {
+        if (!data) return;
+
+        // 1. Zona (selector desplegable en "DATOS DEL CLIENTE")
+        const selZona = document.getElementById('sop_zona');
+        const targetZone = (data.urban || data.zona || '').trim().toUpperCase();
+        if (selZona && targetZone) {
+            for (let i = 0; i < selZona.options.length; i++) {
+                const optVal = selZona.options[i].value.trim().toUpperCase();
+                if (optVal && (optVal === targetZone || targetZone.includes(optVal) || optVal.includes(targetZone))) {
+                    selZona.selectedIndex = i;
+                    selZona.dispatchEvent(new Event('change', { bubbles: true }));
+                    highlightField(selZona);
+                    break;
+                }
+            }
+        }
+
+        // 2. ONU (en la sección "EQUIPAMIENTO")
+        const onuInput = document.getElementById('sop_onu');
+        if (onuInput && data.onu) {
+            onuInput.value = data.onu;
+            onuInput.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(onuInput);
+        }
+
+        // 3. Ubicación (en la sección "UBICACIÓN")
+        const ubiInput = document.getElementById('sop_ubicacion');
+        if (ubiInput && (data.ubicacion || data.address)) {
+            ubiInput.value = data.ubicacion || data.address || '';
+            ubiInput.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(ubiInput);
+        }
+
+        // 4. Teléfono 1 (en la sección "CONTACTO")
+        const tel1Input = document.getElementById('sop_tel1');
+        const tel1Val = data.telefono1 || data.telefono_raw || '';
+        if (tel1Input && tel1Val) {
+            tel1Input.value = tel1Val;
+            tel1Input.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(tel1Input);
+        }
+
+        // Teléfono 2 (opcional, si viene informado y el input está vacío)
+        const tel2Input = document.getElementById('sop_tel2');
+        if (tel2Input && data.telefono2 && !tel2Input.value) {
+            tel2Input.value = data.telefono2;
+            tel2Input.dispatchEvent(new Event('input', { bubbles: true }));
+            highlightField(tel2Input);
+        }
+    }
+
+    async function ejecutarConsultaCedula(forzar = false) {
+        const cedulaInput = document.getElementById('sop_cedula');
+        if (!cedulaInput) return;
+
+        const rawVal = cedulaInput.value.trim();
+        const cleanDigits = rawVal.replace(/[^0-9]/g, '');
+
+        if (!cleanDigits || cleanDigits.length < 5) {
+            setClienteSearchStatus(null);
+            return;
+        }
+
+        if (!forzar && cleanDigits === _lastSearchedCedula) {
+            return;
+        }
+
+        _lastSearchedCedula = cleanDigits;
+        setClienteSearchStatus('loading');
+
+        try {
+            const cliente = await fetchClientePorCedula(cleanDigits);
+            if (cliente && cliente.encontrado) {
+                const primerNombre = (cliente.nombre || '').trim().split(' ')[0];
+                setClienteSearchStatus('success', primerNombre ? `✓ ${primerNombre}` : '✓ Registrado');
+                autocompletarCamposCliente(cliente);
+                showToast(`✅ Cliente encontrado: ${cliente.nombre || cleanDigits}`);
+            } else {
+                setClienteSearchStatus('not_found', 'No registrado');
+            }
+        } catch (err) {
+            setClienteSearchStatus('error', 'Error consulta');
+        }
+    }
+
+    // Captura de eventos en el input de C.I. / RIF
+    const cedulaInput = document.getElementById('sop_cedula');
+    if (cedulaInput) {
+        cedulaInput.addEventListener('input', (e) => {
+            const val = e.target.value.replace(/[^0-9]/g, '');
+            if (e.target.value !== val) {
+                e.target.value = val;
+            }
+
+            clearTimeout(_cedulaSearchTimer);
+            if (val.length >= 5) {
+                _cedulaSearchTimer = setTimeout(() => {
+                    ejecutarConsultaCedula(false);
+                }, 450);
+            } else {
+                setClienteSearchStatus(null);
+            }
+        });
+
+        cedulaInput.addEventListener('change', () => {
+            clearTimeout(_cedulaSearchTimer);
+            ejecutarConsultaCedula(true);
+        });
+
+        cedulaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(_cedulaSearchTimer);
+                ejecutarConsultaCedula(true);
+            }
+        });
+    }
+
+    // FORMULARIO: CREAR SOPORTE
+    const formSoporte = document.getElementById('formSoporte');
+    if (formSoporte) {
+        formSoporte.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Bloquear si no hay sesión iniciada
+            if (!currentUser) {
+                showToast('Debes iniciar sesión para registrar soportes', true);
+                updateAuthUI(null);
+                return;
+            }
+
+            const cedula = document.getElementById('sop_cedula').value.trim();
+            const zona = document.getElementById('sop_zona').value.trim();
+            const motivo = document.getElementById('sop_motivo').value.trim();
+            const ubicacion = document.getElementById('sop_ubicacion').value.trim();
+            let fechaVisita = document.getElementById('sop_fecha_visita') ? (document.getElementById('sop_fecha_visita').value || null) : null;
+            const aDisponibilidad = sopIsDisponibilidad;
+
+            if (aDisponibilidad) {
+                fechaVisita = null;
+            } else if (!fechaVisita) {
+                // Si no se especifica fecha, se planifica para el siguiente día
+                fechaVisita = getTomorrowDateString();
+            }
+
+            if (!cedula || !zona || !motivo || !ubicacion) {
+                showToast('Por favor completa todos los campos requeridos (*)', true);
+                return;
+            }
+
+            if (fechaVisita && fechaVisita < getTodayDateString()) {
+                showToast('La fecha de visita no puede ser anterior al día actual', true);
+                return;
+            }
+
+            const newReport = {
+                id: genReportId(dbCache.reports),
+                zona,
+                cedula,
+                motivo,
+                fecha_visita: fechaVisita,
+                a_disponibilidad: aDisponibilidad,
+                onu: document.getElementById('sop_onu').value.trim() || null,
+                caja_nap: document.getElementById('sop_caja_nap').value.trim() || null,
+                precinto: document.getElementById('sop_precinto').value.trim() || null,
+                ubicacion,
+                coordenadas: document.getElementById('sop_coordenadas').value.trim() || null,
+                telefono1: document.getElementById('sop_tel1').value.trim() || null,
+                telefono2: document.getElementById('sop_tel2').value.trim() || null,
+                usuario: currentUser.username,
+                usuario_nombre: currentUser.name || currentUser.username,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            const updatedReports = [newReport, ...(dbCache.reports || [])];
+            const ok = await syncDatabase(
+                { reports: updatedReports },
+                'CREAR_REPORTE',
+                `Soporte #${newReport.id} (C.I: ${cedula}, Motivo: ${motivo}) registrado por ${currentUser.username} desde extensión`
+            );
+
+            if (ok) {
+                showToast(`✅ Soporte #${newReport.id} guardado con éxito`);
+                formSoporte.reset();
+                _lastSearchedCedula = '';
+                setClienteSearchStatus(null);
+                sopIsDisponibilidad = false;
+                updateExtDisponibilidadUI();
+                // Cambiar a la pestaña de consulta para ver el reporte creado
+                const btnConsultar = document.querySelector('[data-tab="tab-consultar"]');
+                if (btnConsultar) btnConsultar.click();
+            }
+        });
+    }
+
+    // FORMULARIO: CREAR ACTIVIDAD
+    const formActividad = document.getElementById('formActividad');
+    if (formActividad) {
+        formActividad.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Bloquear si no hay sesión iniciada
+            if (!currentUser) {
+                showToast('Debes iniciar sesión para registrar actividades', true);
+                updateAuthUI(null);
+                return;
+            }
+
+            const zona = document.getElementById('act_zona').value.trim();
+            const caja_nap = document.getElementById('act_caja_nap').value.trim();
+            const ubicacion = document.getElementById('act_ubicacion').value.trim();
+            const estatus = document.getElementById('act_estatus').value.trim();
+
+            if (!zona || !caja_nap || !ubicacion || !estatus) {
+                showToast('Por favor completa los campos requeridos (*)', true);
+                return;
+            }
+
+            const newAct = {
+                id: Date.now(),
+                tipo: 'ACTIVIDAD',
+                zona,
+                caja_nap,
+                potencia: document.getElementById('act_potencia').value.trim() || null,
+                puertos: document.getElementById('act_puertos').value.trim() || null,
+                ubicacion,
+                coordenadas: document.getElementById('act_coordenadas').value.trim() || null,
+                estatus,
+                referencias: document.getElementById('act_referencias').value.trim() || null,
+                olt: document.getElementById('act_olt').value.trim() || null,
+                tarjeta: document.getElementById('act_tarjeta').value.trim() || null,
+                port: document.getElementById('act_port').value.trim() || null,
+                usuario: currentUser.username,
+                usuario_nombre: currentUser.name || currentUser.username,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            const updatedAfec = [newAct, ...(dbCache.afectaciones || [])];
+            const ok = await syncDatabase(
+                { afectaciones: updatedAfec },
+                'CREAR_ACTIVIDAD',
+                `Actividad #${newAct.id} (Caja: ${caja_nap}, Zona: ${zona}) registrada por ${currentUser.username} desde extensión`
+            );
+
+            if (ok) {
+                showToast(`✅ Actividad #${newAct.id} guardada con éxito`);
+                formActividad.reset();
+            }
+        });
+    }
+
+    // FORMULARIO: CREAR AFECTACIÓN
+    const formAfectacion = document.getElementById('formAfectacion');
+    if (formAfectacion) {
+        // Auto-llenar fecha y hora actual
+        const now = new Date();
+        const fInput = document.getElementById('afec_fecha');
+        const hInput = document.getElementById('afec_hora');
+        if (fInput && !fInput.value) {
+            fInput.value = now.toLocaleDateString();
+        }
+        if (hInput && !hInput.value) {
+            hInput.value = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        formAfectacion.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Bloquear si no hay sesión iniciada
+            if (!currentUser) {
+                showToast('Debes iniciar sesión para registrar afectaciones', true);
+                updateAuthUI(null);
+                return;
+            }
+
+            const fecha = document.getElementById('afec_fecha').value.trim();
+            const hora = document.getElementById('afec_hora').value.trim();
+            const olt = document.getElementById('afec_olt').value.trim();
+            const tarjeta = document.getElementById('afec_tarjeta').value.trim();
+            const port = document.getElementById('afec_port').value.trim();
+            const ubicacion = document.getElementById('afec_ubicacion').value.trim();
+            const afectados = parseInt(document.getElementById('afec_afectados').value.trim()) || 1;
+
+            if (!fecha || !hora || !olt || !tarjeta || !port || !ubicacion) {
+                showToast('Por favor completa todos los campos requeridos (*)', true);
+                return;
+            }
+
+            const newAfec = {
+                id: Date.now(),
+                tipo: 'AFECTACION',
+                fecha,
+                hora,
+                olt,
+                tarjeta,
+                port,
+                ubicacion,
+                afectados,
+                caja_nap: document.getElementById('afec_caja_nap').value.trim() || null,
+                coordenadas: document.getElementById('afec_coordenadas').value.trim() || null,
+                usuario: currentUser.username,
+                usuario_nombre: currentUser.name || currentUser.username,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            const updatedAfec = [newAfec, ...(dbCache.afectaciones || [])];
+            const ok = await syncDatabase(
+                { afectaciones: updatedAfec },
+                'CREAR_AFECTACION',
+                `Afectación #${newAfec.id} (${afectados} afectados en ${ubicacion}) registrada por ${currentUser.username} desde extensión`
+            );
+
+            if (ok) {
+                showToast(`✅ Afectación #${newAfec.id} guardada con éxito`);
+                formAfectacion.reset();
+            }
+        });
+    }
+
+    // CONFIGURACIÓN: GUARDAR URL DEL SERVIDOR
+    const btnSaveConfig = document.getElementById('btnSaveConfig');
+    if (btnSaveConfig) {
+        btnSaveConfig.addEventListener('click', async () => {
+            const val = document.getElementById('cfg_server_url').value.trim();
+            if (!val) {
+                showToast('Ingresa una URL válida', true);
+                return;
+            }
+            currentServerUrl = await setServerUrl(val);
+            showToast('Guardando y verificando conexión...');
+            await fetchDatabase();
+        });
+    }
+
+    // Modo Ventana Flotante Redimensionable (resizable: true)
+    const isWindowMode = window.location.search.includes('mode=window');
+    const btnFloat = document.getElementById('btnOpenFloating');
+    if (isWindowMode) {
+        document.body.classList.remove('mode-popup');
+        if (btnFloat) btnFloat.style.display = 'none';
+    } else {
+        document.body.classList.add('mode-popup');
+        if (btnFloat) {
+            btnFloat.addEventListener('click', () => {
+                const url = chrome.runtime.getURL('popup.html?mode=window');
+                window.open(url, 'SoporteTecnicoFlotante', 'width=480,height=680,resizable=yes,scrollbars=yes');
+                window.close();
+            });
+        }
+    }
+});
