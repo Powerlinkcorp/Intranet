@@ -784,6 +784,220 @@ export const SearchableCombobox: React.FC<SearchableComboboxProps> = ({
   );
 };
 
+// --- Componente Desplegable con Selección Múltiple de Hubs (Chips y Búsqueda Dinámica) ---
+interface MultiSearchableComboboxProps {
+  values: string[];
+  onChange: (values: string[]) => void;
+  options: string[];
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+}
+
+export const MultiSearchableCombobox: React.FC<MultiSearchableComboboxProps> = ({
+  values = [],
+  onChange,
+  options,
+  placeholder = "Buscar o seleccionar Hubs...",
+  className = "",
+  disabled = false,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setQuery("");
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = useMemo(() => {
+    const normQuery = query
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+
+    if (!normQuery) return options;
+
+    return options.filter((opt) => {
+      const normOpt = opt
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      return normOpt.includes(normQuery);
+    });
+  }, [options, query]);
+
+  const hasExactMatch = useMemo(() => {
+    if (!query.trim()) return true;
+    const normQuery = query
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+    return options.some(
+      (opt) =>
+        opt
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase() === normQuery
+    );
+  }, [options, query]);
+
+  const handleToggle = (option: string) => {
+    const trimmed = option.trim();
+    if (!trimmed) return;
+    if (trimmed === "No aplica") {
+      onChange(["No aplica"]);
+    } else {
+      const withoutNoAplica = values.filter((v) => v !== "No aplica");
+      if (withoutNoAplica.includes(trimmed)) {
+        onChange(withoutNoAplica.filter((v) => v !== trimmed));
+      } else {
+        onChange([...withoutNoAplica, trimmed]);
+      }
+    }
+    setQuery("");
+    inputRef.current?.focus();
+  };
+
+  const handleRemove = (option: string) => {
+    onChange(values.filter((v) => v !== option));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (filteredOptions.length > 0) {
+        handleToggle(filteredOptions[0]);
+      } else if (query.trim()) {
+        handleToggle(query.trim());
+      }
+    } else if (e.key === "Backspace" && !query && values.length > 0) {
+      handleRemove(values[values.length - 1]);
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+      setQuery("");
+      inputRef.current?.blur();
+    } else if (e.key === "ArrowDown") {
+      if (!isOpen) setIsOpen(true);
+    }
+  };
+
+  return (
+    <div ref={containerRef} className={`relative w-full ${className}`}>
+      {/* Contenedor flexible con chips de hubs seleccionados */}
+      <div
+        onClick={() => {
+          if (!disabled) {
+            inputRef.current?.focus();
+            setIsOpen(true);
+          }
+        }}
+        className="min-h-[38px] w-full rounded-xl border border-border bg-background p-1.5 flex flex-wrap items-center gap-1.5 cursor-text transition-colors focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary/50"
+      >
+        {values.map((val) => (
+          <span
+            key={val}
+            className="inline-flex items-center gap-1 rounded-lg bg-primary/15 text-primary border border-primary/30 px-2 py-0.5 text-xs font-bold shadow-sm"
+          >
+            <span>{val}</span>
+            {!disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove(val);
+                }}
+                className="text-primary hover:text-rose-400 p-0.5 hover:bg-rose-500/10 rounded transition-colors"
+                title={`Quitar ${val}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </span>
+        ))}
+
+        <div className="flex-1 min-w-[120px] flex items-center">
+          <input
+            ref={inputRef}
+            type="text"
+            disabled={disabled}
+            value={query}
+            placeholder={values.length === 0 ? placeholder : "Agregar otro hub..."}
+            onFocus={() => setIsOpen(true)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (!isOpen) setIsOpen(true);
+            }}
+            onKeyDown={handleKeyDown}
+            className="w-full bg-transparent border-none text-xs font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0 p-1"
+          />
+        </div>
+
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen((prev) => !prev);
+          }}
+          className="text-muted-foreground hover:text-foreground p-1 shrink-0"
+        >
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="absolute left-0 right-0 top-full mt-1 max-h-56 overflow-y-auto rounded-xl border border-border bg-popover/95 backdrop-blur-md shadow-2xl z-50 p-1 divide-y divide-border/20">
+          {!hasExactMatch && query.trim().length > 0 && (
+            <button
+              type="button"
+              onClick={() => handleToggle(query.trim())}
+              className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 flex items-center justify-between transition-colors mb-1"
+            >
+              <span>+ Usar nuevo: &ldquo;{query.trim()}&rdquo;</span>
+            </button>
+          )}
+
+          {filteredOptions.length === 0 && hasExactMatch ? (
+            <div className="p-3 text-center text-xs text-muted-foreground italic">
+              No hay más opciones disponibles
+            </div>
+          ) : (
+            filteredOptions.map((opt) => {
+              const isSelected = values.includes(opt);
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => handleToggle(opt)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
+                    isSelected
+                      ? "bg-primary/15 text-primary font-bold"
+                      : "hover:bg-muted/70 text-foreground"
+                  }`}
+                >
+                  <span className="truncate">{opt}</span>
+                  {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0 ml-2" />}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export function EventsDashboardModule() {
   // --- Estados Principales ---
   const [events, setEvents] = useState<NetworkEvent[]>([]);
@@ -859,6 +1073,16 @@ export function EventsDashboardModule() {
   const [formCausa, setFormCausa] = useState<EventCausa>("Falla eléctrica");
   const [formProveedor, setFormProveedor] = useState("");
   const [formLugar, setFormLugar] = useState("");
+  const selectedHubs = useMemo(() => {
+    return formLugar
+      ? formLugar.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+  }, [formLugar]);
+
+  const handleHubsChange = (hubs: string[]) => {
+    setFormLugar(hubs.join(", "));
+    setIsReportManuallyEdited(false);
+  };
   const [formPersonal, setFormPersonal] = useState("");
   const [formMotivo, setFormMotivo] = useState("");
   const [formHoraReporte, setFormHoraReporte] = useState(() => getNowTimeStr());
@@ -1702,6 +1926,7 @@ export function EventsDashboardModule() {
         Causa: e.causa || "",
         Proveedor: e.proveedor || "No aplica",
         Lugar: e.lugar || "",
+        "Cantidad de Hubs": e.lugar ? e.lugar.split(",").filter((s) => s.trim() && s.trim() !== "No aplica").length : 0,
         Personal: e.personal || "",
         Motivo: e.motivo || "",
         "Hora de reporte": e.horaReporte || "",
@@ -1924,11 +2149,16 @@ export function EventsDashboardModule() {
     const fallasInternas = events.filter((e) => e.causa === "Falla interna" && !e.motivo?.toLowerCase().includes("electr")).length;
     const actividades = events.filter((e) => e.causa === "Actividad" || !e.causa).length;
 
-    // Calcular lugar más frecuente
+    // Calcular lugar más frecuente (desglosando múltiples hubs por evento)
     const lugarCounts: Record<string, number> = {};
     events.forEach((e) => {
       if (e.lugar && e.lugar !== "No aplica") {
-        lugarCounts[e.lugar] = (lugarCounts[e.lugar] || 0) + 1;
+        const list = e.lugar.split(",").map((s) => s.trim()).filter(Boolean);
+        list.forEach((lugar) => {
+          if (lugar && lugar !== "No aplica") {
+            lugarCounts[lugar] = (lugarCounts[lugar] || 0) + 1;
+          }
+        });
       }
     });
 
@@ -2009,7 +2239,10 @@ export function EventsDashboardModule() {
       else if (filterCausa === "Falla de proveedor") matchCausa = isProvider;
       else if (filterCausa !== "all") matchCausa = e.causa === filterCausa;
 
-      const matchLugar = filterLugar === "all" || e.lugar === filterLugar;
+      const matchLugar =
+        filterLugar === "all" ||
+        e.lugar === filterLugar ||
+        (e.lugar && e.lugar.split(",").map((s) => s.trim()).includes(filterLugar));
       const matchMotivo = filterMotivo === "all" || e.motivo === filterMotivo;
       const matchEstado =
         filterEstado === "all" ||
@@ -2063,7 +2296,14 @@ export function EventsDashboardModule() {
 
     filteredEvents.forEach((e) => {
       if (e.motivo) topMotivos[e.motivo] = (topMotivos[e.motivo] || 0) + 1;
-      if (e.lugar && e.lugar !== "No aplica") topLugares[e.lugar] = (topLugares[e.lugar] || 0) + 1;
+      if (e.lugar && e.lugar !== "No aplica") {
+        const list = e.lugar.split(",").map((s) => s.trim()).filter(Boolean);
+        list.forEach((h) => {
+          if (h && h !== "No aplica") {
+            topLugares[h] = (topLugares[h] || 0) + 1;
+          }
+        });
+      }
       if (e.proveedor && e.proveedor !== "No aplica") {
         topProveedores[e.proveedor] = (topProveedores[e.proveedor] || 0) + 1;
       }
@@ -2089,7 +2329,14 @@ export function EventsDashboardModule() {
 
     events.forEach((e) => {
       if (e.motivo) topMotivos[e.motivo] = (topMotivos[e.motivo] || 0) + 1;
-      if (e.lugar && e.lugar !== "No aplica") topLugares[e.lugar] = (topLugares[e.lugar] || 0) + 1;
+      if (e.lugar && e.lugar !== "No aplica") {
+        const list = e.lugar.split(",").map((s) => s.trim()).filter(Boolean);
+        list.forEach((h) => {
+          if (h && h !== "No aplica") {
+            topLugares[h] = (topLugares[h] || 0) + 1;
+          }
+        });
+      }
       if (e.proveedor && e.proveedor !== "No aplica") {
         topProveedores[e.proveedor] = (topProveedores[e.proveedor] || 0) + 1;
       }
@@ -3634,10 +3881,17 @@ export function EventsDashboardModule() {
                   </div>
                 </div>
 
-                {/* Hub / Lugar (Desplegable con búsqueda por escritura) */}
+                {/* Hub / Lugar (Selección Múltiple con búsqueda por escritura y chips) */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="font-bold text-muted-foreground">Lugar / Hub:</label>
+                    <div className="flex items-center gap-1.5">
+                      <label className="font-bold text-muted-foreground">Lugar / Hub:</label>
+                      {selectedHubs.length > 1 && (
+                        <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.2 rounded-full border border-primary/30">
+                          {selectedHubs.length} seleccionados
+                        </span>
+                      )}
+                    </div>
                     <button
                       type="button"
                       onClick={() => handleOpenQuickOption("hubs", "Agregar Nuevo Hub")}
@@ -3646,14 +3900,11 @@ export function EventsDashboardModule() {
                       + Nuevo Hub
                     </button>
                   </div>
-                  <SearchableCombobox
-                    value={formLugar}
-                    onChange={(val) => {
-                      setFormLugar(val);
-                      setIsReportManuallyEdited(false);
-                    }}
+                  <MultiSearchableCombobox
+                    values={selectedHubs}
+                    onChange={handleHubsChange}
                     options={catalogs.hubs}
-                    placeholder="Buscar o seleccionar Hub (ej. tejeria)..."
+                    placeholder="Buscar o seleccionar Hubs (ej. tejeria, san jose)..."
                   />
                 </div>
 
