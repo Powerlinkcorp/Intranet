@@ -42,6 +42,17 @@ import {
 // Dataset histórico de 600 registros
 import ozmapRawHistory from "@/data/ozmap_history.json";
 
+<<<<<<< HEAD
+=======
+// Capa de auditoría y base de datos de abonados descartados
+import {
+  saveDiscardedRecord,
+  saveDiscardedRecordsBatch,
+  RESTORED_CLIENTS_QUEUE_KEY,
+  type OzmapDiscardedRecord,
+} from "@/lib/ozmap-audit";
+
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
 // --- TIPOS Y MODELOS ---
 
 export type ProcessType =
@@ -769,6 +780,62 @@ export function OzmapModule() {
     }
   }, []);
 
+<<<<<<< HEAD
+=======
+  // Escuchar si se reincorporaron abonados desde la Base de Datos de Auditoría
+  useEffect(() => {
+    const checkRestorations = () => {
+      if (typeof window === "undefined") return;
+      try {
+        const rawRestored = localStorage.getItem(RESTORED_CLIENTS_QUEUE_KEY);
+        if (rawRestored) {
+          const list = JSON.parse(rawRestored);
+          if (Array.isArray(list) && list.length > 0) {
+            setComparisonResults((prev) => {
+              const existingIds = new Set(prev.map((p) => p.id));
+              const newRows: ComparisonRow[] = (list as OzmapDiscardedRecord[])
+                .filter((r) => !existingIds.has(r.id))
+                .map((r) => ({
+                  id: r.id,
+                  id_servicio: r.id_servicio,
+                  id_usuario: r.id_usuario,
+                  nombres: r.nombres,
+                  cedula: r.cedula,
+                  serial_onu: r.serial_onu,
+                  precinto: r.precinto,
+                  caja_nap: r.caja_nap,
+                  caja_original: r.caja_nap,
+                  caja_oficial: r.caja_oficial || "",
+                  caja_sugerida: r.caja_sugerida || "",
+                  caja_estado_tipo: r.caja_oficial ? "valida" : "no_encontrada",
+                  estado_campo: r.estado_campo || (r.precinto && r.caja_nap ? "completo" : "falta_precinto"),
+                  codigo_ozmap: r.codigo_ozmap,
+                  estado_caja_ozmap: "🔄 Reincorporado",
+                  tipo_cliente: r.tipo_cliente || "Rubpi",
+                }));
+
+              if (newRows.length > 0) {
+                showToast(`Se reincorporaron ${newRows.length} abonados desde la Base de Datos.`, "success");
+                return [...newRows, ...prev];
+              }
+              return prev;
+            });
+            localStorage.removeItem(RESTORED_CLIENTS_QUEUE_KEY);
+          }
+        }
+      } catch (e) {
+        console.warn("Error comprobando restauraciones:", e);
+      }
+    };
+
+    checkRestorations();
+    window.addEventListener("ozmap-discarded-updated", checkRestorations);
+    return () => {
+      window.removeEventListener("ozmap-discarded-updated", checkRestorations);
+    };
+  }, []);
+
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
   const showToast = (text: string, type: "success" | "error" | "info" = "info") => {
     setStatusMessage({ text, type });
     setTimeout(() => setStatusMessage(null), 4000);
@@ -2181,13 +2248,51 @@ export function OzmapModule() {
 
   const handleDiscardIncompleteAndAdvance = () => {
     const completos = comparisonResults.filter((r) => r.estado_campo === "completo");
+<<<<<<< HEAD
+=======
+
+    // Resguardar todos los abonados incompletos en la base de datos de auditoría
+    if (incompleteClients.length > 0) {
+      const discardsToSave = incompleteClients.map((client) => ({
+        id_servicio: client.id_servicio || "",
+        id_usuario: client.id_usuario || "",
+        nombres: client.nombres || "",
+        cedula: client.cedula || "",
+        serial_onu: client.serial_onu || "",
+        precinto: client.precinto || "",
+        caja_nap: client.caja_original || client.caja_nap || "",
+        caja_oficial: client.caja_oficial || "",
+        codigo_ozmap: formatOzmapClientCode(client),
+        estado_campo: client.estado_campo,
+        tipo_cliente: client.tipo_cliente || "Rubpi",
+        motivo_descarte:
+          !client.precinto?.trim() && !client.caja_nap?.trim()
+            ? "Falta precinto y caja NAP"
+            : !client.precinto?.trim()
+            ? "Falta número de precinto"
+            : !client.caja_nap?.trim()
+            ? "Falta caja NAP reportada"
+            : "Descarte masivo de datos incompletos",
+        origen_paso: "Paso 1: Avance a Paso 2 (Incompletos)",
+      }));
+      saveDiscardedRecordsBatch(discardsToSave);
+    }
+
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     setComparisonResults(completos);
     incompleteClients.forEach((r) => {
       localStorage.removeItem(`man-mod-${r.id}-precinto`);
       localStorage.removeItem(`man-mod-${r.id}-caja_nap`);
       localStorage.removeItem(`man-mod-${r.id}-caja_oficial`);
     });
+<<<<<<< HEAD
     showToast(`Se descartaron ${incompleteClients.length} abonados incompletos. Continuando con ${completos.length} listos.`, "info");
+=======
+    showToast(
+      `Se resguardaron ${incompleteClients.length} abonados en la Base de Datos. Continuando con ${completos.length} listos.`,
+      "info"
+    );
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     proceedToStep2(completos);
   };
 
@@ -2195,15 +2300,68 @@ export function OzmapModule() {
     if (!window.confirm(`¿Estás seguro de eliminar al abonado "${clientName || rowId}" de la lista de cotejo?`)) {
       return;
     }
+<<<<<<< HEAD
+=======
+
+    // Resguardar en la base de datos de auditoría antes de filtrar
+    const clientToDelete = comparisonResults.find((r) => r.id === rowId);
+    if (clientToDelete) {
+      saveDiscardedRecord({
+        id_servicio: clientToDelete.id_servicio || "",
+        id_usuario: clientToDelete.id_usuario || "",
+        nombres: clientToDelete.nombres || clientName || "",
+        cedula: clientToDelete.cedula || "",
+        serial_onu: clientToDelete.serial_onu || "",
+        precinto: clientToDelete.precinto || "",
+        caja_nap: clientToDelete.caja_original || clientToDelete.caja_nap || "",
+        caja_oficial: clientToDelete.caja_oficial || "",
+        codigo_ozmap: formatOzmapClientCode(clientToDelete),
+        estado_campo: clientToDelete.estado_campo,
+        tipo_cliente: clientToDelete.tipo_cliente || "Rubpi",
+        motivo_descarte: "Eliminación manual en tabla de cotejo",
+        origen_paso: wizardStep === 1 ? "Paso 1: Cotejo de Campo" : "Paso 2: Validación de Cajas",
+      });
+    }
+
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     const updated = comparisonResults.filter((r) => r.id !== rowId);
     setComparisonResults(updated);
     localStorage.removeItem(`man-mod-${rowId}-precinto`);
     localStorage.removeItem(`man-mod-${rowId}-caja_nap`);
     localStorage.removeItem(`man-mod-${rowId}-caja_oficial`);
+<<<<<<< HEAD
     showToast(`Abonado "${clientName || rowId}" descartado del proceso.`, "info");
   };
 
   const handleDeleteFromWarningModal = (rowId: string, clientName: string) => {
+=======
+    showToast(`Abonado "${clientName || rowId}" descartado y resguardado en la Base de Datos.`, "info");
+  };
+
+  const handleDeleteFromWarningModal = (rowId: string, clientName: string) => {
+    // Resguardar en la base de datos de auditoría
+    const clientToDelete =
+      comparisonResults.find((r) => r.id === rowId) ||
+      incompleteClients.find((r) => r.id === rowId);
+    if (clientToDelete) {
+      saveDiscardedRecord({
+        id_servicio: clientToDelete.id_servicio || "",
+        id_usuario: clientToDelete.id_usuario || "",
+        nombres: clientToDelete.nombres || clientName || "",
+        cedula: clientToDelete.cedula || "",
+        serial_onu: clientToDelete.serial_onu || "",
+        precinto: clientToDelete.precinto || "",
+        caja_nap: clientToDelete.caja_original || clientToDelete.caja_nap || "",
+        caja_oficial: clientToDelete.caja_oficial || "",
+        codigo_ozmap: formatOzmapClientCode(clientToDelete),
+        estado_campo: clientToDelete.estado_campo,
+        tipo_cliente: clientToDelete.tipo_cliente || "Rubpi",
+        motivo_descarte: "Eliminado desde modal de advertencia de incompletos",
+        origen_paso: "Modal de Advertencia (Incompletos)",
+      });
+    }
+
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     const updated = comparisonResults.filter((r) => r.id !== rowId);
     setComparisonResults(updated);
     const updatedIncompletos = incompleteClients.filter((r) => r.id !== rowId);
@@ -2211,7 +2369,11 @@ export function OzmapModule() {
     localStorage.removeItem(`man-mod-${rowId}-precinto`);
     localStorage.removeItem(`man-mod-${rowId}-caja_nap`);
     localStorage.removeItem(`man-mod-${rowId}-caja_oficial`);
+<<<<<<< HEAD
     showToast(`Abonado "${clientName || rowId}" eliminado del lote.`, "info");
+=======
+    showToast(`Abonado "${clientName || rowId}" resguardado en la Base de Datos.`, "info");
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     if (updatedIncompletos.length === 0) {
       setIsStep1WarningModalOpen(false);
       proceedToStep2(updated);
@@ -4484,6 +4646,7 @@ export function OzmapModule() {
                                                   key={i}
                                                   type="button"
                                                   onClick={() => handleUpdateDraftBox(r.id, c.box)}
+<<<<<<< HEAD
                                                   className={`px-1.5 py-0.5 rounded border font-mono transition-all cursor-pointer ${
                                                     currentDraft.trim().toUpperCase() === c.box.toUpperCase()
                                                       ? "bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold"
@@ -4492,6 +4655,24 @@ export function OzmapModule() {
                                                   title={`Seleccionar ${c.box} (${c.score}%)`}
                                                 >
                                                   {i === 0 ? "★ " : ""}{c.box} ({c.score}%)
+=======
+                                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border font-mono text-xs transition-all cursor-pointer shadow-xs ${
+                                                    currentDraft.trim().toUpperCase() === c.box.toUpperCase()
+                                                      ? "bg-emerald-600 text-white border-emerald-700 font-black dark:bg-emerald-700 dark:border-emerald-500"
+                                                      : i === 0
+                                                      ? "bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-400 font-bold dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-600"
+                                                      : "bg-muted/80 text-foreground border-border hover:bg-muted font-semibold dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700"
+                                                  }`}
+                                                  title={`Seleccionar ${c.box} (${c.score}%)`}
+                                                >
+                                                  {currentDraft.trim().toUpperCase() === c.box.toUpperCase() ? (
+                                                    <Check className="h-3 w-3 stroke-[2.5]" />
+                                                  ) : (
+                                                    i === 0 && <span className="text-amber-600 dark:text-amber-400 font-black">★</span>
+                                                  )}
+                                                  <span>{c.box}</span>
+                                                  <span className="text-[10px] font-bold opacity-80">({c.score}%)</span>
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                                 </button>
                                               ))}
                                             </div>
@@ -4500,6 +4681,7 @@ export function OzmapModule() {
                                               <span className="text-muted-foreground font-medium flex items-center gap-1">
                                                 <AlertTriangle className="h-3 w-3 text-amber-500" /> Sugerencia:
                                               </span>
+<<<<<<< HEAD
                                               <button
                                                 type="button"
                                                 onClick={() => handleUpdateDraftBox(r.id, r.caja_sugerida!)}
@@ -4507,6 +4689,35 @@ export function OzmapModule() {
                                               >
                                                 ★ {r.caja_sugerida} ({r.caja_match_score || 70}%)
                                               </button>
+=======
+                                              {currentDraft.trim().toUpperCase() === r.caja_sugerida!.trim().toUpperCase() ? (
+                                                <button
+                                                  type="button"
+                                                  onClick={() => handleUpdateDraftBox(r.id, r.caja_sugerida!)}
+                                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-mono font-bold text-xs transition-all cursor-pointer shadow-xs bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 dark:border-emerald-500"
+                                                  title="Sugerencia seleccionada en la caja de texto. Presiona 'Aceptar' para validar."
+                                                >
+                                                  <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                                                  <span>{r.caja_sugerida}</span>
+                                                  <span className="text-[10px] bg-emerald-700/90 dark:bg-emerald-800 px-1.5 py-0.5 rounded-full font-bold">
+                                                    {r.caja_match_score || 70}% (Listo)
+                                                  </span>
+                                                </button>
+                                              ) : (
+                                                <button
+                                                  type="button"
+                                                  onClick={() => handleUpdateDraftBox(r.id, r.caja_sugerida!)}
+                                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-mono font-bold text-xs transition-all cursor-pointer shadow-xs bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-400 dark:bg-amber-950/80 dark:hover:bg-amber-900/80 dark:text-amber-200 dark:border-amber-600/80 hover:scale-[1.02] active:scale-[0.98]"
+                                                  title={`Haz clic para seleccionar ${r.caja_sugerida} (${r.caja_match_score || 70}% coincidencia)`}
+                                                >
+                                                  <span className="text-amber-600 dark:text-amber-400 font-black text-sm">★</span>
+                                                  <span className="font-mono tracking-tight font-black">{r.caja_sugerida}</span>
+                                                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-amber-200/90 text-amber-950 border border-amber-300 dark:bg-amber-900/90 dark:text-amber-200 dark:border-amber-700">
+                                                    {r.caja_match_score || 70}%
+                                                  </span>
+                                                </button>
+                                              )}
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                             </div>
                                           ) : (
                                             <div className="flex items-center justify-between text-[10px]">
@@ -4594,7 +4805,11 @@ export function OzmapModule() {
                                       r.caja_estado_tipo === "valida"
                                         ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
                                         : r.caja_estado_tipo === "autocorregida"
+<<<<<<< HEAD
                                         ? "border-amber-500/40 text-amber-400 bg-amber-500/10"
+=======
+                                        ? "border-amber-400 text-amber-900 bg-amber-100 font-bold dark:border-amber-700/60 dark:text-amber-300 dark:bg-amber-950/40"
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                         : "border-rose-500/40 text-rose-400 bg-rose-500/10"
                                     }`}
                                   >
@@ -4639,7 +4854,11 @@ export function OzmapModule() {
                                         ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
                                         : r.estado_auditoria?.includes("Falta")
                                         ? "border-rose-500/40 text-rose-400 bg-rose-500/10"
+<<<<<<< HEAD
                                         : "border-amber-500/40 text-amber-400 bg-amber-500/10"
+=======
+                                        : "border-amber-400 text-amber-900 bg-amber-100 font-bold dark:border-amber-700/60 dark:text-amber-300 dark:bg-amber-950/40"
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                     }`}
                                   >
                                     {r.estado_auditoria}
@@ -4679,7 +4898,11 @@ export function OzmapModule() {
                                     className={`text-xs ${
                                       r.matched
                                         ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
+<<<<<<< HEAD
                                         : "border-amber-500/40 text-amber-400 bg-amber-500/10"
+=======
+                                        : "border-amber-400 text-amber-900 bg-amber-100 font-bold dark:border-amber-700/60 dark:text-amber-300 dark:bg-amber-950/40"
+>>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                     }`}
                                   >
                                     {r.matched ? "✅ Encontrado" : "⚠️ Pendiente"}

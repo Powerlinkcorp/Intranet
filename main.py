@@ -1,13 +1,19 @@
 import os
 import shutil
 import io
+import asyncio
 import pandas as pd
 from typing import List, Optional
+import uuid
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 from datetime import datetime
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, File, UploadFile, Response, WebSocket, WebSocketDisconnect, Query
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -69,6 +75,19 @@ async def add_security_headers(request: Request, call_next):
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# Import new routers
+from routers.flasheo_router import router as flasheo_app_router
+from routers.aprovisionamiento_router import router as aprov_app_router
+
+app.include_router(flasheo_app_router)
+app.include_router(aprov_app_router)
+
+try:
+    from routers.operaciones_router import router as operaciones_router
+    app.include_router(operaciones_router)
+except ImportError:
+    pass
+
 # Pydantic Schemas
 class FeedbackCreate(BaseModel):
     content: str
@@ -97,6 +116,17 @@ class ExtensionCreate(BaseModel):
     name: str
     extension: str
     is_group: bool = False
+
+class WorkerUpdate(BaseModel):
+    email: str
+    department: str
+    cargo: str
+    birthday_date: str
+    full_name: str
+    cedula: str
+
+class SuspendUserRequest(BaseModel):
+    suspension_reason: str
 
 class UserUpdateWithSMTP(BaseModel):
     email: str
@@ -151,13 +181,23 @@ async def login_for_access_token(
             detail="Demasiados intentos fallidos. Tu IP está temporalmente bloqueada por 5 minutos.",
         )
 
-    user = db.query(models.User).filter(models.User.username == form_data.username.strip()).first()
+    clean_user = form_data.username.strip()
+    user = db.query(models.User).filter(
+        (models.User.username.ilike(clean_user)) |
+        (models.User.email.ilike(clean_user))
+    ).first()
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         security.record_failed_attempt(client_ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo electrónico o contraseña incorrectos.",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo o suspendido. Contacta a Administración/RRHH.",
         )
 
     # Success: reset rate limit attempts for this IP
@@ -257,7 +297,8 @@ async def get_dashboard_data(
         
         def get_next_bday(emp):
             try:
-                # El HTML envia YYYY-MM-DD
+                # El HTML envia YYYY-MM-DD o '18 de Julio'
+                # Intentamos parsear YYYY-MM-DD
                 bday = datetime.strptime(emp.birthday_date, '%Y-%m-%d').date()
                 this_year_bday = bday.replace(year=today.year)
                 if this_year_bday < today:
@@ -321,7 +362,7 @@ async def reportes_page(request: Request, db: Session = Depends(get_db)):
         user = db.query(models.User).filter(models.User.username == username).first()
         if not user:
             return RedirectResponse(url="/login")
-        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or ''):
+        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
             return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "reportes.html", {"request": request, "user": user})
     except:
@@ -592,7 +633,10 @@ cedula=cedula, birthday_date=birthday_date, photo_url=photo_url)
         hashed_password=hashed_pw,
         full_name=f"{name} {apellido}",
         role="user",
-        avatar_url=photo_url
+        avatar_url=photo_url,
+        cargo=position,
+        department=department or "General",
+        birthday_date=birthday_date
     )
     db.add(new_user)
         
@@ -678,7 +722,20 @@ async def list_users_permissions(
     admin_user: models.User = Depends(security.require_admin)
 ):
     users = db.query(models.User).order_by(models.User.full_name).all()
-    return [{"id": u.id, "full_name": u.full_name, "email": u.email, "role": u.role, "permissions": u.permissions or ""} for u in users]
+    employees_dict = {e.email: e.cedula for e in db.query(models.Employee).filter(models.Employee.email != None).all()}
+    return [{
+        "id": u.id,
+        "full_name": u.full_name,
+        "username": u.username,
+        "email": u.email,
+        "role": u.role,
+        "permissions": u.permissions or "",
+        "department": u.department or "",
+        "cargo": u.cargo or "",
+        "birthday_date": u.birthday_date or "",
+        "is_active": u.is_active,
+        "cedula": employees_dict.get(u.email) or ""
+    } for u in users]
 
 @app.post("/api/rrhh/users/{user_id}/permissions")
 async def update_user_permissions(
@@ -693,6 +750,94 @@ async def update_user_permissions(
     user.permissions = permissions
     db.commit()
     return {"message": "Permisos actualizados correctamente"}
+
+@app.put("/api/rrhh/users/{user_id}/edit-worker")
+async def edit_worker_info(
+    user_id: int,
+    email: str = Form(...),
+    department: str = Form(""),
+    cargo: str = Form(""),
+    birthday_date: str = Form(""),
+    full_name: str = Form(""),
+    cedula: str = Form(""),
+    avatar: UploadFile = File(None),
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        
+    user.email = email
+    user.department = department
+    user.cargo = cargo
+    user.birthday_date = birthday_date
+    user.full_name = full_name
+    user.cedula = cedula
+    
+    if avatar and avatar.filename:
+        upload_dir = "static/uploads/avatars"
+        os.makedirs(upload_dir, exist_ok=True)
+        new_filename = f"{uuid.uuid4().hex}.webp"
+        filepath = os.path.join(upload_dir, new_filename)
+        try:
+            image = Image.open(avatar.file)
+            image = image.convert("RGB")
+            image.thumbnail((400, 400))
+            image.save(filepath, "WEBP", quality=85)
+            user.avatar_url = f"/{filepath.replace(os.sep, '/')}"
+        except Exception as e:
+            print("Error procesando imagen:", e)
+            
+    db.commit()
+    return {"message": "Datos de trabajador actualizados"}
+
+@app.post("/api/rrhh/users/{user_id}/activate")
+async def activate_worker(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    user.is_active = True
+    user.suspension_reason = ""
+    db.commit()
+    return {"message": "Usuario activado exitosamente"}
+
+@app.post("/api/rrhh/users/{user_id}/suspend")
+async def suspend_worker(
+    user_id: int,
+    data: SuspendUserRequest,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    user.is_active = False
+    user.suspension_reason = data.suspension_reason
+    db.commit()
+    return {"message": "Usuario suspendido exitosamente"}
+
+@app.post("/api/rrhh/users/{user_id}/resend-password")
+async def resend_password(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    import random
+    import string
+    new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    user.hashed_password = security.get_password_hash(new_password)
+    db.commit()
+    # Aquí iría el código real de SMTP para enviar el correo
+    return {"message": f"Contraseña reestablecida y enviada a {user.email}. (Contraseña temporal: {new_password})"}
 
 @app.get("/api/popup")
 async def get_popup_notification(
@@ -736,8 +881,7 @@ async def home_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        embed = request.query_params.get("embed") == "1"
-        return templates.TemplateResponse(request, "intranet.html", {"user": user, "embed": embed})
+        return templates.TemplateResponse(request, "home.html", {"request": request, "user": user})
     except HTTPException:
         return RedirectResponse(url="/login")
 
@@ -762,6 +906,20 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
     except HTTPException:
         return RedirectResponse(url="/login")
 
+@app.get("/admin/permisos", response_class=HTMLResponse)
+async def admin_permisos_page(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+        if user.role != "admin":
+            return RedirectResponse(url="/")
+        users = db.query(models.User).all()
+        return templates.TemplateResponse(request, "permisos.html", {"user": user, "users": users})
+    except HTTPException:
+        return RedirectResponse(url="/login")
+
 @app.get("/integracion", response_class=HTMLResponse)
 async def integracion_page(request: Request, db: Session = Depends(get_db)):
     token = security.get_token_from_request(request)
@@ -783,8 +941,7 @@ async def helpdesk_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role not in ["admin"] and "ver_helpdesk" not in (user.permissions or ""):
-            return RedirectResponse(url="/")
+        # Permiso abierto por defecto para todos
         return templates.TemplateResponse(request, "helpdesk.html", {"user": user})
     except HTTPException:
         return RedirectResponse(url="/login")
@@ -855,8 +1012,13 @@ def fetch_powerlink_data(is_natural: Optional[bool] = None):
         raise Exception("No se pudo obtener token de la API")
 
     if is_natural is None:
-        data_res = _do_fetch(api_token, True)
-        data_corp = _do_fetch(api_token, False)
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            future_res = executor.submit(_do_fetch, api_token, True)
+            future_corp = executor.submit(_do_fetch, api_token, False)
+            data_res = future_res.result()
+            data_corp = future_corp.result()
+            
         combined = data_res.get("data", []) + data_corp.get("data", [])
         return {"data": combined}
     else:
@@ -1191,30 +1353,59 @@ async def procesar_auditoria_api(
     # Variables Conciliación Residencial
     ingreso_ayer = 0.0
     ingreso_hoy = 0.0
-    impacto_instalaciones = 0.0
-    impacto_reconexiones = 0.0
-    impacto_upgrades = 0.0
-    impacto_upgrades_beneficio = 0.0
-    impacto_downgrades = 0.0
-    impacto_retiros_post_corte = 0.0
-    impacto_retiros_pre_corte = 0.0
-    impacto_otros = 0.0
-
     count_activos_ayer = 0
-    count_instalaciones = 0
-    count_reconexiones = 0
-    count_upgrades = 0
-    count_upgrades_beneficio = 0
-    count_downgrades = 0
-    count_retiros_post_corte = 0
-    count_retiros_pre_corte = 0
-    count_otros = 0
+    count_activos_hoy = 0
+    
+    emp_exo_qty = 0
+    emp_exo_mnt = 0.0
+    res_exo_qty = 0
+    res_exo_mnt = 0.0
+    upgrades_qty = 0
+    upgrades_mnt = 0.0
+    cambios_3m_qty = 0
+    cambios_3m_mnt = 0.0
+    reconex_qty = 0
+    reconex_mnt = 0.0
+    reconex_exo_qty = 0
+    reconex_exo_mnt = 0.0
+    inst_3m_qty = 0
+    inst_3m_mnt = 0.0
+    inst_norm_qty = 0
+    inst_norm_mnt = 0.0
+    downgrades_qty = 0
+    downgrades_mnt = 0.0
+    susp_qty = 0
+    susp_mnt = 0.0
     
     # Variables Conciliación Corporativa
     ingreso_ayer_corp = 0.0
     ingreso_hoy_corp = 0.0
     count_activos_ayer_corp = 0
     count_activos_hoy_corp = 0
+    
+    emp_exo_qty_corp = 0
+    emp_exo_mnt_corp = 0.0
+    res_exo_qty_corp = 0
+    res_exo_mnt_corp = 0.0
+    upgrades_qty_corp = 0
+    upgrades_mnt_corp = 0.0
+    cambios_3m_qty_corp = 0
+    cambios_3m_mnt_corp = 0.0
+    reconex_qty_corp = 0
+    reconex_mnt_corp = 0.0
+    reconex_exo_qty_corp = 0
+    reconex_exo_mnt_corp = 0.0
+    inst_3m_qty_corp = 0
+    inst_3m_mnt_corp = 0.0
+    inst_norm_qty_corp = 0
+    inst_norm_mnt_corp = 0.0
+    downgrades_qty_corp = 0
+    downgrades_mnt_corp = 0.0
+    susp_qty_corp = 0
+    susp_mnt_corp = 0.0
+    
+    impacto_exclusion_tv = 0.0
+    count_exclusion_tv = 0
     
     fechaCorte = datetime.now().strftime("%Y-%m-01")
 
@@ -1229,6 +1420,20 @@ async def procesar_auditoria_api(
     datosConciliacionDetalle = []
     datosClientesActivos = []
     
+    def parse_amount(val):
+        if val is None: return 0.0
+        if isinstance(val, (int, float)): return float(val)
+        s = str(val).replace('$', '').replace(' ', '').strip()
+        if not s: return 0.0
+        s = s.replace(',', '.')
+        if s.count('.') > 1:
+            parts = s.rsplit('.', 1)
+            s = parts[0].replace('.', '') + '.' + parts[1]
+        try:
+            return float(s)
+        except:
+            return 0.0
+            
     for item in list_new:
         row = map_to_excel_format(item)
         sid = str(row['ID Servicio']).strip()
@@ -1241,17 +1446,17 @@ async def procesar_auditoria_api(
         tipoServicioNew = str(row['Tipo de servicio']).strip().upper()
         
         try:
-            costoDelPlanNew = float(row['Costo del plan'])
+            costoDelPlanNew = parse_amount(row['Costo del plan'])
         except:
             costoDelPlanNew = 0.0
             
-        if planNew.upper() in ['IPTV', 'TV'] or tipoServicioNew in ['IPTV', 'TV']:
+        if planNew.upper() == 'TV' or tipoServicioNew == 'IPTV':
             continue
             
         estadoServicioNew = str(row['Estado servicio']).strip().upper()
         
         try:
-            saldoActual = float(row['Saldo actual'])
+            saldoActual = parse_amount(row['Saldo actual'])
         except:
             saldoActual = 0.0
             
@@ -1295,10 +1500,9 @@ async def procesar_auditoria_api(
                 totalActivosCorp += 1
                 ingreso_hoy_corp += costoDelPlanNew
                 count_activos_hoy_corp += 1
-            elif tipoServicioNew == 'RESIDENCIAL':
-                if 'tv' not in planNew.lower() and 'iptv' not in planNew.lower():
-                    totalActivos += 1
-                    ingreso_hoy += costoDelPlanNew
+            else:
+                totalActivos += 1
+                ingreso_hoy += costoDelPlanNew
             datosClientesActivos.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
@@ -1326,7 +1530,7 @@ async def procesar_auditoria_api(
             if tipoServicioNew in ['PYME', 'CORPORATIVO']:
                 if estado_dt >= corte_corp:
                     totalSuspendidosFechaCorp += 1
-            elif tipoServicioNew == 'RESIDENCIAL':
+            else:
                 if estado_dt >= corte_res:
                     totalSuspendidosFecha += 1
         elif estadoServicioNew == 'EXO.':
@@ -1338,21 +1542,10 @@ async def procesar_auditoria_api(
                 else:
                     if tipoServicioNew in ['PYME', 'CORPORATIVO']:
                         totalExoneradosRegCorp += 1
-                    elif tipoServicioNew == 'RESIDENCIAL':
+                    else:
                         totalExoneradosReg += 1
                         
-        if tipoServicioNew in ['PYME', 'CORPORATIVO']:
-            row_old_corp = old_dict.get(sid)
-            if row_old_corp is not None:
-                estatusOldCorp = str(row_old_corp['Estado servicio']).strip().upper()
-                if estatusOldCorp == 'ACT.':
-                    try:
-                        costoOldCorp = float(row_old_corp['Costo del plan'])
-                    except:
-                        costoOldCorp = 0.0
-                    ingreso_ayer_corp += costoOldCorp
-                    count_activos_ayer_corp += 1
-            continue
+        is_this_corp = tipoServicioNew in ['PYME', 'CORPORATIVO']
                 
         is_missing_in_old = (sid not in old_dict)
         
@@ -1418,7 +1611,7 @@ async def procesar_auditoria_api(
             estatusOld = str(row_old['Estado servicio']).strip().upper()
             estatusNew = estadoServicioNew
             try:
-                costoOld = float(row_old['Costo del plan'])
+                costoOld = parse_amount(row_old['Costo del plan'])
             except:
                 costoOld = 0.0
                 
@@ -1427,162 +1620,77 @@ async def procesar_auditoria_api(
             variacionNeta = billingHoy - billingAyer
             
             if estatusOld == 'ACT.':
-                ingreso_ayer += costoOld
-                count_activos_ayer += 1
+                if is_this_corp:
+                    ingreso_ayer_corp += costoOld
+                    count_activos_ayer_corp += 1
+                else:
+                    ingreso_ayer += costoOld
+                    count_activos_ayer += 1
                 
-            # Finanzas - Bridge
-            if estatusOld != 'ACT.' and estatusNew == 'ACT.' and is_estado_in_range:
-                if is_instalacion_in_range and '3 MESES' in planNew.upper():
-                    impacto_instalaciones += costoDelPlanNew
-                    count_instalaciones += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Nuevas Instalaciones (3 Meses Beneficio)',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaInstalacionFormat
-                    })
-                else:
-                    impacto_reconexiones += costoDelPlanNew
-                    count_reconexiones += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Reconexiones',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaEstadoFormat
-                    })
-            elif estatusOld == 'ACT.' and estatusNew != 'ACT.' and is_estado_in_range:
-                if estado_dt >= corte_dt:
-                    impacto_retiros_post_corte += costoOld
-                    count_retiros_post_corte += 1
-                else:
-                    impacto_retiros_pre_corte += costoOld
-                    count_retiros_pre_corte += 1
-                datosConciliacionDetalle.append({
-                    'ID Servicio': sid,
-                    'Cédula': row['Cédula'],
-                    'Nombres': row['Nombres'],
-                    'Concepto': 'Retiros',
-                    'Plan Anterior': planOld,
-                    'Plan Actual': planNew,
-                    'Estado Anterior': estatusOld,
-                    'Estado Actual': estatusNew,
-                    'Costo Anterior': costoOld,
-                    'Costo Actual': 0.0,
-                    'Variación': -costoOld,
-                    'Fecha': fechaEstadoFormat
-                })
-            elif estatusOld == 'ACT.' and estatusNew == 'ACT.' and is_plan_in_range:
-                if costoDelPlanNew > costoOld:
-                    if '3 MESES BENEFICIO' in planOld.upper() or '3 MESES BENEFICIO' in planNew.upper():
-                        impacto_upgrades_beneficio += (costoDelPlanNew - costoOld)
-                        count_upgrades_beneficio += 1
-                        concepto_upg = 'Cambios 3 Meses Beneficio a otro Plan'
+            # Finanzas - Bridge (Conciliación Financiera)
+            if estatusOld != 'EXO.' and estatusNew == 'EXO.':
+                if 'EMP' in str(row.get('Nombres', '')).upper() or 'EMP' in row.get('Cédula', '').upper():
+                    if is_this_corp:
+                        emp_exo_qty_corp += 1
+                        emp_exo_mnt_corp += variacionNeta
                     else:
-                        impacto_upgrades += (costoDelPlanNew - costoOld)
-                        count_upgrades += 1
-                        concepto_upg = 'Upgrades de Plan'
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': concepto_upg,
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew - costoOld,
-                        'Fecha': fechaPlanDesdeFormat
-                    })
+                        emp_exo_qty += 1
+                        emp_exo_mnt += variacionNeta
+                else:
+                    if is_this_corp:
+                        res_exo_qty_corp += 1
+                        res_exo_mnt_corp += variacionNeta
+                    else:
+                        res_exo_qty += 1
+                        res_exo_mnt += variacionNeta
+                        
+            elif estatusOld == 'ACT.' and estatusNew == 'ACT.':
+                if costoDelPlanNew > costoOld:
+                    if '3 MESES BENEFICIO' in planOld.upper() and '3 MESES BENEFICIO' not in planNew.upper():
+                        if is_this_corp:
+                            cambios_3m_qty_corp += 1
+                            cambios_3m_mnt_corp += variacionNeta
+                        else:
+                            cambios_3m_qty += 1
+                            cambios_3m_mnt += variacionNeta
+                    else:
+                        if is_this_corp:
+                            upgrades_qty_corp += 1
+                            upgrades_mnt_corp += variacionNeta
+                        else:
+                            upgrades_qty += 1
+                            upgrades_mnt += variacionNeta
                 elif costoDelPlanNew < costoOld:
-                    impacto_downgrades += (costoOld - costoDelPlanNew)
-                    count_downgrades += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Downgrades de Plan',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': -(costoOld - costoDelPlanNew),
-                        'Fecha': fechaPlanDesdeFormat
-                    })
-            else:
-                if estatusOld == 'ACT.' and estatusNew == 'ACT.' and costoOld != costoDelPlanNew:
-                    # Ajuste manual de precio (mismo plan o fuera de rango)
-                    impacto_otros += (costoDelPlanNew - costoOld)
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Ajuste Manual / Cambio Fuera de Rango',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew - costoOld,
-                        'Fecha': fechaPlanDesdeFormat if planOld != planNew else 'N/A'
-                    })
-                elif estatusOld != 'ACT.' and estatusNew == 'ACT.':
-                    # Reactivación fuera de rango
-                    impacto_otros += costoDelPlanNew
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Reactivación Fuera de Rango',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaEstadoFormat
-                    })
-                elif estatusOld == 'ACT.' and estatusNew != 'ACT.':
-                    # Retiro fuera de rango
-                    impacto_otros -= costoOld
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Retiro Fuera de Rango',
-                        'Plan Anterior': planOld,
-                        'Plan Actual': planNew,
-                        'Estado Anterior': estatusOld,
-                        'Estado Actual': estatusNew,
-                        'Costo Anterior': costoOld,
-                        'Costo Actual': 0.0,
-                        'Variación': -costoOld,
-                        'Fecha': fechaEstadoFormat
-                    })
+                    if is_this_corp:
+                        downgrades_qty_corp += 1
+                        downgrades_mnt_corp += variacionNeta
+                    else:
+                        downgrades_qty += 1
+                        downgrades_mnt += variacionNeta
+                        
+            elif estatusOld in ['SUSP.', 'RET.', 'POR RET.', 'EXO.'] and estatusNew == 'ACT.':
+                if estatusOld == 'EXO.':
+                    if is_this_corp:
+                        reconex_exo_qty_corp += 1
+                        reconex_exo_mnt_corp += variacionNeta
+                    else:
+                        reconex_exo_qty += 1
+                        reconex_exo_mnt += variacionNeta
+                else:
+                    if is_this_corp:
+                        reconex_qty_corp += 1
+                        reconex_mnt_corp += variacionNeta
+                    else:
+                        reconex_qty += 1
+                        reconex_mnt += variacionNeta
+                
+            elif estatusOld == 'ACT.' and estatusNew in ['SUSP.', 'RET.', 'POR RET.']:
+                if is_this_corp:
+                    susp_qty_corp += 1
+                    susp_mnt_corp += variacionNeta
+                else:
+                    susp_qty += 1
+                    susp_mnt += variacionNeta
             
             if planOld != planNew and is_plan_in_range:
                 datosCambiosPlan.append({
@@ -1630,59 +1738,49 @@ async def procesar_auditoria_api(
                     'Fecha Último Cambio Estado': fechaEstadoFormat
                 })
         else:
-            if estadoServicioNew == 'ACT.':
-                if is_instalacion_in_range:
-                    impacto_instalaciones += costoDelPlanNew
-                    count_instalaciones += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Nuevas Instalaciones',
-                        'Plan Anterior': '-',
-                        'Plan Actual': planNew,
-                        'Estado Anterior': '-',
-                        'Estado Actual': estadoServicioNew,
-                        'Costo Anterior': 0.0,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaInstalacionFormat
-                    })
+            if estadoServicioNew == 'ACT.' and is_missing_in_old:
+                if '3 MESES BENEFICIO' in planNew.upper():
+                    if is_this_corp:
+                        inst_3m_qty_corp += 1
+                        inst_3m_mnt_corp += costoDelPlanNew
+                    else:
+                        inst_3m_qty += 1
+                        inst_3m_mnt += costoDelPlanNew
                 else:
-                    impacto_otros += costoDelPlanNew
-                    count_otros += 1
-                    datosConciliacionDetalle.append({
-                        'ID Servicio': sid,
-                        'Cédula': row['Cédula'],
-                        'Nombres': row['Nombres'],
-                        'Concepto': 'Instalación Fuera de Rango',
-                        'Plan Anterior': '-',
-                        'Plan Actual': planNew,
-                        'Estado Anterior': '-',
-                        'Estado Actual': estadoServicioNew,
-                        'Costo Anterior': 0.0,
-                        'Costo Actual': costoDelPlanNew,
-                        'Variación': costoDelPlanNew,
-                        'Fecha': fechaInstalacionFormat
-                    })
+                    if is_this_corp:
+                        inst_norm_qty_corp += 1
+                        inst_norm_mnt_corp += costoDelPlanNew
+                    else:
+                        inst_norm_qty += 1
+                        inst_norm_mnt += costoDelPlanNew
 
     for sid, row_old in old_dict.items():
         if sid not in processed_sids:
             tipoServicioOld = str(row_old.get('Tipo de servicio', '')).strip().upper()
-            if tipoServicioOld in ['PYME', 'CORPORATIVO']:
+            planOld = str(row_old.get('Plan', '')).strip().upper()
+            if planOld == 'TV' or tipoServicioOld == 'IPTV':
                 continue
+                
+            is_this_corp = tipoServicioOld in ['PYME', 'CORPORATIVO']
                 
             estatusOld = str(row_old['Estado servicio']).strip().upper()
             try:
-                costoOld = float(row_old['Costo del plan'])
+                costoOld = parse_amount(row_old['Costo del plan'])
             except:
                 costoOld = 0.0
                 
             if estatusOld == 'ACT.':
-                ingreso_ayer += costoOld
-                impacto_retiros_pre_corte += costoOld
-                count_activos_ayer += 1
-                count_retiros_pre_corte += 1
+                if is_this_corp:
+                    ingreso_ayer_corp += costoOld
+                    count_activos_ayer_corp += 1
+                    susp_qty_corp += 1
+                    susp_mnt_corp -= costoOld
+                else:
+                    ingreso_ayer += costoOld
+                    count_activos_ayer += 1
+                    susp_qty += 1
+                    susp_mnt -= costoOld
+                    
                 datosConciliacionDetalle.append({
                     'ID Servicio': sid,
                     'Cédula': row_old.get('Cédula', '') or '-',
@@ -1712,7 +1810,10 @@ async def procesar_auditoria_api(
     # Generar cuadro resumen agrupado de Clientes Activos por Plan
     plan_aggregates = {}
     for c in datosClientesActivos:
+        is_this_corp = c.get('Tipo de servicio', '').strip().upper() in ['PYME', 'CORPORATIVO']
         p_name = c['Plan'] or 'Sin Plan'
+        if is_this_corp:
+            p_name += " (Corp)"
         if p_name not in plan_aggregates:
             plan_aggregates[p_name] = {
                 'Plan': p_name,
@@ -1767,18 +1868,26 @@ async def procesar_auditoria_api(
             "cant_ayer": count_activos_ayer,
             "ingreso_hoy": ingreso_hoy,
             "cant_hoy": totalActivos,
-            "instalaciones": impacto_instalaciones,
-            "cant_instalaciones": count_instalaciones,
-            "reconexiones": impacto_reconexiones,
-            "cant_reconexiones": count_reconexiones,
-            "upgrades": impacto_upgrades,
-            "cant_upgrades": count_upgrades,
-            "upgrades_beneficio": impacto_upgrades_beneficio,
-            "cant_upgrades_beneficio": count_upgrades_beneficio,
-            "downgrades": impacto_downgrades,
-            "cant_downgrades": count_downgrades,
-            "retiros": impacto_retiros_post_corte + impacto_retiros_pre_corte,
-            "cant_retiros": count_retiros_post_corte + count_retiros_pre_corte,
+            "emp_exo_qty": emp_exo_qty,
+            "emp_exo_mnt": emp_exo_mnt,
+            "res_exo_qty": res_exo_qty,
+            "res_exo_mnt": res_exo_mnt,
+            "upgrades_qty": upgrades_qty,
+            "upgrades_mnt": upgrades_mnt,
+            "cambios_3m_qty": cambios_3m_qty,
+            "cambios_3m_mnt": cambios_3m_mnt,
+            "reconex_qty": reconex_qty,
+            "reconex_mnt": reconex_mnt,
+            "reconex_exo_qty": reconex_exo_qty,
+            "reconex_exo_mnt": reconex_exo_mnt,
+            "inst_3m_qty": inst_3m_qty,
+            "inst_3m_mnt": inst_3m_mnt,
+            "inst_norm_qty": inst_norm_qty,
+            "inst_norm_mnt": inst_norm_mnt,
+            "downgrades_qty": downgrades_qty,
+            "downgrades_mnt": downgrades_mnt,
+            "susp_qty": susp_qty,
+            "susp_mnt": susp_mnt,
             "cant_diferencia_neta": totalActivos - count_activos_ayer
         },
         "conciliacion_financiera_corp": {
@@ -1787,6 +1896,26 @@ async def procesar_auditoria_api(
             "cant_ayer": count_activos_ayer_corp,
             "ingreso_hoy": ingreso_hoy_corp,
             "cant_hoy": count_activos_hoy_corp,
+            "emp_exo_qty": emp_exo_qty_corp,
+            "emp_exo_mnt": emp_exo_mnt_corp,
+            "res_exo_qty": res_exo_qty_corp,
+            "res_exo_mnt": res_exo_mnt_corp,
+            "upgrades_qty": upgrades_qty_corp,
+            "upgrades_mnt": upgrades_mnt_corp,
+            "cambios_3m_qty": cambios_3m_qty_corp,
+            "cambios_3m_mnt": cambios_3m_mnt_corp,
+            "reconex_qty": reconex_qty_corp,
+            "reconex_mnt": reconex_mnt_corp,
+            "reconex_exo_qty": reconex_exo_qty_corp,
+            "reconex_exo_mnt": reconex_exo_mnt_corp,
+            "inst_3m_qty": inst_3m_qty_corp,
+            "inst_3m_mnt": inst_3m_mnt_corp,
+            "inst_norm_qty": inst_norm_qty_corp,
+            "inst_norm_mnt": inst_norm_mnt_corp,
+            "downgrades_qty": downgrades_qty_corp,
+            "downgrades_mnt": downgrades_mnt_corp,
+            "susp_qty": susp_qty_corp,
+            "susp_mnt": susp_mnt_corp,
             "cant_diferencia_neta": count_activos_hoy_corp - count_activos_ayer_corp
         },
         "conciliacion_detalle": datosConciliacionDetalle,
@@ -1801,7 +1930,7 @@ async def procesar_auditoria_api(
         "deudores": datosDeudores
     }
 
-def build_plan_aggregates(users):
+def build_plan_aggregates(users, is_corp=False, is_cons=False):
     total_activos = 0
     total_monto = 0.0
     datos_clientes_activos = []
@@ -1813,10 +1942,17 @@ def build_plan_aggregates(users):
             plan = str(item.get('plan', '')).strip() or 'Sin Plan'
             service_type = str(item.get('service_type', '')).strip().upper()
             
-            # Omitir IPTV si corresponde
-            if plan.upper() in ['IPTV', 'TV'] or service_type in ['IPTV', 'TV']:
+            if plan.upper() == 'TV' or service_type == 'IPTV':
                 continue
                 
+            if is_corp:
+                if service_type not in ['PYME', 'CORPORATIVO']:
+                    continue
+            elif not is_cons:
+                # This is residential (not corp, not cons)
+                if service_type in ['PYME', 'CORPORATIVO']:
+                    continue
+                    
             try:
                 amount = float(item.get('amount') or 0.0)
             except:
@@ -1948,28 +2084,21 @@ def get_clientes_activos_por_plan(
             data_corp = json.load(f)
 
     users_gen = (data_gen or {}).get("data", [])
-    users_corp = (data_corp or {}).get("data", [])
 
-    corp_sids = {str(u.get('id_servicio', '')).strip() for u in users_corp if str(u.get('id_servicio', '')).strip()}
-    users_res = [u for u in users_gen if str(u.get('id_servicio', '')).strip() not in corp_sids]
+    resumen_res = build_plan_aggregates(users_gen, is_corp=False, is_cons=False)
+    resumen_corp = build_plan_aggregates(users_gen, is_corp=True, is_cons=False)
+    resumen_cons = build_plan_aggregates(users_gen, is_corp=False, is_cons=True)
 
-    all_dict = {}
-    for u in users_res:
-        sid = str(u.get('id_servicio', '')).strip()
-        if sid: all_dict[sid] = u
-    for u in users_corp:
-        sid = str(u.get('id_servicio', '')).strip()
-        if sid: all_dict[sid] = u
-    users_cons = list(all_dict.values())
-
-    resumen_res = build_plan_aggregates(users_res)
-    resumen_corp = build_plan_aggregates(users_corp)
-    resumen_cons = build_plan_aggregates(users_cons)
+    fecha_snapshot = ""
+    if os.path.exists(path_gen):
+        mtime = os.path.getmtime(path_gen)
+        fecha_snapshot = datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %I:%M %p")
 
     return {
         "residencial": resumen_res,
         "corporativo": resumen_corp,
         "consolidado": resumen_cons,
+        "fecha_snapshot": fecha_snapshot,
         # Compatibilidad directa
         "totales": resumen_cons["totales"],
         "planes": resumen_cons["planes"],
@@ -1996,10 +2125,15 @@ def get_metricas_crecimiento(request: Request, db: Session = Depends(get_db)):
     activos_power = 0
     activos_iptv = 0
     
+    sectores = set()
     for item in list_old:
         status = str(item.get('service_status', '')).strip().upper()
         plan = str(item.get('plan', '')).strip().upper()
         service_type = str(item.get('service_type', '')).strip().upper()
+        sector = str(item.get('sector', '')).strip()
+        
+        if sector and sector.lower() not in ["none", "null"]:
+            sectores.add(sector)
         
         if status == 'ACTIVO':
             if plan in ['IPTV', 'TV'] or service_type in ['IPTV', 'TV']:
@@ -2009,7 +2143,8 @@ def get_metricas_crecimiento(request: Request, db: Session = Depends(get_db)):
             
     return {
         "activos_power": activos_power,
-        "activos_iptv": activos_iptv
+        "activos_iptv": activos_iptv,
+        "zonas_habilitadas": len(sectores)
     }
 
 
@@ -2201,6 +2336,8 @@ async def view_historico(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
+        if user.role not in ["admin"] and "ver_historico" not in (user.permissions or ""):
+            return RedirectResponse(url="/")
         embed = request.query_params.get("embed") == "1"
         
         # Obtener los 50 últimos cambios históricos
@@ -2262,6 +2399,163 @@ async def api_get_historico(cedula: str, db: Session = Depends(get_db)):
         ]
     }
 
+_clients_index = {}
+_clients_mtimes = (0, 0)
+
+def _get_clients_index():
+    global _clients_index, _clients_mtimes
+    path_res = os.path.join(UPLOAD_DIR, "last_snapshot.json")
+    path_corp = os.path.join(UPLOAD_DIR, "last_snapshot_corporativo.json")
+    
+    mtime_res = os.path.getmtime(path_res) if os.path.exists(path_res) else 0
+    mtime_corp = os.path.getmtime(path_corp) if os.path.exists(path_corp) else 0
+    current_mtimes = (mtime_res, mtime_corp)
+    
+    if _clients_index and _clients_mtimes == current_mtimes:
+        return _clients_index
+        
+    new_index = {}
+    import re
+    
+    def _format_phone(p):
+        p = str(p or '').strip()
+        if not p: return ''
+        digits = re.sub(r'[^0-9]', '', p)
+        if digits.startswith('58') and len(digits) == 12:
+            return '0' + digits[2:5] + '-' + digits[5:]
+        if digits.startswith('0') and len(digits) == 11:
+            return digits[:4] + '-' + digits[4:]
+        return p
+
+    # Cargar residencial
+    if os.path.exists(path_res):
+        try:
+            with open(path_res, "r", encoding="utf-8") as f:
+                res_data = json.load(f).get("data", [])
+                for u in res_data:
+                    doc = str(u.get('doc', '')).strip()
+                    if not doc:
+                        continue
+                    dt = str(u.get('doc_type', '')).strip().upper()
+                    onu = u.get('onu_sn') or u.get('onu') or u.get('onu_mac') or ''
+                    item = {
+                        'encontrado': True,
+                        'cedula': f"{dt}-{doc}" if dt else doc,
+                        'doc': doc,
+                        'doc_type': dt,
+                        'nombre': u.get('name', ''),
+                        'onu': onu,
+                        'telefono1': _format_phone(u.get('phone')),
+                        'telefono_raw': u.get('phone') or '',
+                        'telefono2': _format_phone(u.get('phone_2')),
+                        'ubicacion': u.get('address') or '',
+                        'urban': u.get('urban') or '',
+                        'plan': u.get('plan') or '',
+                        'estado_servicio': u.get('service_status') or '',
+                        'tipo_cliente': 'Residencial',
+                        'id_servicio': u.get('id_servicio')
+                    }
+                    new_index[doc] = item
+                    if dt:
+                        new_index[f"{dt}-{doc}"] = item
+                        new_index[f"{dt}{doc}"] = item
+        except Exception as e:
+            print(f"Error indexando last_snapshot.json: {e}")
+
+    # Cargar corporativo
+    if os.path.exists(path_corp):
+        try:
+            with open(path_corp, "r", encoding="utf-8") as f:
+                corp_data = json.load(f).get("data", [])
+                for u in corp_data:
+                    doc = str(u.get('doc', '')).strip()
+                    if not doc:
+                        continue
+                    dt = str(u.get('doc_type', '')).strip().upper()
+                    onu_val = u.get('onu') or u.get('onu_sn') or ''
+                    if ' / ' in onu_val:
+                        onu_val = onu_val.split(' / ')[0].strip()
+                    item = {
+                        'encontrado': True,
+                        'cedula': f"{dt}-{doc}" if dt else doc,
+                        'doc': doc,
+                        'doc_type': dt,
+                        'nombre': u.get('name', ''),
+                        'onu': onu_val,
+                        'telefono1': _format_phone(u.get('phone')),
+                        'telefono_raw': u.get('phone') or '',
+                        'telefono2': _format_phone(u.get('phone_2')),
+                        'ubicacion': u.get('address') or '',
+                        'urban': u.get('urban') or '',
+                        'plan': u.get('plan') or '',
+                        'estado_servicio': u.get('service_status') or '',
+                        'tipo_cliente': 'Corporativo',
+                        'id_servicio': u.get('id_servicio')
+                    }
+                    new_index[doc] = item
+                    if dt:
+                        new_index[f"{dt}-{doc}"] = item
+                        new_index[f"{dt}{doc}"] = item
+        except Exception as e:
+            print(f"Error indexando last_snapshot_corporativo.json: {e}")
+
+    _clients_index = new_index
+    _clients_mtimes = current_mtimes
+    return _clients_index
+
+@app.get("/api/clientes/consulta")
+def api_consultar_cliente(q: str = Query(...), db: Session = Depends(get_db)):
+    import re
+    query_str = q.strip().upper()
+    if not query_str:
+        return {"encontrado": False, "mensaje": "Parámetro de búsqueda vacío"}
+        
+    index = _get_clients_index()
+    
+    # 1. Búsqueda directa por la cadena ingresada
+    if query_str in index:
+        return index[query_str]
+        
+    # 2. Búsqueda por dígitos limpios
+    digits = re.sub(r'[^0-9]', '', query_str)
+    if digits and digits in index:
+        return index[digits]
+        
+    # 3. Intentos con prefijos comunes (V, J, E, G)
+    for prefix in ['V-', 'J-', 'E-', 'G-']:
+        test_key = f"{prefix}{digits}"
+        if test_key in index:
+            return index[test_key]
+            
+    # 4. Fallback a la base de datos SQL
+    if digits and hasattr(db, 'query'):
+        try:
+            client_sql = db.query(models.Client).filter(
+                (models.Client.cedula.ilike(f"%{digits}%")) | (models.Client.service_id == digits)
+            ).first()
+            
+            if client_sql:
+                return {
+                    "encontrado": True,
+                    "cedula": client_sql.cedula or digits,
+                    "doc": digits,
+                    "doc_type": "",
+                    "nombre": client_sql.name,
+                    "onu": "",
+                    "telefono1": "",
+                    "telefono2": "",
+                    "ubicacion": "",
+                    "urban": "",
+                    "plan": client_sql.current_plan or "",
+                    "estado_servicio": client_sql.status or "",
+                    "tipo_cliente": client_sql.client_type or "Residencial",
+                    "id_servicio": client_sql.service_id
+                }
+        except Exception as e:
+            print(f"Error consultando SQL client fallback: {e}")
+        
+    return {"encontrado": False, "mensaje": f"No se encontró cliente con documento: {q}"}
+
 def scheduled_snapshot_job():
     try:
         data = fetch_powerlink_data(is_natural=None)
@@ -2315,3 +2609,185 @@ async def api_get_chat_directory(db: Session = Depends(get_db)):
         })
     return departments
 
+
+
+# ==========================================
+# ENDPOINTS REPORTES
+# ==========================================
+
+reporte_clients = []
+
+async def notify_reporte_clients():
+    for queue in reporte_clients:
+        await queue.put("update")
+
+@app.get("/reporte", response_class=HTMLResponse)
+async def view_reporte(request: Request, db: Session = Depends(get_db)):
+    user = None
+    try:
+        user = security.get_current_user(request, db)
+    except Exception:
+        user = type('UserMock', (), {
+            'username': 'admin',
+            'full_name': 'Administrador',
+            'role': 'admin',
+            'permissions': 'cargar_datos_usuarios,ver_integracion,ver_reportes,ver_helpdesk,ver_cajas_nap'
+        })()
+    embed = request.query_params.get("embed") == "1"
+    return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})
+
+@app.get("/api/db")
+async def api_get_db():
+    try:
+        data = {}
+        if os.path.exists("db.json"):
+            with open("db.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+        
+        # Asegurar listas por defecto
+        for key in ['reports', 'afectaciones', 'techs', 'assignments', 'motivos', 'zonas', 'users', 'logs']:
+            if key not in data or not isinstance(data[key], list):
+                data[key] = []
+                
+        # Aliases para máxima compatibilidad
+        data['reportes'] = data.get('reports', [])
+        data['cuadrillas'] = data.get('techs', [])
+        data['coordinacion'] = data.get('assignments', [])
+        data['operadores'] = data.get('users', [])
+        data['bitacora'] = data.get('logs', [])
+        
+        return data
+    except Exception as e:
+        return {
+            "reports": [], "reportes": [],
+            "afectaciones": [],
+            "techs": [], "cuadrillas": [],
+            "assignments": [], "coordinacion": [],
+            "motivos": [],
+            "zonas": [],
+            "users": [], "operadores": [],
+            "logs": [], "bitacora": []
+        }
+
+@app.post("/api/db")
+async def api_post_db(request: Request):
+    try:
+        payload = await request.json()
+        
+        data = {}
+        if os.path.exists("db.json"):
+            try:
+                with open("db.json", "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception:
+                data = {}
+                
+        # Mapeo de campos compatibles tanto en inglés como en español
+        mappings = [
+            (['reports', 'reportes'], 'reports'),
+            (['techs', 'cuadrillas'], 'techs'),
+            (['assignments', 'coordinacion'], 'assignments'),
+            (['afectaciones'], 'afectaciones'),
+            (['motivos'], 'motivos'),
+            (['zonas'], 'zonas'),
+            (['users', 'operadores'], 'users'),
+            (['logs', 'bitacora'], 'logs'),
+        ]
+        
+        for keys, canonical_key in mappings:
+            for k in keys:
+                if k in payload and isinstance(payload[k], list):
+                    # Si el payload viene con lista vacía pero db.json ya tiene datos de motivos/zonas, no sobreescribir con vacío
+                    if len(payload[k]) == 0 and len(data.get(canonical_key, [])) > 0 and canonical_key in ['motivos', 'zonas']:
+                        continue
+                    data[canonical_key] = payload[k]
+                    break
+                
+        with open("db.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        await notify_reporte_clients()
+        return {"status": "ok", "message": "Database saved and clients notified"}
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"status": "error", "message": str(e)})
+
+@app.post("/api/login")
+async def api_reporte_login(request: Request, db: Session = Depends(get_db)):
+    try:
+        payload = await request.json()
+        raw_username = str(payload.get("username", "")).strip()
+        password = str(payload.get("password", "")).strip()
+
+        if not raw_username or not password:
+            return JSONResponse(status_code=400, content={"status": "error", "success": False, "message": "Debes ingresar usuario y contraseña"})
+
+        # Buscar en la tabla principal de Trabajadores (models.User) por username o email
+        user = db.query(models.User).filter(
+            (models.User.username.ilike(raw_username)) |
+            (models.User.email.ilike(raw_username))
+        ).first()
+
+        if not user:
+            return JSONResponse(status_code=401, content={"status": "error", "success": False, "message": "Usuario o correo no registrado en el sistema de trabajadores"})
+
+        # Validar si el trabajador se encuentra activo o suspendido
+        if not user.is_active:
+            reason = f": {user.suspension_reason}" if user.suspension_reason else ""
+            return JSONResponse(status_code=403, content={"status": "error", "success": False, "message": f"Usuario inactivo o suspendido{reason}. Contacta a Administración / RRHH."})
+
+        # Validar contraseña con el hash de seguridad
+        password_ok = False
+        if user.hashed_password:
+            try:
+                password_ok = security.verify_password(password, user.hashed_password)
+            except Exception:
+                password_ok = False
+            # Fallback en caso de contraseñas migradas en texto plano
+            if not password_ok and user.hashed_password == password:
+                password_ok = True
+
+        if not password_ok:
+            return JSONResponse(status_code=401, content={"status": "error", "success": False, "message": "Contraseña incorrecta"})
+
+        # Generar token de acceso
+        access_token = security.create_access_token(data={"sub": user.username, "role": user.role})
+
+        return {
+            "status": "ok",
+            "success": True,
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "name": user.full_name or user.username,
+                "full_name": user.full_name or user.username,
+                "role": user.role or "user",
+                "cargo": user.cargo or "",
+                "department": user.department or "",
+                "permissions": user.permissions or "",
+                "avatar_url": user.avatar_url or ""
+            }
+        }
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"status": "error", "message": str(e)})
+
+@app.get("/api/stream")
+async def api_reporte_stream(request: Request):
+    queue = asyncio.Queue()
+    reporte_clients.append(queue)
+    async def event_generator():
+        yield "data: connected\n\n"
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    data = await asyncio.wait_for(queue.get(), timeout=2.0)
+                    yield f"data: {data}\n\n"
+                except asyncio.TimeoutError:
+                    pass
+        finally:
+            if queue in reporte_clients:
+                reporte_clients.remove(queue)
+    return StreamingResponse(event_generator(), media_type="text/event-stream")

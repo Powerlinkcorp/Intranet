@@ -1,0 +1,7 @@
+{
+  "host": "10.100.0.1",
+  "user": "admin",
+  "pass": "admin",
+  "port": 8728,
+  "max_port": 20
+}

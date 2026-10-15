@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet - POWER LINK CORP.</title>
+    <link rel="icon" type="image/png"
+        href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fondo-principal: #ffffff; /* Clean Pure White */
+            --blanco: #ffffff;
+            --cabeceras: #1A1A1A; /* Deep Coal Black */
+            --acento: #FFC107; /* Vibrant Golden Yellow */
+            --acento-hover: #F5C71D; /* Metallic Gold Dust */
+            --texto-negro: #1A1A1A; /* Deep Coal Black */
+            --texto-gris: #4A4A4A; /* Charcoal Grey */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--fondo-principal);
+            color: var(--texto-negro);
+            padding-bottom: 60px;
+        }
+
+        
+        /* HERO BANNER */
+        .hero {
+            background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/Gemini_Generated_Image_glf24lglf24lglf2.png') center/cover;
+            color: var(--texto-negro);
+            padding: 60px 40px;
+            text-align: left;
+            transition: background 0.5s ease-in-out;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .hero button {
+            background-color: var(--acento);
+            color: var(--texto-negro);
+            border: none;
+            padding: 12px 28px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .hero button:hover {
+            background-color: var(--acento-hover);
+            transform: translateY(-2px);
+        }
+
+        /* MAIN LAYOUT */
+        .main-container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--blanco);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-left: 4px solid var(--acento);
+            padding-left: 12px;
+            margin-bottom: 18px;
+            font-weight: 700;
+            color: var(--cabeceras);
+        }
+
+        /* RECURSOS */
+        .search-templates {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-resource {
+            padding: 14px 10px;
+            text-align: center;
+            border-radius: 8px;
+            color: var(--blanco);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: block;
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .btn-resource:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn-navy {
+            background-color: var(--cabeceras);
+        }
+
+        .btn-gray {
+            background-color: #475569;
+        }
+
+        /* CARRUSEL DE EMPLEADOS */
+        .carousel-btn {
+            background: var(--acento);
+            color: var(--blanco);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .carousel-btn:hover {
+            transform: scale(1.1);
+            background: #d93838;
+        }
+        .employee-carousel {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .employee-card {
+            flex: 0 0 95px;
+            text-align: center;
+        }
+
+        .employee-card img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--acento);
+            margin-bottom: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .employee-card img:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .employee-card span {
+            font-size: 12px;
+            display: block;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        /* MÉTRICAS KPI */
+        .kpi-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .kpi-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fef9c3; /* Amarillo pastel muy suave y elegante (Tailwind yellow-100) */
+            color: var(--texto-negro);
+            padding: 18px 20px;
+            border-radius: 8px;
+            border-left: 5px solid var(--acento); /* Detalle de marca lateral */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .kpi-card.alt {
+            background-color: #fefce8; /* Amarillo aún más claro para intercalar (Tailwind yellow-50) */
+        }
+
+        .kpi-card .kpi-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--texto-negro);
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--cabeceras);
+        }
+
+        /* POP-UP BIENVENIDA */
+        .welcome-popup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        .welcome-popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .welcome-popup {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s ease;
+            position: relative;
+            border-top: 5px solid var(--acento);
+        }
+        .welcome-popup-overlay.active .welcome-popup {
+            transform: translateY(0) scale(1);
+        }
+        .welcome-popup h2 {
+            color: var(--cabeceras);
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+        .welcome-popup p {
+            color: var(--texto-gris);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .welcome-popup .close-popup {
+            position: absolute;
+            top: 10px; right: 15px;
+            background: none; border: none;
+            font-size: 20px; color: #94a3b8;
+            cursor: pointer;
+        }
+        .welcome-popup .close-popup:hover {
+            color: #ef4444;
+        }
+
+        /* CALENDARIO */
+        .calendar-wrapper {
+            width: 100%;
+        }
+
+        .calendar-header-month {
+            text-align: center;
+            font-weight: 700;
+            color: var(--cabeceras);
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .calendar-day-name {
+            font-weight: 700;
+            color: #64748b;
+            padding-bottom: 5px;
+        }
+
+        .calendar-day {
+            padding: 8px 0;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .calendar-day {
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+        .calendar-day:hover {
+            background-color: #e2e8f0;
+        }
+        .calendar-day.has-event {
+            border: 2px solid var(--acento);
+        }
+        .calendar-day.has-birthday::after {
+            content: "🎂";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 10px;
+        }
+        .calendar-day.active {
+            background-color: var(--acento);
+            color: var(--texto-negro);
+            font-weight: 700;
+        }
+
+        /* CUMPLEAÑOS */
+        .birthday-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: linear-gradient(135deg, #ffffff, #fffbeb);
+            border: 1.5px dashed var(--acento);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 18px;
+        }
+
+        .birthday-card img {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--acento);
+        }
+
+        .birthday-info h4 {
+            font-size: 14px;
+            color: var(--cabeceras);
+            font-weight: 700;
+        }
+
+        .birthday-info p {
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .feedback-form textarea {
+            width: 100%;
+            height: 85px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            resize: none;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .feedback-form button {
+            background-color: var(--cabeceras);
+            color: var(--blanco);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .feedback-form button:hover {
+            background-color: #1e293b;
+        }
+
+        /* POP-UP BIENVENIDA CSS */
+        .welcome-popup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        .welcome-popup-overlay.active {
+            display: flex;
+        }
+        .welcome-popup {
+            background: var(--blanco);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .chat-widget {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            background: linear-gradient(135deg, var(--acento), var(--acento-hover));
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--texto-negro);
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s;
+        }
+
+        .chat-button:hover {
+            transform: scale(1.08);
+        }
+
+        .chat-window {
+            display: none;
+            width: 340px;
+            height: 420px;
+            background-color: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            flex-direction: column;
+            overflow: hidden;
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-header {
+            background-color: var(--cabeceras);
+            color: var(--blanco);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            font-size: 13px;
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-msg {
+            background: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            max-width: 90%;
+        }
+
+        .chat-msg.mine {
+            align-self: flex-end;
+            background: #fef3c7;
+            border-color: #fde68a;
+        }
+
+        .chat-footer {
+            padding: 10px;
+            display: flex;
+            border-top: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .chat-footer input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar .search-bar {
+                display: none;
+            }
+        }
+    
+        /* ========================================================= */
+        /* RESPONSIVE DESIGN - INJECTED AUTOMATICALLY                */
+        /* ========================================================= */
+        @media screen and (max-width: 1024px) {
+            .main-container, .grid-container, .dashboard-grid, .layout-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding-bottom: 20px;
+            }
+            .main-container, .grid-container, .dashboard-grid, .layout-grid, 
+            .kpi-container, .resource-grid, .metrics-grid, .cards-grid {
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 10px;
+                gap: 15px;
+            }
+            
+            .hero {
+                padding: 30px 20px !important;
+                text-align: center;
+            }
+            
+            .hero h1 {
+                font-size: 28px !important;
+            }
+            
+            .sidebar {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                gap: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .content-area, .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 10px !important;
+            }
+            
+            .card {
+                padding: 15px !important;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .flex-container, .navbar, .top-bar {
+                flex-direction: column !important;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .login-container, .login-box {
+                width: 95% !important;
+                margin: 20px auto !important;
+            }
+            
+            .section-title {
+                font-size: 14px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    
+    {% include 'sidebar.html' %}
+
+    <div class="content-wrapper" id="contentWrapper">
+
+
+    <header class="hero" id="heroBanner">
+        <h1 id="heroTitle">Bienvenido a la Intranet Corporativa</h1>
+        <button id="heroBtn">Leer más →</button>
+    </header>
+
+    <main class="main-container">
+        <!-- COLUMNA 1: RECURSOS -->
+        <section id="recursosSec" style="min-width: 0;">
+            <div class="card">
+                <div class="section-title">Top Recursos</div>
+                <input type="text" id="resourceFilter" class="search-templates"
+                    placeholder="Filtrar Formularios y Plantillas" oninput="renderFilteredResources()">
+                <div class="resource-grid" id="resourceContainer">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </section>
+
+        <!-- COLUMNA 2: EMPLEADOS Y MÉTRICAS -->
+        <section id="equipoSec" style="min-width: 0;">
+            <div class="card" style="min-width: 0; max-width: 100%; overflow: hidden;">
+                <div class="section-title">Nuestro Equipo</div>
+                <div class="carousel-wrapper" style="position: relative; display: flex; align-items: center; min-width: 0;">
+                    <button class="carousel-btn left-btn" onclick="scrollCarousel(-1)" style="flex-shrink: 0; margin-right: 10px;"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div class="employee-carousel" id="employeeCarousel" style="flex: 1; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; min-width: 0;">
+                        <!-- Dinámico -->
+                    </div>
+                    <style>#employeeCarousel::-webkit-scrollbar { display: none; }</style>
+                    <button class="carousel-btn right-btn" onclick="scrollCarousel(1)" style="flex-shrink: 0; margin-left: 10px;"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div class="card" id="metricasSec">
+                <div class="section-title">Métricas del Trimestre: Crecimiento Power</div>
+                <div class="kpi-container" id="kpiContainer">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </section>
+
+        <!-- COLUMNA 3: CALENDARIO, CUMPLEAÑOS, FEEDBACK -->
+        <section style="min-width: 0;">
+            <div class="card">
+                <div class="section-title">Calendario Institucional</div>
+                <div class="calendar-wrapper">
+                    <div class="calendar-header-month" style="display:flex; justify-content:space-between; align-items:center;">
+                        <button onclick="changeMonth(-1)" style="background:none; border:none; cursor:pointer; font-size:18px; color:var(--texto-gris);"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="calendarMonthLabel">Cargando...</span>
+                        <button onclick="changeMonth(1)" style="background:none; border:none; cursor:pointer; font-size:18px; color:var(--texto-gris);"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Generado por JS -->
+                    </div>
+                </div>
+
+                <div class="birthday-card" id="birthdayCard" style="display:none; flex-direction:column; gap:10px; align-items:flex-start;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <h4 style="margin:0; font-size:14px; color:var(--texto-negro);"><i class="fa-solid fa-calendar-day" style="color:var(--acento);"></i> Detalle del Día</h4>
+                        <button onclick="document.getElementById('birthdayCard').style.display='none'" style="background:none; border:none; cursor:pointer; color:#ef4444;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="calendarDayDetails" style="width:100%; display:flex; flex-direction:column; gap:8px;">
+                        <!-- JS injected -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Feedback</div>
+                <form class="feedback-form" onsubmit="submitFeedback(event)">
+                    <textarea id="feedbackText" placeholder="¿Falta algo en esta intranet? ¡Cuéntanos!"
+                        required></textarea>
+                    <button type="submit">Enviar Comentarios</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- POP-UP BIENVENIDA -->
+    <div class="welcome-popup-overlay" id="welcomePopupOverlay">
+        <div class="welcome-popup">
+            <button class="close-popup" onclick="closeWelcomePopup()"><i class="fa-solid fa-xmark"></i></button>
+            <h2>¡Bienvenido/a, <span id="welcomeName"></span>!</h2>
+            <p id="welcomeMessage" style="margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <script>
+        let allResources = [];
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/intranet/dashboard');
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                const data = await res.json();
+
+                // User profile
+                const fullName = data.user.full_name || data.user.username;
+                const avatarEl = document.getElementById('userNavAvatar');
+                if (data.user.avatar_url && avatarEl) avatarEl.src = data.user.avatar_url;
+                if (data.user.role === 'admin' || data.user.role === 'rrhh' || (data.user.permissions || '').includes('cargar_datos_usuarios')) {
+                    const btn = document.getElementById('adminNavBtn');
+                    if (btn) btn.style.display = 'inline-block';
+                }
+
+                // Mostrar Pop-up de Bienvenida
+                showWelcomePopup(fullName);
+
+                // Hero
+                if (data.hero) {
+                    let heroTitleText = data.hero.title;
+                    heroTitleText = heroTitleText.replace(/Sabina/gi, fullName.split(" ")[0]);
+                    document.getElementById('heroTitle').textContent = heroTitleText;
+                    if (data.hero.image_url) {
+                        document.getElementById('heroBanner').style.backgroundImage = `linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), url('${data.hero.image_url}')`;
+                    }
+                }
+
+                // Resources
+                allResources = data.resources || [];
+                renderFilteredResources();
+
+                // Employees
+                const empContainer = document.getElementById('employeeCarousel');
+                empContainer.innerHTML = '';
+                (data.employees || []).forEach(emp => {
+                    const div = document.createElement('div');
+                    div.className = 'employee-card';
+                    const empName = emp.name || emp.full_name || 'Usuario';
+                    const empPhoto = emp.photo_url || emp.avatar_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
+                    div.innerHTML = `
+                        <img src="${empPhoto}" alt="${empName}">
+                        <span>${empName}</span>
+                        <span style="font-size: 10px; color: var(--texto-gris); font-weight: normal; margin-top: 2px;">${emp.department || ''}</span>
+                    `;
+                    empContainer.appendChild(div);
+                });
+
+                // KPIs - Llenado ahora desde la API de crecimiento en la función loadMetricasCrecimiento()
+                // Limpiamos el contenedor por si acaso.
+                const kpiContainer = document.getElementById('kpiContainer');
+                kpiContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #fff;"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-yellow-500"></i></div>';
+
+                // Birthday
+                if (data.birthday_employee) {
+                    const bName = document.getElementById('birthdayName');
+                    const bDate = document.getElementById('birthdayDate');
+                    const bPhoto = document.getElementById('birthdayPhoto');
+                    const empB = data.birthday_employee;
+                    if (bName) bName.textContent = empB.name || empB.full_name;
+                    if (bDate) bDate.textContent = empB.birthday_date || 'Próximamente';
+                    if (bPhoto) {
+                        bPhoto.src = empB.photo_url || empB.avatar_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
+                    }
+                }
+
+
+
+            } catch (err) {
+                console.error("Error cargando dashboard:", err);
+            }
+        }
+
+        async function showWelcomePopup(name) {
+            const overlay = document.getElementById('welcomePopupOverlay');
+            overlay.classList.add('active');
+
+            document.getElementById('welcomeName').textContent = name.split(" ")[0]; // Primer nombre
+            document.getElementById('welcomeMessage').textContent = 'Cargando...';
+            document.getElementById('welcomeMessage').style.display = 'block';
+            
+            try {
+                const res = await fetch('/api/popup');
+                if (res.ok) {
+                    const data = await res.json();
+                    if(data.message) {
+                        document.getElementById('welcomeMessage').textContent = data.message;
+                    } else {
+                        document.getElementById('welcomeMessage').style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                document.getElementById('welcomeMessage').style.display = 'none';
+            }
+
+            // Cerrar automáticamente a los 5 segundos
+            setTimeout(() => {
+                closeWelcomePopup();
+            }, 5000);
+        }
+
+        function closeWelcomePopup() {
+            const overlay = document.getElementById('welcomePopupOverlay');
+            overlay.classList.remove('active');
+        }
+
+        function renderFilteredResources() {
+            const query = document.getElementById('resourceFilter').value.toLowerCase();
+            const container = document.getElementById('resourceContainer');
+            container.innerHTML = '';
+
+            const filtered = allResources.filter(r => r.title.toLowerCase().includes(query) || r.category.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="font-size:13px; color:#64748b; grid-column: 1/span 2;">No se encontraron recursos</p>';
+                return;
+            }
+
+            filtered.forEach((res, idx) => {
+                const btn = document.createElement('a');
+                btn.className = `btn-resource ${idx % 2 === 0 ? 'btn-navy' : 'btn-gray'}`;
+                btn.href = res.file_path;
+                btn.target = "_blank";
+                btn.innerHTML = `<i class="fa-solid fa-file-arrow-down"></i> ${res.title}`;
+                container.appendChild(btn);
+            });
+        }
+
+        function containsSQLOrCode(text) {
+            if (typeof text !== 'string') return false;
+            // Prevenir inserción de SQL básico y scripts
+            const sqlPattern = /\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|EXEC|CREATE)\b/i;
+            const codePattern = /(<script.*?>|<\/script>|<iframe.*?>|<\/iframe>|javascript:|<%.*?%>|<\?.*?\?>)/i;
+            return sqlPattern.test(text) || codePattern.test(text);
+        }
+
+        async function submitFeedback(e) {
+            e.preventDefault();
+            const text = document.getElementById('feedbackText').value.trim();
+            if (!text) return;
+
+            if (containsSQLOrCode(text)) {
+                alert('Seguridad: El texto contiene caracteres, sentencias SQL o código no permitido.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: text })
+                });
+                if (res.ok) {
+                    alert('¡Gracias por tus comentarios! Han sido enviados al equipo.');
+                    document.getElementById('feedbackText').value = '';
+                }
+            } catch (err) {
+                alert('Error al enviar feedback.');
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            localStorage.clear();
+            window.location.href = '/login';
+        }
+
+        async function loadMetricasCrecimiento() {
+            try {
+                const res = await fetch('/api/metricas/crecimiento');
+                let activos = 0, iptv = 0, zonas = 0;
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    activos = data.activos_power || 0;
+                    iptv = data.activos_iptv || 0;
+                    zonas = data.zonas_habilitadas || 0;
+                }
+                
+                const kpiContainer = document.getElementById('kpiContainer');
+                kpiContainer.innerHTML = '';
+                
+                // Formateador
+                const fmt = new Intl.NumberFormat('en-US');
+                
+                // Cliente Activos
+                const div1 = document.createElement('div');
+                div1.className = 'kpi-card';
+                div1.innerHTML = `
+                    <span class="kpi-title">Clientes activos</span>
+                    <span class="kpi-value">${fmt.format(activos)} <i class="fa-solid fa-arrow-trend-up ml-1 text-sm text-green-600"></i></span>
+                `;
+                
+                // Clientes Powerlink Go (IPTV)
+                const div2 = document.createElement('div');
+                div2.className = 'kpi-card alt';
+                div2.innerHTML = `
+                    <span class="kpi-title">Clientes powerlink Go</span>
+                    <span class="kpi-value">${fmt.format(iptv)} <i class="fa-solid fa-arrow-trend-up ml-1 text-sm text-green-600"></i></span>
+                `;
+                
+                // Zonas habilitadas
+                const div3 = document.createElement('div');
+                div3.className = 'kpi-card';
+                div3.innerHTML = `
+                    <span class="kpi-title">Zonas habilitadas</span>
+                    <span class="kpi-value">${fmt.format(zonas)} <i class="fa-solid fa-map-location-dot ml-1 text-sm text-gray-500"></i></span>
+                `;
+                
+                kpiContainer.appendChild(div1);
+                kpiContainer.appendChild(div2);
+                kpiContainer.appendChild(div3);
+                
+            } catch(e) {
+                console.error("Error cargando métricas:", e);
+                const kpiContainer = document.getElementById('kpiContainer');
+                kpiContainer.innerHTML = '<div style="color: #ef4444; text-align: center; font-size: 12px; padding: 10px;">Error al cargar datos</div>';
+            }
+        }
+
+        // Init
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            renderCalendar();
+            loadMetricasCrecimiento();
+        });
+    
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1; // 1-12
+        let calendarData = {};
+
+        async function renderCalendar() {
+            const label = document.getElementById('calendarMonthLabel');
+            const grid = document.getElementById('calendarGrid');
+            const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            
+            if(!label || !grid) return;
+            
+            label.textContent = `${months[currentMonth - 1]} ${currentYear}`;
+            
+            // Header days
+            grid.innerHTML = `
+                <div class="calendar-day-name">L</div>
+                <div class="calendar-day-name">M</div>
+                <div class="calendar-day-name">X</div>
+                <div class="calendar-day-name">J</div>
+                <div class="calendar-day-name">V</div>
+                <div class="calendar-day-name">S</div>
+                <div class="calendar-day-name">D</div>
+            `;
+            
+            // Fetch data
+            try {
+                const res = await fetch(`/api/intranet/calendar?year=${currentYear}&month=${currentMonth}`);
+                if (res.ok) calendarData = await res.json();
+                else calendarData = {};
+            } catch(e) { calendarData = {}; }
+
+            const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+            
+            // Adjust to start on Monday
+            let emptyDays = firstDay === 0 ? 6 : firstDay - 1;
+            
+            for(let i = 0; i < emptyDays; i++) {
+                grid.innerHTML += `<div class="calendar-day" style="background:none; border:none;"></div>`;
+            }
+            
+            const today = new Date();
+            for(let d = 1; d <= daysInMonth; d++) {
+                let classes = "calendar-day";
+                if(today.getDate() === d && today.getMonth() + 1 === currentMonth && today.getFullYear() === currentYear) {
+                    classes += " active";
+                }
+                
+                const data = calendarData[d];
+                if(data) {
+                    if(data.events && data.events.length > 0) classes += " has-event";
+                    if(data.birthdays && data.birthdays.length > 0) classes += " has-birthday";
+                }
+                
+                grid.innerHTML += `<div class="${classes}" onclick="showDayDetails(${d})">${d}</div>`;
+            }
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if(currentMonth > 12) {
+                currentMonth = 1;
+                currentYear++;
+            } else if(currentMonth < 1) {
+                currentMonth = 12;
+                currentYear--;
+            }
+            renderCalendar();
+            const bc = document.getElementById('birthdayCard');
+            if(bc) bc.style.display = 'none';
+        }
+
+        function showDayDetails(day) {
+            const card = document.getElementById('birthdayCard');
+            const container = document.getElementById('calendarDayDetails');
+            const data = calendarData[day];
+            
+            if(!data || (data.events.length === 0 && data.birthdays.length === 0)) {
+                // No events
+                container.innerHTML = `<p style="font-size:13px; color:var(--texto-gris); text-align:center;">No hay eventos para este día.</p>`;
+            } else {
+                let html = '';
+                if(data.birthdays.length > 0) {
+                    html += `<div><strong style="color:var(--acento); font-size:12px;">CUMPLEAÑOS</strong>`;
+                    data.birthdays.forEach(b => {
+                        html += `
+                        <div style="display:flex; align-items:center; gap:10px; margin-top:5px; background:#fff; padding:5px; border-radius:6px; border:1px solid #e2e8f0;">
+                            <img src="${b.photo_url}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                            <div>
+                                <div style="font-size:12px; font-weight:bold;">${b.name}</div>
+                                <div style="font-size:10px; color:#64748b;">${b.department}</div>
+                            </div>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                if(data.events.length > 0) {
+                    html += `<div style="margin-top:10px;"><strong style="color:#ef4444; font-size:12px;">ACTIVIDADES</strong>`;
+                    data.events.forEach(e => {
+                        html += `
+                        <div style="margin-top:5px; background:#fff; padding:8px; border-radius:6px; border:1px solid #e2e8f0; border-left:3px solid #ef4444;">
+                            <div style="font-size:12px; font-weight:bold;">${e.title}</div>
+                            ${e.description ? `<div style="font-size:11px; color:#64748b; margin-top:3px;">${e.description}</div>` : ''}
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                container.innerHTML = html;
+            }
+            card.style.display = 'flex';
+        }
+
+    function toggleSubmenu(id, element) {
+        const submenu = document.getElementById(id);
+            const isOpen = submenu.classList.contains('open');
+            
+            // Cerrar otros submenús (opcional, comportamiento acordeón estricto)
+            document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            if (!isOpen) {
+                submenu.classList.add('open');
+                element.classList.add('active');
+            }
+        }
+
+        function scrollCarousel(direction) {
+            const carousel = document.getElementById('employeeCarousel');
+            const scrollAmount = 300; // Pixels to scroll
+            carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+    </script>
+{% if not embed %}
+{% include 'global_chat.html' %}
+{% endif %}
+    </div>
+</body>
+
+</html>

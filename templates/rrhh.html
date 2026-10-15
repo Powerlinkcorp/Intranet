@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intranet - Panel de Gestión RRHH</title>
+    <title>Intranet - Panel Admin</title>
     <link rel="icon" type="image/png" href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -462,6 +462,35 @@
             }
         }
 
+        /* --- ESTILOS DE FORMULARIO PREMIUM --- */
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label {
+            display: block; font-size: 12px; font-weight: 700; color: #64748b;
+            margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .input-field {
+            width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px;
+            font-size: 15px; color: var(--texto-negro); background-color: #f8fafc;
+            transition: all 0.3s ease; outline: none; font-family: inherit;
+        }
+        .input-field:focus {
+            border-color: #3b82f6; background-color: var(--blanco);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb); color: var(--blanco);
+            border: none; padding: 14px 24px; border-radius: 8px; font-size: 15px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3); }
+        .btn-primary:active { transform: translateY(0); }
+        .close-modal {
+            background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%;
+            color: #64748b; cursor: pointer; transition: all 0.2s ease; display: flex;
+            align-items: center; justify-content: center; font-size: 16px;
+        }
+        .close-modal:hover { background: #e2e8f0; color: #ef4444; transform: rotate(90deg); }
     </style>
 </head>
 
@@ -579,6 +608,10 @@
                             {% endfor %}
                             <option value="NEW_DEPT" style="font-weight:bold; color:#FCA311;">+ Crear Nuevo Departamento</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cargo</label>
+                        <input type="text" id="empCargo" class="form-control" placeholder="Ej. Especialista" required>
                     </div>
                     <div class="form-group">
                         <label>Fecha de Nacimiento</label>
@@ -794,31 +827,38 @@
         <iframe src="/integracion?embed=1" class="iframe-preview" title="Integración"></iframe>
     </div>
 
+
+
     {% if user.role == 'admin' %}
-    <div id="subtab-permisos" class="subtab-content">
+    <div id="subtab-trabajadores" class="subtab-content">
         <main class="main-container" style="grid-template-columns: 1fr;">
             <section>
                 <div class="card">
-                    <div class="section-title">🛡️ Gestión de Permisos de Usuarios</div>
+                    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-solid fa-users"></i> Gestión de Trabajadores</span>
+                        <input type="text" id="searchTrabajadoresInput" placeholder="Buscar por nombre, usuario, depto..." style="padding: 8px 15px; border: 1px solid #e2e8f0; border-radius: 8px; width: 350px; font-size: 14px; font-weight: normal; outline: none;" onkeyup="filterTrabajadoresList()">
+                    </div>
                     <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <div class="overflow-x-auto w-full">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                             <thead>
                                 <tr style="background-color: var(--cabeceras); color: white;">
-                                    <th style="padding: 12px; text-align: left;">Nombre</th>
+                                    <th style="padding: 12px; text-align: left;">Cédula</th>
+                                    <th style="padding: 12px; text-align: left;">Nombre Completo</th>
+                                    <th style="padding: 12px; text-align: left;">Usuario</th>
                                     <th style="padding: 12px; text-align: left;">Email</th>
-                                    <th style="padding: 12px; text-align: center;">Cargar Datos Usuarios</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Integración</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Reportes</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Comunicaciones</th>
-                                    <th style="padding: 12px; text-align: center;">Ver Directorio</th>
-                                    <th style="padding: 12px; text-align: center;">Editar Extensiones</th>
+                                    <th style="padding: 12px; text-align: left;">Departamento</th>
+                                    <th style="padding: 12px; text-align: left;">Cargo</th>
+                                    <th style="padding: 12px; text-align: left;">Cumpleaños</th>
+                                    <th style="padding: 12px; text-align: center;">Estado</th>
                                     <th style="padding: 12px; text-align: center;">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="permissionsTableBody">
+                            <tbody id="trabajadoresTableBody">
                                 <!-- Dinámico -->
                             </tbody>
                         </table>
+</div>
                     </div>
                 </div>
             </section>
@@ -840,7 +880,8 @@
             <div class="section-title">
                 <span><i class="fa-solid fa-address-book"></i> Directorio de Trabajadores</span>
             </div>
-            <table style="width:100%; text-align:left; border-collapse: collapse; font-size:14px;">
+            <div class="overflow-x-auto w-full">
+<table style="width:100%; text-align:left; border-collapse: collapse; font-size:14px;">
                 <thead>
                     <tr style="border-bottom:2px solid var(--acento);">
                         <th style="padding:10px;">Cédula</th>
@@ -858,12 +899,13 @@
                         <td>{{ emp.department }}</td>
                         <td>{{ emp.email }}</td>
                         <td>
-                            <button onclick='editEmployee({{ emp.id }}, "{{ emp.cedula }}", "{{ emp.name }}", "{{ emp.apellido or "" }}", "{{ emp.email }}", "{{ emp.department }}", "{{ emp.birthday_date }}")' class="btn-action" style="padding:5px 10px; font-size:12px;">Editar</button>
+                            <button onclick='editEmployee({{ emp.id }}, "{{ emp.cedula }}", "{{ emp.name }}", "{{ emp.apellido or '' }}", "{{ emp.email }}", "{{ emp.department }}", "{{ emp.birthday_date }}")' class="btn-action" style="padding:5px 10px; font-size:12px;">Editar</button>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+</div>
         </div>
     </div>
 
@@ -905,6 +947,19 @@
             });
         }
         
+        function filterTrabajadoresList() {
+            const query = document.getElementById('searchTrabajadoresInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#subtab-trabajadores tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
         function switchSubTab(evt, subtabId) {
             const contents = document.querySelectorAll('.subtab-content');
             contents.forEach(content => content.classList.remove('active'));
@@ -988,95 +1043,10 @@
                     }
                 }
                 
-                {% if user.role == 'admin' %}
-                loadUsersPermissions();
-                {% endif %}
+
             } catch (e) { }
         }
 
-        async function loadUsersPermissions() {
-            try {
-                const res = await fetch('/api/rrhh/users');
-                if (res.ok) {
-                    const users = await res.json();
-                    const tbody = document.getElementById('permissionsTableBody');
-                    tbody.innerHTML = '';
-                    users.forEach(u => {
-                        const tr = document.createElement('tr');
-                        tr.style.borderBottom = '1px solid #e2e8f0';
-                        
-                        const hasCargar = u.permissions.includes('cargar_datos_usuarios');
-                        const hasIntegracion = u.permissions.includes('ver_integracion');
-                        const hasReportes = u.permissions.includes('ver_reportes');
-                        const hasHelpdesk = u.permissions.includes('ver_helpdesk');
-                        const hasDirectorio = u.permissions.includes('ver_directorio');
-                        const hasEditarDirectorio = u.permissions.includes('editar_directorio');
-                        
-                        tr.innerHTML = `
-                            <td style="padding: 12px;">${u.full_name} <br><small style="color:#64748b;">${u.role}</small></td>
-                            <td style="padding: 12px;">${u.email}</td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_cargar_${u.id}" ${hasCargar ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_integ_${u.id}" ${hasIntegracion ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_reportes_${u.id}" ${hasReportes ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_helpdesk_${u.id}" ${hasHelpdesk ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_directorio_${u.id}" ${hasDirectorio ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <input type="checkbox" id="perm_editar_directorio_${u.id}" ${hasEditarDirectorio ? 'checked' : ''} ${u.role === 'admin' ? 'disabled' : ''}>
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                ${u.role !== 'admin' ? `<button onclick="savePermissions(${u.id})" class="btn-action btn-gold" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;">Guardar</button>` : '<span style="color:#64748b; font-size: 12px; margin-right: 5px;">Admin Full</span>'}
-                                <button onclick="openEditUserModal(${u.id}, '${u.email}')" class="btn-action" style="padding: 6px 12px; font-size: 12px; background: #64748b;">Editar</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-            } catch (e) { console.error('Error cargando usuarios', e); }
-        }
-
-        async function savePermissions(userId) {
-            const cargar = document.getElementById('perm_cargar_' + userId).checked;
-            const integ = document.getElementById('perm_integ_' + userId).checked;
-            const reportes = document.getElementById('perm_reportes_' + userId).checked;
-            const helpdesk = document.getElementById('perm_helpdesk_' + userId).checked;
-            const directorio = document.getElementById('perm_directorio_' + userId).checked;
-            const editarDirectorio = document.getElementById('perm_editar_directorio_' + userId).checked;
-            
-            let perms = [];
-            if (cargar) perms.push('cargar_datos_usuarios');
-            if (integ) perms.push('ver_integracion');
-            if (reportes) perms.push('ver_reportes');
-            if (helpdesk) perms.push('ver_helpdesk');
-            if (directorio) perms.push('ver_directorio');
-            if (editarDirectorio) perms.push('editar_directorio');
-            
-            const formData = new FormData();
-            formData.append('permissions', perms.join(','));
-            
-            try {
-                const res = await fetch(`/api/rrhh/users/${userId}/permissions`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (res.ok) {
-                    showToast('Permisos guardados con éxito');
-                } else {
-                    showToast('Error al guardar permisos', 'error');
-                }
-            } catch (e) {
-                showToast('Error de servidor', 'error');
-            }
-        }
 
         function renderResourcesList(list) {
             const container = document.getElementById('resourcesList');
@@ -1225,7 +1195,8 @@
             const cedula = document.getElementById('empCedula').value.trim();
             const nombre = document.getElementById('empNombre').value.trim();
             const apellido = document.getElementById('empApellido').value.trim();
-            const position = document.getElementById('empDepartamento').value; 
+            const department = document.getElementById('empDepartamento').value; 
+            const cargo = document.getElementById('empCargo').value.trim();
             const birthday_date = document.getElementById('empNacimiento').value;
             const email = document.getElementById('empEmail').value.trim();
             const file = document.getElementById('empPhoto').files[0];
@@ -1236,8 +1207,8 @@
             formData.append('name', nombre);
             formData.append('apellido', apellido);
             formData.append('cedula', cedula);
-            formData.append('department', position);
-            formData.append('position', 'Empleado');
+            formData.append('department', department);
+            formData.append('position', cargo || 'Empleado');
             formData.append('birthday_date', birthday_date);
             formData.append('email', email);
             formData.append('usuario', usuario);
@@ -1420,6 +1391,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadAdminData();
+            loadTrabajadores();
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
             if (tab) {
@@ -1460,6 +1432,72 @@
     </div>
 
     <!-- Modal for Edit System User -->
+    
+    <!-- MODAL EDITAR TRABAJADOR -->
+    <div class="modal-overlay" id="editWorkerModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Editar Trabajador</h3>
+                <button class="close-modal" onclick="closeEditWorkerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formEditWorker" onsubmit="submitEditWorker(event)">
+                <input type="hidden" id="editWorkerId">
+                <div class="form-group">
+                    <label>Cédula</label>
+                    <input type="text" id="editWorkerCedula" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="editWorkerName" required class="input-field">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editWorkerEmail" required class="input-field">
+                </div>
+                <div class="form-group">
+                    <label>Departamento</label>
+                    <select id="editWorkerDept" class="input-field" required>
+                        <!-- Se llenará dinámicamente o se deja como texto si prefieren -->
+                        <option value="">Seleccione Departamento</option>
+                        {% for d in departments %}
+                        <option value="{{ d.name }}">{{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cargo</label>
+                    <input type="text" id="editWorkerCargo" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Cumpleaños</label>
+                    <input type="date" id="editWorkerBday" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label>Foto de Perfil (Opcional)</label>
+                    <input type="file" id="editWorkerAvatar" class="input-field" accept="image/*" style="padding: 9px 16px;">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; margin-top:15px;">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL SUSPENDER TRABAJADOR -->
+    <div class="modal-overlay" id="suspendWorkerModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 style="color: var(--error);">Suspender Trabajador</h3>
+                <button class="close-modal" onclick="closeSuspendWorkerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formSuspendWorker" onsubmit="submitSuspendWorker(event)">
+                <input type="hidden" id="suspendWorkerId">
+                <div class="form-group">
+                    <label>Motivo de la suspensión</label>
+                    <textarea id="suspendWorkerReason" required class="input-field" rows="4" placeholder="Escriba aquí los detalles de la suspensión..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; margin-top:15px; background: var(--error);">Confirmar Suspensión</button>
+            </form>
+        </div>
+    </div>
     <div id="editSystemUserModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
         <div style="background:#fff; padding:25px; border-radius:12px; width:450px; max-width:90%;">
             <h3 style="margin-bottom:20px; color:#1A1A1A;"><i class="fa-solid fa-user-pen"></i> Editar Usuario del Sistema</h3>
@@ -1528,6 +1566,147 @@
                 console.error(e);
                 alert("Error de red");
             }
+        }
+        // --- LOGICA DE TRABAJADORES ---
+        async function loadTrabajadores() {
+            try {
+                const res = await fetch('/api/rrhh/users');
+                if (res.ok) {
+                    const users = await res.json();
+                    window.rrhhUsers = users;
+                    const tbody = document.getElementById('trabajadoresTableBody');
+                    if (!tbody) return;
+                    tbody.innerHTML = '';
+                    users.forEach(u => {
+                        const tr = document.createElement('tr');
+                        tr.style.borderBottom = "1px solid #e2e8f0";
+                        const estadoHtml = u.is_active 
+                            ? `<span style="color:#10b981; font-weight:600;"><i class="fa-solid fa-check-circle"></i> Activo</span>`
+                            : `<span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-ban"></i> Suspendido</span>`;
+                        tr.innerHTML = `
+                            <td style="padding: 12px;">${u.cedula || '-'}</td>
+                            <td style="padding: 12px;">${u.full_name}</td>
+                            <td style="padding: 12px;">${u.username}</td>
+                            <td style="padding: 12px;">${u.email}</td>
+                            <td style="padding: 12px;">${u.department || '-'}</td>
+                            <td style="padding: 12px;">${u.cargo || '-'}</td>
+                            <td style="padding: 12px;">${u.birthday_date || '-'}</td>
+                            <td style="padding: 12px; text-align: center;">${estadoHtml}</td>
+                            <td style="padding: 12px; text-align: center; display:flex; gap:8px; justify-content:center;">
+                                <button class="btn-action" style="background:#eab308; color:#fff;" onclick="resendPassword(${u.id})" title="Reenviar Contraseña"><i class="fa-solid fa-key"></i></button>
+                                <button class="btn-action" style="background:#3b82f6; color:#fff;" onclick="openEditWorkerModal(${u.id})" title="Editar Trabajador"><i class="fa-solid fa-pen"></i></button>
+                                ${u.is_active ? `<button class="btn-action" style="background:#ef4444; color:#fff;" onclick="openSuspendWorkerModal(${u.id})" title="Suspender Usuario"><i class="fa-solid fa-ban"></i></button>` : `<button class="btn-action" style="background:#10b981; color:#fff;" onclick="activateWorker(${u.id})" title="Activar Usuario"><i class="fa-solid fa-check"></i></button>`}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function openEditWorkerModal(id) {
+            const u = window.rrhhUsers.find(user => user.id === id);
+            if (!u) return;
+            document.getElementById('editWorkerId').value = id;
+            document.getElementById('editWorkerCedula').value = u.cedula || '';
+            document.getElementById('editWorkerName').value = u.full_name || '';
+            document.getElementById('editWorkerEmail').value = u.email || '';
+            document.getElementById('editWorkerDept').value = u.department || '';
+            document.getElementById('editWorkerCargo').value = u.cargo || '';
+            document.getElementById('editWorkerBday').value = u.birthday_date || '';
+            document.getElementById('editWorkerModal').style.display = '';
+            document.getElementById('editWorkerModal').classList.add('active');
+        }
+        function closeEditWorkerModal() {
+            document.getElementById('editWorkerModal').classList.remove('active');
+        }
+
+        async function submitEditWorker(e) {
+            e.preventDefault();
+            const id = document.getElementById('editWorkerId').value;
+            
+            const formData = new FormData();
+            formData.append("cedula", document.getElementById('editWorkerCedula').value || "");
+            formData.append("full_name", document.getElementById('editWorkerName').value || "");
+            formData.append("email", document.getElementById('editWorkerEmail').value || "");
+            formData.append("department", document.getElementById('editWorkerDept').value || "");
+            formData.append("cargo", document.getElementById('editWorkerCargo').value || "");
+            formData.append("birthday_date", document.getElementById('editWorkerBday').value || "");
+            
+            const avatarFile = document.getElementById('editWorkerAvatar').files[0];
+            if (avatarFile) {
+                formData.append("avatar", avatarFile);
+            }
+
+            try {
+                const res = await fetch(`/api/rrhh/users/${id}/edit-worker`, {
+                    method: 'PUT',
+                    body: formData
+                });
+                if(res.ok) {
+                    showToast("Trabajador editado correctamente");
+                    closeEditWorkerModal();
+                    loadTrabajadores();
+                } else {
+                    showToast("Error al editar", "error");
+                }
+            } catch(e) { showToast("Error de red", "error"); }
+        }
+
+        function openSuspendWorkerModal(id) {
+            document.getElementById('suspendWorkerId').value = id;
+            document.getElementById('suspendWorkerReason').value = '';
+            document.getElementById('suspendWorkerModal').style.display = '';
+            document.getElementById('suspendWorkerModal').classList.add('active');
+        }
+        function closeSuspendWorkerModal() {
+            document.getElementById('suspendWorkerModal').classList.remove('active');
+        }
+
+        async function submitSuspendWorker(e) {
+            e.preventDefault();
+            const id = document.getElementById('suspendWorkerId').value;
+            const reason = document.getElementById('suspendWorkerReason').value;
+            try {
+                const res = await fetch(`/api/rrhh/users/${id}/suspend`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ suspension_reason: reason })
+                });
+                if(res.ok) {
+                    showToast("Usuario suspendido");
+                    closeSuspendWorkerModal();
+                    loadTrabajadores();
+                } else {
+                    showToast("Error al suspender", "error");
+                }
+            } catch(e) { showToast("Error de red", "error"); }
+        }
+
+        async function activateWorker(id) {
+            if(!confirm("¿Está seguro de reactivar el acceso de este trabajador?")) return;
+            try {
+                const res = await fetch(`/api/rrhh/users/${id}/activate`, { method: 'POST' });
+                if(res.ok) {
+                    showToast("Usuario activado exitosamente");
+                    loadTrabajadores();
+                } else {
+                    showToast("Error al activar", "error");
+                }
+            } catch(e) { showToast("Error de red", "error"); }
+        }
+
+        async function resendPassword(id) {
+            if(!confirm("¿Está seguro de enviar una nueva contraseña a este trabajador?")) return;
+            try {
+                const res = await fetch(`/api/rrhh/users/${id}/resend-password`, { method: 'POST' });
+                if(res.ok) {
+                    const data = await res.json();
+                    alert(data.message); // Mostrar la contraseña simulada
+                } else {
+                    showToast("Error al reenviar contraseña", "error");
+                }
+            } catch(e) { showToast("Error de red", "error"); }
         }
     </script>
 {% if not embed %}

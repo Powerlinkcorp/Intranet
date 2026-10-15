@@ -80,12 +80,48 @@ def get_engine():
         engine = create_engine(SQLITE_FALLBACK_URL, connect_args={"check_same_thread": False})
         print(f"[DATABASE] OK Usando SQLite local: {SQLITE_FALLBACK_URL}")
 
-    # Auto-migrate: add permissions column if it doesn't exist
-    try:
-        with engine.begin() as conn:
-            conn.execute(text("ALTER TABLE users ADD COLUMN permissions VARCHAR DEFAULT ''"))
-    except Exception:
-        pass # Column likely already exists
+    # Auto-migrate: add user columns if they don't exist
+    for col_def in [
+        "permissions VARCHAR DEFAULT ''",
+        "department VARCHAR DEFAULT ''",
+        "cargo VARCHAR DEFAULT ''",
+        "birthday_date VARCHAR DEFAULT ''",
+        "suspension_reason VARCHAR DEFAULT ''",
+        "cedula VARCHAR DEFAULT ''",
+        "avatar_url VARCHAR DEFAULT '/static/img/default-avatar.png'"
+    ]:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_def}"))
+        except Exception:
+            pass
+
+    # Auto-migrate flasheo tables and columns
+    for col_def in [
+        "station_id VARCHAR(50) DEFAULT 'ESTACION-DEFAULT'",
+        "sync_status VARCHAR(20) DEFAULT 'SYNCED'",
+        "synced_at DATETIME"
+    ]:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE onus_flasheadas ADD COLUMN {col_def}"))
+        except Exception:
+            pass
+
+    # Auto-migrate network_events new columns
+    for col_def in [
+        "accion_tomada TEXT",
+        "causa_raiz VARCHAR(300)",
+        "clientes_afectados VARCHAR(200)",
+        "closed_at DATETIME",
+        "created_by VARCHAR(100)",
+        "closed_by VARCHAR(100)"
+    ]:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE network_events ADD COLUMN {col_def}"))
+        except Exception:
+            pass
 
     return engine
 

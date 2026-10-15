@@ -1,1 +1,20 @@
 .env
+__pycache__/
+*.pyc
+venv/
+scratch/
+db.json
+static/uploads/*.json
+*.db
+intranet_local.db
+capturas/
+temp_brandon/Estacion de flasheo.zip
+chat.json
+mensajes.json
+mensajes_chat.json
+chat.db
+*.log
+*.db-shm
+*.db-wal
+*.sqlite3
+*.db

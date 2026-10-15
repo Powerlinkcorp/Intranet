@@ -29,6 +29,8 @@ LOCKOUT_TIME_SECONDS = 300  # 5 minutos de bloqueo
 
 
 def is_rate_limited(ip_address: str) -> bool:
+    if ip_address in ("127.0.0.1", "localhost", "::1", "unknown"):
+        return False
     now = time.time()
     attempts = LOGIN_ATTEMPTS.get(ip_address, [])
     recent = [t for t in attempts if now - t < LOCKOUT_TIME_SECONDS]

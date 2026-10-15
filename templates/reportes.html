@@ -495,7 +495,7 @@
         <div class="header-title-box">
             <div>
                 <h1 class="page-title"><i class="fa-solid fa-chart-pie text-amber-500"></i> Reporte y Cuadro de Clientes por Plan</h1>
-                <p class="page-subtitle">Consulta simultánea de contratos Residenciales, Corporativos (is_natural=false) y su Unión Consolidada.</p>
+                <p class="page-subtitle">Consulta simultánea de contratos Residenciales, Corporativos (is_natural=false) y su Unión Consolidada. <span id="lblSnapshotDate" style="display: none; margin-left: 8px; font-size: 12px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; color: #475569; font-weight: 500;"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i>Corte: <strong id="lblSnapshotDateVal" style="color: #0f172a;"></strong></span></p>
             </div>
             <div class="header-actions">
                 <button onclick="cargarReporte(true)" class="btn-action btn-secondary" title="Recargar datos de la API en vivo">
@@ -514,20 +514,9 @@
                     <i class="fa-solid fa-users"></i>
                 </div>
                 <div class="kpi-content">
-                    <span class="kpi-label">Total Clientes Activos (Unión)</span>
+                    <span class="kpi-label">Total Clientes Activos</span>
                     <span class="kpi-value" id="kpiTotalClientes">-</span>
-                    <span class="kpi-sub" id="kpiSubClientes">Residenciales + Corporativos</span>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-icon green">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                </div>
-                <div class="kpi-content">
-                    <span class="kpi-label">Facturación Mensual Total</span>
-                    <span class="kpi-value" id="kpiTotalCosto">$0.00</span>
-                    <span class="kpi-sub" id="kpiSubCosto">Monto total consolidado</span>
+                    <span class="kpi-sub" id="kpiSubClientes">Monto total</span>
                 </div>
             </div>
 
@@ -536,7 +525,7 @@
                     <i class="fa-solid fa-house-user"></i>
                 </div>
                 <div class="kpi-content">
-                    <span class="kpi-label">Residenciales (Naturales)</span>
+                    <span class="kpi-label">Residenciales</span>
                     <span class="kpi-value" id="kpiResidencialCount">-</span>
                     <span class="kpi-sub" id="kpiResidencialMonto">$0.00 facturación</span>
                 </div>
@@ -547,9 +536,20 @@
                     <i class="fa-solid fa-building"></i>
                 </div>
                 <div class="kpi-content">
-                    <span class="kpi-label">Corporativos (is_natural=false)</span>
+                    <span class="kpi-label">Corporativos</span>
                     <span class="kpi-value" id="kpiCorporativoCount">-</span>
-                    <span class="kpi-sub" id="kpiCorporativoMonto">$0.00 facturación</span>
+                    <span class="kpi-sub" id="kpiSubCorpCount">clientes activos</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon green">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Corporativos</span>
+                    <span class="kpi-value" id="kpiCorporativoMonto">$0.00</span>
+                    <span class="kpi-sub" id="kpiSubCorpMonto">facturación</span>
                 </div>
             </div>
         </div>
@@ -597,7 +597,8 @@
                 </div>
     
                 <div class="table-responsive" style="flex: 1;">
-                    <table id="tablaPlanesResidencial">
+                    <div class="overflow-x-auto w-full">
+<table id="tablaPlanesResidencial">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
@@ -625,6 +626,7 @@
                             </tr>
                         </tfoot>
                     </table>
+</div>
                 </div>
             </div>
     
@@ -648,7 +650,8 @@
                 </div>
     
                 <div class="table-responsive" style="flex: 1;">
-                    <table id="tablaPlanesCorporativo">
+                    <div class="overflow-x-auto w-full">
+<table id="tablaPlanesCorporativo">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
@@ -676,6 +679,7 @@
                             </tr>
                         </tfoot>
                     </table>
+</div>
                 </div>
             </div>
         </div>
@@ -700,7 +704,8 @@
             </div>
 
             <div class="table-responsive">
-                <table id="tablaPlanesConsolidado">
+                <div class="overflow-x-auto w-full">
+<table id="tablaPlanesConsolidado">
                     <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
@@ -728,6 +733,7 @@
                         </tr>
                     </tfoot>
                 </table>
+</div>
             </div>
         </div>
 
@@ -751,7 +757,8 @@
             </div>
 
             <div class="table-responsive">
-                <table id="tablaClientesDetalle">
+                <div class="overflow-x-auto w-full">
+<table id="tablaClientesDetalle">
                     <thead>
                         <tr>
                             <th>ID Servicio</th>
@@ -768,6 +775,7 @@
                         <!-- Dynamic clients -->
                     </tbody>
                 </table>
+</div>
             </div>
         </div>
     </div>
@@ -778,6 +786,25 @@
         let chartIngresosInstance = null;
         let planSeleccionado = '';
         let detalleClientesList = [];
+
+        function formatAmountWithToggle(amountStr) {
+            return `<span class="amount-wrapper" style="display:inline-flex; align-items:center; gap:6px; justify-content: flex-end;">
+                <span class="amount-value" data-val="${amountStr}">***</span>
+                <i class="fa-solid fa-eye-slash text-slate-400 hover:text-slate-600 cursor-pointer" onclick="toggleAmountVisibility(this)" title="Mostrar/Ocultar monto" style="font-size: 13px;"></i>
+            </span>`;
+        }
+
+        function toggleAmountVisibility(btn) {
+            const wrapper = btn.closest('.amount-wrapper');
+            const valSpan = wrapper.querySelector('.amount-value');
+            if (btn.classList.contains('fa-eye-slash')) {
+                btn.classList.replace('fa-eye-slash', 'fa-eye');
+                valSpan.innerText = valSpan.getAttribute('data-val');
+            } else {
+                btn.classList.replace('fa-eye', 'fa-eye-slash');
+                valSpan.innerText = '***';
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             cargarReporte(false);
@@ -817,15 +844,25 @@
             const corp = data.corporativo;
             const cons = data.consolidado;
 
+            // Snapshot timestamp
+            if (data.fecha_snapshot) {
+                const badgeDate = document.getElementById('lblSnapshotDate');
+                const valDate = document.getElementById('lblSnapshotDateVal');
+                if (badgeDate && valDate) {
+                    valDate.innerText = data.fecha_snapshot;
+                    badgeDate.style.display = 'inline-block';
+                }
+            }
+
             // KPIs
             document.getElementById('kpiTotalClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('kpiTotalCosto').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpiSubClientes').innerHTML = formatAmountWithToggle('$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
             
-            document.getElementById('kpiResidencialCount').innerText = `${res.totales.total_clientes_activos.toLocaleString('en-US')} clientes`;
-            document.getElementById('kpiResidencialMonto').innerText = `$${res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} facturación`;
+            document.getElementById('kpiResidencialCount').innerText = `${res.totales.total_clientes_activos.toLocaleString('en-US')}`;
+            document.getElementById('kpiResidencialMonto').innerHTML = formatAmountWithToggle(`$${res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`) + ' <span style="font-size: 11px; margin-left: 4px;">facturación</span>';
             
-            document.getElementById('kpiCorporativoCount').innerText = `${corp.totales.total_clientes_activos.toLocaleString('en-US')} clientes`;
-            document.getElementById('kpiCorporativoMonto').innerText = `$${corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} facturación`;
+            document.getElementById('kpiCorporativoCount').innerText = `${corp.totales.total_clientes_activos.toLocaleString('en-US')}`;
+            document.getElementById('kpiCorporativoMonto').innerHTML = formatAmountWithToggle(`$${corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
 
             // Badges
             document.getElementById('badgeResCount').innerText = `${res.planes.length} planes`;
@@ -840,15 +877,15 @@
             // Render Footers
             document.getElementById('tfootPlanesResidencial').style.display = '';
             document.getElementById('footResTotalClientes').innerText = res.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('footResTotalCosto').innerText = '$' + res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('footResTotalCosto').innerHTML = formatAmountWithToggle('$' + res.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
             document.getElementById('tfootPlanesCorporativo').style.display = '';
             document.getElementById('footCorpTotalClientes').innerText = corp.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('footCorpTotalCosto').innerText = '$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('footCorpTotalCosto').innerHTML = formatAmountWithToggle('$' + corp.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
             document.getElementById('tfootPlanesConsolidado').style.display = '';
             document.getElementById('footConsTotalClientes').innerText = cons.totales.total_clientes_activos.toLocaleString('en-US');
-            document.getElementById('footConsTotalCosto').innerText = '$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('footConsTotalCosto').innerHTML = formatAmountWithToggle('$' + cons.totales.total_costo_facturacion.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
             // Render Charts
             renderCharts(data);
@@ -873,7 +910,7 @@
                     <td style="text-align: center; font-weight: 700; color: #4338ca; font-size: 15px;">${p.Cantidad.toLocaleString('en-US')}</td>
                     <td style="text-align: center;"><span class="badge-pill yellow">${p['Porcentaje Clientes']}%</span></td>
                     <td style="text-align: right; font-family: monospace; font-weight: 600; color: #475569;">${p['Precio Unitario']}</td>
-                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857; font-size: 15px;">$${p['Sumatoria Costo'].toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857; font-size: 15px;">${formatAmountWithToggle('$' + p['Sumatoria Costo'].toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}))}</td>
                     <td style="text-align: center;"><span class="badge-pill green">${p['Porcentaje Ingresos']}%</span></td>
                     <td style="text-align: center;">
                         <button onclick="verDetallePlan('${p.Plan.replace(/'/g, "\\'")}', '${seccion}')" class="btn-action btn-secondary" style="padding: 4px 10px; font-size: 11px;">
@@ -1028,7 +1065,7 @@
                     <td>${c.Cédula || '-'}</td>
                     <td style="font-weight: 600; color: #1e293b;">${c.Nombres}</td>
                     <td style="color: #334155; font-weight: 500;">${c.Plan}</td>
-                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857;">$${parseFloat(c['Costo del plan'] || 0).toFixed(2)}</td>
+                    <td style="text-align: right; font-family: monospace; font-weight: 700; color: #047857;">${formatAmountWithToggle('$' + parseFloat(c['Costo del plan'] || 0).toFixed(2))}</td>
                     <td><span class="status-badge">Act.</span></td>
                     <td style="font-size: 12px; color: #64748b;">${c.Urbanismo || ''} ${c['Teléfono 1'] ? ' - ' + c['Teléfono 1'] : ''}</td>
                     <td style="font-size: 12px; color: #64748b;">${c['Fecha de instalación'] || '-'}</td>

@@ -1,0 +1,24 @@
+IP,Username,Password,FinalUser,FinalPass,Puerto
+10.100.1.1,admin,stdONU101,Powerlink,Powerlink2026*,1
+10.100.2.1,admin,stdONU101,Powerlink,Powerlink2026*,2
+10.100.3.1,admin,stdONU101,Powerlink,Powerlink2026*,3
+10.100.4.1,admin,stdONU101,Powerlink,Powerlink2026*,4
+10.100.5.1,admin,stdONU101,Powerlink,Powerlink2026*,5
+10.100.6.1,admin,stdONU101,Powerlink,Powerlink2026*,6
+10.100.7.1,admin,stdONU101,Powerlink,Powerlink2026*,7
+10.100.8.1,admin,stdONU101,Powerlink,Powerlink2026*,8
+10.100.9.1,admin,stdONU101,Powerlink,Powerlink2026*,9
+10.100.10.1,admin,stdONU101,Powerlink,Powerlink2026*,10
+10.100.11.1,admin,stdONU101,Powerlink,Powerlink2026*,11
+10.100.12.1,admin,stdONU101,Powerlink,Powerlink2026*,12
+10.100.13.1,admin,stdONU101,Powerlink,Powerlink2026*,13
+10.100.14.1,admin,stdONU101,Powerlink,Powerlink2026*,14
+10.100.15.1,admin,stdONU101,Powerlink,Powerlink2026*,15
+10.100.16.1,admin,stdONU101,Powerlink,Powerlink2026*,16
+10.100.17.1,admin,stdONU101,Powerlink,Powerlink2026*,17
+10.100.18.1,admin,stdONU101,Powerlink,Powerlink2026*,18
+10.100.19.1,admin,stdONU101,Powerlink,Powerlink2026*,19
+10.100.20.1,admin,stdONU101,Powerlink,Powerlink2026*,20
+# Mapa de puertos CRS326: etherN = ONU N = 10.100.N.1 (DNAT+mangle del switch).
+# Comenta (con #) las lineas de puertos sin ONU para no perder tiempo.
+# Modo masivo: python vsol_autopilot.py --mass

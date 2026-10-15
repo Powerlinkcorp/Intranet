@@ -1,5 +1,12 @@
 
 <style>
+:root {
+    --cabeceras: #1A1A1A;
+    --blanco: #ffffff;
+    --acento: #FFC107;
+    --acento-hover: #F5C71D;
+}
+
 /* SIDEBAR & LAYOUT */
 .sidebar {
     position: fixed;
@@ -7,8 +14,8 @@
     left: 0;
     width: 260px;
     height: 100vh;
-    background-color: var(--cabeceras);
-    color: var(--blanco);
+    background-color: var(--cabeceras, #1A1A1A);
+    color: var(--blanco, #ffffff);
     z-index: 1000;
     transition: width 0.3s ease;
     overflow-y: auto;
@@ -172,6 +179,23 @@
     display: none;
 }
 
+.btn-logout {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
 .sidebar.collapsed .btn-logout,
 .sidebar.collapsed .btn-admin-nav {
     display: none !important;
@@ -184,6 +208,24 @@
     display: flex;
     flex-direction: column;
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 260px !important;
+    }
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    .content-wrapper {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+    .content-wrapper.expanded {
+        margin-left: 0 !important;
+    }
+}
+
 
 .content-wrapper.expanded {
     margin-left: 70px;
@@ -314,16 +356,12 @@
             </div>
             <ul class="submenu open" id="submenu-principal">
                 <li><a href="/"><i class="fa-solid fa-house" style="margin-right: 8px;"></i> Dashboard</a></li>
-                {% if user.role == 'admin' or 'ver_directorio' in (user.permissions or '') %}
-                <li><a href="/directorio"><i class="fa-solid fa-address-book" style="margin-right: 8px;"></i> Directorio</a></li>
-                {% endif %}
-                {% if user.role == 'admin' or 'ver_helpdesk' in (user.permissions or '') %}
+                <!-- <li><a href="/directorio"><i class="fa-solid fa-address-book" style="margin-right: 8px;"></i> Directorio</a></li> -->
                 <li><a href="/helpdesk"><i class="fa-solid fa-headset" style="margin-right: 8px;"></i> Comunicaciones</a></li>
-                {% endif %}
             </ul>
         </li>
 
-        {% if user.role == 'admin' or 'ver_cajas_nac' in (user.permissions or '') %}
+        {% if user.role == 'admin' or 'ver_cajas_nap' in (user.permissions or '') or 'ver_flasheo' in (user.permissions or '') or 'ver_aprovisionamiento' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') or 'perm_reporte' in (user.permissions or '') or 'perm_aprov' in (user.permissions or '') %}
         <div class="menu-section">Soporte</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-soporte', this)">
@@ -334,11 +372,42 @@
                 <i class="fa-solid fa-chevron-down chevron"></i>
             </div>
             <ul class="submenu" id="submenu-soporte">
-                <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas Nac</a></li>
+                <!-- <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas NAP</a></li> -->
+                {% if user.role == 'admin' or 'perm_reporte' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') %}
+                <li><a href="/reporte"><i class="fa-solid fa-file-invoice" style="margin-right: 8px;"></i> Reporte</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or 'ver_flasheo' in (user.permissions or '') or 'perm_aprov' in (user.permissions or '') %}
+                <li><a href="/soporte/flasheo"><i class="fa-solid fa-microchip" style="margin-right: 8px;"></i> Flasheo</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or 'ver_aprovisionamiento' in (user.permissions or '') or 'perm_aprov' in (user.permissions or '') %}
+                <li><a href="/soporte/aprovisionamiento"><i class="fa-solid fa-server" style="margin-right: 8px;"></i> Aprovisionamiento</a></li>
+                {% endif %}
             </ul>
         </li>
         {% endif %}
 
+        <div class="menu-section">Operaciones</div>
+        <li>
+            <div class="menu-item" onclick="toggleSubmenu('submenu-operaciones', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fa-solid fa-tools icon-main"></i>
+                    <span>Operaciones</span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <ul class="submenu" id="submenu-operaciones">
+                <li><a href="/admin/operaciones#welcome"><i class="fa-solid fa-house" style="margin-right: 8px;"></i> Inicio / Resumen</a></li>
+                <li><a href="/admin/operaciones#daily-activities"><i class="fa-solid fa-clipboard-list" style="margin-right: 8px;"></i> Actividades Diarias</a></li>
+                <li><a href="/admin/operaciones#events-dashboard"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Eventos de Red</a></li>
+                <li><a href="/admin/operaciones#guards"><i class="fa-solid fa-calendar-days" style="margin-right: 8px;"></i> Cronograma de Guardias</a></li>
+                <li><a href="/admin/operaciones#projects"><i class="fa-solid fa-folder-tree" style="margin-right: 8px;"></i> Proyectos</a></li>
+                <li><a href="/admin/operaciones#activities"><i class="fa-solid fa-bolt" style="margin-right: 8px;"></i> Requerimientos</a></li>
+                <li><a href="/admin/operaciones#ozmap"><i class="fa-solid fa-map-location-dot" style="margin-right: 8px;"></i> Módulo OZmap</a></li>
+                <li><a href="/admin/operaciones#ozmap-database"><i class="fa-solid fa-database" style="margin-right: 8px;"></i> Base de Datos OZmap</a></li>
+            </ul>
+        </li>
+
+        {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') or 'perm_reporte' in (user.permissions or '') or 'ver_historico' in (user.permissions or '') or 'cargar_datos_usuarios' in (user.permissions or '') %}
         <div class="menu-section">Administración</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-admin', this)">
@@ -352,19 +421,24 @@
                 {% if user.role == 'admin' or 'ver_integracion' in (user.permissions or '') %}
                 <li><a href="/integracion"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Integración</a></li>
                 {% endif %}
-                {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') %}
+                {% if user.role == 'admin' or 'ver_reportes' in (user.permissions or '') or 'perm_reporte' in (user.permissions or '') %}
                 <li><a href="/reportes"><i class="fa-solid fa-chart-line" style="margin-right: 8px;"></i> Reportes Admin</a></li>
                 {% endif %}
+                {% if user.role == 'admin' or 'ver_historico' in (user.permissions or '') %}
                 <li><a href="/historico"><i class="fa-solid fa-history" style="margin-right: 8px;"></i> Histórico</a></li>
+                {% endif %}
                 {% if user.role == 'admin' %}
-                <li><a href="/admin?tab=permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
+                <li><a href="/admin/permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
+                <li><a href="/admin?tab=trabajadores"><i class="fa-solid fa-id-card-clip" style="margin-right: 8px;"></i> Trabajadores</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or 'cargar_datos_usuarios' in (user.permissions or '') %}
-                <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> RRHH</a></li>
+                <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> Panel Admin</a></li>
                 {% endif %}
             </ul>
         </li>
+        {% endif %}
 
+        <!-- 
         <div class="menu-section">Proyecto</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-proyecto', this)">
@@ -378,14 +452,15 @@
                 <li><a href="#"><i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> Proyectos Nuevos</a></li>
             </ul>
         </li>
+        -->
     </ul>
 
     <div class="sidebar-footer">
         <div class="user-badge">
-            <span id="userNavName" style="font-size: 13px; font-weight:600;">Cargando...</span>
+            <span id="userNavName" style="font-size: 13px; font-weight:600;">{{ user.username if user else 'admin' }}</span>
             <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
         </div>
-        <a id="adminNavBtn" href="/admin" class="btn-admin-nav" style="display:none; width:100%; text-align:center; margin-bottom:10px;">⚙️ Panel RRHH</a>
+
         <button class="btn-logout" onclick="logout()" style="width:100%;">Salir</button>
     </div>
 </aside>
@@ -448,29 +523,45 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Marcar activo según la URL actual
     const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
     const links = document.querySelectorAll('.submenu a');
     
     let pathFound = false;
+    let bestMatch = null;
+    let maxScore = -1;
 
     links.forEach(link => {
-        const linkUrl = new URL(link.href, window.location.origin).pathname;
+        const linkObj = new URL(link.href, window.location.origin);
         
-        // Match path
-        if (linkUrl === currentPath || (currentPath === '/' && linkUrl === '/')) {
-            pathFound = true;
-            link.style.color = 'var(--acento)'; // Resaltar el texto del enlace
+        if (linkObj.pathname === currentPath) {
+            let score = -1;
+            if (linkObj.search === currentSearch) {
+                score = 2; // Match exacto (ruta y parámetros)
+            } else if (linkObj.search === '') {
+                score = 1; // Fallback genérico
+            }
             
-            const submenu = link.closest('.submenu');
-            if(submenu && (!sidebar || !sidebar.classList.contains('collapsed'))) {
-                submenu.classList.add('open');
-                
-                const parentMenuItem = submenu.previousElementSibling;
-                if(parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
-                    parentMenuItem.classList.add('active');
-                }
+            if (score > maxScore) {
+                maxScore = score;
+                bestMatch = link;
             }
         }
     });
+
+    if (bestMatch) {
+        pathFound = true;
+        bestMatch.style.color = 'var(--acento)';
+        
+        const submenu = bestMatch.closest('.submenu');
+        if(submenu && (!sidebar || !sidebar.classList.contains('collapsed'))) {
+            submenu.classList.add('open');
+            
+            const parentMenuItem = submenu.previousElementSibling;
+            if(parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
+                parentMenuItem.classList.add('active');
+            }
+        }
+    }
     
     // Si no encontramos un match (ej: sub-páginas), por fallback abrimos el inicio si es root
     if (!pathFound && currentPath === '/') {
@@ -481,4 +572,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 });
+
+async function logout() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {}
+    localStorage.clear();
+    window.location.href = '/login';
+}
 </script>
