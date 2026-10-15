@@ -17,17 +17,23 @@
 
     <style>
         :root {
+            --fondo-principal: #ffffff;
+            --texto-negro: #0f172a;
+        }
+
+        html.dark {
             --fondo-principal: #09090b;
             --texto-negro: #ffffff;
         }
 
         body {
-            background-color: #09090b;
-            color: #ffffff;
+            background-color: var(--fondo-principal);
+            color: var(--texto-negro);
             margin: 0;
             padding: 0;
             font-family: 'Outfit', 'Segoe UI', sans-serif;
             overflow-x: hidden;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .react-container {

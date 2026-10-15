@@ -1,10 +1,154 @@
 
+<script>
+(function() {
+    try {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        }
+    } catch(e) {}
+})();
+</script>
+
 <style>
 :root {
     --cabeceras: #1A1A1A;
     --blanco: #ffffff;
     --acento: #FFC107;
     --acento-hover: #F5C71D;
+}
+
+/* =========================================================
+   DARK MODE TECNOLOGÍA v2 (POWER LINK SYSTEM)
+   ========================================================= */
+html.dark {
+    --cabeceras: #0c0c0e !important;
+    --fondo-principal: #09090b !important;
+    --blanco: #101014 !important;
+    --acento: #D4AF37 !important;
+    --acento-hover: #E5C358 !important;
+    --texto-negro: #f8fafc !important;
+    --texto-gris: #94a3b8 !important;
+    --border-color: rgba(212, 175, 55, 0.22) !important;
+    --bg-primary: #09090b !important;
+    --bg-card: #101014 !important;
+    --bg-card-hover: #18181b !important;
+    --text-primary: #f8fafc !important;
+    --text-secondary: #94a3b8 !important;
+    color-scheme: dark;
+}
+
+html.dark body {
+    background-color: #09090b !important;
+    color: #f8fafc !important;
+}
+
+body, .sidebar, .card, .panel, .modal-content, table, input, select {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+html.dark .content-wrapper {
+    background-color: transparent !important;
+    color: #f8fafc !important;
+}
+
+html.dark .card,
+html.dark .doc-card,
+html.dark .tool-card,
+html.dark .panel,
+html.dark .stats-card,
+html.dark .kpi-card,
+html.dark .table-container,
+html.dark .modal-content,
+html.dark .info-box,
+html.dark .announcement-card,
+html.dark .news-card,
+html.dark .birthday-card,
+html.dark .events-card,
+html.dark .module-card,
+html.dark .profile-card,
+html.dark .activity-card {
+    background-color: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+    color: #f8fafc !important;
+}
+
+html.dark .text-muted, html.dark .doc-desc, html.dark .tool-desc, html.dark .stat-label {
+    color: #94a3b8 !important;
+}
+
+html.dark table {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+}
+
+html.dark thead th, html.dark .table-header-bar {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark tbody td {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+
+html.dark tbody tr:hover {
+    background-color: rgba(212, 175, 55, 0.06) !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea,
+html.dark .search-input,
+html.dark .form-control {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid #27272a !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+    border-color: #D4AF37 !important;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25) !important;
+}
+
+html.dark .sidebar {
+    background-color: #0c0c0e !important;
+    border-right: 1px solid rgba(212, 175, 55, 0.22) !important;
+}
+
+html.dark .sidebar-header {
+    border-bottom: 1px solid rgba(212, 175, 55, 0.22) !important;
+}
+
+html.dark .submenu {
+    background-color: #070708 !important;
+}
+
+html.dark .user-badge {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+}
+
+html.dark .hero {
+    background: linear-gradient(rgba(9, 9, 11, 0.88), rgba(9, 9, 11, 0.88)), url('https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/Gemini_Generated_Image_glf24lglf24lglf2.png') center/cover !important;
+    color: #f8fafc !important;
+}
+
+.btn-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    transform: scale(1.05);
 }
 
 /* SIDEBAR & LAYOUT */
@@ -263,7 +407,7 @@
             body {
                 padding-bottom: 20px;
             }
-            .main-container, .grid-container, .dashboard-grid, .layout-grid, 
+            .main-container, .grid-container, .dashboard-grid, .layout-grid,
             .kpi-container, .resource-grid, .metrics-grid, .cards-grid {
                 grid-template-columns: 1fr !important;
                 display: flex !important;
@@ -271,16 +415,16 @@
                 padding: 10px;
                 gap: 15px;
             }
-            
+
             .hero {
                 padding: 30px 20px !important;
                 text-align: center;
             }
-            
+
             .hero h1 {
                 font-size: 28px !important;
             }
-            
+
             .sidebar {
                 position: static !important;
                 width: 100% !important;
@@ -293,13 +437,13 @@
                 padding: 15px;
                 margin-bottom: 20px;
             }
-            
+
             .content-area, .main-content {
                 margin-left: 0 !important;
                 width: 100% !important;
                 padding: 10px !important;
             }
-            
+
             .card {
                 padding: 15px !important;
             }
@@ -309,18 +453,18 @@
                 overflow-x: auto;
                 white-space: nowrap;
             }
-            
+
             .flex-container, .navbar, .top-bar {
                 flex-direction: column !important;
                 align-items: center;
                 gap: 10px;
             }
-            
+
             .login-container, .login-box {
                 width: 95% !important;
                 margin: 20px auto !important;
             }
-            
+
             .section-title {
                 font-size: 14px;
             }
@@ -338,14 +482,14 @@
         </a>
         <button class="toggle-btn" onclick="toggleSidebar()" style="position: absolute; right: 20px; top: 20px;"><i class="fa-solid fa-bars"></i></button>
     </div>
-    
+
     <div class="search-bar-sidebar">
         <input type="text" id="globalSearch" placeholder="Buscar documentos..." oninput="filterResources()">
     </div>
 
     <ul class="sidebar-menu">
         <div class="menu-section">Principal</div>
-        
+
         <li>
             <div class="menu-item active" onclick="toggleSubmenu('submenu-principal', this)">
                 <div style="display:flex; align-items:center;">
@@ -438,7 +582,7 @@
         </li>
         {% endif %}
 
-        <!-- 
+        <!--
         <div class="menu-section">Proyecto</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-proyecto', this)">
@@ -456,9 +600,12 @@
     </ul>
 
     <div class="sidebar-footer">
-        <div class="user-badge">
+        <div class="user-badge" style="display: flex; align-items: center; gap: 8px;">
             <span id="userNavName" style="font-size: 13px; font-weight:600;">{{ user.username if user else 'admin' }}</span>
-            <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="btn-theme-toggle" type="button" title="Alternar Modo Oscuro / Claro" style="margin-left:auto; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #FFC107; cursor: pointer; padding: 5px 8px; font-size: 13px; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center;">
+                <i id="themeIcon" class="fa-solid fa-moon"></i>
+            </button>
+            <a href="/chat" style="color: #cbd5e1; text-decoration: none; padding: 4px;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
         </div>
 
         <button class="btn-logout" onclick="logout()" style="width:100%;">Salir</button>
@@ -468,6 +615,47 @@
 
 
 <script>
+function initTheme() {
+    var saved = localStorage.getItem('theme');
+    var isDark = saved !== 'light';
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+    }
+    updateThemeIcon(isDark);
+}
+
+function updateThemeIcon(isDark) {
+    var icon = document.getElementById('themeIcon');
+    if (icon) {
+        if (isDark) {
+            icon.className = 'fa-solid fa-moon';
+            icon.style.color = '#FFC107';
+            icon.title = 'Modo Oscuro activo (clic para cambiar a claro)';
+        } else {
+            icon.className = 'fa-solid fa-sun';
+            icon.style.color = '#F59E0B';
+            icon.title = 'Modo Claro activo (clic para cambiar a oscuro)';
+        }
+    }
+}
+
+function toggleTheme() {
+    var isDark = document.documentElement.classList.toggle('dark');
+    if (isDark) {
+        document.documentElement.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.classList.add('light');
+        localStorage.setItem('theme', 'light');
+    }
+    updateThemeIcon(isDark);
+    window.dispatchEvent(new Event('theme-changed'));
+}
+
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('contentWrapper');
@@ -475,12 +663,12 @@ function toggleSidebar() {
         sidebar.classList.toggle('collapsed');
         const isCollapsed = sidebar.classList.contains('collapsed');
         localStorage.setItem('sidebar_collapsed', isCollapsed);
-        
+
         if(content) {
             if(isCollapsed) content.classList.add('expanded');
             else content.classList.remove('expanded');
         }
-        
+
         // Close all submenus when collapsed
         if (isCollapsed) {
             document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
@@ -493,13 +681,13 @@ function toggleSubmenu(id, element) {
     if (sidebar && sidebar.classList.contains('collapsed')) {
         toggleSidebar();
     }
-    
+
     const submenu = document.getElementById(id);
     const isOpen = submenu.classList.contains('open');
-    
+
     document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
     document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-    
+
     if (!isOpen) {
         submenu.classList.add('open');
         element.classList.add('active');
@@ -507,9 +695,10 @@ function toggleSubmenu(id, element) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    initTheme();
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('contentWrapper');
-    
+
     // Restaurar estado de colapso del sidebar
     const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
     if (isCollapsed) {
@@ -525,14 +714,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
     const links = document.querySelectorAll('.submenu a');
-    
+
     let pathFound = false;
     let bestMatch = null;
     let maxScore = -1;
 
     links.forEach(link => {
         const linkObj = new URL(link.href, window.location.origin);
-        
+
         if (linkObj.pathname === currentPath) {
             let score = -1;
             if (linkObj.search === currentSearch) {
@@ -540,7 +729,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } else if (linkObj.search === '') {
                 score = 1; // Fallback genérico
             }
-            
+
             if (score > maxScore) {
                 maxScore = score;
                 bestMatch = link;
@@ -551,18 +740,18 @@ document.addEventListener("DOMContentLoaded", function() {
     if (bestMatch) {
         pathFound = true;
         bestMatch.style.color = 'var(--acento)';
-        
+
         const submenu = bestMatch.closest('.submenu');
         if(submenu && (!sidebar || !sidebar.classList.contains('collapsed'))) {
             submenu.classList.add('open');
-            
+
             const parentMenuItem = submenu.previousElementSibling;
             if(parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
                 parentMenuItem.classList.add('active');
             }
         }
     }
-    
+
     // Si no encontramos un match (ej: sub-páginas), por fallback abrimos el inicio si es root
     if (!pathFound && currentPath === '/') {
         const principalSub = document.getElementById('submenu-principal');
