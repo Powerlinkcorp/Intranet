@@ -1319,46 +1319,38 @@ export function EventsDashboardModule() {
       fields: [],
     };
 
-    const isActividad = formCausa === "Actividad" || currentTemplate.title?.toUpperCase().includes("ACTIVIDAD");
-
     let text = `${currentTemplate.icon} *${currentTemplate.title}*\n`;
-    text += isActividad ? `*Fecha:* ${formDate}\n` : `📅 *Fecha:* ${formDate}\n`;
-    text += isActividad ? `*Hora Inicio / Detección:* ${formHoraReporte}\n` : `⏱️ *Hora Inicio / Detección:* ${formHoraReporte}\n`;
+    text += `*Fecha:* ${formDate}\n`;
+    text += `*Hora Inicio / Detección:* ${formHoraReporte}\n`;
     if (formLugar && formLugar.trim()) {
-      text += isActividad ? `*Ubicación / Hub:* ${formLugar.trim()}\n` : `📍 *Ubicación / Hub:* ${formLugar.trim()}\n`;
+      text += `*Ubicación / Hub:* ${formLugar.trim()}\n`;
     }
 
-    // Campos especializados activos que tengan valor
+    // Campos especializados activos que tengan valor (formato limpio sin iconos secundarios)
     currentTemplate.fields.forEach((field) => {
       if (!field.enabled) return;
       const val = formFieldValues[field.id];
       if (val && val.trim() && val !== "No aplica") {
-        text += isActividad
-          ? `*${field.label}:* ${val.trim()}\n`
-          : `${field.icon || "🔹"} *${field.label}:* ${val.trim()}\n`;
+        text += `*${field.label}:* ${val.trim()}\n`;
       }
     });
 
     if (formMotivo && formMotivo.trim()) {
-      text += isActividad ? `*Motivo:* ${formMotivo.trim()}\n` : `📝 *Motivo:* ${formMotivo.trim()}\n`;
+      text += `*Motivo:* ${formMotivo.trim()}\n`;
     }
     if (formPersonal && formPersonal.trim()) {
-      text += isActividad ? `*Personal Responsable:* ${formPersonal.trim()}\n` : `👤 *Personal Responsable:* ${formPersonal.trim()}\n`;
+      text += `*Personal Responsable:* ${formPersonal.trim()}\n`;
     }
 
     // Campos dinámicos adicionales añadidos al vuelo
     customFieldsList.forEach((cf) => {
       if (cf.value && cf.value.trim()) {
-        text += isActividad
-          ? `*${cf.label}:* ${cf.value.trim()}\n`
-          : `${cf.icon || "📌"} *${cf.label}:* ${cf.value.trim()}\n`;
+        text += `*${cf.label}:* ${cf.value.trim()}\n`;
       }
     });
 
     if (formReporte && formReporte.trim()) {
-      text += isActividad
-        ? `\n*Diagnóstico / Detalle:*\n${formReporte.trim()}`
-        : `\n📋 *Diagnóstico / Detalle:*\n${formReporte.trim()}`;
+      text += `\n*Diagnóstico / Detalle:*\n${formReporte.trim()}`;
     }
 
     return text;
@@ -1464,30 +1456,19 @@ export function EventsDashboardModule() {
     causaR: string
   ) => {
     const isAct = evt.causa === "Actividad" || evt.motivo?.toLowerCase().includes("actividad");
-    if (isAct) {
-      let msg = `🟢 *REPORTE DE ACTIVIDAD FINALIZADA*\n`;
-      msg += `*Ticket:* ${evt.id}\n`;
-      msg += `*Fecha:* ${evt.date || evt.dateRaw}\n`;
-      msg += `*Ubicación / Hub:* ${evt.lugar}\n`;
-      msg += `*Actividad:* ${evt.motivo}\n`;
-      msg += `*Horario:* ${evt.horaReporte || "—"} → ${solucionHora}\n`;
-      msg += `*Duración Total:* ${duracionTexto}\n`;
-      msg += `*Personal Responsable:* ${evt.personal || "Operaciones"}\n`;
-      msg += `\n*Acción Realizada / Conclusión:*\n${accion.trim() || "Actividad finalizada con éxito y servicio verificado operando normalmente."}`;
-      return msg;
-    }
-
-    let msg = `🟢 *REPORTE DE INCIDENCIA SOLVENTADA*\n`;
-    msg += `🆔 *Ticket:* ${evt.id}\n`;
-    msg += `📅 *Fecha:* ${evt.date || evt.dateRaw}\n`;
-    msg += `📍 *Ubicación / Hub:* ${evt.lugar}\n`;
-    msg += `📋 *Tipo / Causa:* ${evt.causa} (${evt.motivo})\n`;
-    if (evt.proveedor && evt.proveedor !== "No aplica") msg += `🏢 *Carrier / Proveedor:* ${evt.proveedor}\n`;
-    msg += `⏱️ *Horario:* ${evt.horaReporte || "—"} → ${solucionHora}\n`;
-    msg += `⏳ *Duración Total:* ${duracionTexto}\n`;
-    msg += `👤 *Personal Responsable:* ${evt.personal || "Operaciones"}\n`;
-    if (causaR && causaR.trim()) msg += `🔍 *Causa Raíz (RCA):* ${causaR.trim()}\n`;
-    msg += `\n✅ *Acción Tomada / Solución:*\n${accion.trim() || "Servicio normalizado y verificado operando al 100%."}`;
+    let msg = isAct ? `🟢 *REPORTE DE ACTIVIDAD FINALIZADA*\n` : `🟢 *REPORTE DE INCIDENCIA SOLVENTADA*\n`;
+    msg += `*Ticket:* ${evt.id}\n`;
+    msg += `*Fecha:* ${evt.date || evt.dateRaw}\n`;
+    msg += `*Ubicación / Hub:* ${evt.lugar}\n`;
+    msg += isAct ? `*Actividad:* ${evt.motivo}\n` : `*Tipo / Causa:* ${evt.causa} (${evt.motivo})\n`;
+    if (!isAct && evt.proveedor && evt.proveedor !== "No aplica") msg += `*Carrier / Proveedor:* ${evt.proveedor}\n`;
+    msg += `*Horario:* ${evt.horaReporte || "—"} → ${solucionHora}\n`;
+    msg += `*Duración Total:* ${duracionTexto}\n`;
+    msg += `*Personal Responsable:* ${evt.personal || "Operaciones"}\n`;
+    if (!isAct && causaR && causaR.trim()) msg += `*Causa Raíz (RCA):* ${causaR.trim()}\n`;
+    msg += isAct
+      ? `\n*Acción Realizada / Conclusión:*\n${accion.trim() || "Actividad finalizada con éxito y servicio verificado operando normalmente."}`
+      : `\n*Acción Tomada / Solución:*\n${accion.trim() || "Servicio normalizado y verificado operando al 100%."}`;
     return msg;
   };
 
@@ -1501,31 +1482,17 @@ export function EventsDashboardModule() {
     etaVal: string
   ) => {
     const isAct = evt.causa === "Actividad" || evt.motivo?.toLowerCase().includes("actividad");
-    if (isAct) {
-      let msg = `📋 *SEGUIMIENTO DE ACTIVIDAD PROGRAMADA*\n`;
-      msg += `*Ticket:* ${evt.id}\n`;
-      msg += `*Ubicación / Hub:* ${evt.lugar}\n`;
-      msg += `*Actividad:* ${evt.motivo}\n`;
-      msg += `*Tiempo en Curso:* ${computeActiveTime(evt.horaReporte)}\n`;
-      msg += `*Hora Actualización:* ${actHora}\n`;
-      msg += `*Informó:* ${autor}\n`;
-      if (accionCurso && accionCurso.trim()) msg += `*Acción en Curso:* ${accionCurso.trim()}\n`;
-      if (etaVal && etaVal.trim()) msg += `*ETA Fin Estimado:* ${etaVal.trim()}\n`;
-      msg += `\n*Avance Reportado:*\n${nota.trim() || "[Detalle técnico del avance...]"}`;
-      return msg;
-    }
-
-    let msg = `📢 *NOVEDAD / SEGUIMIENTO DE INCIDENCIA*\n`;
-    msg += `🆔 *Ticket:* ${evt.id}\n`;
-    msg += `📍 *Ubicación / Hub:* ${evt.lugar}\n`;
-    msg += `📋 *Incidencia:* ${evt.causa} (${evt.motivo})\n`;
-    if (evt.proveedor && evt.proveedor !== "No aplica") msg += `🏢 *Carrier:* ${evt.proveedor}\n`;
-    msg += `⏱️ *Tiempo en Curso:* ${computeActiveTime(evt.horaReporte)}\n`;
-    msg += `🕒 *Hora Actualización:* ${actHora}\n`;
-    msg += `👤 *Informó:* ${autor}\n`;
-    if (accionCurso && accionCurso.trim()) msg += `🛠️ *Acción en Curso:* ${accionCurso.trim()}\n`;
-    if (etaVal && etaVal.trim()) msg += `⏳ *ETA Estimado de Solución:* ${etaVal.trim()}\n`;
-    msg += `\n📝 *Avance Reportado:*\n${nota.trim() || "[Detalle técnico del avance...]"}`;
+    let msg = isAct ? `📋 *SEGUIMIENTO DE ACTIVIDAD PROGRAMADA*\n` : `📢 *NOVEDAD / SEGUIMIENTO DE INCIDENCIA*\n`;
+    msg += `*Ticket:* ${evt.id}\n`;
+    msg += `*Ubicación / Hub:* ${evt.lugar}\n`;
+    msg += isAct ? `*Actividad:* ${evt.motivo}\n` : `*Incidencia:* ${evt.causa} (${evt.motivo})\n`;
+    if (!isAct && evt.proveedor && evt.proveedor !== "No aplica") msg += `*Carrier:* ${evt.proveedor}\n`;
+    msg += `*Tiempo en Curso:* ${computeActiveTime(evt.horaReporte)}\n`;
+    msg += `*Hora Actualización:* ${actHora}\n`;
+    msg += `*Informó:* ${autor}\n`;
+    if (accionCurso && accionCurso.trim()) msg += `*Acción en Curso:* ${accionCurso.trim()}\n`;
+    if (etaVal && etaVal.trim()) msg += isAct ? `*ETA Fin Estimado:* ${etaVal.trim()}\n` : `*ETA Estimado de Solución:* ${etaVal.trim()}\n`;
+    msg += `\n*Avance Reportado:*\n${nota.trim() || "[Detalle técnico del avance...]"}`;
     return msg;
   };
 
@@ -1758,7 +1725,7 @@ export function EventsDashboardModule() {
   };
 
   // --- Helper ultra robusto para copiar al portapapeles (compatible con HTTP, HTTPS, localhost, IPs locales e iframes) ---
-  const copyTextToClipboard = async (text: string): Promise<boolean> => {
+  const copyTextToClipboard = async (text: string, sourceElementId?: string): Promise<boolean> => {
     if (!text || !text.trim()) return false;
     const content = text.trim();
 
@@ -1772,33 +1739,104 @@ export function EventsDashboardModule() {
       }
     }
 
-    // 2. Fallback universal con textarea invisible (funciona 100% en HTTP, IPs locales, redes de oficina e iframes)
+    // 0. Si se especificó el ID de un elemento (textarea, pre, input), copiar directamente
+    if (sourceElementId) {
+      try {
+        const el = document.getElementById(sourceElementId) as HTMLTextAreaElement | HTMLInputElement | HTMLPreElement;
+        if (el) {
+          if ("select" in el && typeof el.select === "function") {
+            el.focus();
+            el.select();
+            if ("setSelectionRange" in el && typeof el.setSelectionRange === "function") {
+              el.setSelectionRange(0, el.value.length);
+            }
+          } else {
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            sel?.removeAllRanges();
+            sel?.addRange(range);
+          }
+          const successful = document.execCommand("copy");
+          window.getSelection()?.removeAllRanges();
+          if (successful) return true;
+        }
+      } catch (err) {
+        console.warn("Intento directo de copia falló, probando alternativas:", err);
+      }
+    }
+
+    // 1. Intento API moderna (disponible en localhost y HTTPS)
+    if (typeof navigator !== "undefined" && navigator?.clipboard && typeof navigator.clipboard.writeText === "function") {
+      try {
+        await navigator.clipboard.writeText(content);
+        return true;
+      } catch (err) {
+        console.warn("navigator.clipboard.writeText falló o fue denegado, intentando fallback execCommand:", err);
+      }
+    }
+
+    // 2. Fallback universal con textarea insertado DENTRO del diálogo activo para evitar que el FocusTrap de Radix lo desenfoque
     try {
+      const activeModal =
+        document.querySelector('[role="dialog"]') ||
+        document.querySelector('[data-radix-focus-guard]')?.parentElement ||
+        document.body;
+
       const textArea = document.createElement("textarea");
       textArea.value = content;
       textArea.style.position = "fixed";
       textArea.style.top = "0";
       textArea.style.left = "0";
-      textArea.style.width = "2em";
-      textArea.style.height = "2em";
+      textArea.style.width = "200px";
+      textArea.style.height = "100px";
       textArea.style.padding = "0";
       textArea.style.border = "none";
       textArea.style.outline = "none";
       textArea.style.boxShadow = "none";
       textArea.style.background = "transparent";
-      textArea.style.opacity = "0";
-      textArea.setAttribute("readonly", "");
+      textArea.style.opacity = "0.01";
+      textArea.style.zIndex = "999999";
+      // NO poner readonly para que .select() funcione 100% en todos los motores
+      textArea.contentEditable = "true";
 
-      document.body.appendChild(textArea);
-      textArea.focus({ preventScroll: true });
+      activeModal.appendChild(textArea);
+      textArea.focus();
       textArea.select();
       textArea.setSelectionRange(0, content.length);
 
       const successful = document.execCommand("copy");
-      document.body.removeChild(textArea);
+      activeModal.removeChild(textArea);
       if (successful) return true;
     } catch (err) {
       console.error("document.execCommand('copy') fallback falló:", err);
+    }
+
+    // 3. Fallback adicional con selección de rango manual
+    try {
+      const activeModal = document.querySelector('[role="dialog"]') || document.body;
+      const span = document.createElement("span");
+      span.textContent = content;
+      span.style.whiteSpace = "pre";
+      span.style.position = "fixed";
+      span.style.top = "0";
+      span.style.left = "0";
+      span.style.opacity = "0.01";
+      span.style.zIndex = "999999";
+      activeModal.appendChild(span);
+
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(span);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+
+      const successful = document.execCommand("copy");
+      selection?.removeAllRanges();
+      activeModal.removeChild(span);
+      if (successful) return true;
+    } catch (err) {
+      console.error("Fallback de rango falló:", err);
     }
 
     return false;
@@ -1807,14 +1845,14 @@ export function EventsDashboardModule() {
   const [copiedButtonId, setCopiedButtonId] = useState<string | null>(null);
 
   // --- Copiar Reporte WhatsApp al Portapapeles con Feedback Visual ---
-  const handleCopyWhatsApp = async (text: string, buttonId?: string) => {
+  const handleCopyWhatsApp = async (text: string, buttonId?: string, sourceElementId?: string) => {
     const cleanText = (text || "").trim();
     if (!cleanText) {
       showToast("⚠️ El contenido del reporte está vacío.", "info");
       return;
     }
 
-    const success = await copyTextToClipboard(cleanText);
+    const success = await copyTextToClipboard(cleanText, sourceElementId);
     if (success) {
       if (buttonId) {
         setCopiedButtonId(buttonId);
@@ -1828,7 +1866,7 @@ export function EventsDashboardModule() {
     }
   };
 
-  // Helper para armar el texto WhatsApp de solo las actualizaciones / novedades
+  // Helper para armar el texto WhatsApp de solo las actualizaciones / novedades (formato limpio)
   const buildUpdatesOnlyWhatsApp = (evt: NetworkEvent): string => {
     if (!evt.updates || evt.updates.length === 0) {
       return `📢 *SIN ACTUALIZACIONES AÚN*\n*Ticket:* ${evt.id}\n*Lugar:* ${evt.lugar}\nNo se han registrado novedades de seguimiento en esta tarea todavía.`;
@@ -1846,44 +1884,32 @@ export function EventsDashboardModule() {
 
     msg += `*Avances y Novedades (${evt.updates.length} registrada${evt.updates.length > 1 ? "s" : ""}):*\n`;
     msg += evt.updates
-      .map((upd) => `🔹 *[${upd.hora}] ${upd.autor}:*\n${upd.mensaje}`)
+      .map((upd) => `*[${upd.hora}] ${upd.autor}:*\n${upd.mensaje}`)
       .join("\n\n");
 
     return msg;
   };
 
-  // Helper para obtener el reporte completo formateado de un ticket sin distorsiones
+  // Helper para obtener el reporte completo formateado de un ticket sin distorsiones (formato limpio)
   const getFullEventReportForCopy = (evt: NetworkEvent): string => {
     if (evt.reporte && evt.reporte.trim().length > 15) {
       if (evt.reporte.includes(evt.id) || evt.reporte.includes("*REPORTE")) {
         return evt.reporte.trim();
       }
-      return `🆔 *Ticket:* ${evt.id}\n${evt.reporte.trim()}`;
+      return `*Ticket:* ${evt.id}\n${evt.reporte.trim()}`;
     }
 
     const isAct = evt.causa === "Actividad" || evt.motivo?.toLowerCase().includes("actividad");
-    if (isAct) {
-      return [
-        `📋 *REPORTE DE ACTIVIDAD PROGRAMADA*`,
-        `*Ticket:* ${evt.id}`,
-        `*Fecha:* ${evt.date || evt.dateRaw}`,
-        `*Ubicación / Hub:* ${evt.lugar}`,
-        `*Actividad:* ${evt.motivo}`,
-        `*Hora Inicio:* ${evt.horaReporte || "—"}`,
-        `*Personal Responsable:* ${evt.personal}`,
-        `\n*Diagnóstico / Detalle:*\n${evt.reporte || "Sin observaciones adicionales."}`,
-      ].join("\n");
-    }
-
+    const header = isAct ? "📋 *REPORTE DE ACTIVIDAD PROGRAMADA*" : "🚨 *REPORTE DE INCIDENCIA ACTIVA*";
     return [
-      `🚨 *REPORTE DE INCIDENCIA ACTIVA*`,
-      `🆔 *Ticket:* ${evt.id}`,
-      `📅 *Fecha:* ${evt.date || evt.dateRaw}`,
-      `📍 *Ubicación / Hub:* ${evt.lugar}`,
-      `📋 *Causa:* ${evt.causa} (${evt.motivo})`,
-      `⏱️ *Hora Inicio:* ${evt.horaReporte || "—"}`,
-      `👤 *Personal Responsable:* ${evt.personal}`,
-      `\n📋 *Diagnóstico / Detalle:*\n${evt.reporte || "Sin observaciones adicionales."}`,
+      header,
+      `*Ticket:* ${evt.id}`,
+      `*Fecha:* ${evt.date || evt.dateRaw}`,
+      `*Ubicación / Hub:* ${evt.lugar}`,
+      isAct ? `*Actividad:* ${evt.motivo}` : `*Causa:* ${evt.causa} (${evt.motivo})`,
+      `*Hora Inicio:* ${evt.horaReporte || "—"}`,
+      `*Personal Responsable:* ${evt.personal}`,
+      `\n*Diagnóstico / Detalle:*\n${evt.reporte || "Sin observaciones adicionales."}`,
     ].join("\n");
   };
 
@@ -3966,6 +3992,7 @@ export function EventsDashboardModule() {
                 </div>
 
                 <textarea
+                  id="new-event-whatsapp-preview"
                   value={customReportText}
                   onChange={(e) => {
                     setCustomReportText(e.target.value);
@@ -3993,7 +4020,7 @@ export function EventsDashboardModule() {
                 type="button"
                 variant="outline"
                 className="border-emerald-500/50 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-400 font-bold gap-2 px-4 shadow-sm"
-                onClick={() => handleCopyWhatsApp(customReportText || generatedWhatsAppApertura, "new-modal-copy")}
+                onClick={() => handleCopyWhatsApp(customReportText || generatedWhatsAppApertura, "new-modal-copy", "new-event-whatsapp-preview")}
               >
                 {copiedButtonId === "new-modal-copy" ? (
                   <>
@@ -4361,7 +4388,7 @@ export function EventsDashboardModule() {
                         size="sm"
                         variant="ghost"
                         className="h-6 text-[11px] font-bold text-emerald-400 hover:bg-emerald-500/20"
-                        onClick={() => handleCopyWhatsApp(closeReportText, "modal-close-copy")}
+                        onClick={() => handleCopyWhatsApp(closeReportText, "modal-close-copy", "close-event-report-pre")}
                       >
                         {copiedButtonId === "modal-close-copy" ? (
                           <>
@@ -4387,7 +4414,7 @@ export function EventsDashboardModule() {
                       </Button>
                     </div>
                   </div>
-                  <pre className="text-[11px] font-mono text-foreground/90 whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto">
+                  <pre id="close-event-report-pre" className="text-[11px] font-mono text-foreground/90 whitespace-pre-wrap leading-relaxed max-h-36 overflow-y-auto">
                     {closeReportText}
                   </pre>
                 </div>
@@ -4517,7 +4544,7 @@ export function EventsDashboardModule() {
                       size="sm"
                       variant="ghost"
                       className="h-6 text-[11px] font-bold text-primary hover:bg-primary/20"
-                      onClick={() => handleCopyWhatsApp(updateReportText, "modal-update-copy")}
+                      onClick={() => handleCopyWhatsApp(updateReportText, "modal-update-copy", "update-event-report-pre")}
                     >
                       {copiedButtonId === "modal-update-copy" ? (
                         <>
@@ -4543,7 +4570,7 @@ export function EventsDashboardModule() {
                     </Button>
                   </div>
                 </div>
-                <pre className="text-[11px] font-mono text-foreground/90 whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">
+                <pre id="update-event-report-pre" className="text-[11px] font-mono text-foreground/90 whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">
                   {updateReportText}
                 </pre>
               </div>
