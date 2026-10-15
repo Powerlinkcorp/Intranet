@@ -17,20 +17,12 @@
     "jsx": "react-jsx",
 
     /* Linting */
-<<<<<<< HEAD
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    
-=======
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     
     "ignoreDeprecations": "6.0",
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

@@ -42,8 +42,6 @@ import {
 // Dataset histórico de 600 registros
 import ozmapRawHistory from "@/data/ozmap_history.json";
 
-<<<<<<< HEAD
-=======
 // Capa de auditoría y base de datos de abonados descartados
 import {
   saveDiscardedRecord,
@@ -52,7 +50,6 @@ import {
   type OzmapDiscardedRecord,
 } from "@/lib/ozmap-audit";
 
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
 // --- TIPOS Y MODELOS ---
 
 export type ProcessType =
@@ -780,8 +777,6 @@ export function OzmapModule() {
     }
   }, []);
 
-<<<<<<< HEAD
-=======
   // Escuchar si se reincorporaron abonados desde la Base de Datos de Auditoría
   useEffect(() => {
     const checkRestorations = () => {
@@ -835,7 +830,6 @@ export function OzmapModule() {
     };
   }, []);
 
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
   const showToast = (text: string, type: "success" | "error" | "info" = "info") => {
     setStatusMessage({ text, type });
     setTimeout(() => setStatusMessage(null), 4000);
@@ -2248,8 +2242,6 @@ export function OzmapModule() {
 
   const handleDiscardIncompleteAndAdvance = () => {
     const completos = comparisonResults.filter((r) => r.estado_campo === "completo");
-<<<<<<< HEAD
-=======
 
     // Resguardar todos los abonados incompletos en la base de datos de auditoría
     if (incompleteClients.length > 0) {
@@ -2278,21 +2270,16 @@ export function OzmapModule() {
       saveDiscardedRecordsBatch(discardsToSave);
     }
 
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     setComparisonResults(completos);
     incompleteClients.forEach((r) => {
       localStorage.removeItem(`man-mod-${r.id}-precinto`);
       localStorage.removeItem(`man-mod-${r.id}-caja_nap`);
       localStorage.removeItem(`man-mod-${r.id}-caja_oficial`);
     });
-<<<<<<< HEAD
-    showToast(`Se descartaron ${incompleteClients.length} abonados incompletos. Continuando con ${completos.length} listos.`, "info");
-=======
     showToast(
       `Se resguardaron ${incompleteClients.length} abonados en la Base de Datos. Continuando con ${completos.length} listos.`,
       "info"
     );
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     proceedToStep2(completos);
   };
 
@@ -2300,8 +2287,6 @@ export function OzmapModule() {
     if (!window.confirm(`¿Estás seguro de eliminar al abonado "${clientName || rowId}" de la lista de cotejo?`)) {
       return;
     }
-<<<<<<< HEAD
-=======
 
     // Resguardar en la base de datos de auditoría antes de filtrar
     const clientToDelete = comparisonResults.find((r) => r.id === rowId);
@@ -2323,18 +2308,11 @@ export function OzmapModule() {
       });
     }
 
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     const updated = comparisonResults.filter((r) => r.id !== rowId);
     setComparisonResults(updated);
     localStorage.removeItem(`man-mod-${rowId}-precinto`);
     localStorage.removeItem(`man-mod-${rowId}-caja_nap`);
     localStorage.removeItem(`man-mod-${rowId}-caja_oficial`);
-<<<<<<< HEAD
-    showToast(`Abonado "${clientName || rowId}" descartado del proceso.`, "info");
-  };
-
-  const handleDeleteFromWarningModal = (rowId: string, clientName: string) => {
-=======
     showToast(`Abonado "${clientName || rowId}" descartado y resguardado en la Base de Datos.`, "info");
   };
 
@@ -2361,7 +2339,6 @@ export function OzmapModule() {
       });
     }
 
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     const updated = comparisonResults.filter((r) => r.id !== rowId);
     setComparisonResults(updated);
     const updatedIncompletos = incompleteClients.filter((r) => r.id !== rowId);
@@ -2369,11 +2346,7 @@ export function OzmapModule() {
     localStorage.removeItem(`man-mod-${rowId}-precinto`);
     localStorage.removeItem(`man-mod-${rowId}-caja_nap`);
     localStorage.removeItem(`man-mod-${rowId}-caja_oficial`);
-<<<<<<< HEAD
-    showToast(`Abonado "${clientName || rowId}" eliminado del lote.`, "info");
-=======
     showToast(`Abonado "${clientName || rowId}" resguardado en la Base de Datos.`, "info");
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
     if (updatedIncompletos.length === 0) {
       setIsStep1WarningModalOpen(false);
       proceedToStep2(updated);
@@ -4646,16 +4619,6 @@ export function OzmapModule() {
                                                   key={i}
                                                   type="button"
                                                   onClick={() => handleUpdateDraftBox(r.id, c.box)}
-<<<<<<< HEAD
-                                                  className={`px-1.5 py-0.5 rounded border font-mono transition-all cursor-pointer ${
-                                                    currentDraft.trim().toUpperCase() === c.box.toUpperCase()
-                                                      ? "bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold"
-                                                      : "bg-muted/60 text-muted-foreground border-border/80 hover:text-foreground hover:bg-muted"
-                                                  }`}
-                                                  title={`Seleccionar ${c.box} (${c.score}%)`}
-                                                >
-                                                  {i === 0 ? "★ " : ""}{c.box} ({c.score}%)
-=======
                                                   className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border font-mono text-xs transition-all cursor-pointer shadow-xs ${
                                                     currentDraft.trim().toUpperCase() === c.box.toUpperCase()
                                                       ? "bg-emerald-600 text-white border-emerald-700 font-black dark:bg-emerald-700 dark:border-emerald-500"
@@ -4672,7 +4635,6 @@ export function OzmapModule() {
                                                   )}
                                                   <span>{c.box}</span>
                                                   <span className="text-[10px] font-bold opacity-80">({c.score}%)</span>
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                                 </button>
                                               ))}
                                             </div>
@@ -4681,15 +4643,6 @@ export function OzmapModule() {
                                               <span className="text-muted-foreground font-medium flex items-center gap-1">
                                                 <AlertTriangle className="h-3 w-3 text-amber-500" /> Sugerencia:
                                               </span>
-<<<<<<< HEAD
-                                              <button
-                                                type="button"
-                                                onClick={() => handleUpdateDraftBox(r.id, r.caja_sugerida!)}
-                                                className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400 font-mono font-bold hover:bg-amber-500/20 cursor-pointer"
-                                              >
-                                                ★ {r.caja_sugerida} ({r.caja_match_score || 70}%)
-                                              </button>
-=======
                                               {currentDraft.trim().toUpperCase() === r.caja_sugerida!.trim().toUpperCase() ? (
                                                 <button
                                                   type="button"
@@ -4717,7 +4670,6 @@ export function OzmapModule() {
                                                   </span>
                                                 </button>
                                               )}
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                             </div>
                                           ) : (
                                             <div className="flex items-center justify-between text-[10px]">
@@ -4805,11 +4757,7 @@ export function OzmapModule() {
                                       r.caja_estado_tipo === "valida"
                                         ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
                                         : r.caja_estado_tipo === "autocorregida"
-<<<<<<< HEAD
-                                        ? "border-amber-500/40 text-amber-400 bg-amber-500/10"
-=======
                                         ? "border-amber-400 text-amber-900 bg-amber-100 font-bold dark:border-amber-700/60 dark:text-amber-300 dark:bg-amber-950/40"
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                         : "border-rose-500/40 text-rose-400 bg-rose-500/10"
                                     }`}
                                   >
@@ -4854,11 +4802,7 @@ export function OzmapModule() {
                                         ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
                                         : r.estado_auditoria?.includes("Falta")
                                         ? "border-rose-500/40 text-rose-400 bg-rose-500/10"
-<<<<<<< HEAD
-                                        : "border-amber-500/40 text-amber-400 bg-amber-500/10"
-=======
                                         : "border-amber-400 text-amber-900 bg-amber-100 font-bold dark:border-amber-700/60 dark:text-amber-300 dark:bg-amber-950/40"
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                     }`}
                                   >
                                     {r.estado_auditoria}
@@ -4898,11 +4842,7 @@ export function OzmapModule() {
                                     className={`text-xs ${
                                       r.matched
                                         ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
-<<<<<<< HEAD
-                                        : "border-amber-500/40 text-amber-400 bg-amber-500/10"
-=======
                                         : "border-amber-400 text-amber-900 bg-amber-100 font-bold dark:border-amber-700/60 dark:text-amber-300 dark:bg-amber-950/40"
->>>>>>> 8f5a0df8ff1673f90c3529ee33ea984536c24aee
                                     }`}
                                   >
                                     {r.matched ? "✅ Encontrado" : "⚠️ Pendiente"}
