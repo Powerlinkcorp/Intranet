@@ -42,6 +42,7 @@ import {
   type OzmapDiscardedRecord,
 } from "@/lib/ozmap-audit";
 import { type NavView } from "@/components/layout/sidebar";
+import ozmapRawHistory from "@/data/ozmap_history.json";
 
 export interface BitacoraHistoryRecord {
   id?: string;
@@ -105,7 +106,7 @@ export function OzmapDatabaseModule({ onNavigate }: OzmapDatabaseModuleProps) {
   };
 
   // Cargar datos al montar y suscribirse a eventos
-  const reloadData = () => {
+  const reloadData = async () => {
     const records = getDiscardedAuditRecords();
     setDiscardedRecords(records);
 
@@ -114,12 +115,34 @@ export function OzmapDatabaseModule({ onNavigate }: OzmapDatabaseModuleProps) {
         const rawLive = localStorage.getItem("ozmap_live_upload_history");
         if (rawLive) {
           const parsed = JSON.parse(rawLive);
-          if (Array.isArray(parsed)) {
+          if (Array.isArray(parsed) && parsed.length > 0) {
             setLiveHistory(parsed);
+            return;
           }
         }
+
+        // Sincronización con API de la Intranet
+        try {
+          const res = await fetch("/api/operaciones/ozmap/bitacora");
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              setLiveHistory(data);
+              localStorage.setItem("ozmap_live_upload_history", JSON.stringify(data));
+              return;
+            }
+          }
+        } catch {
+          // Fallback silencioso si no hay red
+        }
+
+        // Respaldo inmediato con el dataset histórico importado
+        if (Array.isArray(ozmapRawHistory) && ozmapRawHistory.length > 0) {
+          setLiveHistory(ozmapRawHistory as BitacoraHistoryRecord[]);
+          localStorage.setItem("ozmap_live_upload_history", JSON.stringify(ozmapRawHistory));
+        }
       } catch (e) {
-        console.warn("Error leyendo bitácora local:", e);
+        console.warn("Error leyendo bitácora local o remota:", e);
       }
     }
   };
