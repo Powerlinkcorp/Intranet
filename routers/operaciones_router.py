@@ -144,7 +144,7 @@ async def operaciones_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = security.get_current_user(request, db)
         return templates.TemplateResponse(request, "operaciones.html", {"user": user})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 
