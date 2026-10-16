@@ -178,5 +178,5 @@ async def aprovisionamiento_page(request: Request, db: Session = Depends(get_db)
         if user.role not in ["admin"] and "ver_aprovisionamiento" not in (user.permissions or "") and "perm_aprov" not in (user.permissions or ""):
             return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "aprovisionamiento.html", {"request": request, "user": user})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")

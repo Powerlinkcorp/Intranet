@@ -69,6 +69,28 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    
+    # Content Security Policy (CSP) contra spyware y exfiltracion de datos
+    csp_policy = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; "
+        "img-src 'self' data: blob: https://ngfihmioixtfnrmlrlam.supabase.co; "
+        "connect-src 'self' ws: wss: https://powerlinkcorp.telecomti.net; "
+        "frame-ancestors 'self'; "
+        "base-uri 'self'; "
+        "form-action 'self';"
+    )
+    response.headers["Content-Security-Policy"] = csp_policy
+
+    content_type = response.headers.get("content-type", "")
+    if "text/html" in content_type:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
     return response
 
 # Mount Static Files and Templates
@@ -251,11 +273,8 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
     if not token:
         return RedirectResponse(url="/login")
     try:
-        username = security._decode_token(token)
-        current_user = db.query(models.User).filter(models.User.username == username).first()
-        if not current_user:
-            return RedirectResponse(url="/login")
-    except:
+        current_user = security.get_current_user(request, db)
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
     all_users = db.query(models.User).filter(models.User.is_active == True).all()
@@ -352,20 +371,15 @@ import json
 
 @app.get("/reportes", response_class=HTMLResponse)
 async def reportes_page(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token")
-    if token and token.startswith("Bearer "):
-        token = token[len("Bearer "):]
+    token = security.get_token_from_request(request)
     if not token:
         return RedirectResponse(url="/login")
     try:
-        username = security._decode_token(token)
-        user = db.query(models.User).filter(models.User.username == username).first()
-        if not user:
-            return RedirectResponse(url="/login")
+        user = security.get_current_user(request, db)
         if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
             return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "reportes.html", {"request": request, "user": user})
-    except:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 @app.get("/api/chat")
 async def get_chat_messages(
@@ -833,11 +847,16 @@ async def resend_password(
     
     import random
     import string
+    import logging
+    logger = logging.getLogger("security")
     new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
     user.hashed_password = security.get_password_hash(new_password)
     db.commit()
-    # Aquí iría el código real de SMTP para enviar el correo
-    return {"message": f"Contraseña reestablecida y enviada a {user.email}. (Contraseña temporal: {new_password})"}
+    logger.warning(f"AUDIT_SECURITY: Admin '{admin_user.username}' restablecio la contrasena del usuario '{user.username}' (ID: {user.id})")
+    return {
+        "message": f"Contraseña restablecida para el usuario '{user.username}'.\n\nATENCIÓN: Debe entregar manualmente esta clave temporal al trabajador para que pueda ingresar:\n\n{new_password}",
+        "temporary_password": new_password
+    }
 
 @app.get("/api/popup")
 async def get_popup_notification(
@@ -870,7 +889,15 @@ async def update_popup_notification(
 # RUTAS DE PLANTILLAS VISTA HTML
 # ==========================================
 @app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_page(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if token:
+        try:
+            user = security.get_current_user(request, db)
+            if user and user.is_active:
+                return RedirectResponse(url="/")
+        except Exception:
+            pass
     embed = request.query_params.get("embed") == "1"
     return templates.TemplateResponse(request, "login.html", {"embed": embed})
 
@@ -882,7 +909,7 @@ async def home_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = security.get_current_user(request, db)
         return templates.TemplateResponse(request, "home.html", {"request": request, "user": user})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -903,7 +930,7 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
             "employees": employees,
             "departments": departments
         })
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/admin/permisos", response_class=HTMLResponse)
@@ -917,7 +944,7 @@ async def admin_permisos_page(request: Request, db: Session = Depends(get_db)):
             return RedirectResponse(url="/")
         users = db.query(models.User).all()
         return templates.TemplateResponse(request, "permisos.html", {"user": user, "users": users})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/integracion", response_class=HTMLResponse)
@@ -931,7 +958,7 @@ async def integracion_page(request: Request, db: Session = Depends(get_db)):
             return RedirectResponse(url="/")
         embed = request.query_params.get("embed") == "1"
         return templates.TemplateResponse(request, "integracion.html", {"user": user, "embed": embed})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/helpdesk", response_class=HTMLResponse)
@@ -943,7 +970,7 @@ async def helpdesk_page(request: Request, db: Session = Depends(get_db)):
         user = security.get_current_user(request, db)
         # Permiso abierto por defecto para todos
         return templates.TemplateResponse(request, "helpdesk.html", {"user": user})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 def safe_date_str(val):
@@ -2255,9 +2282,16 @@ async def get_calendar_events_admin(
 # DIRECTORIO TELEFONICO
 # ==========================================
 @app.get("/directorio", response_class=HTMLResponse)
-async def view_directorio(request: Request, db: Session = Depends(get_db), current_user: models.User = Depends(security.get_current_user)):
-    employees = db.query(models.Employee).all()
-    return templates.TemplateResponse(request, "directorio.html", {"request": request, "user": current_user, "employees": employees})
+async def view_directorio(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+        employees = db.query(models.Employee).all()
+        return templates.TemplateResponse(request, "directorio.html", {"request": request, "user": user, "employees": employees})
+    except (HTTPException, Exception):
+        return RedirectResponse(url="/login")
 
 @app.get("/api/directorio/extensions")
 async def get_extensions(db: Session = Depends(get_db), current_user: models.User = Depends(security.get_current_user)):
@@ -2359,7 +2393,7 @@ async def view_historico(request: Request, db: Session = Depends(get_db)):
             })
 
         return templates.TemplateResponse(request, "historico.html", {"user": user, "embed": embed, "recent_events": recent_events})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/api/historico/{cedula}")
@@ -2623,18 +2657,17 @@ async def notify_reporte_clients():
 
 @app.get("/reporte", response_class=HTMLResponse)
 async def view_reporte(request: Request, db: Session = Depends(get_db)):
-    user = None
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-    except Exception:
-        user = type('UserMock', (), {
-            'username': 'admin',
-            'full_name': 'Administrador',
-            'role': 'admin',
-            'permissions': 'cargar_datos_usuarios,ver_integracion,ver_reportes,ver_helpdesk,ver_cajas_nap'
-        })()
-    embed = request.query_params.get("embed") == "1"
-    return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})
+        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
+            return RedirectResponse(url="/")
+        embed = request.query_params.get("embed") == "1"
+        return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})
+    except (HTTPException, Exception):
+        return RedirectResponse(url="/login")
 
 @app.get("/api/db")
 async def api_get_db():
