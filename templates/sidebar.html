@@ -68,7 +68,7 @@ html.dark, html.dark body {
     color: #f8fafc !important;
 }
 
-body, .sidebar, .card, .panel, .modal-content, table, input, select {
+body, .sidebar, .card, .panel, .modal-content, table {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -1212,6 +1212,14 @@ function updateThemeIcon(isDark) {
 }
 
 function toggleTheme() {
+    // Inyectar bloqueo temporal de transiciones para evitar congelamiento de FPS en matrices grandes
+    var noTransitionStyle = document.createElement('style');
+    noTransitionStyle.type = 'text/css';
+    noTransitionStyle.appendChild(document.createTextNode(
+        '*, *::before, *::after { -webkit-transition: none !important; -moz-transition: none !important; -o-transition: none !important; -ms-transition: none !important; transition: none !important; }'
+    ));
+    document.head.appendChild(noTransitionStyle);
+
     var isDark = document.documentElement.classList.toggle('dark');
     if (isDark) {
         document.documentElement.classList.remove('light');
@@ -1222,11 +1230,21 @@ function toggleTheme() {
     }
     updateThemeIcon(isDark);
     window.dispatchEvent(new Event('theme-changed'));
+
+    // Forzar lectura de reflow y restaurar transiciones inmediatamente
+    window.getComputedStyle(noTransitionStyle).opacity;
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            if (noTransitionStyle.parentNode) {
+                noTransitionStyle.parentNode.removeChild(noTransitionStyle);
+            }
+        });
+    });
 }
 
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('contentWrapper');
+    const content = document.getElementById('contentWrapper') || document.getElementById('mainContent') || document.querySelector('.main-content');
     if(sidebar) {
         sidebar.classList.toggle('collapsed');
         const isCollapsed = sidebar.classList.contains('collapsed');
