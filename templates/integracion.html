@@ -109,33 +109,16 @@
             color: #fff;
         }
 
-        /* Ajustes Tailwind a nuestra paleta */
-        .text-blue-700 {
-            color: var(--texto-negro) !important;
-        }
-
-        .bg-blue-600 {
-            background-color: var(--acento) !important;
-            color: var(--texto-negro) !important;
-        }
-
-        .bg-blue-600:hover {
-            background-color: var(--acento-hover) !important;
-        }
-
-        .bg-blue-50 {
-            background-color: #f1f5f9 !important;
-        }
-
+        /* Ajustes Tailwind a nuestra paleta corporativa */
         .ring-blue-500 {
-            --tw-ring-color: #f59e0b !important;
+            --tw-ring-color: #D4AF37 !important;
         }
 
         .border-blue-500 {
-            border-color: #f59e0b !important;
+            border-color: #D4AF37 !important;
         }
 
-        /* TABLA DINAMICA Y BADGES */
+        /* TABLA DINAMICA Y BADGES (BASE LIGHT) */
         .tab-btn {
             background-color: #f1f5f9;
             color: #475569;
@@ -243,6 +226,463 @@
 
         .data-table tr:hover td {
             background-color: #f8fafc;
+        }
+
+        /* =========================================================
+           REGLAS DE MODO OSCURO (SISTEMA INTEGRACIÓN v2)
+           ========================================================= */
+        html.dark body {
+            background-color: #09090b !important;
+            color: #f8fafc !important;
+        }
+
+        /* Contenedores y Cards Principales */
+        html.dark .bg-white,
+        html.dark [class*="bg-white"] {
+            background-color: #101014 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark .bg-gray-50,
+        html.dark [class*="bg-gray-50"],
+        html.dark .bg-gray-100 {
+            background-color: #141418 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #f8fafc !important;
+        }
+
+        /* Tipografía, Cabeceras y Etiquetas */
+        html.dark h1,
+        html.dark h2,
+        html.dark h3,
+        html.dark h4,
+        html.dark h5,
+        html.dark h6 {
+            color: #f8fafc !important;
+        }
+
+        html.dark label {
+            color: #cbd5e1 !important;
+        }
+
+        html.dark .text-gray-900,
+        html.dark .text-gray-800,
+        html.dark .text-gray-700 {
+            color: #f8fafc !important;
+        }
+
+        html.dark .text-gray-600,
+        html.dark .text-gray-500 {
+            color: #94a3b8 !important;
+        }
+
+        html.dark .border-gray-200,
+        html.dark .border-gray-100,
+        html.dark .border-gray-300 {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Inputs, Selects y Date Pickers */
+        html.dark select,
+        html.dark input[type="text"],
+        html.dark input[type="date"] {
+            background-color: #141418 !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark select:focus,
+        html.dark input[type="text"]:focus,
+        html.dark input[type="date"]:focus {
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 1px #D4AF37 !important;
+            outline: none !important;
+        }
+
+        /* Box 1A / 1B (Carga de Bases Residencial y Corporativa) */
+        html.dark .bg-indigo-50,
+        html.dark [class*="bg-indigo-50"] {
+            background-color: #141418 !important;
+            border-color: rgba(212, 175, 55, 0.25) !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark .text-indigo-900,
+        html.dark .text-indigo-800 {
+            color: #f8fafc !important;
+        }
+
+        html.dark .text-indigo-700 {
+            color: #D4AF37 !important;
+        }
+
+        html.dark .border-indigo-200 {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .bg-indigo-100 {
+            background-color: #27272a !important;
+            color: #D4AF37 !important;
+            border-color: rgba(212, 175, 55, 0.3) !important;
+        }
+
+        html.dark input[type="file"] {
+            color: #94a3b8 !important;
+        }
+
+        html.dark input[type="file"]::file-selector-button {
+            background-color: #1f1f24 !important;
+            color: #D4AF37 !important;
+            border: 1px solid rgba(212, 175, 55, 0.35) !important;
+            font-weight: 700 !important;
+            border-radius: 6px !important;
+        }
+
+        html.dark input[type="file"]::file-selector-button:hover {
+            background-color: #D4AF37 !important;
+            color: #000000 !important;
+        }
+
+        html.dark #btnGuardarBaseMes,
+        html.dark #btnGuardarBaseMesCorp {
+            background-color: #D4AF37 !important;
+            color: #000000 !important;
+            font-weight: 700 !important;
+            border: none !important;
+        }
+
+        html.dark #btnGuardarBaseMes:hover,
+        html.dark #btnGuardarBaseMesCorp:hover {
+            background-color: #E5C358 !important;
+            color: #000000 !important;
+        }
+
+        /* Box 2 (Tipo de Comparativa) */
+        html.dark .bg-blue-50,
+        html.dark [class*="bg-blue-50"] {
+            background-color: #141418 !important;
+            border-color: rgba(212, 175, 55, 0.25) !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark .text-blue-900,
+        html.dark .text-blue-800 {
+            color: #f8fafc !important;
+        }
+
+        html.dark .text-blue-700 {
+            color: #D4AF37 !important;
+        }
+
+        html.dark .border-blue-200,
+        html.dark .border-blue-100 {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark input[type="radio"] {
+            accent-color: #D4AF37 !important;
+        }
+
+        html.dark label span.text-gray-800 {
+            color: #f8fafc !important;
+            font-weight: 600 !important;
+        }
+
+        /* Fechas de Respaldos Guardados */
+        html.dark .bg-white.border-blue-100 {
+            background-color: #101014 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #94a3b8 !important;
+        }
+
+        html.dark #lblEstadoMensual,
+        html.dark #lblEstadoMensualCorp,
+        html.dark #lblEstadoDiarioRes,
+        html.dark #lblEstadoDiarioCorp {
+            background-color: #1f1f24 !important;
+            color: #D4AF37 !important;
+            border: 1px solid rgba(212, 175, 55, 0.3) !important;
+        }
+
+        /* Botones de Acción Principales */
+        html.dark #btnGuardarRegistro {
+            background-color: #1f1f24 !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+
+        html.dark #btnGuardarRegistro:hover {
+            background-color: #27272a !important;
+            color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
+        }
+
+        html.dark #btnProcesarApi {
+            background-color: #D4AF37 !important;
+            color: #000000 !important;
+            font-weight: 700 !important;
+            border: none !important;
+        }
+
+        html.dark #btnProcesarApi:hover {
+            background-color: #E5C358 !important;
+            color: #000000 !important;
+        }
+
+        html.dark #btnToggleAmountsGlobal {
+            color: #94a3b8 !important;
+        }
+
+        html.dark #btnToggleAmountsGlobal:hover {
+            color: #f8fafc !important;
+        }
+
+        /* Métricas y Tarjetas de Resumen */
+        html.dark .bg-emerald-50 {
+            background-color: #101014 !important;
+            border: 1px solid rgba(16, 185, 129, 0.3) !important;
+            color: #f8fafc !important;
+        }
+        html.dark .text-emerald-700 { color: #34d399 !important; }
+        html.dark .text-emerald-900 { color: #f8fafc !important; }
+
+        html.dark .bg-amber-50 {
+            background-color: #101014 !important;
+            border: 1px solid rgba(245, 158, 11, 0.3) !important;
+            color: #f8fafc !important;
+        }
+        html.dark .text-amber-700 { color: #fbbf24 !important; }
+        html.dark .text-amber-900 { color: #f8fafc !important; }
+
+        html.dark .bg-orange-50 {
+            background-color: #101014 !important;
+            border: 1px solid rgba(249, 115, 22, 0.3) !important;
+            color: #f8fafc !important;
+        }
+        html.dark .text-orange-700 { color: #fb923c !important; }
+        html.dark .text-orange-900 { color: #f8fafc !important; }
+
+        html.dark .bg-teal-50 {
+            background-color: #101014 !important;
+            border: 1px solid rgba(20, 184, 166, 0.3) !important;
+            color: #f8fafc !important;
+        }
+        html.dark .text-teal-700 { color: #2dd4bf !important; }
+        html.dark .text-teal-900 { color: #f8fafc !important; }
+
+        html.dark .bg-sky-50 {
+            background-color: #101014 !important;
+            border: 1px solid rgba(14, 165, 233, 0.3) !important;
+            color: #f8fafc !important;
+        }
+        html.dark .text-sky-700 { color: #38bdf8 !important; }
+        html.dark .text-sky-900 { color: #f8fafc !important; }
+
+        html.dark .bg-purple-50 {
+            background-color: #101014 !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important;
+            color: #c084fc !important;
+        }
+        html.dark .text-purple-700 { color: #c084fc !important; }
+        html.dark .text-purple-900 { color: #f8fafc !important; }
+
+        html.dark .bg-red-50 {
+            background-color: #101014 !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+            color: #f8fafc !important;
+        }
+        html.dark .text-red-700 { color: #f87171 !important; }
+        html.dark .text-red-900 { color: #f8fafc !important; }
+
+        /* Resumen en Forma de Lista */
+        html.dark tr.hover\:bg-gray-50\/30:hover {
+            background-color: rgba(212, 175, 55, 0.05) !important;
+        }
+        html.dark tr.bg-indigo-50\/60,
+        html.dark [class*="bg-indigo-50/60"] {
+            background-color: #18181b !important;
+            border-color: rgba(212, 175, 55, 0.3) !important;
+        }
+        html.dark tr.bg-indigo-50\/60 td {
+            color: #D4AF37 !important;
+        }
+
+        /* Pestañas de Filtro */
+        html.dark .tab-btn {
+            background-color: #101014 !important;
+            color: #94a3b8 !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .tab-btn:hover {
+            background-color: #18181b !important;
+            color: #f8fafc !important;
+            border-color: rgba(212, 175, 55, 0.3) !important;
+        }
+
+        html.dark .tab-btn.active {
+            background-color: #18181b !important;
+            color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
+            font-weight: 700 !important;
+        }
+
+        html.dark .tab-btn .badge-count {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark .tab-btn.active .badge-count {
+            background-color: rgba(212, 175, 55, 0.2) !important;
+            color: #D4AF37 !important;
+        }
+
+        /* Tablas Dinámicas */
+        html.dark .data-table,
+        html.dark table {
+            background-color: #101014 !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .data-table th,
+        html.dark thead th {
+            background-color: #18181b !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .data-table td,
+        html.dark tbody td {
+            background-color: #101014 !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .data-table tr:hover td,
+        html.dark tbody tr:hover td {
+            background-color: rgba(212, 175, 55, 0.06) !important;
+        }
+
+        html.dark tfoot,
+        html.dark tfoot tr,
+        html.dark tfoot td {
+            background-color: #18181b !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Secciones de Clientes Activos por Plan (Residencial, Corp, Consolidado) */
+        html.dark .border-blue-200 { border-color: rgba(59, 130, 246, 0.3) !important; }
+        html.dark .bg-blue-50\/80, html.dark [class*="bg-blue-50/80"] {
+            background-color: #141418 !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
+        }
+        html.dark .text-blue-950 { color: #60a5fa !important; }
+        html.dark #badgePlanesRes {
+            background-color: #1e293b !important;
+            color: #93c5fd !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
+        }
+
+        html.dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.3) !important; }
+        html.dark .bg-amber-50\/80, html.dark [class*="bg-amber-50/80"] {
+            background-color: #141418 !important;
+            border-color: rgba(245, 158, 11, 0.3) !important;
+        }
+        html.dark .text-amber-950 { color: #fbbf24 !important; }
+        html.dark #badgePlanesCorp {
+            background-color: #292524 !important;
+            color: #fde047 !important;
+            border-color: rgba(245, 158, 11, 0.3) !important;
+        }
+
+        html.dark .border-emerald-200 { border-color: rgba(16, 185, 129, 0.3) !important; }
+        html.dark .bg-emerald-50\/80, html.dark [class*="bg-emerald-50/80"] {
+            background-color: #141418 !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+        }
+        html.dark .text-emerald-950 { color: #34d399 !important; }
+        html.dark #badgePlanesCons {
+            background-color: #064e3b !important;
+            color: #a7f3d0 !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+        }
+
+        /* Botones Auxiliares */
+        html.dark button[onclick="clearFilters()"] {
+            background-color: #1f1f24 !important;
+            color: #94a3b8 !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+        html.dark button[onclick="clearFilters()"]:hover {
+            background-color: #27272a !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark .bg-white.text-blue-800,
+        html.dark .bg-white.text-amber-900 {
+            background-color: #1f1f24 !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+        html.dark .bg-white.text-blue-800:hover,
+        html.dark .bg-white.text-amber-900:hover {
+            background-color: #27272a !important;
+            color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
+        }
+
+        html.dark #cardDetalleClientesPlan {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        html.dark #cardDetalleClientesPlan button {
+            background-color: #1f1f24 !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+        html.dark #cardDetalleClientesPlan button:hover {
+            background-color: #27272a !important;
+            color: #D4AF37 !important;
+        }
+
+        /* Badges de Estatus */
+        html.dark .status-activo {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #34d399 !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+        }
+
+        html.dark .status-suspendido {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            color: #fbbf24 !important;
+            border-color: rgba(245, 158, 11, 0.3) !important;
+        }
+
+        html.dark .status-exonerado {
+            background-color: rgba(168, 85, 247, 0.15) !important;
+            color: #c084fc !important;
+            border-color: rgba(168, 85, 247, 0.3) !important;
+        }
+
+        html.dark .status-inactivo,
+        html.dark .status-retiro {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+            color: #f87171 !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+        }
+
+        html.dark .status-transferido {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            color: #60a5fa !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
+        }
+
+        html.dark .status-default {
+            background-color: #18181b !important;
+            color: #94a3b8 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
         }
 
         /* ========================================================= */
