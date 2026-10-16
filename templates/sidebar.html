@@ -37,7 +37,7 @@ html, body, button, input, select, textarea, table, th, td, h1, h2, h3, h4, h5, 
    DARK MODE TECNOLOGÍA v2 (POWER LINK SYSTEM)
    ========================================================= */
 html.dark {
-    --cabeceras: #0c0c0e !important;
+    --cabeceras: #f8fafc !important;
     --fondo-principal: #09090b !important;
     --blanco: #101014 !important;
     --borde: rgba(255, 255, 255, 0.08) !important;
@@ -333,6 +333,12 @@ html.dark .submenu {
 html.dark .user-badge {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+}
+
+html.dark #userNavName {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
 }
 
 html.dark .hero {
@@ -343,6 +349,161 @@ html.dark .hero {
 .btn-theme-toggle:hover {
     background: rgba(255, 255, 255, 0.16) !important;
     transform: scale(1.05);
+}
+
+/* =========================================================
+   DASHBOARD & VISTAS PRINCIPALES - AJUSTES ESPECÍFICOS
+   ========================================================= */
+
+/* Títulos de Sección */
+html.dark .section-title {
+    color: #f8fafc !important;
+    border-left-color: #D4AF37 !important;
+}
+
+/* Métricas del Trimestre (KPIs) */
+html.dark .kpi-card,
+html.dark .kpi-card.alt {
+    background-color: #141418 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    border-left: 5px solid #D4AF37 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+html.dark .kpi-card .kpi-title {
+    color: #94a3b8 !important;
+    font-weight: 600 !important;
+}
+html.dark .kpi-card .kpi-value {
+    color: #f8fafc !important;
+    font-weight: 800 !important;
+}
+html.dark .kpi-card .kpi-value i {
+    color: #D4AF37 !important;
+}
+
+/* Top Recursos */
+html.dark .btn-resource {
+    color: #f8fafc !important;
+    background-color: #18181b !important;
+    border: 1px solid rgba(212, 175, 55, 0.25) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+html.dark .btn-resource.btn-navy {
+    background-color: #141418 !important;
+    color: #f8fafc !important;
+}
+html.dark .btn-resource.btn-gray {
+    background-color: #202026 !important;
+    color: #f8fafc !important;
+}
+html.dark .btn-resource:hover {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    border-color: #D4AF37 !important;
+    transform: translateY(-2px);
+}
+html.dark .search-templates,
+html.dark input#resourceFilter {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+html.dark .search-templates::placeholder,
+html.dark input#resourceFilter::placeholder {
+    color: #64748b !important;
+}
+
+/* Calendario Institucional */
+html.dark .calendar-wrapper {
+    color: #f8fafc !important;
+}
+html.dark .calendar-header-month {
+    color: #f8fafc !important;
+}
+html.dark .calendar-header-month span,
+html.dark #calendarMonthLabel {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+}
+html.dark .calendar-header-month button {
+    color: #94a3b8 !important;
+}
+html.dark .calendar-header-month button:hover {
+    color: #D4AF37 !important;
+}
+html.dark .calendar-day-name {
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+}
+html.dark .calendar-day {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+html.dark .calendar-day:hover {
+    background-color: rgba(212, 175, 55, 0.25) !important;
+    color: #D4AF37 !important;
+    border-color: #D4AF37 !important;
+}
+html.dark .calendar-day.active {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+html.dark .calendar-day.has-event {
+    border: 2px solid #D4AF37 !important;
+}
+
+/* Nuestro Equipo (Carrusel) */
+html.dark .employee-card span {
+    color: #f8fafc !important;
+    font-weight: 600 !important;
+}
+html.dark .employee-card span:last-child {
+    color: #94a3b8 !important;
+    font-weight: 400 !important;
+}
+html.dark .carousel-btn {
+    background: #D4AF37 !important;
+    color: #000000 !important;
+}
+html.dark .carousel-btn:hover {
+    background: #E5C358 !important;
+    color: #000000 !important;
+    transform: scale(1.1);
+}
+
+/* Feedback Form */
+html.dark .feedback-form textarea {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+html.dark .feedback-form textarea::placeholder {
+    color: #64748b !important;
+}
+html.dark .feedback-form button {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+html.dark .feedback-form button:hover {
+    background-color: #E5C358 !important;
+    color: #000000 !important;
+}
+
+/* Cumpleaños */
+html.dark .birthday-card {
+    background: #141418 !important;
+    border: 1.5px dashed rgba(212, 175, 55, 0.4) !important;
+    color: #f8fafc !important;
+}
+html.dark .birthday-info h4 {
+    color: #f8fafc !important;
+}
+html.dark .birthday-info p {
+    color: #94a3b8 !important;
 }
 
 /* SIDEBAR & LAYOUT */
