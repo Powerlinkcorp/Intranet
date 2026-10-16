@@ -331,8 +331,9 @@ html.dark .submenu {
 }
 
 html.dark .user-badge {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     color: #f8fafc !important;
 }
 
@@ -504,6 +505,218 @@ html.dark .birthday-info h4 {
 }
 html.dark .birthday-info p {
     color: #94a3b8 !important;
+}
+
+/* =========================================================
+   MÓDULO DE FLASHEO - AJUSTES MODO OSCURO
+   ========================================================= */
+html.dark .station-cards-grid {
+    gap: 16px;
+}
+
+html.dark .station-card-box {
+    background-color: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .station-card-title {
+    color: #f8fafc !important;
+}
+
+html.dark .station-card-meta {
+    background-color: #141418 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .station-card-meta div {
+    color: #f8fafc !important;
+}
+
+/* El recuadro de ONUs Procesadas en Flasheo */
+html.dark .station-onu-count-box,
+html.dark .station-card-box div[style*="background:#f8fafc"],
+html.dark .station-card-box div[style*="background: #f8fafc"],
+html.dark .station-card-box div[style*="background:#F8FAFC"],
+html.dark .station-card-box div[style*="background: rgb(248, 250, 252)"] {
+    background-color: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .station-card-box span[style*="color:#475569"],
+html.dark .station-card-box span[style*="color: #475569"] {
+    color: #94a3b8 !important;
+}
+
+html.dark .station-card-box span[style*="color:var(--cabeceras)"] {
+    color: #D4AF37 !important;
+}
+
+html.dark .station-card-footer {
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .station-card-footer b {
+    color: #f8fafc !important;
+}
+
+/* Pestañas de Flasheo */
+html.dark .tabs-nav {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .tab-btn {
+    background: #101014 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .tab-btn:hover {
+    background: #18181b !important;
+    color: #f8fafc !important;
+    border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+html.dark .tab-btn.active {
+    background: #18181b !important;
+    color: #D4AF37 !important;
+    border: 1px solid #D4AF37 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Header de Flasheo y User Pill */
+html.dark .user-pill {
+    background: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .trace-search-box {
+    background-color: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Tarjetas Estadísticas de Flasheo */
+html.dark .stat-summary-card {
+    background-color: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .stat-card-val {
+    color: #f8fafc !important;
+}
+
+html.dark .stat-card-label {
+    color: #94a3b8 !important;
+}
+
+/* Iconos de Flasheo */
+html.dark .stat-icon-blue { background: rgba(2, 132, 199, 0.18) !important; color: #38bdf8 !important; }
+html.dark .stat-icon-amber { background: rgba(217, 119, 6, 0.18) !important; color: #fbbf24 !important; }
+html.dark .stat-icon-green { background: rgba(5, 150, 105, 0.18) !important; color: #34d399 !important; }
+html.dark .stat-icon-purple { background: rgba(124, 58, 237, 0.18) !important; color: #c084fc !important; }
+
+/* Tablas de Flasheo / Datos */
+html.dark .data-table {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+}
+
+html.dark .data-table th {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .data-table td {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .data-table tr:hover td {
+    background-color: rgba(212, 175, 55, 0.06) !important;
+}
+
+html.dark .btn-outline,
+html.dark .btn-doc {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark .btn-outline:hover,
+html.dark .btn-doc:hover {
+    background-color: #27272a !important;
+    border-color: #D4AF37 !important;
+    color: #D4AF37 !important;
+}
+
+/* Badges de Conectividad */
+html.dark .badge-status.connected {
+    background: rgba(5, 150, 105, 0.2) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(52, 211, 153, 0.3) !important;
+}
+
+html.dark .badge-status.disconnected {
+    background: rgba(220, 38, 38, 0.2) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(248, 113, 113, 0.3) !important;
+}
+
+/* =========================================================
+   MÓDULO DE APROVISIONAMIENTO - AJUSTES MODO OSCURO
+   ========================================================= */
+html.dark .wizard-nav {
+    background: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .wizard-step-btn {
+    background: #101014 !important;
+    color: #94a3b8 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .wizard-step-btn.active {
+    background: #18181b !important;
+    border-color: #D4AF37 !important;
+    color: #D4AF37 !important;
+}
+
+html.dark .step-badge {
+    background: #27272a !important;
+    color: #f8fafc !important;
+}
+
+html.dark .step-badge.active {
+    background: #D4AF37 !important;
+    color: #000000 !important;
+}
+
+html.dark .olt-summary-bar,
+html.dark .onu-info-banner {
+    background: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .badge-step {
+    background: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark input[readonly] {
+    background-color: #141418 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* SIDEBAR & LAYOUT */
