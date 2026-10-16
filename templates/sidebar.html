@@ -1,3 +1,6 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <script>
 (function() {
@@ -15,9 +18,17 @@
 </script>
 
 <style>
+/* =========================================================
+   TIPOGRAFÍA GLOBAL UNIFICADA (OUTFIT)
+   ========================================================= */
+html, body, button, input, select, textarea, table, th, td, h1, h2, h3, h4, h5, h6, p, span, a, div, label, li, ul, form {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
 :root {
     --cabeceras: #1A1A1A;
     --blanco: #ffffff;
+    --borde: #e2e8f0;
     --acento: #FFC107;
     --acento-hover: #F5C71D;
 }
@@ -29,6 +40,7 @@ html.dark {
     --cabeceras: #0c0c0e !important;
     --fondo-principal: #09090b !important;
     --blanco: #101014 !important;
+    --borde: rgba(255, 255, 255, 0.08) !important;
     --acento: #D4AF37 !important;
     --acento-hover: #E5C358 !important;
     --texto-negro: #f8fafc !important;
@@ -39,10 +51,19 @@ html.dark {
     --bg-card-hover: #18181b !important;
     --text-primary: #f8fafc !important;
     --text-secondary: #94a3b8 !important;
+
+    /* Bento Colors (Helpdesk / Soporte) */
+    --bento-verde-claro: #141418 !important;
+    --bento-verde: #D4AF37 !important;
+    --bento-marron-claro: #141418 !important;
+    --bento-marron: #101014 !important;
+    --bento-dorado-claro: #18181b !important;
+    --bento-dorado: #D4AF37 !important;
+
     color-scheme: dark;
 }
 
-html.dark body {
+html.dark, html.dark body {
     background-color: #09090b !important;
     color: #f8fafc !important;
 }
@@ -51,31 +72,50 @@ body, .sidebar, .card, .panel, .modal-content, table, input, select {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-html.dark .content-wrapper {
+html.dark .content-wrapper,
+html.dark .main-content,
+html.dark main {
     background-color: transparent !important;
     color: #f8fafc !important;
 }
 
-html.dark .card,
-html.dark .doc-card,
-html.dark .tool-card,
-html.dark .panel,
-html.dark .stats-card,
-html.dark .kpi-card,
-html.dark .table-container,
-html.dark .modal-content,
-html.dark .info-box,
-html.dark .announcement-card,
-html.dark .news-card,
-html.dark .birthday-card,
-html.dark .events-card,
-html.dark .module-card,
-html.dark .profile-card,
-html.dark .activity-card {
+/* Neutralización de Fondos Blancos y Grises de Tailwind */
+html.dark .bg-white,
+html.dark [class*="bg-white"],
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark .bg-gray-50,
+html.dark .bg-gray-100,
+html.dark .bg-gray-200,
+html.dark [class*="bg-gray-50"],
+html.dark [class*="bg-gray-100"],
+html.dark [class*="bg-slate-50"],
+html.dark [class*="bg-slate-100"] {
     background-color: #101014 !important;
-    border: 1px solid rgba(212, 175, 55, 0.22) !important;
     color: #f8fafc !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Textos oscuros de Tailwind convertidos a Slate claro */
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-slate-700 {
+    color: #f8fafc !important;
+}
+
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-gray-500,
+html.dark .text-slate-600,
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+    color: #94a3b8 !important;
+}
+
+html.dark .text-gray-400,
+html.dark .text-gray-300 {
+    color: #cbd5e1 !important;
 }
 
 html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
@@ -86,34 +126,155 @@ html.dark .text-muted, html.dark .doc-desc, html.dark .tool-desc, html.dark .sta
     color: #94a3b8 !important;
 }
 
+/* Tablas Unificadas Dark Mode */
 html.dark table {
     background-color: #101014 !important;
     color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-html.dark thead th, html.dark .table-header-bar {
+html.dark thead,
+html.dark thead th,
+html.dark [class*="thead"],
+html.dark .table-header-bar {
     background-color: #18181b !important;
     color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark tbody,
+html.dark tbody tr,
+html.dark tbody td {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
     border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-html.dark tbody td {
+html.dark tbody tr:hover,
+html.dark tr.hover\:bg-gray-50:hover,
+html.dark [class*="hover:bg-gray-50"]:hover,
+html.dark [class*="hover:bg-slate-50"]:hover {
+    background-color: rgba(212, 175, 55, 0.08) !important;
+}
+
+html.dark [class*="divide-gray"],
+html.dark [class*="divide-slate"],
+html.dark .divide-y {
     border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-gray-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Cards, Paneles, Modales y Glassmorphism */
+html.dark .glass-panel,
+html.dark .card,
+html.dark .doc-card,
+html.dark .tool-card,
+html.dark .panel,
+html.dark .stats-card,
+html.dark .kpi-card,
+html.dark .table-container,
+html.dark .table-card,
+html.dark .chart-card,
+html.dark .modal-content,
+html.dark .info-box,
+html.dark .announcement-card,
+html.dark .news-card,
+html.dark .birthday-card,
+html.dark .events-card,
+html.dark .module-card,
+html.dark .profile-card,
+html.dark .activity-card,
+html.dark .bento-card,
+html.dark .app-header,
+html.dark .module-header {
+    background-color: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Bento Cards de Soporte (Helpdesk) */
+html.dark .card-green,
+html.dark .card-brown,
+html.dark .card-gold {
+    background: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
     color: #f8fafc !important;
 }
 
-html.dark tbody tr:hover {
-    background-color: rgba(212, 175, 55, 0.06) !important;
+html.dark .card-green h3,
+html.dark .card-brown h3,
+html.dark .card-gold h3,
+html.dark .card-green .card-title,
+html.dark .card-gold .card-title {
+    color: #D4AF37 !important;
 }
 
+/* Botones Unificados a Dorado Metálico Power Link */
+html.dark .bg-indigo-600,
+html.dark .bg-indigo-700,
+html.dark [class*="bg-indigo-600"],
+html.dark [class*="bg-indigo-700"],
+html.dark .btn-primary {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+
+html.dark .bg-indigo-600:hover,
+html.dark .bg-indigo-700:hover,
+html.dark [class*="hover:bg-indigo-700"]:hover,
+html.dark .btn-primary:hover {
+    background-color: #E5C358 !important;
+    color: #000000 !important;
+}
+
+html.dark .btn-secondary {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark .segment-container {
+    background: #141418 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .segment-btn {
+    color: #94a3b8 !important;
+}
+
+html.dark .segment-btn.active {
+    background: #1f1f23 !important;
+    color: #D4AF37 !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Inputs, Selects y Formularios */
 html.dark input,
 html.dark select,
 html.dark textarea,
 html.dark .search-input,
-html.dark .form-control {
+html.dark .form-control,
+html.dark input[type="text"],
+html.dark input[type="search"],
+html.dark input[type="password"] {
     background-color: #18181b !important;
     color: #f8fafc !important;
-    border: 1px solid #27272a !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: #64748b !important;
 }
 
 html.dark input:focus,
@@ -121,6 +282,39 @@ html.dark select:focus,
 html.dark textarea:focus {
     border-color: #D4AF37 !important;
     box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25) !important;
+    outline: none !important;
+}
+
+/* Badges de Estado */
+html.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.18) !important;
+    color: #4ade80 !important;
+}
+html.dark .text-green-800 {
+    color: #4ade80 !important;
+}
+html.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+    color: #f87171 !important;
+}
+html.dark .text-red-800 {
+    color: #f87171 !important;
+}
+html.dark .bg-yellow-100,
+html.dark .bg-amber-100 {
+    background-color: rgba(234, 179, 8, 0.18) !important;
+    color: #facc15 !important;
+}
+html.dark .text-yellow-800,
+html.dark .text-amber-800 {
+    color: #facc15 !important;
+}
+html.dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.18) !important;
+    color: #60a5fa !important;
+}
+html.dark .text-blue-800 {
+    color: #60a5fa !important;
 }
 
 html.dark .sidebar {

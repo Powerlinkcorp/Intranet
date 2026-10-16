@@ -92,6 +92,16 @@ function App() {
     }
   }, [isDark])
 
+  // Escuchar cambios de tema desde el Sidebar de la Intranet
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const isDocDark = document.documentElement.classList.contains("dark")
+      setIsDark(isDocDark)
+    }
+    window.addEventListener("theme-changed", handleThemeChange)
+    return () => window.removeEventListener("theme-changed", handleThemeChange)
+  }, [])
+
   const handleSelectView = (view: NavView) => {
     setActiveView(view)
     if (typeof window !== "undefined") {
@@ -103,7 +113,7 @@ function App() {
     <div className={`min-h-screen bg-background text-foreground transition-colors duration-200 ${isDark ? "dark" : ""}`}>
       <div className="w-full max-w-[1920px] mx-auto p-3 sm:p-5 lg:p-7 space-y-6">
         
-        {/* Barra Superior del Módulo con Selector de Vista y Tema */}
+        {/* Barra Superior del Módulo con Selector de Vista */}
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-border/80">
           <div>
             <div className="flex items-center gap-2.5">
@@ -118,19 +128,6 @@ function App() {
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               Plataforma unificada de ingeniería, monitoreo NOC, bitácora de red y validación de campo.
             </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-end xl:self-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDark(!isDark)}
-              className="gap-2 border-border/80 hover:border-primary/50 text-foreground h-9"
-              title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-            >
-              {isDark ? <Sun className="h-4 w-4 text-primary" /> : <Moon className="h-4 w-4 text-primary" />}
-              <span className="text-xs font-semibold">{isDark ? "Modo Claro" : "Modo Oscuro"}</span>
-            </Button>
           </div>
         </div>
 
