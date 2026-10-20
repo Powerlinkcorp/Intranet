@@ -140,8 +140,13 @@ async def api_login(data: dict = Body(...)):
     return wrap_handler(handle_login, data)
 
 @api_router.post("/auth/logout")
+@api_router.get("/auth/logout")
 async def api_logout():
-    return JSONResponse(content={"success": True, "message": "Sesión finalizada"}, status_code=200)
+    res = JSONResponse(content={"success": True, "message": "Sesión finalizada"}, status_code=200)
+    res.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+    res.delete_cookie(key="access_token", path="/")
+    res.delete_cookie(key="token", path="/")
+    return res
 
 @api_router.get("/auth/users")
 async def list_users():

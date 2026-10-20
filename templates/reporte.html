@@ -1984,8 +1984,19 @@
             updateUserBar();
         }
 
-        function logout() {
-            toast('Acceso directo activo sin autenticación obligatoria');
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch (e) {}
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {}
+            try {
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            } catch (e) {}
+            window.location.href = '/login?logout=1';
         }
 
         function checkLoginState() {

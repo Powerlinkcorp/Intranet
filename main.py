@@ -251,9 +251,21 @@ async def login_for_access_token(
     }
 
 @app.post("/api/auth/logout")
-async def logout(response: Response):
-    response.delete_cookie("access_token")
-    return {"message": "Sesión cerrada correctamente."}
+@app.get("/api/auth/logout")
+async def api_auth_logout():
+    response = JSONResponse(content={"status": "success", "message": "Sesión cerrada correctamente."})
+    response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="token", path="/")
+    return response
+
+@app.get("/logout")
+async def logout_redirect():
+    response = RedirectResponse(url="/login?logout=1", status_code=302)
+    response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="token", path="/")
+    return response
 
 @app.get("/api/auth/me")
 async def get_me(current_user: models.User = Depends(security.get_current_user)):
@@ -890,16 +902,23 @@ async def update_popup_notification(
 # ==========================================
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, db: Session = Depends(get_db)):
-    token = security.get_token_from_request(request)
-    if token:
-        try:
-            user = security.get_current_user(request, db)
-            if user and user.is_active:
-                return RedirectResponse(url="/")
-        except Exception:
-            pass
+    is_logout = request.query_params.get("logout") == "1"
+    if not is_logout:
+        token = security.get_token_from_request(request)
+        if token:
+            try:
+                user = security.get_current_user(request, db)
+                if user and user.is_active:
+                    return RedirectResponse(url="/")
+            except Exception:
+                pass
     embed = request.query_params.get("embed") == "1"
-    return templates.TemplateResponse(request, "login.html", {"embed": embed})
+    response = templates.TemplateResponse(request, "login.html", {"embed": embed})
+    if is_logout:
+        response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+        response.delete_cookie(key="access_token", path="/")
+        response.delete_cookie(key="token", path="/")
+    return response
 
 @app.get("/", response_class=HTMLResponse)
 async def home_page(request: Request, db: Session = Depends(get_db)):
