@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "name": "JEFFERSON PLAZA",
+    "cedula": "V-12.879.751",
+    "phone": "+58 414-1339787",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 2,
+    "name": "NELSON VEGAS",
+    "cedula": "V-11.817.677",
+    "phone": "+58 424-2842089",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 3,
+    "name": "ALEJANDRO CAMACHO",
+    "cedula": "V-10.503.027",
+    "phone": "+58 412-9016479",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 4,
+    "name": "IRVIN SANTANA",
+    "cedula": "V-8.677.687",
+    "phone": "+58 412-7846519",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 5,
+    "name": "WILLIAM GREGORIO NIEVES",
+    "cedula": "V-15.315.119",
+    "phone": "+58 412-5481476",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 6,
+    "name": "JONMEL FERNANDEZ GARCIA",
+    "cedula": "V-16.935.592",
+    "phone": "+58 414-2014293",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 7,
+    "name": "RAFAEL ANGEL VELASQUEZ GOUDETH",
+    "cedula": "V-16.249.337",
+    "phone": "+58 412-9709191",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 8,
+    "name": "ROBERTO ANTONIO CHACÓN SÁNCHEZ",
+    "cedula": "V-10.161.454",
+    "phone": "+58 414-4729147",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 9,
+    "name": "MAICKEL LEANDRO CAPOTE PEÑA",
+    "cedula": "V-15.715.053",
+    "phone": "+58 412-3771725",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 10,
+    "name": "YORLAN ALEXANDER ALGUILAR BORGES",
+    "cedula": "V-12.765.034",
+    "phone": "+58 414-0168955",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 11,
+    "name": "OLIVER DARIO VEGAS CASTILLO",
+    "cedula": "V-14.674.092",
+    "phone": "+58 424-2844092",
+    "cargo": "CHOFER"
+  }
+]

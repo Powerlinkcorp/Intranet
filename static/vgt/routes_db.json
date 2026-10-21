@@ -1,0 +1,594 @@
+[
+  {
+    "id": "R-1",
+    "description": "LA MORITA",
+    "vgt": "VGT-P-0223",
+    "postes": "21.0",
+    "distancia_km": "0.68",
+    "observacion": ""
+  },
+  {
+    "id": "R-2",
+    "description": "C.C LA COLINA- MONTE BELLO",
+    "vgt": "VGT-P-0031",
+    "postes": "50.0",
+    "distancia_km": "5.51",
+    "observacion": ""
+  },
+  {
+    "id": "R-3",
+    "description": "PARQUE EL RETIRO",
+    "vgt": "VGT-P-0186",
+    "postes": "8.0",
+    "distancia_km": "0.31",
+    "observacion": ""
+  },
+  {
+    "id": "R-4",
+    "description": "EL PASO",
+    "vgt": "VGT-P-0187",
+    "postes": "19.0",
+    "distancia_km": "0.8",
+    "observacion": ""
+  },
+  {
+    "id": "R-5",
+    "description": "SOLAR DE LA QTA",
+    "vgt": "VGT-P-0064",
+    "postes": "42.0",
+    "distancia_km": "1.15",
+    "observacion": ""
+  },
+  {
+    "id": "R-6",
+    "description": "MONTE BELLO- JUNIN-TIBISAY-MACARENA ACTUALIZADA",
+    "vgt": "VGT-P-0218",
+    "postes": "434.0",
+    "distancia_km": "11.7",
+    "observacion": ""
+  },
+  {
+    "id": "R-7",
+    "description": "LA COLINA-COLISEO-CLUB DE CAMPO",
+    "vgt": "VGT-P-0183",
+    "postes": "88.0",
+    "distancia_km": "5.08",
+    "observacion": ""
+  },
+  {
+    "id": "R-8",
+    "description": "PUENTE CASTRO-PIE FINO-C. MÉDICO-SOLAR",
+    "vgt": "VGT-2023-P-675",
+    "postes": "247.0",
+    "distancia_km": "7.44",
+    "observacion": ""
+  },
+  {
+    "id": "R-9",
+    "description": "ESC. TALLER SIMON BOLÍVAR-EL NACIONAL",
+    "vgt": "VGT-2023-P-675",
+    "postes": "75.0",
+    "distancia_km": "3.0",
+    "observacion": ""
+  },
+  {
+    "id": "R-10",
+    "description": "C. GUAICAIPURO-C. AYACUCHO (23 ENERO)",
+    "vgt": "VGT-2023-P-676",
+    "postes": "19.0",
+    "distancia_km": "0.55",
+    "observacion": ""
+  },
+  {
+    "id": "R-11",
+    "description": "MACARENA-CABOTAJE -LA MATICA",
+    "vgt": "VGT-P-0218",
+    "postes": "115.0",
+    "distancia_km": "",
+    "observacion": ""
+  },
+  {
+    "id": "R-12",
+    "description": "CALLEJÓN VARGAS",
+    "vgt": "VGT-2023-P-677",
+    "postes": "15.0",
+    "distancia_km": "4.4",
+    "observacion": ""
+  },
+  {
+    "id": "R-13",
+    "description": "LAS MINAS",
+    "vgt": "PENDIENTE",
+    "postes": "38.0",
+    "distancia_km": "1.21",
+    "observacion": ""
+  },
+  {
+    "id": "R-14",
+    "description": "LA ESTRELLA-PANADERO-TRIGO-C. PÁEZ VICTEGUI",
+    "vgt": "VGT-2023-P-678",
+    "postes": "66.0",
+    "distancia_km": "2.21",
+    "observacion": ""
+  },
+  {
+    "id": "R-15",
+    "description": "PTE. CASTRO-TERMINAL-TIUNA-C. MIQUILEN-BERMUDEZ",
+    "vgt": "VGT-2023-P-679",
+    "postes": "82.0",
+    "distancia_km": "3.2",
+    "observacion": ""
+  },
+  {
+    "id": "R-16",
+    "description": "CABOTAJE-SANTA EULALIA",
+    "vgt": "VGT-2023-P-680",
+    "postes": "35.0",
+    "distancia_km": "1.3",
+    "observacion": ""
+  },
+  {
+    "id": "R-17",
+    "description": "BRISAS DE ORIENTE",
+    "vgt": "VGT-2023-P-681",
+    "postes": "36.0",
+    "distancia_km": "1.56",
+    "observacion": ""
+  },
+  {
+    "id": "R-18",
+    "description": "IUTA - LOS ALPES",
+    "vgt": "VGT-2023-P-682",
+    "postes": "102.0",
+    "distancia_km": "2.2",
+    "observacion": ""
+  },
+  {
+    "id": "R-19",
+    "description": "LOS ALPES- CAMATAGUA",
+    "vgt": "VGT-2023-P-683",
+    "postes": "39.0",
+    "distancia_km": "1.65",
+    "observacion": ""
+  },
+  {
+    "id": "R-20",
+    "description": "BARRIO MIRANDA",
+    "vgt": "VGT-2023-P-684",
+    "postes": "28.0",
+    "distancia_km": "1.1",
+    "observacion": ""
+  },
+  {
+    "id": "R-21",
+    "description": "EL BOSQUE",
+    "vgt": "VGT-2023-P-685",
+    "postes": "11.0",
+    "distancia_km": "0.3",
+    "observacion": ""
+  },
+  {
+    "id": "R-22",
+    "description": "COLINA DE LA MATICA",
+    "vgt": "VGT-2023-P-686",
+    "postes": "7.0",
+    "distancia_km": "0.27",
+    "observacion": ""
+  },
+  {
+    "id": "R-23",
+    "description": "EL RINCON",
+    "vgt": "VGT-2023.-P-687",
+    "postes": "30.0",
+    "distancia_km": "1.1",
+    "observacion": ""
+  },
+  {
+    "id": "R-24",
+    "description": "VALLE ALTO FONTANERA",
+    "vgt": "VGT-2023.-P-688",
+    "postes": "87.0",
+    "distancia_km": "3.3",
+    "observacion": ""
+  },
+  {
+    "id": "R-25",
+    "description": "CALLE FEDERACION",
+    "vgt": "VGT-2023-P-689",
+    "postes": "14.0",
+    "distancia_km": "45.0",
+    "observacion": ""
+  },
+  {
+    "id": "R-26",
+    "description": "ELEVADO-PUEBLO",
+    "vgt": "VGT-2023-P-690",
+    "postes": "81.0",
+    "distancia_km": "2.67",
+    "observacion": ""
+  },
+  {
+    "id": "R-27",
+    "description": "LA ERMITA",
+    "vgt": "VGT-2023-P-691",
+    "postes": "11.0",
+    "distancia_km": "0.39",
+    "observacion": ""
+  },
+  {
+    "id": "R-28",
+    "description": "TEXAS CITY",
+    "vgt": "VGT-2023.-P-692",
+    "postes": "32.0",
+    "distancia_km": "0.39",
+    "observacion": ""
+  },
+  {
+    "id": "R-29",
+    "description": "ZONA INDUSTRIAL LAS MINAS",
+    "vgt": "VGT-2023.-P-693",
+    "postes": "49.0",
+    "distancia_km": "1.56",
+    "observacion": ""
+  },
+  {
+    "id": "R-30",
+    "description": "ZONA INDUSTRIAL EL ORO",
+    "vgt": "VGT-2023.-P-694",
+    "postes": "27.0",
+    "distancia_km": "0.92",
+    "observacion": ""
+  },
+  {
+    "id": "R-31",
+    "description": "PALO ALTO",
+    "vgt": "VGT-2023.-P-695",
+    "postes": "79.0",
+    "distancia_km": "1.72",
+    "observacion": ""
+  },
+  {
+    "id": "R-32",
+    "description": "ALBERTO RAVEL",
+    "vgt": "VGT-2023-P-696",
+    "postes": "21.0",
+    "distancia_km": "0.8",
+    "observacion": ""
+  },
+  {
+    "id": "R-33",
+    "description": "GUAREMAL",
+    "vgt": "VGT-2023-P-767",
+    "postes": "78.0",
+    "distancia_km": "2.51",
+    "observacion": ""
+  },
+  {
+    "id": "R-34",
+    "description": "QUEBRADA LA VIRGEN",
+    "vgt": "VGT-2023-P-768",
+    "postes": "29.0",
+    "distancia_km": "0.91",
+    "observacion": ""
+  },
+  {
+    "id": "R-35",
+    "description": "EL BARBECHO",
+    "vgt": "VGT-2023-P-769",
+    "postes": "29.0",
+    "distancia_km": "0.97",
+    "observacion": ""
+  },
+  {
+    "id": "R 36",
+    "description": "CARRETERA VIEJA LOS TEQUES ACTUALIZADA",
+    "vgt": "VGT-2023-P-770",
+    "postes": "152.0",
+    "distancia_km": "0.5",
+    "observacion": "VERIFICAR DIFERENCIAS ENTRE PLANOS Y MEMORIA DESCRIPTIVA"
+  },
+  {
+    "id": "R 37",
+    "description": "CENTRO MÉDICO EL PASO-TAMBOR",
+    "vgt": "VGT-2023-P-771",
+    "postes": "58.0",
+    "distancia_km": "2.1",
+    "observacion": ""
+  },
+  {
+    "id": "R 38",
+    "description": "RAMO VERDE ACTUALIZADA",
+    "vgt": "VGT-2023-P-772",
+    "postes": "52.0",
+    "distancia_km": "2.22",
+    "observacion": "VERIFICAR DIFERENCIAS ENTRE PLANOS Y MEMORIA DESCRIPTIVA"
+  },
+  {
+    "id": "R 39",
+    "description": "SAN DIEGO DE LOS ALTOS",
+    "vgt": "VGT-2023-P-773",
+    "postes": "313.0",
+    "distancia_km": "15.96",
+    "observacion": ""
+  },
+  {
+    "id": "R 40",
+    "description": "IGLESIA SAN ANTONIO-AMARILLO",
+    "vgt": "VGT-2023-P-774",
+    "postes": "53.0",
+    "distancia_km": "2.1",
+    "observacion": ""
+  },
+  {
+    "id": "R 41",
+    "description": "GUADALUPE",
+    "vgt": "VGT-2023-P-775",
+    "postes": "37.0",
+    "distancia_km": "1.35",
+    "observacion": "VERIFICAR DIFERENCIAS ENTRE PLANOS Y MEMORIA DESCRIPTIVA"
+  },
+  {
+    "id": "R 42",
+    "description": "YERBA BUENA",
+    "vgt": "VGT-2023-P-776",
+    "postes": "33.0",
+    "distancia_km": "1.4",
+    "observacion": ""
+  },
+  {
+    "id": "R 43",
+    "description": "EL TAMBOR",
+    "vgt": "VGT-2023-P-777",
+    "postes": "49.0",
+    "distancia_km": "1.52",
+    "observacion": ""
+  },
+  {
+    "id": "R 44",
+    "description": "PACHECO",
+    "vgt": "VGT-2023-P-778",
+    "postes": "29.0",
+    "distancia_km": "1.1",
+    "observacion": ""
+  },
+  {
+    "id": "R45",
+    "description": "CUMBRE ROJA ACTUALIZADA",
+    "vgt": "VGT-2023-P-1007",
+    "postes": "169.0",
+    "distancia_km": "1.18",
+    "observacion": ""
+  },
+  {
+    "id": "R46",
+    "description": "SAN PEDRO ACTUALIZADA",
+    "vgt": "VGT-2023-P-1142",
+    "postes": "113.0",
+    "distancia_km": "0.82",
+    "observacion": ""
+  },
+  {
+    "id": "R47",
+    "description": "COLINAS DEL ANGEL ACTUALIZADA",
+    "vgt": "VGT-2023-P-1143",
+    "postes": "20.0",
+    "distancia_km": "5.14",
+    "observacion": ""
+  },
+  {
+    "id": "R48",
+    "description": "ALTO VERDE /POR IMPRIMIR",
+    "vgt": "PENDIENTE",
+    "postes": "29.0",
+    "distancia_km": "0.91",
+    "observacion": ""
+  },
+  {
+    "id": "R49",
+    "description": "MACARENA-LOS CERRITOS /POR IMPRIMIR",
+    "vgt": "VGT-2024-P-326",
+    "postes": "24.0",
+    "distancia_km": "1.1",
+    "observacion": ""
+  },
+  {
+    "id": "R50",
+    "description": "CUMBRE ROJA TEJERÍAS",
+    "vgt": "VGT-2024-P-429",
+    "postes": "246.0",
+    "distancia_km": "13.4",
+    "observacion": ""
+  },
+  {
+    "id": "R51",
+    "description": "LOS CASTORES",
+    "vgt": "VGT-2024-P-513",
+    "postes": "161.0",
+    "distancia_km": "5.2",
+    "observacion": ""
+  },
+  {
+    "id": "R 52",
+    "description": "SAN ANTONIO DE LOS ALTOS- AVENIDA SOUBLETTE",
+    "vgt": "NO FACTIBLE POR S/P",
+    "postes": "-",
+    "distancia_km": "9.01",
+    "observacion": ""
+  },
+  {
+    "id": "R 53",
+    "description": "ENTRADA DE LA VEGA-CATIA /POR IMPRIMIR",
+    "vgt": "VGT-2024-P-699",
+    "postes": "385.0",
+    "distancia_km": "11.8",
+    "observacion": ""
+  },
+  {
+    "id": "R 54",
+    "description": "CATIA-AVENIDA SOUBLETTE /POR IMPRIMIR",
+    "vgt": "VGT-2024-P-NH-35",
+    "postes": "-",
+    "distancia_km": "19.2",
+    "observacion": ""
+  },
+  {
+    "id": "R 55",
+    "description": "SAN ANTONIO DE LOS ALTOS-ENTRADA DE LA VEGA",
+    "vgt": "VGT-2024-P-1088",
+    "postes": "83.0",
+    "distancia_km": "9.01",
+    "observacion": ""
+  },
+  {
+    "id": "R 56",
+    "description": "CORRALITO KM 18 NO FACTIBLE / NO HAY OFERTA COMERCIAL",
+    "vgt": "VGT-2024-P-1206",
+    "postes": "65.0",
+    "distancia_km": "3.16",
+    "observacion": ""
+  },
+  {
+    "id": "R 57",
+    "description": "LAGUNETICA /POR IMPRIMIR",
+    "vgt": "VGT-2024-P-1438",
+    "postes": "129.0",
+    "distancia_km": "5.19",
+    "observacion": ""
+  },
+  {
+    "id": "R 58",
+    "description": "PUENTE CARRIZAL MONTAÑA ALTA (ACT. R56)",
+    "vgt": "VGT-2024-P-1206",
+    "postes": "35.0",
+    "distancia_km": "1.59",
+    "observacion": "REVISAR NUMERO DE RUTA"
+  },
+  {
+    "id": "R 59",
+    "description": "COLISEO PUENTE CARRIZAL",
+    "vgt": "VGT-2024-P-2411",
+    "postes": "44.0",
+    "distancia_km": "1.8",
+    "observacion": ""
+  },
+  {
+    "id": "R 60",
+    "description": "SANTO DOMINGO- TRAPICHE",
+    "vgt": "VGT-P-2024-1720",
+    "postes": "209.0",
+    "distancia_km": "5.82",
+    "observacion": ""
+  },
+  {
+    "id": "R 61",
+    "description": "EL VALLE ETAPA 1",
+    "vgt": "VGT-2024-P-1750",
+    "postes": "251.0",
+    "distancia_km": "6.02",
+    "observacion": ""
+  },
+  {
+    "id": "R 62",
+    "description": "PUEBLO DE TEJERÍAS-SANTO DOMINGO",
+    "vgt": "VGT-2024-P-1751",
+    "postes": "202.0",
+    "distancia_km": "5.92",
+    "observacion": ""
+  },
+  {
+    "id": "R 63",
+    "description": "EL PICACHO COCHE /POR IMPRIMIR",
+    "vgt": "-",
+    "postes": "",
+    "distancia_km": "9.2",
+    "observacion": ""
+  },
+  {
+    "id": "R 64",
+    "description": "CORRALITO -PAN DE AZUCAR",
+    "vgt": "VGT-2024-P-1767",
+    "postes": "31.0",
+    "distancia_km": "1.02",
+    "observacion": ""
+  },
+  {
+    "id": "R 65",
+    "description": "MONTAÑA ALTA- COLINAS DE CARRIZAL",
+    "vgt": "VGT-2024-P-1851",
+    "postes": "257.0",
+    "distancia_km": "6.95",
+    "observacion": ""
+  },
+  {
+    "id": "R 66",
+    "description": "POZO DE ROSAS /POR IMPRIMIR",
+    "vgt": "VGT-2024-P-1983",
+    "postes": "133.0",
+    "distancia_km": "3.9",
+    "observacion": ""
+  },
+  {
+    "id": "R 67",
+    "description": "EL VALLE ETAPA 2",
+    "vgt": "VGT-2024-P-1956",
+    "postes": "304.0",
+    "distancia_km": "9.2",
+    "observacion": ""
+  },
+  {
+    "id": "R 68",
+    "description": "URB. PIEDRA AZUL/ FALTA AUTORIZACION",
+    "vgt": "VGT-2024-P-2270",
+    "postes": "42.0",
+    "distancia_km": "0.91",
+    "observacion": ""
+  },
+  {
+    "id": "R 69",
+    "description": "TRAMO SUBTERRÁNEO EL VALLE DESCARTADO/POR IMPRIMIR",
+    "vgt": "VGT-2024-P-680",
+    "postes": "0.0",
+    "distancia_km": "0.92",
+    "observacion": ""
+  },
+  {
+    "id": "R 70",
+    "description": "LA VEGA KM 0/FALTA AUTORIZCION",
+    "vgt": "VGT-2025-P-131",
+    "postes": "72.0",
+    "distancia_km": "5.2",
+    "observacion": ""
+  },
+  {
+    "id": "R 71",
+    "description": "LA VEGA FASE 2",
+    "vgt": "VGT-2025-P-2076",
+    "postes": "167.0",
+    "distancia_km": "6.04",
+    "observacion": ""
+  },
+  {
+    "id": "R 72",
+    "description": "VEREDAS DE COCHE",
+    "vgt": "VGT-2025-P-2136",
+    "postes": "247.0",
+    "distancia_km": "7.4",
+    "observacion": ""
+  },
+  {
+    "id": "R 73",
+    "description": "23 DE ENERO- DERIVACIONES CATIA",
+    "vgt": "VGT-2025-P-2415",
+    "postes": "1069.0",
+    "distancia_km": "38.42",
+    "observacion": ""
+  },
+  {
+    "id": "R 74",
+    "description": "DERIVACIONES LAS ADJUNTAS- CARICUAO",
+    "vgt": "VGT-2025-P-2416",
+    "postes": "916.0",
+    "distancia_km": "33.62",
+    "observacion": ""
+  }
+]

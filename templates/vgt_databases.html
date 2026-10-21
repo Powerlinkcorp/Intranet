@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="/static/vgt/logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POWERLINK CORP. — Base de Datos: Técnicos, Choferes & Vehículos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:             #0f172a;
+      --card-bg:        rgba(30, 41, 59, 0.75);
+      --card-border:    rgba(251,191,36,0.15); --gold: #f59e0b; --gold-bright: #fbbf24;
+      --blue:           #38bdf8;
+      --indigo:         #6366f1;
+      --purple:         #a855f7;
+      --green:          #22c55e;
+      --orange:         #f97316;
+      --red:            #ef4444;
+      --text:           #f8fafc;
+      --muted:          #94a3b8;
+      --mono:           'JetBrains Mono', monospace;
+      --sans:           'Inter', system-ui, sans-serif;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+
+    body {
+      font-family: var(--sans);
+      background: radial-gradient(circle at 15% 15%, rgba(245,158,11,0.08) 0%, transparent 40%), linear-gradient(135deg, #07090e 0%, #0d121c 50%, #070a0f 100%);
+      min-height: 100vh;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .brand { display:flex; align-items:center; gap:14px; }
+    .brand-logo-img {
+      width: 46px; height: 46px; border-radius: 50%;
+      object-fit: contain; flex-shrink: 0; display: block; background: #000;
+      border: 2px solid #fbbf24;
+      box-shadow: 0 0 16px rgba(245,158,11,0.35);
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #fbbf24;
+    }
+    .brand-name-gold {
+      color: #fbbf24;
+      font-weight: 900;
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.6);
+      transition: color 0.3s ease;
+    }
+    .brand-name-corp {
+      color: #ffffff;
+      font-weight: 800;
+      transition: color 0.3s ease;
+    }
+    .brand-sub    { font-size:11px; color:var(--muted); margin-top:2px; }
+
+    .back-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:9px 18px; border-radius:9px; border:1px solid var(--card-border);
+      background:rgba(255,255,255,.07); color:var(--text);
+      font:600 13px var(--sans); cursor:pointer; text-decoration:none;
+      transition: background .2s, transform .15s;
+    }
+    .back-btn:hover { background:rgba(245,158,11,0.18); border-color:#fbbf24; color:#fbbf24; transform:translateY(-1px); }
+
+    main {
+      flex: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 32px 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+    @media(max-width:900px){ main{ grid-template-columns:1fr; } }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title { font-size:15px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .count-badge {
+      font-size:12px; padding:3px 10px; border-radius:20px;
+      background:rgba(99,102,241,.18); color:var(--indigo);
+      border:1px solid rgba(99,102,241,.3); font-weight:700;
+    }
+    .card-body { padding:20px 24px; }
+
+    .toolbar { display:flex; gap:10px; margin-bottom:16px; }
+    .search-box {
+      flex:1; padding:9px 14px;
+      background: rgba(15,23,42,.7);
+      border:1px solid var(--card-border); border-radius:9px;
+      color:var(--text); font:14px var(--sans); outline:none;
+      transition: border-color .2s;
+    }
+    .search-box:focus { border-color:var(--blue); }
+    .search-box::placeholder { color:var(--muted); }
+
+    .btn {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:9px 16px; border-radius:9px; border:none;
+      font:600 13px var(--sans); cursor:pointer;
+      transition: transform .15s, box-shadow .2s;
+      white-space: nowrap;
+    }
+    .btn:hover { transform:translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(135deg,#6366f1,#4f46e5);
+      color:#fff; box-shadow:0 4px 14px rgba(99,102,241,.35);
+    }
+    .btn-primary:hover { box-shadow:0 6px 20px rgba(99,102,241,.45); }
+    .btn-success {
+      background: linear-gradient(135deg,#10b981,#059669);
+      color:#fff; box-shadow:0 4px 14px rgba(16,185,129,.3);
+    }
+    .btn-danger {
+      background:rgba(239,68,68,.15); color:var(--red);
+      border:1px solid rgba(239,68,68,.25); padding:5px 11px; font-size:12px;
+    }
+    .btn-danger:hover { background:rgba(239,68,68,.25); }
+    .btn-secondary {
+      background:rgba(255,255,255,.08); color:var(--text);
+      border:1px solid var(--card-border);
+    }
+    .btn-secondary:hover { background:rgba(255,255,255,.15); }
+
+    .add-form {
+      display:none;
+      background:rgba(15,23,42,.6);
+      border:1px solid var(--card-border);
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+    .add-form.open { display:block; }
+    .add-form h4 { font-size:13px; color:var(--indigo); margin-bottom:12px; }
+    .form-grid { display:grid; gap:10px; }
+    .form-grid-3 { grid-template-columns:1fr 1fr 1fr; }
+    .form-grid-2 { grid-template-columns:1fr 1fr; }
+    .form-input {
+      padding:9px 13px;
+      background:rgba(15,23,42,.8);
+      border:1px solid var(--card-border); border-radius:8px;
+      color:var(--text); font:14px var(--sans); outline:none;
+      transition: border-color .2s;
+    }
+    .form-input:focus { border-color:var(--indigo); }
+    .form-input::placeholder { color:var(--muted); }
+    .form-actions { display:flex; gap:10px; margin-top:12px; }
+
+    .table-wrap { overflow-x:auto; max-height:480px; overflow-y:auto; border-radius:10px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead th {
+      background:rgba(15,23,42,.95); color:var(--blue);
+      font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:.5px;
+      padding:10px 14px; position:sticky; top:0; z-index:10;
+      border-bottom:1px solid var(--card-border);
+    }
+    tbody td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.04); }
+    tbody tr:hover td { background:rgba(255,255,255,.03); }
+    .empty-state {
+      text-align:center; padding:40px 20px;
+      color:var(--muted); font-size:13px;
+    }
+    .empty-state span { font-size:32px; display:block; margin-bottom:8px; }
+
+    code {
+      background:rgba(255,255,255,.08); padding:2px 8px;
+      border-radius:5px; font:13px var(--mono);
+    }
+    .code-blue  { color:var(--blue); }
+    .code-purple{ color:var(--purple); }
+
+    .toast {
+      position:fixed; bottom:28px; right:28px;
+      background:linear-gradient(135deg,#10b981,#059669);
+      color:#fff; padding:12px 22px; border-radius:10px;
+      font:600 13px var(--sans);
+      box-shadow:0 8px 28px rgba(16,185,129,.35);
+      transform:translateY(80px); opacity:0;
+      transition:all .3s ease; z-index:9999;
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+
+    .stats-bar { display:flex; gap:14px; margin-bottom:18px; }
+    .stat {
+      flex:1; background:rgba(15,23,42,.5);
+      border:1px solid var(--card-border); border-radius:10px;
+      padding:12px; text-align:center;
+    }
+    .stat-val { font-size:22px; font-weight:800; color:var(--blue); }
+    .stat-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:600; margin-top:2px; }
+
+    /* LIGHT MODE STYLES */
+    body.light-mode {
+      --bg: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --card-border: rgba(217, 119, 6, 0.22);
+      --text: #0f172a;
+      --muted: #475569;
+      background: radial-gradient(circle at 15% 15%, rgba(245,158,11,0.12) 0%, transparent 40%), linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+      color: #0f172a;
+    }
+    body.light-mode header {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(217, 119, 6, 0.22);
+    }
+    body.light-mode .brand-title { color: #d97706; }
+    body.light-mode .brand-name-gold { color: #d97706; text-shadow: none; }
+    body.light-mode .brand-name-corp { color: #0f172a; text-shadow: none; }
+    body.light-mode .brand-sub { color: #475569; }
+    body.light-mode .brand-logo-img { background: #fff; border-color: #f59e0b; }
+    body.light-mode .card {
+      background: #ffffff;
+      border-color: rgba(217, 119, 6, 0.22);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+    body.light-mode .card-header { border-color: #e2e8f0; }
+    body.light-mode .card-title { color: #0f172a; }
+    body.light-mode .search-box { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
+    body.light-mode .search-box:focus { border-color: #d97706; }
+    body.light-mode .stat { background: #f8fafc; border-color: #e2e8f0; }
+    body.light-mode .stat-lbl { color: #64748b; }
+    body.light-mode table th { background: #f8fafc; color: #92400e; border-color: #e2e8f0; }
+    body.light-mode table td { color: #1e293b; border-color: #f1f5f9; }
+    body.light-mode table tr:hover td { background: #fffbeb; }
+    body.light-mode .back-btn { background: #ffffff; color: #1e293b; border-color: #cbd5e1; }
+    body.light-mode .back-btn:hover { background: #fffbeb; border-color: #f59e0b; color: #92400e; }
+    body.light-mode .form-input, body.light-mode .form-select { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
+    body.light-mode .add-form { background: #f8fafc; border-color: #e2e8f0; }
+    body.light-mode .btn-secondary { background: #ffffff; color: #1e293b; border-color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  {% include 'sidebar.html' %}
+  <div class="content-wrapper" id="contentWrapper" style="min-height: 100vh; display: flex; flex-direction: column; box-sizing: border-box;">
+
+<header>
+  <div class="brand">
+    <img src="/static/vgt/logo.png" alt="POWERLINK Logo" class="brand-logo-img">
+    <div>
+      <div class="brand-title"><span class="brand-name-gold">POWERLINK</span> <span class="brand-name-corp">CORP.</span></div>
+      <div class="brand-sub">Base de Datos — Personal &amp; Flota (Técnicos, Choferes, Vehículos)</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <button class="back-btn" id="dbThemeBtn" onclick="toggleTheme()" style="gap:6px;">
+      <span id="dbThemeIcon">☀️</span> <span id="dbThemeText">Modo Claro</span>
+    </button>
+    <a href="/soporte/vgt" class="back-btn">← Volver al Generador</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- TÉCNICOS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">👨‍🔧 Técnicos Registrados <span class="count-badge" id="techCount">0</span></div>
+      <button class="btn btn-primary" onclick="toggleForm('techForm')">＋ Agregar</button>
+    </div>
+    <div class="card-body">
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-val" id="techTotal">0</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="techHoy" style="color:var(--green)">0</div>
+          <div class="stat-lbl">Activos Hoy</div>
+        </div>
+      </div>
+
+      <div class="add-form" id="techForm">
+        <h4>Nuevo Técnico</h4>
+        <div class="form-grid form-grid-3">
+          <input type="text" class="form-input" id="tName"   placeholder="Nombre Completo">
+          <input type="text" class="form-input" id="tCedula" placeholder="Cédula (V-14.214.581)">
+          <input type="text" class="form-input" id="tPhone"  placeholder="Teléfono (+58 412-...)">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-success" onclick="saveTech()">💾 Guardar</button>
+          <button class="btn btn-secondary" onclick="toggleForm('techForm')">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" class="search-box" id="techSearch"
+               placeholder="🔍  Buscar por nombre, cédula o teléfono…"
+               oninput="renderTechs()">
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Nombre</th><th>Cédula</th><th>Teléfono</th><th>Visto</th><th></th></tr>
+          </thead>
+          <tbody id="techBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHOFERES -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">👤 Choferes Registrados <span class="count-badge" id="driverCount">0</span></div>
+      <button class="btn btn-primary" onclick="toggleForm('driverForm')">＋ Agregar</button>
+    </div>
+    <div class="card-body">
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-val" id="driverTotal">0</div>
+          <div class="stat-lbl">Total Choferes</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="driverHoy" style="color:var(--green)">0</div>
+          <div class="stat-lbl">Activos Hoy</div>
+        </div>
+      </div>
+
+      <div class="add-form" id="driverForm">
+        <h4>Nuevo Chofer</h4>
+        <div class="form-grid form-grid-3">
+          <input type="text" class="form-input" id="dName"   placeholder="Nombre Completo">
+          <input type="text" class="form-input" id="dCedula" placeholder="Cédula (V-...)">
+          <input type="text" class="form-input" id="dPhone"  placeholder="Teléfono (+58 4...)">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-success" onclick="saveDriver()">💾 Guardar</button>
+          <button class="btn btn-secondary" onclick="toggleForm('driverForm')">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" class="search-box" id="driverSearch"
+               placeholder="🔍  Buscar por nombre, cédula o teléfono…"
+               oninput="renderDrivers()">
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Nombre</th><th>Cédula</th><th>Teléfono</th><th>Visto</th><th></th></tr>
+          </thead>
+          <tbody id="driverBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- VEHÍCULOS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🚗 Vehículos Registrados <span class="count-badge" id="vehCount">0</span></div>
+      <button class="btn btn-primary" onclick="toggleForm('vehForm')">＋ Agregar</button>
+    </div>
+    <div class="card-body">
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-val" id="vehTotal">0</div>
+          <div class="stat-lbl">Total</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="vehHoy" style="color:var(--green)">0</div>
+          <div class="stat-lbl">Usados Hoy</div>
+        </div>
+      </div>
+
+      <div class="add-form" id="vehForm">
+        <h4>Nuevo Vehículo</h4>
+        <div class="form-grid form-grid-2">
+          <input type="text" class="form-input" id="vModel" placeholder="Modelo (HILUX, RICH ZN, MITSUBISHI...)">
+          <input type="text" class="form-input" id="vPlate" placeholder="Placa (A59EW0A, 13HDBA...)">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-success" onclick="saveVeh()">💾 Guardar</button>
+          <button class="btn btn-secondary" onclick="toggleForm('vehForm')">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" class="search-box" id="vehSearch"
+               placeholder="🔍  Buscar por modelo o placa…"
+               oninput="renderVehs()">
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Modelo</th><th>Placa</th><th>Último Uso</th><th></th></tr>
+          </thead>
+          <tbody id="vehBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const TECH_KEY   = "powerlink_techs";
+  const DRIVER_KEY = "powerlink_drivers";
+  const VEH_KEY    = "powerlink_vehicles";
+
+  const DEFAULT_TECHS = [
+    {
+        "id": 1,
+        "block": "AFECTACIONES",
+        "name": "ALEXIS GARCIA OROPEZA",
+        "cedula": "V-12.731.208",
+        "phone": "+58 424-1404877",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 2,
+        "block": "AFECTACIONES",
+        "name": "ANGEL HIDALGO",
+        "cedula": "V-17.979.012",
+        "phone": "+58 414-9016072",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 3,
+        "block": "AFECTACIONES",
+        "name": "CARLOS JOSÉ BURGOS PINEDA",
+        "cedula": "V-29.850.234",
+        "phone": "+58 424-2894899",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 4,
+        "block": "AFECTACIONES",
+        "name": "CARLOS SAUL BURGOS",
+        "cedula": "V-18.898.674",
+        "phone": "+58 424-2544061",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 5,
+        "block": "AFECTACIONES",
+        "name": "DANIEL ROJAS",
+        "cedula": "V-21.469.109",
+        "phone": "+58 414-2542030",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 6,
+        "block": "AFECTACIONES",
+        "name": "DAVID RODRIGUEZ",
+        "cedula": "V-26.078.684",
+        "phone": "+58 412-0543227",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 7,
+        "block": "AFECTACIONES",
+        "name": "DIEGO ANDRÉS MORONTA VIERA",
+        "cedula": "V-27.371.953",
+        "phone": "+58 424-2920276",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 8,
+        "block": "AFECTACIONES",
+        "name": "ELIAS MIGUEL JIMENEZ MARMOLET",
+        "cedula": "V-27.908.487",
+        "phone": "+58 412-5913430",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 9,
+        "block": "AFECTACIONES",
+        "name": "FRANCISCO RODOLFO REYES URIEPERO",
+        "cedula": "V-27.623.676",
+        "phone": "+58 416-7767278",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 10,
+        "block": "AFECTACIONES",
+        "name": "FRANYELO JOSÉ PEREZ VELASQUEZ",
+        "cedula": "V-30.457.454",
+        "phone": "+58 412-9771281",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 11,
+        "block": "AFECTACIONES",
+        "name": "FRANYERSON RAMIREZ",
+        "cedula": "V-29.850.985",
+        "phone": "+58 424-2408734",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 12,
+        "block": "AFECTACIONES",
+        "name": "GABRIEL HERNANDEZ",
+        "cedula": "V-28.302.049",
+        "phone": "+58 412-7705454",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 13,
+        "block": "AFECTACIONES",
+        "name": "GADIETH LEXANDRO LOPEZ MARTINEZ",
+        "cedula": "V-32.497.052",
+        "phone": "+58 412-7118551",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 14,
+        "block": "AFECTACIONES",
+        "name": "GERAL ANDRES ARIAS",
+        "cedula": "V-27.040.315",
+        "phone": "+58 424-3358423",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 15,
+        "block": "AFECTACIONES",
+        "name": "JEAN CARLOS BURGOS",
+        "cedula": "V-32.174.428",
+        "phone": "+58 424-2544061",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 16,
+        "block": "AFECTACIONES",
+        "name": "JOE FRANCO MACHADO",
+        "cedula": "V-14.214.581",
+        "phone": "+58 412-4861337",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 17,
+        "block": "AFECTACIONES",
+        "name": "JORGE MACHADO",
+        "cedula": "V-11.899.868",
+        "phone": "+58 424-2544061",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 18,
+        "block": "AFECTACIONES",
+        "name": "JOSE ARMANDO LOPEZ",
+        "cedula": "V-8.682.375",
+        "phone": "+58 412-9368853",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 19,
+        "block": "AFECTACIONES",
+        "name": "JOSE MORALES",
+        "cedula": "V-15.255.710",
+        "phone": "+58 414-2356488",
+        "cargo": "LINIERO SUPERVISOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 20,
+        "block": "AFECTACIONES",
+        "name": "JOYNERKER DAVID SUÁREZ MEJÍAS",
+        "cedula": "V-32.540.248",
+        "phone": "+58 424-1701521",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 21,
+        "block": "AFECTACIONES",
+        "name": "KERVIN MANUEL MARQUEZ CASTRO",
+        "cedula": "V-22.440.512",
+        "phone": "+58 412-3387742",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 22,
+        "block": "AFECTACIONES",
+        "name": "LUIS MELENDEZ",
+        "cedula": "V-11.183.645",
+        "phone": "+58 412-9213180",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 23,
+        "block": "AFECTACIONES",
+        "name": "MAIKER GUILLERMO PINEDA RANGEL",
+        "cedula": "V-21.118.622",
+        "phone": "+58 412-9610392",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 24,
+        "block": "AFECTACIONES",
+        "name": "MARIO PIÑERO",
+        "cedula": "V-8.675.093",
+        "phone": "+58 412-9772918",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 25,
+        "block": "AFECTACIONES",
+        "name": "NEOMAR ALBERTO GUAINA GONZÁLEZ",
+        "cedula": "V-27.988.872",
+        "phone": "+58 412-4792793",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 26,
+        "block": "AFECTACIONES",
+        "name": "ORLANDO ANTONIO MARRERO CASTILLO",
+        "cedula": "V-25.218.406",
+        "phone": "+58 412-9261975",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 27,
+        "block": "AFECTACIONES",
+        "name": "RAYM OROPEZA",
+        "cedula": "V-29.511.706",
+        "phone": "+58 212-3273595",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 28,
+        "block": "AFECTACIONES",
+        "name": "REINALDO FERNANDEZ",
+        "cedula": "V-17.532.232",
+        "phone": "+58 412-7043735",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 29,
+        "block": "AFECTACIONES",
+        "name": "ROGER MURIA",
+        "cedula": "V-21.469.259",
+        "phone": "+58 414-2367910",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 30,
+        "block": "AFECTACIONES",
+        "name": "TOMAS SIMON MUJICA MARMOLE",
+        "cedula": "V-14.481.670",
+        "phone": "+58 424-1455746",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 31,
+        "block": "AFECTACIONES",
+        "name": "UDMAR ALEXIS FERNANDEZ PARADA",
+        "cedula": "V-11.603.721",
+        "phone": "+58 412-5858934",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 32,
+        "block": "AFECTACIONES",
+        "name": "VICTOR MANUEL HERNANDEZ ORDAZ",
+        "cedula": "V-19.014.931",
+        "phone": "+58 412-8711136",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 33,
+        "block": "AFECTACIONES",
+        "name": "WENSESLAO MUJICA",
+        "cedula": "V-15.713.395",
+        "phone": "+58 412-3027803",
+        "cargo": "LINIERO SUPERVISOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 34,
+        "block": "AFECTACIONES",
+        "name": "WILLIANS ANGARITA",
+        "cedula": "V-20.410.574",
+        "phone": "+58 412-5430647",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 35,
+        "block": "AFECTACIONES",
+        "name": "WOLFAN OLEIDY BARRIOS GARCIA",
+        "cedula": "V-15.913.212",
+        "phone": "+58 424-2684071",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 36,
+        "block": "SOPORTE",
+        "name": "ALEXIS GIL",
+        "cedula": "V-24.886.445",
+        "phone": "+58 424-2558408",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 37,
+        "block": "SOPORTE",
+        "name": "ALFREDO ESCOBAR",
+        "cedula": "V-25.223.904",
+        "phone": "+58 412-1636071",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 38,
+        "block": "SOPORTE",
+        "name": "ARMANDO GONZALEZ",
+        "cedula": "V-28.413.014",
+        "phone": "+58 412-8280467",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 39,
+        "block": "SOPORTE",
+        "name": "CARLOS ARAUJO",
+        "cedula": "V-28.073.816",
+        "phone": "+58 424-1216997",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 40,
+        "block": "SOPORTE",
+        "name": "CARLOS GIL",
+        "cedula": "V-28.329.666",
+        "phone": "+58 412-9960741",
+        "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 41,
+        "block": "SOPORTE",
+        "name": "CESAR AUGUSTO CAMPOS LUQUE",
+        "cedula": "V-30.182.542",
+        "phone": "+58 424-1664020",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 42,
+        "block": "SOPORTE",
+        "name": "CESAR ENRIQUE GÓMEZ CONTRERAS",
+        "cedula": "V-30.457.598",
+        "phone": "+58 424-8940008",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 43,
+        "block": "SOPORTE",
+        "name": "DANIEL ALBERTO COLMENARES LIRA",
+        "cedula": "V-23.652.902",
+        "phone": "+58 412-0192634",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 44,
+        "block": "SOPORTE",
+        "name": "DAVID PEREIRA",
+        "cedula": "V-17.926.043",
+        "phone": "+58 412-9072753",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 45,
+        "block": "SOPORTE",
+        "name": "DOUGLAS MAYOBRE",
+        "cedula": "V-25.840.238",
+        "phone": "+58 426-7318611",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 46,
+        "block": "SOPORTE",
+        "name": "ERNESTO GABRIEL DELGADO",
+        "cedula": "V-27.040.347",
+        "phone": "+58 424-2921840",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 47,
+        "block": "SOPORTE",
+        "name": "GABRIEL VICENTE ESPINOZA DUM",
+        "cedula": "V-30.457.808",
+        "phone": "+58 412-9836858",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 48,
+        "block": "SOPORTE",
+        "name": "HENRY CARTAYA",
+        "cedula": "V-14.480.388",
+        "phone": "+58 424-2563811",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 49,
+        "block": "SOPORTE",
+        "name": "HERNÁN JOSÉ LEAL MARTÍNEZ",
+        "cedula": "V-24.523.064",
+        "phone": "+58 416-1539118",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 50,
+        "block": "SOPORTE",
+        "name": "ISAAC RAFAEL SALGADO ALDAMA",
+        "cedula": "V-16.924.451",
+        "phone": "+58 412-0481272",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 51,
+        "block": "SOPORTE",
+        "name": "JEFFERSON DANIEL MARRERO OCHOA",
+        "cedula": "V-20.114.489",
+        "phone": "+58 424-2197479",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 52,
+        "block": "SOPORTE",
+        "name": "JEFFERSON MIGUEL CASTELLANOS HERNANDEZ",
+        "cedula": "V-25.840.293",
+        "phone": "+58 412-9324959",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 53,
+        "block": "SOPORTE",
+        "name": "JESÚS MANUEL ROMERO MUÑOZ",
+        "cedula": "V-24.898.093",
+        "phone": "+58 424-1430039",
+        "cargo": "SOPORTE DE CAMPO CATIA/LA VEGA",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 54,
+        "block": "SOPORTE",
+        "name": "JOBER DUGARTE",
+        "cedula": "V-29.511.879",
+        "phone": "+58 412-6345678",
+        "cargo": "SOPORTE DE CAMPO EL VALLE",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 55,
+        "block": "SOPORTE",
+        "name": "JOHAN RENE RODRIGUEZ MORALES",
+        "cedula": "V-14.216.384",
+        "phone": "+58 424-1247194",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 56,
+        "block": "SOPORTE",
+        "name": "JOLHAN ANTHONY RODRIGUEZ RODRIGUEZ",
+        "cedula": "V-24.998.556",
+        "phone": "+58 424-1514885",
+        "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 57,
+        "block": "SOPORTE",
+        "name": "JONATHAN GUTIERREZ",
+        "cedula": "V-28.307.034",
+        "phone": "+58 424-2114023",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 58,
+        "block": "SOPORTE",
+        "name": "JOSE ENRIQUE LEAL CURIEL",
+        "cedula": "V-14.071.913",
+        "phone": "+58 412-5990012",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 59,
+        "block": "SOPORTE",
+        "name": "JUAN MIJARES",
+        "cedula": "V-14.059.259",
+        "phone": "+58 414-1732347",
+        "cargo": "SUPERVISOR INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 60,
+        "block": "SOPORTE",
+        "name": "JUNIOR ARNALDO ORTA JIMENEZ",
+        "cedula": "V-20.265.676",
+        "phone": "+58 412-9184912",
+        "cargo": "SOPORTE DE CAMPO TEJERIAS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 61,
+        "block": "SOPORTE",
+        "name": "KEHISBER ANTONIO CARABALLO GARCIA",
+        "cedula": "V-30.328.230",
+        "phone": "+58 412-0251325",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 62,
+        "block": "SOPORTE",
+        "name": "KEITHMEL MARCANO",
+        "cedula": "V-30.411.342",
+        "phone": "+58 412-9955190",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 63,
+        "block": "SOPORTE",
+        "name": "KEVIN JOSSUEEP CORTEZ GONZALEZ",
+        "cedula": "V-25.237.424",
+        "phone": "+58 424-2060194",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 64,
+        "block": "SOPORTE",
+        "name": "LUIS ALBERTO ALTUVE MENESES",
+        "cedula": "V-13.717.742",
+        "phone": "+58 424-2897983",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 65,
+        "block": "SOPORTE",
+        "name": "LUIS RODRIGUEZ",
+        "cedula": "V-23.608.565",
+        "phone": "+58 414-7444457",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 66,
+        "block": "SOPORTE",
+        "name": "MOISES ALBERTO PIÑANGO RODRÍGUEZ",
+        "cedula": "V-27.597.252",
+        "phone": "+58 412-6916741",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 67,
+        "block": "SOPORTE",
+        "name": "MOISES ALEJANDRO MUJICA BALZA",
+        "cedula": "V-29.751.880",
+        "phone": "+58 422-3344952",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 68,
+        "block": "SOPORTE",
+        "name": "RANDY EIDAN MORENO CHACOA",
+        "cedula": "V-29.850.452",
+        "phone": "+58 424-2508330",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 69,
+        "block": "SOPORTE",
+        "name": "RONEL JOSE VARGAS VADEL",
+        "cedula": "V-21.118.209",
+        "phone": "+58 412-4215662",
+        "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 70,
+        "block": "SOPORTE",
+        "name": "ROOSEVELT LARA",
+        "cedula": "V-28.073.912",
+        "phone": "+58 424-1257816",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 71,
+        "block": "SOPORTE",
+        "name": "SIMON TORRES",
+        "cedula": "V-30.328.690",
+        "phone": "+58 414-9905942",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 72,
+        "block": "SOPORTE",
+        "name": "STEVEN RAFAEL MARDACH TORRES",
+        "cedula": "V-22.667.018",
+        "phone": "+58 414-2681380",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 73,
+        "block": "SOPORTE",
+        "name": "ZADKIEL MENDOZA",
+        "cedula": "V-26.498.545",
+        "phone": "+58 414-1612261",
+        "cargo": "SUPERVISOR INSTALADOR",
+        "departamento": "INSTALACION"
+    }
+];
+  const DEFAULT_DRIVERS = [
+  {
+    "id": 1,
+    "name": "JEFFERSON PLAZA",
+    "cedula": "V-12.879.751",
+    "phone": "+58 414-1339787",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 2,
+    "name": "NELSON VEGAS",
+    "cedula": "V-11.817.677",
+    "phone": "+58 424-2842089",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 3,
+    "name": "ALEJANDRO CAMACHO",
+    "cedula": "V-10.503.027",
+    "phone": "+58 412-9016479",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 4,
+    "name": "IRVIN SANTANA",
+    "cedula": "V-8.677.687",
+    "phone": "+58 412-7846519",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 5,
+    "name": "WILLIAM GREGORIO NIEVES",
+    "cedula": "V-15.315.119",
+    "phone": "+58 412-5481476",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 6,
+    "name": "JONMEL FERNANDEZ GARCIA",
+    "cedula": "V-16.935.592",
+    "phone": "+58 414-2014293",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 7,
+    "name": "RAFAEL ANGEL VELASQUEZ GOUDETH",
+    "cedula": "V-16.249.337",
+    "phone": "+58 412-9709191",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 8,
+    "name": "ROBERTO ANTONIO CHACÓN SÁNCHEZ",
+    "cedula": "V-10.161.454",
+    "phone": "+58 414-4729147",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 9,
+    "name": "MAICKEL LEANDRO CAPOTE PEÑA",
+    "cedula": "V-15.715.053",
+    "phone": "+58 412-3771725",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 10,
+    "name": "YORLAN ALEXANDER ALGUILAR BORGES",
+    "cedula": "V-12.765.034",
+    "phone": "+58 414-0168955",
+    "cargo": "CHOFER"
+  },
+  {
+    "id": 11,
+    "name": "OLIVER DARIO VEGAS CASTILLO",
+    "cedula": "V-14.674.092",
+    "phone": "+58 424-2844092",
+    "cargo": "CHOFER"
+  }
+];
+  const DEFAULT_VEHS    = [
+  {
+    "id": 1,
+    "model": "RICH ZN",
+    "plate": "A00CR8G",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 2,
+    "model": "RICH ZN",
+    "plate": "A98DP5K",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 3,
+    "model": "EKXPRESS II 150",
+    "plate": "AG2L05E",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 4,
+    "model": "EMPIRE HORSE",
+    "plate": "AK7J67M",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 5,
+    "model": "EMPIRE HORSE",
+    "plate": "AL3Y16G",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 6,
+    "model": "BERA - KAVAK",
+    "plate": "AT2X63D",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 7,
+    "model": "DT-200 BR ENDUR",
+    "plate": "AL3Y16G",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 8,
+    "model": "HILUX",
+    "plate": "A59EW0A",
+    "lastSeen": "2026-08-15"
+  },
+  {
+    "id": 9,
+    "model": "MITSUBISHI PANEL L300",
+    "plate": "13HDBA",
+    "lastSeen": "2026-10-04"
+  }
+];
+
+  let techs   = JSON.parse(localStorage.getItem(TECH_KEY))   || DEFAULT_TECHS;
+  let drivers = JSON.parse(localStorage.getItem(DRIVER_KEY)) || DEFAULT_DRIVERS;
+  let vehs    = JSON.parse(localStorage.getItem(VEH_KEY))    || DEFAULT_VEHS;
+
+  // Si la lista en localStorage era vieja/parcial, sincronizar con la base completa
+  // Filtrar analistas NOC si quedaron guardados en cache previa
+  const nocNames = ['CARLOS DANIEL SEGOVIA', 'CARLOS RIVAS', 'CESAR CEDRES', 'DIEGO VARGAS', 'GABRIEL ESQUEDA', 'HEIBERTH ADONIS UZCATEGUI SANCHEZ', 'JAVIER CHACON', 'JEFERSON YANEZ', 'JESUS DAVID ALGARA ECHEVERRIA', 'LAURA GARRIDO', 'MIGUEL ANGEL LARA RODRIGUEZ'];
+  techs = techs.filter(t => !nocNames.includes(t.name) && t.block !== 'ANALISTA' && !(t.cargo && t.cargo.includes('ANALISTA')));
+  if (techs.length !== DEFAULT_TECHS.length) techs = DEFAULT_TECHS;
+  if (drivers.length < DEFAULT_DRIVERS.length) drivers = DEFAULT_DRIVERS;
+
+  function saveAll() {
+    localStorage.setItem(TECH_KEY,   JSON.stringify(techs));
+    localStorage.setItem(DRIVER_KEY, JSON.stringify(drivers));
+    localStorage.setItem(VEH_KEY,    JSON.stringify(vehs));
+  }
+
+  function toast(msg, color) {
+    const t = document.getElementById("toast");
+    t.innerText = msg;
+    t.style.background = color
+      ? `linear-gradient(135deg, ${color}dd, ${color}99)`
+      : "linear-gradient(135deg,#10b981,#059669)";
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
+  }
+
+  function today() { return new Date().toISOString().split("T")[0]; }
+
+  function toggleForm(id) {
+    document.getElementById(id).classList.toggle("open");
+  }
+
+  // ─── TÉCNICOS ───
+  function renderTechs() {
+    const q = (document.getElementById("techSearch").value || "").toUpperCase();
+    const data = q
+      ? techs.filter(t => (t.name||"").toUpperCase().includes(q) || (t.cedula||"").toUpperCase().includes(q) || (t.phone||"").toUpperCase().includes(q) || (t.dept||"").toUpperCase().includes(q))
+      : techs;
+
+    const t_today = today();
+    const tbody   = document.getElementById("techBody");
+
+    tbody.innerHTML = data.length === 0
+      ? `<tr><td colspan="6"><div class="empty-state"><span>🔍</span>Sin resultados</div></td></tr>`
+      : data.map((t, i) => `
+          <tr>
+            <td style="color:var(--muted);font-size:11px;">${i+1}</td>
+            <td style="font-weight:600;">
+              ${t.name}
+              ${t.dept ? `<span style="display:block;font-size:10px;color:var(--muted);font-weight:normal;">${t.dept}</span>` : ''}
+            </td>
+            <td><code class="code-blue">${t.cedula || "—"}</code></td>
+            <td style="color:var(--muted);font-size:12px;font-family:var(--mono);">${t.phone || "—"}</td>
+            <td style="font-size:11px;color:${t.lastSeen===t_today?'var(--green)':'var(--muted)'}">
+              ${t.lastSeen===t_today?"✅ Hoy":(t.lastSeen||"—")}
+            </td>
+            <td><button class="btn btn-danger" onclick="deleteTech(${t.id})">🗑</button></td>
+          </tr>`).join("");
+
+    const hoy = techs.filter(t => t.lastSeen===t_today).length;
+    document.getElementById("techTotal").innerText = techs.length;
+    document.getElementById("techHoy").innerText   = hoy;
+    document.getElementById("techCount").innerText = techs.length;
+  }
+
+  function saveTech() {
+    const name   = document.getElementById("tName").value.trim().toUpperCase();
+    const cedula = document.getElementById("tCedula").value.trim().toUpperCase();
+    const phone  = document.getElementById("tPhone").value.trim();
+    if (!name) { alert("Ingrese el nombre del técnico."); return; }
+    if (techs.find(t => t.name===name)) { toast("⚠️ Ya existe ese técnico.", "#f97316"); return; }
+    techs.push({ id: Date.now(), name, cedula, phone, lastSeen: today() });
+    saveAll(); renderTechs();
+    ["tName","tCedula","tPhone"].forEach(id => document.getElementById(id).value="");
+    document.getElementById("techForm").classList.remove("open");
+    toast(`✅ Técnico guardado: ${name}`);
+  }
+
+  function deleteTech(id) {
+    if (!confirm("¿Eliminar este técnico?")) return;
+    techs = techs.filter(t => t.id!==id);
+    saveAll(); renderTechs();
+    toast("🗑️ Técnico eliminado.", "#ef4444");
+  }
+
+  // ─── CHOFERES ───
+  function renderDrivers() {
+    const q = (document.getElementById("driverSearch").value || "").toUpperCase();
+    const data = q
+      ? drivers.filter(d => (d.name||"").toUpperCase().includes(q) || (d.cedula||"").toUpperCase().includes(q) || (d.phone||"").toUpperCase().includes(q))
+      : drivers;
+
+    const t_today = today();
+    const tbody   = document.getElementById("driverBody");
+
+    tbody.innerHTML = data.length === 0
+      ? `<tr><td colspan="6"><div class="empty-state"><span>🔍</span>Sin resultados</div></td></tr>`
+      : data.map((d, i) => `
+          <tr>
+            <td style="color:var(--muted);font-size:11px;">${i+1}</td>
+            <td style="font-weight:600;">
+              ${d.name}
+              ${d.role ? `<span style="display:block;font-size:10px;color:var(--muted);font-weight:normal;">${d.role}</span>` : ''}
+            </td>
+            <td><code class="code-purple">${d.cedula || "—"}</code></td>
+            <td style="color:var(--muted);font-size:12px;font-family:var(--mono);">${d.phone || "—"}</td>
+            <td style="font-size:11px;color:${d.lastSeen===t_today?'var(--green)':'var(--muted)'}">
+              ${d.lastSeen===t_today?"✅ Hoy":(d.lastSeen||"—")}
+            </td>
+            <td><button class="btn btn-danger" onclick="deleteDriver(${d.id})">🗑</button></td>
+          </tr>`).join("");
+
+    const hoy = drivers.filter(d => d.lastSeen===t_today).length;
+    document.getElementById("driverTotal").innerText = drivers.length;
+    document.getElementById("driverHoy").innerText   = hoy;
+    document.getElementById("driverCount").innerText = drivers.length;
+  }
+
+  function saveDriver() {
+    const name   = document.getElementById("dName").value.trim().toUpperCase();
+    const cedula = document.getElementById("dCedula").value.trim().toUpperCase();
+    const phone  = document.getElementById("dPhone").value.trim();
+    if (!name) { alert("Ingrese el nombre del chofer."); return; }
+    if (drivers.find(d => d.name===name)) { toast("⚠️ Ya existe ese chofer.", "#f97316"); return; }
+    drivers.push({ id: Date.now(), name, cedula, phone, role: 'Chofer', lastSeen: today() });
+    saveAll(); renderDrivers();
+    ["dName","dCedula","dPhone"].forEach(id => document.getElementById(id).value="");
+    document.getElementById("driverForm").classList.remove("open");
+    toast(`✅ Chofer guardado: ${name}`);
+  }
+
+  function deleteDriver(id) {
+    if (!confirm("¿Eliminar este chofer?")) return;
+    drivers = drivers.filter(d => d.id!==id);
+    saveAll(); renderDrivers();
+    toast("🗑️ Chofer eliminado.", "#ef4444");
+  }
+
+  // ─── VEHÍCULOS ───
+  function renderVehs() {
+    const q = (document.getElementById("vehSearch").value || "").toUpperCase();
+    const data = q
+      ? vehs.filter(v => (v.model||"").toUpperCase().includes(q) || (v.plate||"").toUpperCase().includes(q))
+      : vehs;
+
+    const t_today = today();
+    const tbody   = document.getElementById("vehBody");
+
+    tbody.innerHTML = data.length === 0
+      ? `<tr><td colspan="5"><div class="empty-state"><span>🔍</span>Sin resultados</div></td></tr>`
+      : data.map((v, i) => `
+          <tr>
+            <td style="color:var(--muted);font-size:11px;">${i+1}</td>
+            <td style="font-weight:600;">${v.model}</td>
+            <td><code class="code-purple">${v.plate}</code></td>
+            <td style="font-size:11px;color:${v.lastSeen===t_today?'var(--green)':'var(--muted)'}">
+              ${v.lastSeen===t_today?"✅ Hoy":(v.lastSeen||"—")}
+            </td>
+            <td><button class="btn btn-danger" onclick="deleteVeh(${v.id})">🗑</button></td>
+          </tr>`).join("");
+
+    const hoy = vehs.filter(v => v.lastSeen===t_today).length;
+    document.getElementById("vehTotal").innerText = vehs.length;
+    document.getElementById("vehHoy").innerText   = hoy;
+    document.getElementById("vehCount").innerText = vehs.length;
+  }
+
+  function saveVeh() {
+    const model = document.getElementById("vModel").value.trim().toUpperCase();
+    const plate = document.getElementById("vPlate").value.trim().toUpperCase();
+    if (!model || !plate) { alert("Ingrese Modelo y Placa."); return; }
+    if (vehs.find(v => v.plate===plate)) { toast("⚠️ Placa ya registrada.", "#f97316"); return; }
+    vehs.push({ id: Date.now(), model, plate, lastSeen: today() });
+    saveAll(); renderVehs();
+    ["vModel","vPlate"].forEach(id => document.getElementById(id).value="");
+    document.getElementById("vehForm").classList.remove("open");
+    toast(`✅ Vehículo guardado: ${model} [${plate}]`);
+  }
+
+  function deleteVeh(id) {
+    if (!confirm("¿Eliminar este vehículo?")) return;
+    vehs = vehs.filter(v => v.id!==id);
+    saveAll(); renderVehs();
+    toast("🗑️ Vehículo eliminado.", "#ef4444");
+  }
+
+  // Theme Management
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle("light-mode");
+    const icon = document.getElementById("dbThemeIcon");
+    const text = document.getElementById("dbThemeText");
+    if (isLight) {
+      if (icon) icon.textContent = "🌙";
+      if (text) text.textContent = "Modo Oscuro";
+      localStorage.setItem("powerlink_theme", "light");
+      toast("☀️ Modo Claro activado");
+    } else {
+      if (icon) icon.textContent = "☀️";
+      if (text) text.textContent = "Modo Claro";
+      localStorage.setItem("powerlink_theme", "dark");
+      toast("🌙 Modo Oscuro activado");
+    }
+  }
+
+  function initTheme() {
+    if (localStorage.getItem("powerlink_theme") === "light") {
+      document.body.classList.add("light-mode");
+      const icon = document.getElementById("dbThemeIcon");
+      const text = document.getElementById("dbThemeText");
+      if (icon) icon.textContent = "🌙";
+      if (text) text.textContent = "Modo Oscuro";
+    }
+  }
+
+  // Init
+  initTheme();
+  saveAll();
+  renderTechs();
+  renderDrivers();
+  renderVehs();
+</script>
+  </div> <!-- /content-wrapper -->
+</body>
+</html>
