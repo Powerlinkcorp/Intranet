@@ -127,9 +127,9 @@ function renderStationCards(stations) {
         </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0;">
-        <span style="font-size:12px; font-weight:600; color:#475569;">ONUs Procesadas:</span>
-        <span style="font-size:18px; font-weight:800; color:var(--cabeceras);">${total}</span>
+      <div class="station-onu-count-box" style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-radius:8px;">
+        <span style="font-size:12px; font-weight:600;">ONUs Procesadas:</span>
+        <span style="font-size:18px; font-weight:800; color:var(--acento);">${total}</span>
       </div>
 
       <div class="station-card-footer">

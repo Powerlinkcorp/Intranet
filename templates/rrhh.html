@@ -1360,9 +1360,15 @@
         }
 
         async function logout() {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            localStorage.clear();
-            window.location.href = '/login';
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch(e) {}
+            try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
+            try {
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            } catch(e) {}
+            window.location.href = '/login?logout=1';
         }
         
         async function updatePopup(e) {
@@ -1697,21 +1703,18 @@
         }
 
         async function resendPassword(id) {
-            if(!confirm("¿Está seguro de enviar una nueva contraseña a este trabajador?")) return;
+            if(!confirm("ADVERTENCIA DE SEGURIDAD:\n\nEsta acción generará una NUEVA contraseña e invalidará de inmediato la clave actual del trabajador.\n\n¿Está seguro de proceder?")) return;
             try {
                 const res = await fetch(`/api/rrhh/users/${id}/resend-password`, { method: 'POST' });
                 if(res.ok) {
                     const data = await res.json();
-                    alert(data.message); // Mostrar la contraseña simulada
+                    alert(data.message);
                 } else {
-                    showToast("Error al reenviar contraseña", "error");
+                    showToast("Error al restablecer contraseña", "error");
                 }
             } catch(e) { showToast("Error de red", "error"); }
         }
     </script>
-{% if not embed %}
-{% include 'global_chat.html' %}
-{% endif %}
 </div>
 </body>
 

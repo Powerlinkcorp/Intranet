@@ -108,6 +108,21 @@ def get_engine():
         except Exception:
             pass
 
+    # Auto-migrate network_events new columns
+    for col_def in [
+        "accion_tomada TEXT",
+        "causa_raiz VARCHAR(300)",
+        "clientes_afectados VARCHAR(200)",
+        "closed_at DATETIME",
+        "created_by VARCHAR(100)",
+        "closed_by VARCHAR(100)"
+    ]:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE network_events ADD COLUMN {col_def}"))
+        except Exception:
+            pass
+
     return engine
 
 

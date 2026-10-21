@@ -680,10 +680,16 @@
         }
 
         async function logout() {
-            if(chatWs) chatWs.close();
-            await fetch('/api/auth/logout', { method: 'POST' });
-            localStorage.clear();
-            window.location.href = '/login';
+            if(chatWs) { try { chatWs.close(); } catch(e) {} }
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch(e) {}
+            try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
+            try {
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            } catch(e) {}
+            window.location.href = '/login?logout=1';
         }
 
         // Init connection on load
@@ -697,9 +703,6 @@
             }
         });
     </script>
-{% if not embed %}
-{% include 'global_chat.html' %}
-{% endif %}
 </body>
 
 </html>

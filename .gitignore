@@ -18,3 +18,16 @@ chat.db
 *.db-wal
 *.sqlite3
 *.db
+
+# Archivos sensibles, credenciales y scripts de conexion directa al servidor
+credenciales.txt
+*credenciales*
+ssh_test*.py
+check_qa_*.py
+update_server*.py
+deploy_fix*.py
+init_remote_db.py
+*.bak*
+*.docx
+test.py
+test2.py

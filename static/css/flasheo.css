@@ -797,6 +797,12 @@ body {
   border: 1px solid var(--borde);
 }
 
+.station-onu-count-box {
+  background: #f8fafc;
+  border: 1px solid var(--borde);
+  color: #475569;
+}
+
 .station-card-footer {
   display: flex;
   justify-content: space-between;

@@ -1,10 +1,722 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script>
+(function() {
+    try {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+        } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        }
+    } catch(e) {}
+})();
+</script>
 
 <style>
+/* =========================================================
+   TIPOGRAFÍA GLOBAL UNIFICADA (OUTFIT)
+   ========================================================= */
+html, body, button, input, select, textarea, table, th, td, h1, h2, h3, h4, h5, h6, p, span, a, div, label, li, ul, form {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
 :root {
     --cabeceras: #1A1A1A;
     --blanco: #ffffff;
+    --borde: #e2e8f0;
     --acento: #FFC107;
     --acento-hover: #F5C71D;
+}
+
+/* =========================================================
+   DARK MODE TECNOLOGÍA v2 (POWER LINK SYSTEM)
+   ========================================================= */
+html.dark {
+    --cabeceras: #f8fafc !important;
+    --fondo-principal: #09090b !important;
+    --blanco: #101014 !important;
+    --borde: rgba(255, 255, 255, 0.08) !important;
+    --acento: #D4AF37 !important;
+    --acento-hover: #E5C358 !important;
+    --texto-negro: #f8fafc !important;
+    --texto-gris: #94a3b8 !important;
+    --border-color: rgba(212, 175, 55, 0.22) !important;
+    --bg-primary: #09090b !important;
+    --bg-card: #101014 !important;
+    --bg-card-hover: #18181b !important;
+    --text-primary: #f8fafc !important;
+    --text-secondary: #94a3b8 !important;
+
+    /* Bento Colors (Helpdesk / Soporte) */
+    --bento-verde-claro: #141418 !important;
+    --bento-verde: #D4AF37 !important;
+    --bento-marron-claro: #141418 !important;
+    --bento-marron: #101014 !important;
+    --bento-dorado-claro: #18181b !important;
+    --bento-dorado: #D4AF37 !important;
+
+    color-scheme: dark;
+}
+
+html.dark, html.dark body {
+    background-color: #09090b !important;
+    color: #f8fafc !important;
+}
+
+body, .sidebar, .card, .panel, .modal-content, table {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+html.dark .content-wrapper,
+html.dark .main-content,
+html.dark main {
+    background-color: transparent !important;
+    color: #f8fafc !important;
+}
+
+/* Neutralización de Fondos Blancos y Grises de Tailwind */
+html.dark .bg-white,
+html.dark [class*="bg-white"],
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark .bg-gray-50,
+html.dark .bg-gray-100,
+html.dark .bg-gray-200,
+html.dark [class*="bg-gray-50"],
+html.dark [class*="bg-gray-100"],
+html.dark [class*="bg-slate-50"],
+html.dark [class*="bg-slate-100"] {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+}
+
+/* Textos oscuros de Tailwind convertidos a Slate claro */
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-slate-700 {
+    color: #f8fafc !important;
+}
+
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-gray-500,
+html.dark .text-slate-600,
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+    color: #94a3b8 !important;
+}
+
+html.dark .text-gray-400,
+html.dark .text-gray-300 {
+    color: #cbd5e1 !important;
+}
+
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+    color: #f8fafc !important;
+}
+
+html.dark .text-muted, html.dark .doc-desc, html.dark .tool-desc, html.dark .stat-label {
+    color: #94a3b8 !important;
+}
+
+/* Tablas Unificadas Dark Mode */
+html.dark table {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark thead,
+html.dark thead th,
+html.dark [class*="thead"],
+html.dark .table-header-bar {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark tbody,
+html.dark tbody tr,
+html.dark tbody td {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark tbody tr:hover,
+html.dark tr.hover\:bg-gray-50:hover,
+html.dark [class*="hover:bg-gray-50"]:hover,
+html.dark [class*="hover:bg-slate-50"]:hover {
+    background-color: rgba(212, 175, 55, 0.08) !important;
+}
+
+html.dark [class*="divide-gray"],
+html.dark [class*="divide-slate"],
+html.dark .divide-y {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-gray-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Cards, Paneles, Modales y Glassmorphism */
+html.dark .glass-panel,
+html.dark .card,
+html.dark .doc-card,
+html.dark .tool-card,
+html.dark .panel,
+html.dark .stats-card,
+html.dark .kpi-card,
+html.dark .table-container,
+html.dark .table-card,
+html.dark .chart-card,
+html.dark .modal-content,
+html.dark .info-box,
+html.dark .announcement-card,
+html.dark .news-card,
+html.dark .birthday-card,
+html.dark .events-card,
+html.dark .module-card,
+html.dark .profile-card,
+html.dark .activity-card,
+html.dark .bento-card,
+html.dark .app-header,
+html.dark .module-header {
+    background-color: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Bento Cards de Soporte (Helpdesk) */
+html.dark .card-green,
+html.dark .card-brown,
+html.dark .card-gold {
+    background: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .card-green h3,
+html.dark .card-brown h3,
+html.dark .card-gold h3,
+html.dark .card-green .card-title,
+html.dark .card-gold .card-title {
+    color: #D4AF37 !important;
+}
+
+/* Botones Unificados a Dorado Metálico Power Link */
+html.dark .bg-indigo-600,
+html.dark .bg-indigo-700,
+html.dark [class*="bg-indigo-600"],
+html.dark [class*="bg-indigo-700"],
+html.dark .btn-primary {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+
+html.dark .bg-indigo-600:hover,
+html.dark .bg-indigo-700:hover,
+html.dark [class*="hover:bg-indigo-700"]:hover,
+html.dark .btn-primary:hover {
+    background-color: #E5C358 !important;
+    color: #000000 !important;
+}
+
+html.dark .btn-secondary {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark .segment-container {
+    background: #141418 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .segment-btn {
+    color: #94a3b8 !important;
+}
+
+html.dark .segment-btn.active {
+    background: #1f1f23 !important;
+    color: #D4AF37 !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Inputs, Selects y Formularios */
+html.dark input,
+html.dark select,
+html.dark textarea,
+html.dark .search-input,
+html.dark .form-control,
+html.dark input[type="text"],
+html.dark input[type="search"],
+html.dark input[type="password"] {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: #64748b !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+    border-color: #D4AF37 !important;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25) !important;
+    outline: none !important;
+}
+
+/* Badges de Estado */
+html.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.18) !important;
+    color: #4ade80 !important;
+}
+html.dark .text-green-800 {
+    color: #4ade80 !important;
+}
+html.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+    color: #f87171 !important;
+}
+html.dark .text-red-800 {
+    color: #f87171 !important;
+}
+html.dark .bg-yellow-100,
+html.dark .bg-amber-100 {
+    background-color: rgba(234, 179, 8, 0.18) !important;
+    color: #facc15 !important;
+}
+html.dark .text-yellow-800,
+html.dark .text-amber-800 {
+    color: #facc15 !important;
+}
+html.dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.18) !important;
+    color: #60a5fa !important;
+}
+html.dark .text-blue-800 {
+    color: #60a5fa !important;
+}
+
+html.dark .sidebar {
+    background-color: #0c0c0e !important;
+    border-right: 1px solid rgba(212, 175, 55, 0.22) !important;
+}
+
+html.dark .sidebar-header {
+    border-bottom: 1px solid rgba(212, 175, 55, 0.22) !important;
+}
+
+html.dark .submenu {
+    background-color: #070708 !important;
+}
+
+html.dark .user-badge {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #f8fafc !important;
+}
+
+html.dark #userNavName {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+}
+
+html.dark .hero {
+    background: linear-gradient(rgba(9, 9, 11, 0.88), rgba(9, 9, 11, 0.88)), url('https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/Gemini_Generated_Image_glf24lglf24lglf2.png') center/cover !important;
+    color: #f8fafc !important;
+}
+
+.btn-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    transform: scale(1.05);
+}
+
+/* =========================================================
+   DASHBOARD & VISTAS PRINCIPALES - AJUSTES ESPECÍFICOS
+   ========================================================= */
+
+/* Títulos de Sección */
+html.dark .section-title {
+    color: #f8fafc !important;
+    border-left-color: #D4AF37 !important;
+}
+
+/* Métricas del Trimestre (KPIs) */
+html.dark .kpi-card,
+html.dark .kpi-card.alt {
+    background-color: #141418 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    border-left: 5px solid #D4AF37 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+html.dark .kpi-card .kpi-title {
+    color: #94a3b8 !important;
+    font-weight: 600 !important;
+}
+html.dark .kpi-card .kpi-value {
+    color: #f8fafc !important;
+    font-weight: 800 !important;
+}
+html.dark .kpi-card .kpi-value i {
+    color: #D4AF37 !important;
+}
+
+/* Top Recursos */
+html.dark .btn-resource {
+    color: #f8fafc !important;
+    background-color: #18181b !important;
+    border: 1px solid rgba(212, 175, 55, 0.25) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+html.dark .btn-resource.btn-navy {
+    background-color: #141418 !important;
+    color: #f8fafc !important;
+}
+html.dark .btn-resource.btn-gray {
+    background-color: #202026 !important;
+    color: #f8fafc !important;
+}
+html.dark .btn-resource:hover {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    border-color: #D4AF37 !important;
+    transform: translateY(-2px);
+}
+html.dark .search-templates,
+html.dark input#resourceFilter {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+html.dark .search-templates::placeholder,
+html.dark input#resourceFilter::placeholder {
+    color: #64748b !important;
+}
+
+/* Calendario Institucional */
+html.dark .calendar-wrapper {
+    color: #f8fafc !important;
+}
+html.dark .calendar-header-month {
+    color: #f8fafc !important;
+}
+html.dark .calendar-header-month span,
+html.dark #calendarMonthLabel {
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+}
+html.dark .calendar-header-month button {
+    color: #94a3b8 !important;
+}
+html.dark .calendar-header-month button:hover {
+    color: #D4AF37 !important;
+}
+html.dark .calendar-day-name {
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+}
+html.dark .calendar-day {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+html.dark .calendar-day:hover {
+    background-color: rgba(212, 175, 55, 0.25) !important;
+    color: #D4AF37 !important;
+    border-color: #D4AF37 !important;
+}
+html.dark .calendar-day.active {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+}
+html.dark .calendar-day.has-event {
+    border: 2px solid #D4AF37 !important;
+}
+
+/* Nuestro Equipo (Carrusel) */
+html.dark .employee-card span {
+    color: #f8fafc !important;
+    font-weight: 600 !important;
+}
+html.dark .employee-card span:last-child {
+    color: #94a3b8 !important;
+    font-weight: 400 !important;
+}
+html.dark .carousel-btn {
+    background: #D4AF37 !important;
+    color: #000000 !important;
+}
+html.dark .carousel-btn:hover {
+    background: #E5C358 !important;
+    color: #000000 !important;
+    transform: scale(1.1);
+}
+
+/* Feedback Form */
+html.dark .feedback-form textarea {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+html.dark .feedback-form textarea::placeholder {
+    color: #64748b !important;
+}
+html.dark .feedback-form button {
+    background-color: #D4AF37 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+html.dark .feedback-form button:hover {
+    background-color: #E5C358 !important;
+    color: #000000 !important;
+}
+
+/* Cumpleaños */
+html.dark .birthday-card {
+    background: #141418 !important;
+    border: 1.5px dashed rgba(212, 175, 55, 0.4) !important;
+    color: #f8fafc !important;
+}
+html.dark .birthday-info h4 {
+    color: #f8fafc !important;
+}
+html.dark .birthday-info p {
+    color: #94a3b8 !important;
+}
+
+/* =========================================================
+   MÓDULO DE FLASHEO - AJUSTES MODO OSCURO
+   ========================================================= */
+html.dark .station-cards-grid {
+    gap: 16px;
+}
+
+html.dark .station-card-box {
+    background-color: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .station-card-title {
+    color: #f8fafc !important;
+}
+
+html.dark .station-card-meta {
+    background-color: #141418 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .station-card-meta div {
+    color: #f8fafc !important;
+}
+
+/* El recuadro de ONUs Procesadas en Flasheo */
+html.dark .station-onu-count-box,
+html.dark .station-card-box div[style*="background:#f8fafc"],
+html.dark .station-card-box div[style*="background: #f8fafc"],
+html.dark .station-card-box div[style*="background:#F8FAFC"],
+html.dark .station-card-box div[style*="background: rgb(248, 250, 252)"] {
+    background-color: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .station-card-box span[style*="color:#475569"],
+html.dark .station-card-box span[style*="color: #475569"] {
+    color: #94a3b8 !important;
+}
+
+html.dark .station-card-box span[style*="color:var(--cabeceras)"] {
+    color: #D4AF37 !important;
+}
+
+html.dark .station-card-footer {
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .station-card-footer b {
+    color: #f8fafc !important;
+}
+
+/* Pestañas de Flasheo */
+html.dark .tabs-nav {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .tab-btn {
+    background: #101014 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .tab-btn:hover {
+    background: #18181b !important;
+    color: #f8fafc !important;
+    border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+html.dark .tab-btn.active {
+    background: #18181b !important;
+    color: #D4AF37 !important;
+    border: 1px solid #D4AF37 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Header de Flasheo y User Pill */
+html.dark .user-pill {
+    background: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .trace-search-box {
+    background-color: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Tarjetas Estadísticas de Flasheo */
+html.dark .stat-summary-card {
+    background-color: #101014 !important;
+    border: 1px solid rgba(212, 175, 55, 0.22) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .stat-card-val {
+    color: #f8fafc !important;
+}
+
+html.dark .stat-card-label {
+    color: #94a3b8 !important;
+}
+
+/* Iconos de Flasheo */
+html.dark .stat-icon-blue { background: rgba(2, 132, 199, 0.18) !important; color: #38bdf8 !important; }
+html.dark .stat-icon-amber { background: rgba(217, 119, 6, 0.18) !important; color: #fbbf24 !important; }
+html.dark .stat-icon-green { background: rgba(5, 150, 105, 0.18) !important; color: #34d399 !important; }
+html.dark .stat-icon-purple { background: rgba(124, 58, 237, 0.18) !important; color: #c084fc !important; }
+
+/* Tablas de Flasheo / Datos */
+html.dark .data-table {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+}
+
+html.dark .data-table th {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .data-table td {
+    background-color: #101014 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .data-table tr:hover td {
+    background-color: rgba(212, 175, 55, 0.06) !important;
+}
+
+html.dark .btn-outline,
+html.dark .btn-doc {
+    background-color: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark .btn-outline:hover,
+html.dark .btn-doc:hover {
+    background-color: #27272a !important;
+    border-color: #D4AF37 !important;
+    color: #D4AF37 !important;
+}
+
+/* Badges de Conectividad */
+html.dark .badge-status.connected {
+    background: rgba(5, 150, 105, 0.2) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(52, 211, 153, 0.3) !important;
+}
+
+html.dark .badge-status.disconnected {
+    background: rgba(220, 38, 38, 0.2) !important;
+    color: #f87171 !important;
+    border: 1px solid rgba(248, 113, 113, 0.3) !important;
+}
+
+/* =========================================================
+   MÓDULO DE APROVISIONAMIENTO - AJUSTES MODO OSCURO
+   ========================================================= */
+html.dark .wizard-nav {
+    background: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .wizard-step-btn {
+    background: #101014 !important;
+    color: #94a3b8 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .wizard-step-btn.active {
+    background: #18181b !important;
+    border-color: #D4AF37 !important;
+    color: #D4AF37 !important;
+}
+
+html.dark .step-badge {
+    background: #27272a !important;
+    color: #f8fafc !important;
+}
+
+html.dark .step-badge.active {
+    background: #D4AF37 !important;
+    color: #000000 !important;
+}
+
+html.dark .olt-summary-bar,
+html.dark .onu-info-banner {
+    background: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+
+html.dark .badge-step {
+    background: #18181b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark input[readonly] {
+    background-color: #141418 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* SIDEBAR & LAYOUT */
@@ -263,7 +975,7 @@
             body {
                 padding-bottom: 20px;
             }
-            .main-container, .grid-container, .dashboard-grid, .layout-grid, 
+            .main-container, .grid-container, .dashboard-grid, .layout-grid,
             .kpi-container, .resource-grid, .metrics-grid, .cards-grid {
                 grid-template-columns: 1fr !important;
                 display: flex !important;
@@ -271,16 +983,16 @@
                 padding: 10px;
                 gap: 15px;
             }
-            
+
             .hero {
                 padding: 30px 20px !important;
                 text-align: center;
             }
-            
+
             .hero h1 {
                 font-size: 28px !important;
             }
-            
+
             .sidebar {
                 position: static !important;
                 width: 100% !important;
@@ -293,13 +1005,13 @@
                 padding: 15px;
                 margin-bottom: 20px;
             }
-            
+
             .content-area, .main-content {
                 margin-left: 0 !important;
                 width: 100% !important;
                 padding: 10px !important;
             }
-            
+
             .card {
                 padding: 15px !important;
             }
@@ -309,18 +1021,18 @@
                 overflow-x: auto;
                 white-space: nowrap;
             }
-            
+
             .flex-container, .navbar, .top-bar {
                 flex-direction: column !important;
                 align-items: center;
                 gap: 10px;
             }
-            
+
             .login-container, .login-box {
                 width: 95% !important;
                 margin: 20px auto !important;
             }
-            
+
             .section-title {
                 font-size: 14px;
             }
@@ -338,14 +1050,14 @@
         </a>
         <button class="toggle-btn" onclick="toggleSidebar()" style="position: absolute; right: 20px; top: 20px;"><i class="fa-solid fa-bars"></i></button>
     </div>
-    
+
     <div class="search-bar-sidebar">
         <input type="text" id="globalSearch" placeholder="Buscar documentos..." oninput="filterResources()">
     </div>
 
     <ul class="sidebar-menu">
         <div class="menu-section">Principal</div>
-        
+
         <li>
             <div class="menu-item active" onclick="toggleSubmenu('submenu-principal', this)">
                 <div style="display:flex; align-items:center;">
@@ -396,8 +1108,14 @@
                 <i class="fa-solid fa-chevron-down chevron"></i>
             </div>
             <ul class="submenu" id="submenu-operaciones">
-                <li><a href="/admin/operaciones"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Eventos de Red</a></li>
-                <li><a href="/admin/operaciones"><i class="fa-solid fa-map-location-dot" style="margin-right: 8px;"></i> Validador Ozmap</a></li>
+                <li><a href="/admin/operaciones#welcome"><i class="fa-solid fa-house" style="margin-right: 8px;"></i> Inicio / Resumen</a></li>
+                <li><a href="/admin/operaciones#daily-activities"><i class="fa-solid fa-clipboard-list" style="margin-right: 8px;"></i> Actividades Diarias</a></li>
+                <li><a href="/admin/operaciones#events-dashboard"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Eventos de Red</a></li>
+                <li><a href="/admin/operaciones#guards"><i class="fa-solid fa-calendar-days" style="margin-right: 8px;"></i> Cronograma de Guardias</a></li>
+                <li><a href="/admin/operaciones#projects"><i class="fa-solid fa-folder-tree" style="margin-right: 8px;"></i> Proyectos</a></li>
+                <li><a href="/admin/operaciones#activities"><i class="fa-solid fa-bolt" style="margin-right: 8px;"></i> Requerimientos</a></li>
+                <li><a href="/admin/operaciones#ozmap"><i class="fa-solid fa-map-location-dot" style="margin-right: 8px;"></i> Módulo OZmap</a></li>
+                <li><a href="/admin/operaciones#ozmap-database"><i class="fa-solid fa-database" style="margin-right: 8px;"></i> Base de Datos OZmap</a></li>
             </ul>
         </li>
 
@@ -432,7 +1150,7 @@
         </li>
         {% endif %}
 
-        <!-- 
+        <!--
         <div class="menu-section">Proyecto</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-proyecto', this)">
@@ -450,31 +1168,93 @@
     </ul>
 
     <div class="sidebar-footer">
-        <div class="user-badge">
+        <div class="user-badge" style="display: flex; align-items: center; gap: 8px;">
             <span id="userNavName" style="font-size: 13px; font-weight:600;">{{ user.username if user else 'admin' }}</span>
-            <a href="/chat" style="color: #cbd5e1; text-decoration: none; margin-left:auto;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="btn-theme-toggle" type="button" title="Alternar Modo Oscuro / Claro" style="margin-left:auto; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #FFC107; cursor: pointer; padding: 5px 8px; font-size: 13px; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center;">
+                <i id="themeIcon" class="fa-solid fa-moon"></i>
+            </button>
+            <a href="/chat" style="color: #cbd5e1; text-decoration: none; padding: 4px;"><i class="fa-solid fa-comment-dots" title="Abrir Chat Interno"></i></a>
         </div>
 
-        <button class="btn-logout" onclick="logout()" style="width:100%;">Salir</button>
+        <button class="btn-logout" type="button" id="sidebarLogoutBtn" onclick="logout()" style="width:100%;">Salir</button>
     </div>
 </aside>
 {% endif %}
 
 
 <script>
+function initTheme() {
+    var saved = localStorage.getItem('theme');
+    var isDark = saved !== 'light';
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+    }
+    updateThemeIcon(isDark);
+}
+
+function updateThemeIcon(isDark) {
+    var icon = document.getElementById('themeIcon');
+    if (icon) {
+        if (isDark) {
+            icon.className = 'fa-solid fa-moon';
+            icon.style.color = '#FFC107';
+            icon.title = 'Modo Oscuro activo (clic para cambiar a claro)';
+        } else {
+            icon.className = 'fa-solid fa-sun';
+            icon.style.color = '#F59E0B';
+            icon.title = 'Modo Claro activo (clic para cambiar a oscuro)';
+        }
+    }
+}
+
+function toggleTheme() {
+    // Inyectar bloqueo temporal de transiciones para evitar congelamiento de FPS en matrices grandes
+    var noTransitionStyle = document.createElement('style');
+    noTransitionStyle.type = 'text/css';
+    noTransitionStyle.appendChild(document.createTextNode(
+        '*, *::before, *::after { -webkit-transition: none !important; -moz-transition: none !important; -o-transition: none !important; -ms-transition: none !important; transition: none !important; }'
+    ));
+    document.head.appendChild(noTransitionStyle);
+
+    var isDark = document.documentElement.classList.toggle('dark');
+    if (isDark) {
+        document.documentElement.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.classList.add('light');
+        localStorage.setItem('theme', 'light');
+    }
+    updateThemeIcon(isDark);
+    window.dispatchEvent(new Event('theme-changed'));
+
+    // Forzar lectura de reflow y restaurar transiciones inmediatamente
+    window.getComputedStyle(noTransitionStyle).opacity;
+    requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+            if (noTransitionStyle.parentNode) {
+                noTransitionStyle.parentNode.removeChild(noTransitionStyle);
+            }
+        });
+    });
+}
+
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('contentWrapper');
+    const content = document.getElementById('contentWrapper') || document.getElementById('mainContent') || document.querySelector('.main-content');
     if(sidebar) {
         sidebar.classList.toggle('collapsed');
         const isCollapsed = sidebar.classList.contains('collapsed');
         localStorage.setItem('sidebar_collapsed', isCollapsed);
-        
+
         if(content) {
             if(isCollapsed) content.classList.add('expanded');
             else content.classList.remove('expanded');
         }
-        
+
         // Close all submenus when collapsed
         if (isCollapsed) {
             document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
@@ -487,13 +1267,13 @@ function toggleSubmenu(id, element) {
     if (sidebar && sidebar.classList.contains('collapsed')) {
         toggleSidebar();
     }
-    
+
     const submenu = document.getElementById(id);
     const isOpen = submenu.classList.contains('open');
-    
+
     document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('open'));
     document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-    
+
     if (!isOpen) {
         submenu.classList.add('open');
         element.classList.add('active');
@@ -501,9 +1281,10 @@ function toggleSubmenu(id, element) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    initTheme();
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('contentWrapper');
-    
+
     // Restaurar estado de colapso del sidebar
     const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
     if (isCollapsed) {
@@ -519,14 +1300,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
     const links = document.querySelectorAll('.submenu a');
-    
+
     let pathFound = false;
     let bestMatch = null;
     let maxScore = -1;
 
     links.forEach(link => {
         const linkObj = new URL(link.href, window.location.origin);
-        
+
         if (linkObj.pathname === currentPath) {
             let score = -1;
             if (linkObj.search === currentSearch) {
@@ -534,7 +1315,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } else if (linkObj.search === '') {
                 score = 1; // Fallback genérico
             }
-            
+
             if (score > maxScore) {
                 maxScore = score;
                 bestMatch = link;
@@ -545,18 +1326,18 @@ document.addEventListener("DOMContentLoaded", function() {
     if (bestMatch) {
         pathFound = true;
         bestMatch.style.color = 'var(--acento)';
-        
+
         const submenu = bestMatch.closest('.submenu');
         if(submenu && (!sidebar || !sidebar.classList.contains('collapsed'))) {
             submenu.classList.add('open');
-            
+
             const parentMenuItem = submenu.previousElementSibling;
             if(parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
                 parentMenuItem.classList.add('active');
             }
         }
     }
-    
+
     // Si no encontramos un match (ej: sub-páginas), por fallback abrimos el inicio si es root
     if (!pathFound && currentPath === '/') {
         const principalSub = document.getElementById('submenu-principal');
@@ -569,9 +1350,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
 async function logout() {
     try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (e) {
+        console.warn('Error al llamar /api/auth/logout:', e);
+    }
+    try {
+        localStorage.clear();
+        sessionStorage.clear();
     } catch (e) {}
-    localStorage.clear();
-    window.location.href = '/login';
+    try {
+        document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    } catch (e) {}
+    window.location.href = '/login?logout=1';
 }
+window.logout = logout;
 </script>
+
+{% if not embed %}
+{% include 'global_chat.html' %}
+{% endif %}
+
