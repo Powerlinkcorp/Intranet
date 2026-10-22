@@ -1,0 +1,659 @@
+[
+  {
+    "id": 1,
+    "block": "AFECTACIONES",
+    "name": "ALEXIS GARCIA OROPEZA",
+    "cedula": "V-12.731.208",
+    "phone": "+58 424-1404877",
+    "cargo": "AFECTACION",
+    "departamento": "AFECTACION"
+  },
+  {
+    "id": 2,
+    "block": "AFECTACIONES",
+    "name": "ANGEL HIDALGO",
+    "cedula": "V-17.979.012",
+    "phone": "+58 414-9016072",
+    "cargo": "EMPALMADOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 3,
+    "block": "AFECTACIONES",
+    "name": "CARLOS JOSÉ BURGOS PINEDA",
+    "cedula": "V-29.850.234",
+    "phone": "+58 424-2894899",
+    "cargo": "AFECTACION",
+    "departamento": "AFECTACION"
+  },
+  {
+    "id": 4,
+    "block": "AFECTACIONES",
+    "name": "CARLOS SAUL BURGOS",
+    "cedula": "V-18.898.674",
+    "phone": "+58 424-2544061",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 5,
+    "block": "AFECTACIONES",
+    "name": "DANIEL ROJAS",
+    "cedula": "V-21.469.109",
+    "phone": "+58 414-2542030",
+    "cargo": "EMPALMADOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 6,
+    "block": "AFECTACIONES",
+    "name": "DAVID RODRIGUEZ",
+    "cedula": "V-26.078.684",
+    "phone": "+58 412-0543227",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 7,
+    "block": "AFECTACIONES",
+    "name": "DIEGO ANDRÉS MORONTA VIERA",
+    "cedula": "V-27.371.953",
+    "phone": "+58 424-2920276",
+    "cargo": "AFECTACION",
+    "departamento": "AFECTACION"
+  },
+  {
+    "id": 8,
+    "block": "AFECTACIONES",
+    "name": "ELIAS MIGUEL JIMENEZ MARMOLET",
+    "cedula": "V-27.908.487",
+    "phone": "+58 412-5913430",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 9,
+    "block": "AFECTACIONES",
+    "name": "FRANCISCO RODOLFO REYES URIEPERO",
+    "cedula": "V-27.623.676",
+    "phone": "+58 416-7767278",
+    "cargo": "EMPALMADOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 10,
+    "block": "AFECTACIONES",
+    "name": "FRANYELO JOSÉ PEREZ VELASQUEZ",
+    "cedula": "V-30.457.454",
+    "phone": "+58 412-9771281",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 11,
+    "block": "AFECTACIONES",
+    "name": "FRANYERSON RAMIREZ",
+    "cedula": "V-29.850.985",
+    "phone": "+58 424-2408734",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 12,
+    "block": "AFECTACIONES",
+    "name": "GABRIEL HERNANDEZ",
+    "cedula": "V-28.302.049",
+    "phone": "+58 412-7705454",
+    "cargo": "EMPALMADOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 13,
+    "block": "AFECTACIONES",
+    "name": "GADIETH LEXANDRO LOPEZ MARTINEZ",
+    "cedula": "V-32.497.052",
+    "phone": "+58 412-7118551",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 14,
+    "block": "AFECTACIONES",
+    "name": "GERAL ANDRES ARIAS",
+    "cedula": "V-27.040.315",
+    "phone": "+58 424-3358423",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 15,
+    "block": "AFECTACIONES",
+    "name": "JEAN CARLOS BURGOS",
+    "cedula": "V-32.174.428",
+    "phone": "+58 424-2544061",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 16,
+    "block": "AFECTACIONES",
+    "name": "JOE FRANCO MACHADO",
+    "cedula": "V-14.214.581",
+    "phone": "+58 412-4861337",
+    "cargo": "AFECTACION",
+    "departamento": "AFECTACION"
+  },
+  {
+    "id": 17,
+    "block": "AFECTACIONES",
+    "name": "JORGE MACHADO",
+    "cedula": "V-11.899.868",
+    "phone": "+58 424-2544061",
+    "cargo": "EMPALMADOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 18,
+    "block": "AFECTACIONES",
+    "name": "JOSE ARMANDO LOPEZ",
+    "cedula": "V-8.682.375",
+    "phone": "+58 412-9368853",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 19,
+    "block": "AFECTACIONES",
+    "name": "JOSE MORALES",
+    "cedula": "V-15.255.710",
+    "phone": "+58 414-2356488",
+    "cargo": "LINIERO SUPERVISOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 20,
+    "block": "AFECTACIONES",
+    "name": "JOYNERKER DAVID SUÁREZ MEJÍAS",
+    "cedula": "V-32.540.248",
+    "phone": "+58 424-1701521",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 21,
+    "block": "AFECTACIONES",
+    "name": "KERVIN MANUEL MARQUEZ CASTRO",
+    "cedula": "V-22.440.512",
+    "phone": "+58 412-3387742",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 22,
+    "block": "AFECTACIONES",
+    "name": "LUIS MELENDEZ",
+    "cedula": "V-11.183.645",
+    "phone": "+58 412-9213180",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 23,
+    "block": "AFECTACIONES",
+    "name": "MAIKER GUILLERMO PINEDA RANGEL",
+    "cedula": "V-21.118.622",
+    "phone": "+58 412-9610392",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 24,
+    "block": "AFECTACIONES",
+    "name": "MARIO PIÑERO",
+    "cedula": "V-8.675.093",
+    "phone": "+58 412-9772918",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 25,
+    "block": "AFECTACIONES",
+    "name": "NEOMAR ALBERTO GUAINA GONZÁLEZ",
+    "cedula": "V-27.988.872",
+    "phone": "+58 412-4792793",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 26,
+    "block": "AFECTACIONES",
+    "name": "ORLANDO ANTONIO MARRERO CASTILLO",
+    "cedula": "V-25.218.406",
+    "phone": "+58 412-9261975",
+    "cargo": "AYUDANTE",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 27,
+    "block": "AFECTACIONES",
+    "name": "RAYM OROPEZA",
+    "cedula": "V-29.511.706",
+    "phone": "+58 212-3273595",
+    "cargo": "AFECTACION",
+    "departamento": "AFECTACION"
+  },
+  {
+    "id": 28,
+    "block": "AFECTACIONES",
+    "name": "REINALDO FERNANDEZ",
+    "cedula": "V-17.532.232",
+    "phone": "+58 412-7043735",
+    "cargo": "EMPALMADOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 29,
+    "block": "AFECTACIONES",
+    "name": "ROGER MURIA",
+    "cedula": "V-21.469.259",
+    "phone": "+58 414-2367910",
+    "cargo": "AFECTACION",
+    "departamento": "AFECTACION"
+  },
+  {
+    "id": 30,
+    "block": "AFECTACIONES",
+    "name": "TOMAS SIMON MUJICA MARMOLE",
+    "cedula": "V-14.481.670",
+    "phone": "+58 424-1455746",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 31,
+    "block": "AFECTACIONES",
+    "name": "UDMAR ALEXIS FERNANDEZ PARADA",
+    "cedula": "V-11.603.721",
+    "phone": "+58 412-5858934",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 32,
+    "block": "AFECTACIONES",
+    "name": "VICTOR MANUEL HERNANDEZ ORDAZ",
+    "cedula": "V-19.014.931",
+    "phone": "+58 412-8711136",
+    "cargo": "EMPALMADOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 33,
+    "block": "AFECTACIONES",
+    "name": "WENSESLAO MUJICA",
+    "cedula": "V-15.713.395",
+    "phone": "+58 412-3027803",
+    "cargo": "LINIERO SUPERVISOR",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 34,
+    "block": "AFECTACIONES",
+    "name": "WILLIANS ANGARITA",
+    "cedula": "V-20.410.574",
+    "phone": "+58 412-5430647",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 35,
+    "block": "AFECTACIONES",
+    "name": "WOLFAN OLEIDY BARRIOS GARCIA",
+    "cedula": "V-15.913.212",
+    "phone": "+58 424-2684071",
+    "cargo": "LINIERO",
+    "departamento": "DISTRIBUCIÓN"
+  },
+  {
+    "id": 36,
+    "block": "SOPORTE",
+    "name": "ALEXIS GIL",
+    "cedula": "V-24.886.445",
+    "phone": "+58 424-2558408",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 37,
+    "block": "SOPORTE",
+    "name": "ALFREDO ESCOBAR",
+    "cedula": "V-25.223.904",
+    "phone": "+58 412-1636071",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 38,
+    "block": "SOPORTE",
+    "name": "ARMANDO GONZALEZ",
+    "cedula": "V-28.413.014",
+    "phone": "+58 412-8280467",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 39,
+    "block": "SOPORTE",
+    "name": "CARLOS ARAUJO",
+    "cedula": "V-28.073.816",
+    "phone": "+58 424-1216997",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 40,
+    "block": "SOPORTE",
+    "name": "CARLOS GIL",
+    "cedula": "V-28.329.666",
+    "phone": "+58 412-9960741",
+    "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+    "departamento": "SOPORTE DE CAMPO"
+  },
+  {
+    "id": 41,
+    "block": "SOPORTE",
+    "name": "CESAR AUGUSTO CAMPOS LUQUE",
+    "cedula": "V-30.182.542",
+    "phone": "+58 424-1664020",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 42,
+    "block": "SOPORTE",
+    "name": "CESAR ENRIQUE GÓMEZ CONTRERAS",
+    "cedula": "V-30.457.598",
+    "phone": "+58 424-8940008",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 43,
+    "block": "SOPORTE",
+    "name": "DANIEL ALBERTO COLMENARES LIRA",
+    "cedula": "V-23.652.902",
+    "phone": "+58 412-0192634",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 44,
+    "block": "SOPORTE",
+    "name": "DAVID PEREIRA",
+    "cedula": "V-17.926.043",
+    "phone": "+58 412-9072753",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 45,
+    "block": "SOPORTE",
+    "name": "DOUGLAS MAYOBRE",
+    "cedula": "V-25.840.238",
+    "phone": "+58 426-7318611",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 46,
+    "block": "SOPORTE",
+    "name": "ERNESTO GABRIEL DELGADO",
+    "cedula": "V-27.040.347",
+    "phone": "+58 424-2921840",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 47,
+    "block": "SOPORTE",
+    "name": "GABRIEL VICENTE ESPINOZA DUM",
+    "cedula": "V-30.457.808",
+    "phone": "+58 412-9836858",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 48,
+    "block": "SOPORTE",
+    "name": "HENRY CARTAYA",
+    "cedula": "V-14.480.388",
+    "phone": "+58 424-2563811",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 49,
+    "block": "SOPORTE",
+    "name": "HERNÁN JOSÉ LEAL MARTÍNEZ",
+    "cedula": "V-24.523.064",
+    "phone": "+58 416-1539118",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 50,
+    "block": "SOPORTE",
+    "name": "ISAAC RAFAEL SALGADO ALDAMA",
+    "cedula": "V-16.924.451",
+    "phone": "+58 412-0481272",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 51,
+    "block": "SOPORTE",
+    "name": "JEFFERSON DANIEL MARRERO OCHOA",
+    "cedula": "V-20.114.489",
+    "phone": "+58 424-2197479",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 52,
+    "block": "SOPORTE",
+    "name": "JEFFERSON MIGUEL CASTELLANOS HERNANDEZ",
+    "cedula": "V-25.840.293",
+    "phone": "+58 412-9324959",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 53,
+    "block": "SOPORTE",
+    "name": "JESÚS MANUEL ROMERO MUÑOZ",
+    "cedula": "V-24.898.093",
+    "phone": "+58 424-1430039",
+    "cargo": "SOPORTE DE CAMPO CATIA/LA VEGA",
+    "departamento": "SOPORTE DE CAMPO"
+  },
+  {
+    "id": 54,
+    "block": "SOPORTE",
+    "name": "JOBER DUGARTE",
+    "cedula": "V-29.511.879",
+    "phone": "+58 412-6345678",
+    "cargo": "SOPORTE DE CAMPO EL VALLE",
+    "departamento": "SOPORTE DE CAMPO"
+  },
+  {
+    "id": 55,
+    "block": "SOPORTE",
+    "name": "JOHAN RENE RODRIGUEZ MORALES",
+    "cedula": "V-14.216.384",
+    "phone": "+58 424-1247194",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 56,
+    "block": "SOPORTE",
+    "name": "JOLHAN ANTHONY RODRIGUEZ RODRIGUEZ",
+    "cedula": "V-24.998.556",
+    "phone": "+58 424-1514885",
+    "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+    "departamento": "SOPORTE DE CAMPO"
+  },
+  {
+    "id": 57,
+    "block": "SOPORTE",
+    "name": "JONATHAN GUTIERREZ",
+    "cedula": "V-28.307.034",
+    "phone": "+58 424-2114023",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 58,
+    "block": "SOPORTE",
+    "name": "JOSE ENRIQUE LEAL CURIEL",
+    "cedula": "V-14.071.913",
+    "phone": "+58 412-5990012",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 59,
+    "block": "SOPORTE",
+    "name": "JUAN MIJARES",
+    "cedula": "V-14.059.259",
+    "phone": "+58 414-1732347",
+    "cargo": "SUPERVISOR INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 60,
+    "block": "SOPORTE",
+    "name": "JUNIOR ARNALDO ORTA JIMENEZ",
+    "cedula": "V-20.265.676",
+    "phone": "+58 412-9184912",
+    "cargo": "SOPORTE DE CAMPO TEJERIAS",
+    "departamento": "SOPORTE DE CAMPO"
+  },
+  {
+    "id": 61,
+    "block": "SOPORTE",
+    "name": "KEHISBER ANTONIO CARABALLO GARCIA",
+    "cedula": "V-30.328.230",
+    "phone": "+58 412-0251325",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 62,
+    "block": "SOPORTE",
+    "name": "KEITHMEL MARCANO",
+    "cedula": "V-30.411.342",
+    "phone": "+58 412-9955190",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 63,
+    "block": "SOPORTE",
+    "name": "KEVIN JOSSUEEP CORTEZ GONZALEZ",
+    "cedula": "V-25.237.424",
+    "phone": "+58 424-2060194",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 64,
+    "block": "SOPORTE",
+    "name": "LUIS ALBERTO ALTUVE MENESES",
+    "cedula": "V-13.717.742",
+    "phone": "+58 424-2897983",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 65,
+    "block": "SOPORTE",
+    "name": "LUIS RODRIGUEZ",
+    "cedula": "V-23.608.565",
+    "phone": "+58 414-7444457",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 66,
+    "block": "SOPORTE",
+    "name": "MOISES ALBERTO PIÑANGO RODRÍGUEZ",
+    "cedula": "V-27.597.252",
+    "phone": "+58 412-6916741",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 67,
+    "block": "SOPORTE",
+    "name": "MOISES ALEJANDRO MUJICA BALZA",
+    "cedula": "V-29.751.880",
+    "phone": "+58 422-3344952",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 68,
+    "block": "SOPORTE",
+    "name": "RANDY EIDAN MORENO CHACOA",
+    "cedula": "V-29.850.452",
+    "phone": "+58 424-2508330",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 69,
+    "block": "SOPORTE",
+    "name": "RONEL JOSE VARGAS VADEL",
+    "cedula": "V-21.118.209",
+    "phone": "+58 412-4215662",
+    "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+    "departamento": "SOPORTE DE CAMPO"
+  },
+  {
+    "id": 70,
+    "block": "SOPORTE",
+    "name": "ROOSEVELT LARA",
+    "cedula": "V-28.073.912",
+    "phone": "+58 424-1257816",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 71,
+    "block": "SOPORTE",
+    "name": "SIMON TORRES",
+    "cedula": "V-30.328.690",
+    "phone": "+58 414-9905942",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 72,
+    "block": "SOPORTE",
+    "name": "STEVEN RAFAEL MARDACH TORRES",
+    "cedula": "V-22.667.018",
+    "phone": "+58 414-2681380",
+    "cargo": "INSTALADOR",
+    "departamento": "INSTALACION"
+  },
+  {
+    "id": 73,
+    "block": "SOPORTE",
+    "name": "ZADKIEL MENDOZA",
+    "cedula": "V-26.498.545",
+    "phone": "+58 414-1612261",
+    "cargo": "SUPERVISOR INSTALADOR",
+    "departamento": "INSTALACION"
+  }
+]

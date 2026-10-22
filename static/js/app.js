@@ -258,9 +258,16 @@ function bindEvents() {
     try {
       await apiFetch("/api/auth/logout", { method: "POST" });
     } catch (e) {}
-    localStorage.removeItem("powerlink_auth_token");
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch(e) {}
+    try {
+      document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    } catch(e) {}
     authToken = "";
-    window.location.replace("/login");
+    window.location.replace("/login?logout=1");
   });
 
   // Navegación de pestañas del Wizard

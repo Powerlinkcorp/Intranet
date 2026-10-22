@@ -517,6 +517,9 @@
             <button onclick="toggleSection('techs')" id="navTechs" class="subnav-tab">
                 <i class="fa-solid fa-users-gear"></i> Cuadrillas
             </button>
+            <button onclick="toggleSection('vgt')" id="navVgt" class="subnav-tab">
+                <i class="fa-solid fa-route"></i> Partes Diarios VGT
+            </button>
             <button onclick="toggleSection('afectaciones')" id="navAfectaciones" class="subnav-tab">
                 <i class="fa-solid fa-triangle-exclamation"></i> Afectaciones
             </button>
@@ -1866,6 +1869,10 @@
         </div>
     </div>
 
+    <!-- SheetJS (Excel Export) y Módulo VGT de Partes Diarios y Correlativos -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="/static/js/vgt_module.js"></script>
+
     <script>
         const DB_KEY = 'soporte_tecnico_reports';
         const TECHS_KEY = 'soporte_tecnico_techs';
@@ -1984,8 +1991,19 @@
             updateUserBar();
         }
 
-        function logout() {
-            toast('Acceso directo activo sin autenticación obligatoria');
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch (e) {}
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {}
+            try {
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            } catch (e) {}
+            window.location.href = '/login?logout=1';
         }
 
         function checkLoginState() {
@@ -2078,6 +2096,12 @@
                 const serverAssignments = Array.isArray(data.assignments) ? data.assignments : (Array.isArray(data.coordinacion) ? data.coordinacion : null);
                 if (serverAssignments) localStorage.setItem(ASSIGN_KEY, JSON.stringify(serverAssignments));
 
+                if (Array.isArray(data.vgt_routes)) localStorage.setItem('powerlink_routes', JSON.stringify(data.vgt_routes));
+                if (Array.isArray(data.vgt_technicians)) localStorage.setItem('powerlink_techs', JSON.stringify(data.vgt_technicians));
+                if (Array.isArray(data.vgt_drivers)) localStorage.setItem('powerlink_drivers', JSON.stringify(data.vgt_drivers));
+                if (Array.isArray(data.vgt_vehicles)) localStorage.setItem('powerlink_vehicles', JSON.stringify(data.vgt_vehicles));
+                if (Array.isArray(data.vgt_teams)) localStorage.setItem('powerlink_vgt_teams', JSON.stringify(data.vgt_teams));
+
                 if (Array.isArray(data.motivos) && data.motivos.length > 0) {
                     localStorage.setItem(MOTIVOS_KEY, JSON.stringify(data.motivos));
                 } else if (!localStorage.getItem(MOTIVOS_KEY) || getMotivos().length === 0) {
@@ -2114,6 +2138,17 @@
                 const users = getUsers();
                 const logs = getLogs();
 
+                let vgtRoutes = [];
+                let vgtTechs = [];
+                let vgtDrivers = [];
+                let vgtVehicles = [];
+                let vgtTeams = [];
+                try { vgtRoutes = JSON.parse(localStorage.getItem('powerlink_routes')) || []; } catch (e) { }
+                try { vgtTechs = JSON.parse(localStorage.getItem('powerlink_techs')) || []; } catch (e) { }
+                try { vgtDrivers = JSON.parse(localStorage.getItem('powerlink_drivers')) || []; } catch (e) { }
+                try { vgtVehicles = JSON.parse(localStorage.getItem('powerlink_vehicles')) || []; } catch (e) { }
+                try { vgtTeams = JSON.parse(localStorage.getItem('powerlink_vgt_teams')) || []; } catch (e) { }
+
                 const payload = {
                     reports: reports,
                     reportes: reports,
@@ -2127,7 +2162,12 @@
                     users: users,
                     operadores: users,
                     logs: logs,
-                    bitacora: logs
+                    bitacora: logs,
+                    vgt_routes: vgtRoutes,
+                    vgt_technicians: vgtTechs,
+                    vgt_drivers: vgtDrivers,
+                    vgt_vehicles: vgtVehicles,
+                    vgt_teams: vgtTeams
                 };
                 const bodyStr = JSON.stringify(payload);
                 lastDBHash = bodyStr;
@@ -2369,6 +2409,9 @@
                 else showMotivoForm();
             }
             else if (currentView === 'coordinacion') showAssignModal();
+            else if (currentView === 'vgt') {
+                if (window.vgtApp && window.vgtApp.addNewTeamCard) window.vgtApp.addNewTeamCard();
+            }
             else if (currentView === 'afectaciones') showAfectacionForm();
             else if (currentView === 'users') showUserForm();
             else showForm();
@@ -2523,6 +2566,7 @@
                 techs: 'navTechs',
                 motivos: 'navMotivos',
                 coordinacion: 'navCoordinacion',
+                vgt: 'navVgt',
                 afectaciones: 'navAfectaciones',
                 users: 'navUsers',
                 logs: 'navLogs'
@@ -2539,6 +2583,7 @@
                 techs: 'Equipos Técnicos',
                 motivos: 'Motivos y Zonas',
                 coordinacion: 'Coordinación de Cuadrillas',
+                vgt: 'Partes Diarios y Correlativos VGT',
                 afectaciones: 'Módulo de Afectaciones',
                 users: 'Gestión de Usuarios',
                 logs: 'Bitácora de Auditoría'
@@ -2564,6 +2609,9 @@
                 } else if (currentView === 'coordinacion') {
                     newBtn.style.display = hasPermission('coordinacion', 'write') ? 'inline-flex' : 'none';
                     newBtnText.textContent = 'Asignar Caso';
+                } else if (currentView === 'vgt') {
+                    newBtn.style.display = 'inline-flex';
+                    newBtnText.textContent = 'Nueva Cuadrilla';
                 } else if (currentView === 'afectaciones') {
                     newBtn.style.display = hasPermission('afectaciones', 'write') ? 'inline-flex' : 'none';
                     newBtnText.textContent = 'Nuevo Reporte';
@@ -2587,6 +2635,10 @@
             else if (section === 'techs') renderTechs(app);
             else if (section === 'motivos') renderMotivos(app);
             else if (section === 'coordinacion') renderCoordinacion(app);
+            else if (section === 'vgt') {
+                if (typeof renderVgt === 'function') renderVgt(app);
+                else if (window.renderVgt) window.renderVgt(app);
+            }
             else if (section === 'afectaciones') renderAfectaciones(app);
             else if (section === 'users') renderUsers(app);
             else if (section === 'logs') renderLogs(app);

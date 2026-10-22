@@ -628,6 +628,13 @@
                 setLoading(false);
             }
         }
+
+        if (window.location.search.includes('logout=1')) {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {}
+        }
     </script>
 </body>
 

@@ -1280,15 +1280,16 @@
 
         async function logout() {
             try {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                localStorage.clear();
-                window.location.href = '/login';
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
             } catch (e) {}
+            try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
+            try {
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            } catch (e) {}
+            window.location.href = '/login?logout=1';
         }
     </script>
-{% if not embed %}
-{% include 'global_chat.html' %}
-{% endif %}
 </div>
 </body>
 </html>

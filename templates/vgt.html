@@ -1,0 +1,5056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="/static/vgt/logo.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POWERLINK CORP. - Generador de Partes Diarios y Correlativos VGT</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- SheetJS CDN for Excel generation and reading -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <style>
+    :root {
+      /* Powerlink Gold & Deep Obsidian Palette */
+      --bg-gradient: radial-gradient(circle at 18% 12%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+                     radial-gradient(circle at 82% 88%, rgba(217, 119, 6, 0.06) 0%, transparent 40%),
+                     linear-gradient(135deg, #07090e 0%, #0d121c 50%, #070a0f 100%);
+      
+      --card-bg: rgba(16, 22, 35, 0.86);
+      --card-bg-subtle: rgba(11, 15, 25, 0.75);
+      --card-border: rgba(251, 191, 36, 0.16);
+      --card-border-hover: rgba(251, 191, 36, 0.45);
+      
+      /* Powerlink Brand Colors */
+      --brand-gold: #f59e0b;
+      --brand-gold-bright: #fbbf24;
+      --brand-gold-glow: rgba(245, 158, 11, 0.35);
+      --brand-gold-subtle: rgba(245, 158, 11, 0.12);
+      --brand-dark: #07090e;
+      --brand-black: #000000;
+      
+      /* Functional Accents */
+      --accent-blue: #38bdf8;
+      --accent-indigo: #818cf8;
+      --accent-purple: #c084fc;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      
+      /* Text */
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-gold: #fef08a;
+      
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* HEADER */
+    header {
+      max-width: 1550px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.08);
+      position: relative;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 30px;
+      right: 30px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brand-gold-bright), transparent);
+      opacity: 0.7;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: contain; flex-shrink: 0; display: block;
+      background: #000;
+      border: 2px solid var(--brand-gold-bright);
+      box-shadow: 0 0 18px var(--brand-gold-glow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .brand-logo-img:hover {
+      transform: scale(1.06) rotate(6deg);
+      box-shadow: 0 0 25px rgba(251, 191, 36, 0.65);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.2;
+      color: #fbbf24;
+    }
+    .brand-name-gold {
+      color: #fbbf24;
+      font-weight: 900;
+      text-shadow: 0 0 16px rgba(245, 158, 11, 0.6);
+      transition: color 0.3s ease;
+    }
+    .brand-name-corp {
+      color: #ffffff;
+      font-weight: 800;
+      transition: color 0.3s ease;
+    }
+
+    .brand-subtitle {
+      font-size: 11.5px;
+      color: #cbd5e1;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-subtitle::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--brand-gold-bright);
+      box-shadow: 0 0 6px var(--brand-gold-bright);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 9px;
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      outline: none;
+      text-decoration: none;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #07090e;
+      font-weight: 700;
+      border: 1px solid rgba(254, 240, 138, 0.3);
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #f1f5f9;
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(8px);
+    }
+    .btn-secondary:hover {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(251, 191, 36, 0.4);
+      color: var(--brand-gold-bright);
+      transform: translateY(-1px);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+    .btn-gold:hover {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(217, 119, 6, 0.35));
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
+      color: #fff;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+    .btn-success:hover {
+      background: linear-gradient(135deg, #34d399, #10b981);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.3));
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    }
+
+    /* CONTROL BAR */
+    .control-bar {
+      max-width: 1550px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: var(--card-bg-subtle);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 10px 18px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .preset-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .preset-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brand-gold-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pill-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .pill-tab {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .pill-tab:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .pill-tab.active {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #07090e;
+      font-weight: 800;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 3px;
+    }
+
+    .view-tab {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .view-tab:hover {
+      color: var(--text-main);
+    }
+    .view-tab.active {
+      background: rgba(245, 158, 11, 0.18);
+      color: var(--brand-gold-bright);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+
+    /* MAIN WORKSPACE */
+    main {
+      max-width: 1550px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      flex: 1;
+    }
+    @media (max-width: 1150px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+    }
+
+    /* BUSCADOR RÁPIDO DE PERSONAL (TÉCNICOS & CHOFERES) */
+    .personnel-quick-search-box {
+      background: rgba(11, 15, 25, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .quick-search-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .quick-search-input-wrap {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .quick-search-icon {
+      position: absolute;
+      left: 12px;
+      font-size: 14px;
+      color: var(--brand-gold-bright);
+      pointer-events: none;
+    }
+
+    .quick-search-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      border-radius: 9px;
+      padding: 9px 34px 9px 34px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .quick-search-input:focus {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .quick-search-input::placeholder {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .quick-search-clear {
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 50%;
+    }
+    .quick-search-clear:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .quick-filter-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+    .filter-pill.active {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--brand-gold-bright);
+      color: var(--brand-gold-bright);
+      font-weight: 700;
+    }
+
+    /* Live results drawer */
+    .personnel-results-panel {
+      max-height: 280px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .person-result-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.15s ease;
+    }
+    .person-result-card:hover {
+      background: rgba(245, 158, 11, 0.09);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    .person-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .person-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .person-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .person-status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-assigned {
+      background: rgba(99, 102, 241, 0.18);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+    }
+    .status-available {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .assign-quick-btn {
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 6px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: #fbbf24;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .assign-quick-btn:hover {
+      background: var(--brand-gold-bright);
+      color: #000;
+    }
+
+    /* GUARD REMINDER BANNER */
+    .guard-reminder-banner {
+      max-width: 1550px;
+      margin: 0 auto;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 12px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 0 15px rgba(245, 158, 11, 0.08);
+      animation: slideDownBanner 0.3s ease;
+    }
+
+    @keyframes slideDownBanner {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .guard-reminder-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .guard-reminder-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      animation: pulseGlow 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(245,158,11,0.5)); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 0 6px rgba(245,158,11,0.8)); }
+    }
+
+    .guard-reminder-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .guard-reminder-title {
+      font-size: 13px;
+      color: var(--brand-gold-bright);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .guard-reminder-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .guard-reminder-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .banner-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .banner-close-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* TEAMS CONTAINER */
+    .teams-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 700px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .teams-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .teams-container::-webkit-scrollbar-thumb {
+      background: rgba(251, 191, 36, 0.25);
+      border-radius: 4px;
+    }
+
+    .team-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .team-card:hover {
+      border-color: var(--card-border-hover);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(245, 158, 11, 0.12);
+    }
+    .team-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 16px;
+      right: 16px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brand-gold-bright), transparent);
+      opacity: 0.6;
+    }
+    .team-card.inactive {
+      opacity: 0.55;
+      background: rgba(15, 20, 30, 0.6);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .team-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .team-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .team-letter-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(15, 20, 31, 0.95) 100%);
+      border: 1.5px solid var(--brand-gold-bright);
+      color: var(--brand-gold-bright);
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.28);
+    }
+
+    .team-header-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.4px;
+    }
+
+    .team-type-select {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--brand-gold-bright);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      outline: none;
+    }
+
+    /* CREW ROW */
+    .crew-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    @media (max-width: 768px) {
+      .crew-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .crew-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .crew-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--brand-gold-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tech-search-bar-inline {
+      margin-top: 2px;
+      position: relative;
+    }
+    .tech-quick-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px dashed rgba(251, 191, 36, 0.35);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11.5px;
+      color: #fff;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .tech-quick-input:focus {
+      border-style: solid;
+      border-color: var(--brand-gold-bright);
+      background: rgba(0, 0, 0, 0.65);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+    .tech-quick-input::placeholder {
+      color: var(--text-muted);
+      font-size: 10.5px;
+    }
+
+    .tech-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      min-height: 26px;
+      margin-top: 4px;
+    }
+
+    .tech-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      padding: 3px 8px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fef08a;
+      transition: all 0.15s ease;
+    }
+    .tech-chip:hover {
+      background: rgba(245, 158, 11, 0.22);
+      border-color: rgba(251, 191, 36, 0.55);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+
+    .tech-chip-remove {
+      cursor: pointer;
+      color: #fca5a5;
+      font-weight: 800;
+      margin-left: 2px;
+      font-size: 13px;
+      transition: color 0.15s;
+    }
+    .tech-chip-remove:hover {
+      color: #ef4444;
+    }
+
+    /* INPUTS */
+    .text-input, .select-input {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--card-border);
+      border-radius: 7px;
+      padding: 6px 10px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .text-input:focus, .select-input:focus {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+      background: rgba(0, 0, 0, 0.65);
+    }
+
+    .team-tickets-input {
+      width: 100%;
+      min-height: 80px;
+      background: rgba(8, 11, 18, 0.6);
+      border: 1px solid rgba(251, 191, 36, 0.15);
+      border-radius: 9px;
+      padding: 10px 12px;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .team-tickets-input:focus {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+      background: rgba(4, 6, 10, 0.85);
+    }
+
+    .massive-input {
+      width: 100%;
+      min-height: 480px;
+      background: rgba(8, 11, 18, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      resize: vertical;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .massive-input:focus {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+      background: rgba(4, 6, 10, 0.9);
+    }
+
+    /* RIGHT PANEL OUTPUT */
+    .output-area {
+      width: 100%;
+      min-height: 440px;
+      background: rgba(5, 7, 12, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      color: #f1f5f9;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
+      max-height: 600px;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    /* AUDIT VIEW */
+    .audit-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .audit-card {
+      background: rgba(15, 20, 32, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .audit-card:hover {
+      border-color: var(--card-border-hover);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.15);
+    }
+
+    .audit-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .vgt-override-select {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--brand-gold-bright);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      outline: none;
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-gold {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+    .badge-green {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .badge-orange {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .badge-purple {
+      background: rgba(192, 132, 252, 0.18);
+      color: #d8b4fe;
+      border: 1px solid rgba(192, 132, 252, 0.35);
+    }
+    .badge-info {
+      background: rgba(56, 189, 248, 0.18);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    /* METRICS BAR */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .metric-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--brand-gold-bright);
+    }
+    .metric-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      background: #0f1523;
+      border: 1px solid var(--brand-gold-bright);
+      border-radius: 18px;
+      max-width: 980px;
+      width: 95%;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 35px rgba(245, 158, 11, 0.25);
+      overflow: hidden;
+      margin: auto;
+      position: relative;
+    }
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.35);
+      flex-shrink: 0;
+    }
+    .modal-body {
+      padding: 18px 24px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      gap: 12px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+    }
+    .modal-table-wrap {
+      overflow-y: auto;
+      overflow-x: auto;
+      max-height: 56vh;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      background: rgba(10, 15, 26, 0.5);
+      flex: 1;
+      min-height: 250px;
+    }
+    .modal-table-wrap thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #0d121f;
+      border-bottom: 2px solid var(--brand-gold-bright);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* CUSTOM SCROLLBARS */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(245, 158, 11, 0.35);
+      border-radius: 4px;
+      border: 1px solid rgba(245, 158, 11, 0.15);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--brand-gold-bright);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(245, 158, 11, 0.35) rgba(15, 23, 42, 0.6);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+    th {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 12px;
+      font-weight: 700;
+      color: var(--brand-gold-bright);
+      border-bottom: 1px solid var(--card-border);
+      text-transform: uppercase;
+      font-size: 10.5px;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+    }
+    tr:hover td {
+      background: rgba(245, 158, 11, 0.06);
+    }
+
+    .search-box {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    .search-box:focus {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+    }
+
+    /* TOGGLE SWITCH */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: .3s;
+      border-radius: 20px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+    input:checked + .slider:before {
+      transform: translateX(16px);
+      background-color: #07090e;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #07090e;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.4);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+  
+    /* ============================================================
+       RIGHT PANEL: SALIDA GERENCIAL & AUDIT & STATS
+       ============================================================ */
+    .output-container {
+      background: rgba(7, 10, 17, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 520px;
+      max-height: 650px;
+      overflow-y: auto;
+      user-select: text;
+      color: #f1f5f9;
+      box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.7);
+      border-left: 3px solid var(--brand-gold-bright);
+    }
+    .output-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .output-container::-webkit-scrollbar-thumb {
+      background: rgba(251, 191, 36, 0.25);
+      border-radius: 4px;
+    }
+
+    .audit-container {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 520px;
+      max-height: 650px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+    .audit-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .audit-container::-webkit-scrollbar-thumb {
+      background: rgba(251, 191, 36, 0.25);
+      border-radius: 4px;
+    }
+
+    .audit-card {
+      background: rgba(14, 19, 31, 0.75);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: all 0.2s;
+    }
+    .audit-card:hover {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+    }
+
+    .audit-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 6px;
+    }
+
+    .audit-address {
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .audit-vgt-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .vgt-override-select {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      color: var(--brand-gold-bright);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      outline: none;
+      max-width: 260px;
+    }
+    .vgt-override-select:focus {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    }
+
+    /* SUMMARY BAR (4 STAT BOXES) */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .stat-box {
+      background: rgba(11, 15, 25, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+    .stat-box:hover {
+      border-color: var(--brand-gold-bright);
+      transform: translateY(-1px);
+    }
+
+    .stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--brand-gold-bright);
+      font-family: var(--font-mono);
+    }
+
+    .stat-lbl {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-top: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-content {
+      padding: 20px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+  
+    /* EDITABLE TEAM LETTER / NAME */
+    .team-name-input-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 3px 8px;
+      transition: all 0.2s ease;
+    }
+    .team-name-input-wrap:focus-within {
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .team-name-prefix {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+    .team-letter-input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      font-family: var(--font-sans);
+      width: 70px;
+      outline: none;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+    .team-letter-input:focus {
+      color: var(--brand-gold-bright);
+    }
+    .team-letter-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+      font-weight: 500;
+      font-size: 11px;
+    }
+
+    /* ============================================================
+       POWERLINK CORP. - LIGHT MODE THEME SYSTEM
+       ============================================================ */
+    .btn-theme-toggle {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.25));
+      color: var(--brand-gold-bright);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 10px rgba(245, 158, 11, 0.15);
+      gap: 7px;
+    }
+    .btn-theme-toggle:hover {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(217, 119, 6, 0.4));
+      color: #fff;
+      border-color: var(--brand-gold-bright);
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+      transform: translateY(-1px);
+    }
+
+    body {
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* LIGHT MODE STYLES */
+    body.light-mode {
+      --bg-gradient: radial-gradient(circle at 18% 12%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
+                     radial-gradient(circle at 82% 88%, rgba(217, 119, 6, 0.08) 0%, transparent 40%),
+                     linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --card-bg-subtle: rgba(248, 250, 252, 0.92);
+      --card-border: rgba(217, 119, 6, 0.22);
+      --card-border-hover: rgba(217, 119, 6, 0.55);
+      
+      --brand-gold: #d97706;
+      --brand-gold-bright: #b45309;
+      --brand-gold-glow: rgba(245, 158, 11, 0.3);
+      --brand-gold-subtle: rgba(245, 158, 11, 0.15);
+      --brand-dark: #f8fafc;
+      --brand-black: #0f172a;
+      
+      --accent-blue: #0284c7;
+      --accent-indigo: #4f46e5;
+      --accent-purple: #9333ea;
+      --accent-green: #059669;
+      --accent-orange: #d97706;
+      --accent-red: #dc2626;
+      
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-gold: #92400e;
+      color: #0f172a;
+    }
+
+    /* Light Mode Header & Controls */
+    body.light-mode header,
+    body.light-mode .control-bar {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(217, 119, 6, 0.25);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06), 0 0 16px rgba(245, 158, 11, 0.08);
+    }
+    body.light-mode header::after {
+      background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+    }
+    body.light-mode .brand-title {
+      color: #d97706;
+    }
+    body.light-mode .brand-name-gold {
+      color: #d97706;
+      text-shadow: none;
+    }
+    body.light-mode .brand-name-corp {
+      color: #0f172a;
+      text-shadow: none;
+    }
+    body.light-mode .brand-subtitle {
+      color: #475569;
+    }
+    body.light-mode .brand-subtitle::before {
+      background: #f59e0b;
+      box-shadow: 0 0 6px #f59e0b;
+    }
+    body.light-mode .brand-logo-img {
+      background: #ffffff;
+      border-color: #f59e0b;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+    }
+
+    /* Light Mode Theme Toggle Button */
+    body.light-mode .btn-theme-toggle {
+      background: #0f172a;
+      color: #fbbf24;
+      border: 1px solid #1e293b;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+    }
+    body.light-mode .btn-theme-toggle:hover {
+      background: #1e293b;
+      color: #fef08a;
+      border-color: #f59e0b;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.35);
+    }
+
+    /* Light Mode Buttons */
+    body.light-mode .btn-secondary {
+      background: #ffffff;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    body.light-mode .btn-secondary:hover {
+      background: #fffbeb;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+    body.light-mode .btn-gold {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+      box-shadow: 0 1px 3px rgba(245, 158, 11, 0.1);
+    }
+    body.light-mode .btn-gold:hover {
+      background: #fef3c7;
+      color: #78350f;
+      border-color: #f59e0b;
+    }
+
+    /* Light Mode Tabs */
+    body.light-mode .preset-label {
+      color: #92400e;
+    }
+    body.light-mode .pill-tabs,
+    body.light-mode .tab-nav {
+      background: #e2e8f0;
+      border-color: #cbd5e1;
+    }
+    body.light-mode .pill-tab,
+    body.light-mode .view-tab {
+      color: #475569;
+    }
+    body.light-mode .pill-tab:hover,
+    body.light-mode .view-tab:hover {
+      color: #0f172a;
+      background: rgba(0, 0, 0, 0.05);
+    }
+    body.light-mode .view-tab.active {
+      background: #ffffff;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Light Mode Panels */
+    body.light-mode .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border-color: rgba(217, 119, 6, 0.22);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+    body.light-mode .panel-header {
+      border-color: #e2e8f0;
+    }
+    body.light-mode .panel-title {
+      color: #0f172a;
+    }
+
+    /* Light Mode Personnel Search & Results */
+    body.light-mode .personnel-quick-search-box {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.03);
+    }
+    body.light-mode .quick-search-input {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    body.light-mode .quick-search-input:focus {
+      background: #ffffff;
+      border-color: #d97706;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+    body.light-mode .quick-search-input::placeholder {
+      color: #64748b;
+    }
+    body.light-mode .quick-search-clear {
+      color: #64748b;
+    }
+    body.light-mode .quick-search-clear:hover {
+      color: #0f172a;
+      background: rgba(0, 0, 0, 0.08);
+    }
+    body.light-mode .filter-pill {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+    body.light-mode .filter-pill:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    body.light-mode .filter-pill.active {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+    body.light-mode .person-result-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+    body.light-mode .person-result-card:hover {
+      background: #fffbeb;
+      border-color: #fcd34d;
+    }
+    body.light-mode .person-name {
+      color: #0f172a;
+    }
+    body.light-mode .person-meta {
+      color: #64748b;
+    }
+    body.light-mode .assign-quick-btn {
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fcd34d;
+    }
+    body.light-mode .assign-quick-btn:hover {
+      background: #f59e0b;
+      color: #0f172a;
+    }
+
+    /* Light Mode Guard Banner */
+    body.light-mode .guard-reminder-banner {
+      background: linear-gradient(135deg, #fffbeb 0%, #eef2ff 100%);
+      border-color: #fcd34d;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12);
+    }
+    body.light-mode .guard-reminder-title {
+      color: #92400e;
+    }
+    body.light-mode .guard-reminder-desc {
+      color: #475569;
+    }
+    body.light-mode .banner-close-btn {
+      color: #64748b;
+    }
+    body.light-mode .banner-close-btn:hover {
+      color: #0f172a;
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    /* Light Mode Team Cards */
+    body.light-mode .team-card {
+      background: #ffffff;
+      border-color: rgba(217, 119, 6, 0.25);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    }
+    body.light-mode .team-card:hover {
+      border-color: #f59e0b;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+    }
+    body.light-mode .team-card.inactive {
+      background: #f8fafc;
+      opacity: 0.65;
+      border-color: #e2e8f0;
+    }
+    body.light-mode .team-header-title {
+      color: #0f172a;
+    }
+    body.light-mode .team-letter-avatar {
+      background: radial-gradient(circle, #fef3c7 0%, #fde68a 100%);
+      border-color: #d97706;
+      color: #92400e;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+    body.light-mode .crew-row {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+    body.light-mode .crew-label {
+      color: #92400e;
+    }
+    body.light-mode .team-type-select {
+      background: #ffffff;
+      color: #92400e;
+      border-color: #cbd5e1;
+    }
+
+    /* Light Mode Inputs, Selects & Chips */
+    body.light-mode .text-input,
+    body.light-mode .select-input {
+      background: #ffffff;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+    body.light-mode .text-input:focus,
+    body.light-mode .select-input:focus {
+      background: #ffffff;
+      border-color: #d97706;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+    body.light-mode .tech-quick-input {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    body.light-mode .tech-quick-input:focus {
+      border-color: #d97706;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+    body.light-mode .tech-quick-input::placeholder {
+      color: #64748b;
+    }
+    body.light-mode .tech-chip {
+      background: #fef3c7;
+      border-color: #fcd34d;
+      color: #92400e;
+    }
+    body.light-mode .tech-chip:hover {
+      background: #fde68a;
+      border-color: #f59e0b;
+    }
+    body.light-mode .team-name-input-wrap {
+      background: #ffffff;
+      border-color: #cbd5e1;
+    }
+    body.light-mode .team-name-input-wrap:focus-within {
+      background: #ffffff;
+      border-color: #d97706;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+    body.light-mode .team-name-prefix {
+      color: #64748b;
+    }
+    body.light-mode .team-letter-input {
+      color: #0f172a;
+    }
+    body.light-mode .team-letter-input::placeholder {
+      color: #94a3b8;
+    }
+    body.light-mode .team-tickets-input,
+    body.light-mode .massive-input {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    body.light-mode .team-tickets-input:focus,
+    body.light-mode .massive-input:focus {
+      background: #ffffff;
+      border-color: #d97706;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+    }
+
+    /* Light Mode Output & Audit */
+    body.light-mode .output-container {
+      background: #ffffff;
+      color: #0f172a;
+      border-color: #e2e8f0;
+      border-left: 4px solid #f59e0b;
+      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03);
+    }
+    body.light-mode .output-area {
+      background: #ffffff;
+      color: #0f172a;
+      border-color: #cbd5e1;
+      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode .audit-card {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode .audit-card:hover {
+      border-color: #f59e0b;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
+    }
+    body.light-mode .audit-card-header {
+      border-color: #f1f5f9;
+      color: #64748b;
+    }
+    body.light-mode .audit-address {
+      color: #0f172a;
+    }
+    body.light-mode .vgt-override-select {
+      background: #ffffff;
+      color: #92400e;
+      border-color: #cbd5e1;
+    }
+
+    /* Light Mode Stats & Metrics */
+    body.light-mode .stat-box {
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode .stat-val {
+      color: #b45309;
+    }
+    body.light-mode .stat-lbl {
+      color: #64748b;
+    }
+    body.light-mode .metrics-bar {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+    body.light-mode .metric-val {
+      color: #b45309;
+    }
+    body.light-mode .metric-lbl {
+      color: #64748b;
+    }
+
+    /* Light Mode Badges */
+    body.light-mode .badge-gold {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fcd34d;
+    }
+    body.light-mode .badge-green {
+      background: #d1fae5;
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
+    body.light-mode .badge-orange {
+      background: #ffedd5;
+      color: #9a3412;
+      border-color: #fed7aa;
+    }
+    body.light-mode .badge-purple {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border-color: #e9d5ff;
+    }
+    body.light-mode .badge-info {
+      background: #e0f2fe;
+      color: #0369a1;
+      border-color: #bae6fd;
+    }
+
+    /* Light Mode Modals */
+    body.light-mode .modal-overlay {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+    }
+    body.light-mode .modal-card {
+      background: #ffffff;
+      border-color: #f59e0b;
+      box-shadow: 0 25px 70px rgba(15, 23, 42, 0.18), 0 0 25px rgba(245, 158, 11, 0.15);
+    }
+    body.light-mode .modal-header {
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    body.light-mode .modal-header h3 {
+      color: #92400e !important;
+    }
+    body.light-mode .modal-body {
+      background: #ffffff;
+      color: #0f172a;
+    }
+    body.light-mode .modal-table-wrap {
+      background: #ffffff;
+      border-color: #e2e8f0;
+    }
+    body.light-mode .modal-table-wrap thead th {
+      background: #f8fafc;
+      color: #92400e;
+      border-bottom: 2px solid #f59e0b;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    body.light-mode td {
+      color: #1e293b;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    body.light-mode tr:hover td {
+      background: #fffbeb;
+    }
+    body.light-mode .search-input,
+    body.light-mode .search-box {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    body.light-mode #addTechForm,
+    body.light-mode #addDriverForm,
+    body.light-mode #addVehForm {
+      background: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    /* Light Mode Scrollbars */
+    body.light-mode ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    body.light-mode ::-webkit-scrollbar-thumb {
+      background: rgba(217, 119, 6, 0.4);
+      border-color: rgba(217, 119, 6, 0.15);
+    }
+    body.light-mode ::-webkit-scrollbar-thumb:hover {
+      background: #d97706;
+    }
+    body.light-mode * {
+      scrollbar-color: rgba(217, 119, 6, 0.4) #f1f5f9;
+    }
+
+  </style>
+</head>
+<body>
+  {% include 'sidebar.html' %}
+  <div class="content-wrapper" id="contentWrapper" style="padding: 16px 24px; display: flex; flex-direction: column; gap: 16px; min-height: 100vh; box-sizing: border-box;">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <img src="/static/vgt/logo.png" alt="POWERLINK CORP." class="brand-logo-img">
+      <div>
+        <div class="brand-title"><span class="brand-name-gold">POWERLINK</span> <span class="brand-name-corp">CORP.</span></div>
+        <div class="brand-subtitle">SISTEMA INTEGRAL DE OPERACIONES · PARTES DIARIOS &amp; VGT</div>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn btn-theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Cambiar a Modo Claro / Modo Oscuro">
+        <span id="themeToggleIcon">☀️</span> <span id="themeToggleText">Modo Claro</span>
+      </button>
+      <a href="/soporte/vgt/databases" class="btn btn-gold" target="_self">🗄️ Base de Datos</a>
+      <button class="btn btn-secondary" onclick="openInventoryModal()">
+        🔍 Rutas VGT (<span id="routesCountBadge">74</span>)
+      </button>
+      <button class="btn btn-secondary" onclick="openTechModal()">
+        👨‍🔧 Técnicos (<span id="techsCountBadge">20</span>)
+      </button>
+      <button class="btn btn-secondary" onclick="openDriverModal()">
+        👤 Choferes (<span id="driversCountBadge">11</span>)
+      </button>
+      <button class="btn btn-secondary" onclick="openVehModal()">
+        🚗 Vehículos (<span id="vehsCountBadge">9</span>)
+      </button>
+      <button class="btn btn-secondary" onclick="openBackupModal()">
+        💾 Respaldo JSON
+      </button>
+      <label class="btn btn-secondary" style="cursor: pointer;">
+        📁 Cargar Excel
+        <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)">
+      </label>
+    </div>
+  </header>
+
+  <!-- CONTROL BAR: MODALIDADES Y MODOS DE TRABAJO -->
+  <div class="control-bar">
+    <div class="preset-selector">
+      <span class="preset-label">Modalidad:</span>
+      <div class="pill-tabs">
+        <div class="pill-tab active" id="presetWeekdayBtn" onclick="switchPreset('WEEKDAY')">
+          🏢 Lunes a Viernes (10 Equipos Fijos)
+        </div>
+        <div class="pill-tab" id="presetWeekendBtn" onclick="switchPreset('WEEKEND')">
+          🛡️ Guardia / Fin de Semana / Feriados
+        </div>
+      </div>
+      <button class="btn btn-secondary" id="guardSaveBtn" style="padding: 5px 11px; font-size: 11.5px;" onclick="saveCurrentAsGuardPreset()" title="Guardar la configuración de cuadrillas de guardia">
+        💾 Guardar Guardia
+      </button>
+      <button class="btn btn-secondary" id="guardLoadBtn" style="padding: 5px 11px; font-size: 11.5px; display: none;" onclick="loadLastGuardPreset()" title="Cargar la última cuadrilla configurada del sábado">
+        📋 Cargar Guardia Sábado
+      </button>
+      <button class="btn btn-secondary" id="resetPresetBtn" style="padding: 5px 11px; font-size: 11.5px;" onclick="resetCurrentPreset()">
+        ↺ Restablecer L-V
+      </button>
+    </div>
+
+    <div class="tab-nav">
+      <div class="view-tab active" id="tabTeamManagerBtn" onclick="switchInputTab('TEAM_MANAGER')">
+        🛠️ Gestor de Cuadrillas
+      </div>
+      <div class="view-tab" id="tabMassiveBtn" onclick="switchInputTab('MASSIVE_INPUT')">
+        ⚡ Pegado Masivo (WhatsApp)
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNER DE RECORDATORIO DE GUARDIA / FIN DE SEMANA / FERIADOS -->
+  <div id="guardReminderBanner" class="guard-reminder-banner" style="display: none;">
+    <div class="guard-reminder-left">
+      <span class="guard-reminder-icon">🛡️</span>
+      <div class="guard-reminder-info">
+        <div class="guard-reminder-title">
+          <strong>Recordatorio de Cuadrilla de Guardia:</strong>
+          <span id="guardReminderDateTag" class="badge badge-purple" style="font-size: 10.5px; margin-left: 8px;">Cargada del Sábado</span>
+        </div>
+        <div class="guard-reminder-desc" id="guardReminderDesc">
+          Los equipos, técnicos, chofer y vehículos configurados el sábado están listos para el domingo. No es necesario crearlos nuevamente. Puedes ajustar integrantes o agregar/eliminar cuadrillas fácilmente.
+        </div>
+      </div>
+    </div>
+    <div class="guard-reminder-actions">
+      <button class="btn btn-sm btn-secondary" style="font-size: 11px; padding: 4px 9px;" onclick="loadLastGuardPreset()" title="Recargar la última cuadrilla de guardia configurada">
+        📋 Cargar Sábado
+      </button>
+      <button class="btn btn-sm btn-danger" style="font-size: 11px; padding: 4px 9px;" onclick="resetGuardPreset()" title="Restablecer plantilla inicial de guardia en blanco para feriados o nuevo ciclo">
+        ↺ Reset Plantilla Guardia
+      </button>
+      <button class="banner-close-btn" onclick="dismissGuardReminder()" title="Ocultar aviso">✕</button>
+    </div>
+  </div>
+
+  <!-- MAIN WORKSPACE -->
+  <main>
+    <!-- LEFT PANEL: ENTRADA DE DATOS -->
+    <div class="panel">
+      <!-- VISTA 1: GESTOR DE CUADRILLAS -->
+      <div id="teamManagerView">
+        <div class="panel-header">
+          <span class="panel-title">
+            👥 Cuadrillas y Asignaciones del Día (<span id="teamListCount">10</span> Equipos)
+          </span>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary" style="font-size: 11.5px; padding: 5px 11px;" onclick="addNewTeamCard()">
+              + Agregar Cuadrilla
+            </button>
+            <button class="btn btn-danger" style="font-size: 11.5px; padding: 5px 11px;" onclick="clearAllTeamTickets()">
+              🗑️ Limpiar Tickets
+            </button>
+          </div>
+        </div>
+
+                <!-- BUSCADOR RÁPIDO DE PERSONAL (TÉCNICOS & CHOFERES) -->
+        <div class="personnel-quick-search-box">
+          <div class="quick-search-header">
+            <div class="quick-search-input-wrap">
+              <span class="quick-search-icon">🔍</span>
+              <input type="text" id="personnelSearchInput" class="quick-search-input" 
+                     placeholder="Buscar técnico o chofer por nombre, cédula o teléfono (ej. Alexis, Ronel, Raym, 12731...)"
+                     oninput="handleLivePersonnelSearch(this.value)">
+              <button class="quick-search-clear" id="clearPersonnelSearchBtn" onclick="clearLivePersonnelSearch()" style="display:none;" title="Limpiar">✕</button>
+            </div>
+            <div class="quick-filter-pills">
+              <button class="filter-pill active" id="filterPillAll" onclick="setPersonnelFilter('ALL', this)">Todos (<span id="totalPersonnelCount">84</span>)</button>
+              <button class="filter-pill" onclick="setPersonnelFilter('AFECTACIONES', this)">⚡ Afectaciones (35)</button>
+              <button class="filter-pill" onclick="setPersonnelFilter('SOPORTE', this)">🏍️ Soporte (38)</button>
+              <button class="filter-pill" onclick="setPersonnelFilter('CHOFER', this)">👤 Choferes (11)</button>
+            </div>
+          </div>
+          <!-- Live results dropdown panel -->
+          <div id="personnelSearchResults" class="personnel-results-panel" style="display:none;"></div>
+        </div>
+
+        <div class="teams-container" id="teamsList">
+          <!-- Dynamically populated team cards -->
+        </div>
+      </div>
+
+      <!-- VISTA 2: PEGADO MASIVO (WHATSAPP) -->
+      <div id="massiveInputView" style="display: none;">
+        <div class="panel-header">
+          <span class="panel-title">
+            📥 Entrada de Texto Crudo Masivo (WhatsApp)
+          </span>
+          <span class="badge badge-info">Multi-Equipo &amp; Tickets</span>
+        </div>
+
+        <textarea class="massive-input" id="massiveRawInput" 
+                  placeholder="Pegue aquí el texto completo del día (soporta tickets con UBICACIÓN/ONU/ZONA y formato tradicional)..."
+                  oninput="handleMassiveInput()"></textarea>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: SALIDA GERENCIAL -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">
+          📋 Formato de Salida Gerencial
+        </span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" style="font-size: 11.5px; padding: 5px 11px;" id="toggleAuditBtn" onclick="toggleAuditView()">
+            🗂️ Vista Auditoría
+          </button>
+          <button class="btn btn-secondary" style="font-size: 11.5px; padding: 5px 11px;" onclick="exportToExcel()">
+            📊 Exportar Excel
+          </button>
+          <button class="btn btn-success" style="font-size: 11.5px; padding: 5px 11px;" onclick="copyToClipboard()">
+            📋 Copiar WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <!-- Text output for WhatsApp -->
+      <div class="output-container" id="formattedOutput"></div>
+
+      <!-- Interactive Audit / Override Cards View -->
+      <div class="audit-container" id="auditOutput" style="display: none;">
+        <!-- Dynamically rendered activity cards with VGT override dropdowns -->
+      </div>
+
+      <!-- Summary metrics bar -->
+      <div class="summary-bar">
+        <div class="stat-box">
+          <div class="stat-val" id="statEquipos">0</div>
+          <div class="stat-lbl">Equipos Activos</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statActividades">0</div>
+          <div class="stat-lbl">Actividades Total</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statConVGT" style="color: var(--accent-green);">0</div>
+          <div class="stat-lbl">Con VGT</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="statSinVGT" style="color: var(--accent-orange);">0</div>
+          <div class="stat-lbl">Sin Número</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: INVENTARIO DE RUTAS (VGT) -->
+  <div class="modal-overlay" id="inventoryModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="color: var(--accent-blue);">📚 Inventario de Rutas y Correlativos VGT (<span id="invCountModal">0</span> Rutas)</h3>
+        <button class="btn btn-secondary" onclick="closeInventoryModal()">✕ Cerrar</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:10px; margin-bottom:12px; flex-shrink: 0;">
+          <input type="text" id="inventorySearch" class="search-input" style="margin-bottom:0;" 
+                 placeholder="Buscar por descripción, zona, o código VGT..." oninput="filterInventory()">
+          <button class="btn btn-secondary" onclick="resetDefaultRoutes()">Restablecer Rutas de Fábrica</button>
+        </div>
+        <div class="table-wrap modal-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Descripción de Ruta / Zona</th>
+                <th>Código VGT</th>
+                <th>Postes</th>
+                <th>Distancia (KM)</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TÉCNICOS -->
+  <div class="modal-overlay" id="techModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="color: var(--accent-blue);">👨‍🔧 Base de Datos de Técnicos Registrados</h3>
+        <button class="btn btn-secondary" onclick="closeTechModal()">✕ Cerrar</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 10px; margin-bottom: 14px; flex-shrink: 0;">
+          <input type="text" id="techSearch" class="search-input" style="margin-bottom: 0;" 
+                 placeholder="Buscar por Nombre, Cédula o Teléfono..." oninput="filterTechs()">
+          <button class="btn btn-primary" onclick="showAddTechForm()">+ Agregar Técnico</button>
+        </div>
+
+        <div id="addTechForm" style="display: none; background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; margin-bottom: 14px; border: 1px solid var(--card-border); flex-shrink: 0;">
+          <h4 style="margin-bottom: 10px; color: var(--accent-indigo);">Nuevo Técnico</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 10px; align-items: center;">
+            <input type="text" id="newTechName" placeholder="Nombre Completo" class="text-input">
+            <input type="text" id="newTechCedula" placeholder="C.I. (ej. V-26.601.811)" class="text-input">
+            <input type="text" id="newTechPhone" placeholder="Teléfono (+58...)" class="text-input">
+            <select id="newTechBlock" class="select-input">
+              <option value="AFECTACIONES">⚡ Afectaciones</option>
+              <option value="SOPORTE">🏍️ Soporte Técnico</option>
+              <option value="APOYO">🔄 Relevo / Apoyo</option>
+            </select>
+            <button class="btn btn-success" onclick="addTechManually()">Guardar</button>
+          </div>
+        </div>
+
+        <div class="table-wrap modal-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Bloque Operativo</th>
+                <th>Nombre Completo</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="techTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- MODAL: CHOFERES -->
+  <div class="modal-overlay" id="driverModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="color: var(--accent-blue);">👤 Base de Datos de Choferes Registrados</h3>
+        <button class="btn btn-secondary" onclick="closeDriverModal()">✕ Cerrar</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 10px; margin-bottom: 14px; flex-shrink: 0;">
+          <input type="text" id="driverSearch" class="search-input" style="margin-bottom: 0;" 
+                 placeholder="Buscar por Nombre o Cédula..." oninput="filterDrivers()">
+          <button class="btn btn-primary" onclick="showAddDriverForm()">+ Agregar Chofer</button>
+        </div>
+
+        <div id="addDriverForm" style="display: none; background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; margin-bottom: 14px; border: 1px solid var(--card-border); flex-shrink: 0;">
+          <h4 style="margin-bottom: 10px; color: var(--accent-indigo);">Nuevo Chofer</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: center;">
+            <input type="text" id="newDriverName" placeholder="Nombre Completo" class="text-input">
+            <input type="text" id="newDriverCedula" placeholder="C.I. (ej. V-12.879.751)" class="text-input">
+            <input type="text" id="newDriverPhone" placeholder="Teléfono (+58...)" class="text-input">
+            <button class="btn btn-success" onclick="addDriverManually()">Guardar</button>
+          </div>
+        </div>
+
+        <div class="table-wrap modal-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th>Cargo</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="driverTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: VEHÍCULOS -->
+  <div class="modal-overlay" id="vehModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="color: var(--accent-blue);">🚗 Base de Datos de Vehículos y Placas</h3>
+        <button class="btn btn-secondary" onclick="closeVehModal()">✕ Cerrar</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 10px; margin-bottom: 14px; flex-shrink: 0;">
+          <input type="text" id="vehSearch" class="search-input" style="margin-bottom: 0;" 
+                 placeholder="Buscar por Modelo o Placa..." oninput="filterVehs()">
+          <button class="btn btn-primary" onclick="showAddVehForm()">+ Agregar Vehículo</button>
+        </div>
+
+        <div id="addVehForm" style="display: none; background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 10px; margin-bottom: 14px; border: 1px solid var(--card-border); flex-shrink: 0;">
+          <h4 style="margin-bottom: 10px; color: var(--accent-indigo);">Nuevo Vehículo</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center;">
+            <input type="text" id="newVehModel" placeholder="Modelo / Marca" class="text-input">
+            <input type="text" id="newVehPlate" placeholder="Placa (ej. 13HDBA)" class="text-input">
+            <button class="btn btn-success" onclick="addVehManually()">Guardar</button>
+          </div>
+        </div>
+
+        <div class="table-wrap modal-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Modelo / Marca</th>
+                <th>Placa / Matrícula</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="vehTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RESPALDO JSON -->
+  <div class="modal-overlay" id="backupModal">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 style="color: var(--accent-blue);">💾 Respaldo y Migración de Datos</h3>
+        <button class="btn btn-secondary" onclick="closeBackupModal()">✕ Cerrar</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+        <p style="font-size: 13.5px; color: var(--text-muted);">
+          Exporte o importe todas las bases de datos (técnicos, vehículos, rutas e historial) en un archivo JSON unificado para compartir con otro equipo o guardar una copia de seguridad.
+        </p>
+
+        <div style="display: flex; gap: 12px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="downloadBackupJSON()">
+            📥 Descargar Respaldo JSON
+          </button>
+          <label class="btn btn-secondary" style="flex: 1; text-align: center; cursor: pointer;">
+            📤 Cargar Respaldo JSON
+            <input type="file" id="jsonBackupInput" accept=".json" style="display: none;" onchange="restoreBackupJSON(event)">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast"></div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    // ============================================================
+    // 1. DEFAULT DATA & STORAGE
+    // ============================================================
+    const DEFAULT_ROUTES = [
+      {"id":"R-1","description":"LA MORITA","vgt":"VGT-P-0223","postes":"21.0","distancia_km":"0.68"},
+      {"id":"R-2","description":"C.C LA COLINA- MONTE BELLO","vgt":"VGT-P-0031","postes":"50.0","distancia_km":"5.51"},
+      {"id":"R-3","description":"PARQUE EL RETIRO","vgt":"VGT-P-0186","postes":"8.0","distancia_km":"0.31"},
+      {"id":"R-4","description":"EL PASO","vgt":"VGT-P-0187","postes":"19.0","distancia_km":"0.8"},
+      {"id":"R-5","description":"SOLAR DE LA QTA","vgt":"VGT-P-0064","postes":"42.0","distancia_km":"1.15"},
+      {"id":"R-6","description":"MONTE BELLO- JUNIN-TIBISAY-MACARENA ACTUALIZADA","vgt":"VGT-P-0218","postes":"434.0","distancia_km":"11.7"},
+      {"id":"R-7","description":"LA COLINA-COLISEO-CLUB DE CAMPO","vgt":"VGT-P-0183","postes":"88.0","distancia_km":"5.08"},
+      {"id":"R-8","description":"PUENTE CASTRO-PIE FINO-C. MÉDICO-SOLAR","vgt":"VGT-2023-P-675","postes":"247.0","distancia_km":"7.44"},
+      {"id":"R-9","description":"ESC. TALLER SIMON BOLÍVAR-EL NACIONAL","vgt":"VGT-2023-P-675","postes":"75.0","distancia_km":"3.0"},
+      {"id":"R-10","description":"C. GUAICAIPURO-C. AYACUCHO (23 ENERO)","vgt":"VGT-2023-P-676","postes":"19.0","distancia_km":"0.55"},
+      {"id":"R-11","description":"MACARENA-CABOTAJE -LA MATICA","vgt":"VGT-P-0218","postes":"115.0","distancia_km":"0"},
+      {"id":"R-12","description":"CALLEJÓN VARGAS","vgt":"VGT-2023-P-677","postes":"15.0","distancia_km":"4.4"},
+      {"id":"R-13","description":"LAS MINAS","vgt":"PENDIENTE","postes":"38.0","distancia_km":"1.21"},
+      {"id":"R-14","description":"LA ESTRELLA-PANADERO-TRIGO-C. PÁEZ VICTEGUI","vgt":"VGT-2023-P-678","postes":"66.0","distancia_km":"2.21"},
+      {"id":"R-15","description":"PTE. CASTRO-TERMINAL-TIUNA-C. MIQUILEN-BERMUDEZ","vgt":"VGT-2023-P-679","postes":"82.0","distancia_km":"3.2"},
+      {"id":"R-16","description":"CABOTAJE-SANTA EULALIA","vgt":"VGT-2023-P-680","postes":"35.0","distancia_km":"1.3"},
+      {"id":"R-17","description":"BRISAS DE ORIENTE","vgt":"VGT-2023-P-681","postes":"36.0","distancia_km":"1.56"},
+      {"id":"R-18","description":"IUTA - LOS ALPES","vgt":"VGT-2023-P-682","postes":"102.0","distancia_km":"2.2"},
+      {"id":"R-19","description":"LOS ALPES- CAMATAGUA","vgt":"VGT-2023-P-683","postes":"39.0","distancia_km":"1.65"},
+      {"id":"R-20","description":"BARRIO MIRANDA","vgt":"VGT-2023-P-684","postes":"28.0","distancia_km":"1.1"},
+      {"id":"R-21","description":"EL BOSQUE","vgt":"VGT-2023-P-685","postes":"11.0","distancia_km":"0.3"},
+      {"id":"R-22","description":"COLINA DE LA MATICA","vgt":"VGT-2023-P-686","postes":"7.0","distancia_km":"0.27"},
+      {"id":"R-23","description":"EL RINCON","vgt":"VGT-2023-P-687","postes":"30.0","distancia_km":"1.1"},
+      {"id":"R-24","description":"VALLE ALTO FONTANERA","vgt":"VGT-2023-P-688","postes":"87.0","distancia_km":"3.3"},
+      {"id":"R-25","description":"CALLE FEDERACION","vgt":"VGT-2023-P-689","postes":"14.0","distancia_km":"45.0"},
+      {"id":"R-26","description":"ELEVADO-PUEBLO","vgt":"VGT-2023-P-690","postes":"81.0","distancia_km":"2.67"},
+      {"id":"R-27","description":"LA ERMITA","vgt":"VGT-2023-P-691","postes":"11.0","distancia_km":"0.39"},
+      {"id":"R-28","description":"TEXAS CITY","vgt":"VGT-2023-P-692","postes":"32.0","distancia_km":"0.39"},
+      {"id":"R-29","description":"ZONA INDUSTRIAL LAS MINAS","vgt":"VGT-2023-P-693","postes":"49.0","distancia_km":"1.56"},
+      {"id":"R-30","description":"ZONA INDUSTRIAL EL ORO","vgt":"VGT-2023-P-694","postes":"27.0","distancia_km":"0.92"},
+      {"id":"R-31","description":"PALO ALTO","vgt":"VGT-2023-P-695","postes":"79.0","distancia_km":"1.72"},
+      {"id":"R-32","description":"ALBERTO RAVEL","vgt":"VGT-2023-P-696","postes":"21.0","distancia_km":"0.8"},
+      {"id":"R-33","description":"GUAREMAL","vgt":"VGT-2023-P-767","postes":"78.0","distancia_km":"2.51"},
+      {"id":"R-34","description":"QUEBRADA LA VIRGEN","vgt":"VGT-2023-P-768","postes":"29.0","distancia_km":"0.91"},
+      {"id":"R-35","description":"EL BARBECHO","vgt":"VGT-2023-P-769","postes":"29.0","distancia_km":"0.97"},
+      {"id":"R 36","description":"CARRETERA VIEJA LOS TEQUES ACTUALIZADA","vgt":"VGT-2023-P-770","postes":"152.0","distancia_km":"0.5"},
+      {"id":"R 37","description":"CENTRO MÉDICO EL PASO-TAMBOR","vgt":"VGT-2023-P-771","postes":"58.0","distancia_km":"2.1"},
+      {"id":"R 38","description":"RAMO VERDE ACTUALIZADA","vgt":"VGT-2023-P-772","postes":"52.0","distancia_km":"2.22"},
+      {"id":"R 39","description":"SAN DIEGO DE LOS ALTOS","vgt":"VGT-2023-P-773","postes":"313.0","distancia_km":"15.96"},
+      {"id":"R 40","description":"IGLESIA SAN ANTONIO-AMARILLO","vgt":"VGT-2023-P-774","postes":"53.0","distancia_km":"2.1"},
+      {"id":"R 41","description":"GUADALUPE","vgt":"VGT-2023-P-775","postes":"37.0","distancia_km":"1.35"},
+      {"id":"R 42","description":"YERBA BUENA","vgt":"VGT-2023-P-776","postes":"33.0","distancia_km":"1.4"},
+      {"id":"R 43","description":"EL TAMBOR","vgt":"VGT-2023-P-777","postes":"49.0","distancia_km":"1.52"},
+      {"id":"R 44","description":"PACHECO","vgt":"VGT-2023-P-778","postes":"29.0","distancia_km":"1.1"},
+      {"id":"R45","description":"CUMBRE ROJA ACTUALIZADA","vgt":"VGT-2023-P-1007","postes":"169.0","distancia_km":"1.18"},
+      {"id":"R46","description":"SAN PEDRO ACTUALIZADA","vgt":"VGT-2023-P-1142","postes":"113.0","distancia_km":"0.82"},
+      {"id":"R47","description":"COLINAS DEL ANGEL ACTUALIZADA","vgt":"VGT-2023-P-1143","postes":"20.0","distancia_km":"5.14"},
+      {"id":"R48","description":"ALTO VERDE /POR IMPRIMIR","vgt":"PENDIENTE","postes":"29.0","distancia_km":"0.91"},
+      {"id":"R49","description":"MACARENA-LOS CERRITOS /POR IMPRIMIR","vgt":"VGT-2024-P-326","postes":"24.0","distancia_km":"1.1"},
+      {"id":"R50","description":"CUMBRE ROJA TEJERÍAS","vgt":"VGT-2024-P-429","postes":"246.0","distancia_km":"13.4"},
+      {"id":"R51","description":"LOS CASTORES","vgt":"VGT-2024-P-513","postes":"161.0","distancia_km":"5.2"},
+      {"id":"R 52","description":"SAN ANTONIO DE LOS ALTOS- AVENIDA SOUBLETTE","vgt":"NO FACTIBLE POR S/P","postes":"-","distancia_km":"9.01"},
+      {"id":"R 53","description":"ENTRADA DE LA VEGA-CATIA /POR IMPRIMIR","vgt":"VGT-2024-P-699","postes":"385.0","distancia_km":"11.8"},
+      {"id":"R 54","description":"CATIA-AVENIDA SOUBLETTE /POR IMPRIMIR","vgt":"VGT-2024-P-NH-35","postes":"-","distancia_km":"19.2"},
+      {"id":"R 55","description":"SAN ANTONIO DE LOS ALTOS-ENTRADA DE LA VEGA","vgt":"VGT-2024-P-1088","postes":"83.0","distancia_km":"9.01"},
+      {"id":"R 56","description":"CORRALITO KM 18 NO FACTIBLE / NO HAY OFERTA COMERCIAL","vgt":"VGT-2024-P-1206","postes":"65.0","distancia_km":"3.16"},
+      {"id":"R 57","description":"LAGUNETICA /POR IMPRIMIR","vgt":"VGT-2024-P-1438","postes":"129.0","distancia_km":"5.19"},
+      {"id":"R 58","description":"PUENTE CARRIZAL MONTAÑA ALTA (ACT. R56)","vgt":"VGT-2024-P-1206","postes":"35.0","distancia_km":"1.59"},
+      {"id":"R 59","description":"COLISEO PUENTE CARRIZAL","vgt":"VGT-2024-P-2411","postes":"44.0","distancia_km":"1.8"},
+      {"id":"R 60","description":"SANTO DOMINGO- TRAPICHE","vgt":"VGT-P-2024-1720","postes":"209.0","distancia_km":"5.82"},
+      {"id":"R 61","description":"EL VALLE ETAPA 1","vgt":"VGT-2024-P-1750","postes":"251.0","distancia_km":"6.02"},
+      {"id":"R 62","description":"PUEBLO DE TEJERÍAS-SANTO DOMINGO","vgt":"VGT-2024-P-1751","postes":"202.0","distancia_km":"5.92"},
+      {"id":"R 63","description":"EL PICACHO COCHE /POR IMPRIMIR","vgt":"-","postes":"","distancia_km":"9.2"},
+      {"id":"R 64","description":"CORRALITO -PAN DE AZUCAR","vgt":"VGT-2024-P-1767","postes":"31.0","distancia_km":"1.02"},
+      {"id":"R 65","description":"MONTAÑA ALTA- COLINAS DE CARRIZAL","vgt":"VGT-2024-P-1851","postes":"257.0","distancia_km":"6.95"},
+      {"id":"R 66","description":"POZO DE ROSAS /POR IMPRIMIR","vgt":"VGT-2024-P-1983","postes":"133.0","distancia_km":"3.9"},
+      {"id":"R 67","description":"EL VALLE ETAPA 2","vgt":"VGT-2024-P-1956","postes":"304.0","distancia_km":"9.2"},
+      {"id":"R 68","description":"URB. PIEDRA AZUL/ FALTA AUTORIZACION","vgt":"VGT-2024-P-2270","postes":"42.0","distancia_km":"0.91"},
+      {"id":"R 69","description":"TRAMO SUBTERRÁNEO EL VALLE DESCARTADO/POR IMPRIMIR","vgt":"VGT-2024-P-680","postes":"0.0","distancia_km":"0.92"},
+      {"id":"R 70","description":"LA VEGA KM 0/FALTA AUTORIZCION","vgt":"VGT-2025-P-131","postes":"72.0","distancia_km":"5.2"},
+      {"id":"R 71","description":"LA VEGA FASE 2","vgt":"VGT-2025-P-2076","postes":"167.0","distancia_km":"6.04"},
+      {"id":"R 72","description":"VEREDAS DE COCHE","vgt":"VGT-2025-P-2136","postes":"247.0","distancia_km":"7.4"},
+      {"id":"R 73","description":"23 DE ENERO- DERIVACIONES CATIA","vgt":"VGT-2025-P-2415","postes":"1069.0","distancia_km":"38.42"},
+      {"id":"R 74","description":"DERIVACIONES LAS ADJUNTAS- CARICUAO","vgt":"VGT-2025-P-2416","postes":"916.0","distancia_km":"33.62"}
+    ];
+
+    // Technicians grouped by block
+    const DEFAULT_TECHS = [
+    {
+        "id": 1,
+        "block": "AFECTACIONES",
+        "name": "ALEXIS GARCIA OROPEZA",
+        "cedula": "V-12.731.208",
+        "phone": "+58 424-1404877",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 2,
+        "block": "AFECTACIONES",
+        "name": "ANGEL HIDALGO",
+        "cedula": "V-17.979.012",
+        "phone": "+58 414-9016072",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 3,
+        "block": "AFECTACIONES",
+        "name": "CARLOS JOSÉ BURGOS PINEDA",
+        "cedula": "V-29.850.234",
+        "phone": "+58 424-2894899",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 4,
+        "block": "AFECTACIONES",
+        "name": "CARLOS SAUL BURGOS",
+        "cedula": "V-18.898.674",
+        "phone": "+58 424-2544061",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 5,
+        "block": "AFECTACIONES",
+        "name": "DANIEL ROJAS",
+        "cedula": "V-21.469.109",
+        "phone": "+58 414-2542030",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 6,
+        "block": "AFECTACIONES",
+        "name": "DAVID RODRIGUEZ",
+        "cedula": "V-26.078.684",
+        "phone": "+58 412-0543227",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 7,
+        "block": "AFECTACIONES",
+        "name": "DIEGO ANDRÉS MORONTA VIERA",
+        "cedula": "V-27.371.953",
+        "phone": "+58 424-2920276",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 8,
+        "block": "AFECTACIONES",
+        "name": "ELIAS MIGUEL JIMENEZ MARMOLET",
+        "cedula": "V-27.908.487",
+        "phone": "+58 412-5913430",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 9,
+        "block": "AFECTACIONES",
+        "name": "FRANCISCO RODOLFO REYES URIEPERO",
+        "cedula": "V-27.623.676",
+        "phone": "+58 416-7767278",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 10,
+        "block": "AFECTACIONES",
+        "name": "FRANYELO JOSÉ PEREZ VELASQUEZ",
+        "cedula": "V-30.457.454",
+        "phone": "+58 412-9771281",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 11,
+        "block": "AFECTACIONES",
+        "name": "FRANYERSON RAMIREZ",
+        "cedula": "V-29.850.985",
+        "phone": "+58 424-2408734",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 12,
+        "block": "AFECTACIONES",
+        "name": "GABRIEL HERNANDEZ",
+        "cedula": "V-28.302.049",
+        "phone": "+58 412-7705454",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 13,
+        "block": "AFECTACIONES",
+        "name": "GADIETH LEXANDRO LOPEZ MARTINEZ",
+        "cedula": "V-32.497.052",
+        "phone": "+58 412-7118551",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 14,
+        "block": "AFECTACIONES",
+        "name": "GERAL ANDRES ARIAS",
+        "cedula": "V-27.040.315",
+        "phone": "+58 424-3358423",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 15,
+        "block": "AFECTACIONES",
+        "name": "JEAN CARLOS BURGOS",
+        "cedula": "V-32.174.428",
+        "phone": "+58 424-2544061",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 16,
+        "block": "AFECTACIONES",
+        "name": "JOE FRANCO MACHADO",
+        "cedula": "V-14.214.581",
+        "phone": "+58 412-4861337",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 17,
+        "block": "AFECTACIONES",
+        "name": "JORGE MACHADO",
+        "cedula": "V-11.899.868",
+        "phone": "+58 424-2544061",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 18,
+        "block": "AFECTACIONES",
+        "name": "JOSE ARMANDO LOPEZ",
+        "cedula": "V-8.682.375",
+        "phone": "+58 412-9368853",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 19,
+        "block": "AFECTACIONES",
+        "name": "JOSE MORALES",
+        "cedula": "V-15.255.710",
+        "phone": "+58 414-2356488",
+        "cargo": "LINIERO SUPERVISOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 20,
+        "block": "AFECTACIONES",
+        "name": "JOYNERKER DAVID SUÁREZ MEJÍAS",
+        "cedula": "V-32.540.248",
+        "phone": "+58 424-1701521",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 21,
+        "block": "AFECTACIONES",
+        "name": "KERVIN MANUEL MARQUEZ CASTRO",
+        "cedula": "V-22.440.512",
+        "phone": "+58 412-3387742",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 22,
+        "block": "AFECTACIONES",
+        "name": "LUIS MELENDEZ",
+        "cedula": "V-11.183.645",
+        "phone": "+58 412-9213180",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 23,
+        "block": "AFECTACIONES",
+        "name": "MAIKER GUILLERMO PINEDA RANGEL",
+        "cedula": "V-21.118.622",
+        "phone": "+58 412-9610392",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 24,
+        "block": "AFECTACIONES",
+        "name": "MARIO PIÑERO",
+        "cedula": "V-8.675.093",
+        "phone": "+58 412-9772918",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 25,
+        "block": "AFECTACIONES",
+        "name": "NEOMAR ALBERTO GUAINA GONZÁLEZ",
+        "cedula": "V-27.988.872",
+        "phone": "+58 412-4792793",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 26,
+        "block": "AFECTACIONES",
+        "name": "ORLANDO ANTONIO MARRERO CASTILLO",
+        "cedula": "V-25.218.406",
+        "phone": "+58 412-9261975",
+        "cargo": "AYUDANTE",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 27,
+        "block": "AFECTACIONES",
+        "name": "RAYM OROPEZA",
+        "cedula": "V-29.511.706",
+        "phone": "+58 212-3273595",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 28,
+        "block": "AFECTACIONES",
+        "name": "REINALDO FERNANDEZ",
+        "cedula": "V-17.532.232",
+        "phone": "+58 412-7043735",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 29,
+        "block": "AFECTACIONES",
+        "name": "ROGER MURIA",
+        "cedula": "V-21.469.259",
+        "phone": "+58 414-2367910",
+        "cargo": "AFECTACION",
+        "departamento": "AFECTACION"
+    },
+    {
+        "id": 30,
+        "block": "AFECTACIONES",
+        "name": "TOMAS SIMON MUJICA MARMOLE",
+        "cedula": "V-14.481.670",
+        "phone": "+58 424-1455746",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 31,
+        "block": "AFECTACIONES",
+        "name": "UDMAR ALEXIS FERNANDEZ PARADA",
+        "cedula": "V-11.603.721",
+        "phone": "+58 412-5858934",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 32,
+        "block": "AFECTACIONES",
+        "name": "VICTOR MANUEL HERNANDEZ ORDAZ",
+        "cedula": "V-19.014.931",
+        "phone": "+58 412-8711136",
+        "cargo": "EMPALMADOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 33,
+        "block": "AFECTACIONES",
+        "name": "WENSESLAO MUJICA",
+        "cedula": "V-15.713.395",
+        "phone": "+58 412-3027803",
+        "cargo": "LINIERO SUPERVISOR",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 34,
+        "block": "AFECTACIONES",
+        "name": "WILLIANS ANGARITA",
+        "cedula": "V-20.410.574",
+        "phone": "+58 412-5430647",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 35,
+        "block": "AFECTACIONES",
+        "name": "WOLFAN OLEIDY BARRIOS GARCIA",
+        "cedula": "V-15.913.212",
+        "phone": "+58 424-2684071",
+        "cargo": "LINIERO",
+        "departamento": "DISTRIBUCIÓN"
+    },
+    {
+        "id": 36,
+        "block": "SOPORTE",
+        "name": "ALEXIS GIL",
+        "cedula": "V-24.886.445",
+        "phone": "+58 424-2558408",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 37,
+        "block": "SOPORTE",
+        "name": "ALFREDO ESCOBAR",
+        "cedula": "V-25.223.904",
+        "phone": "+58 412-1636071",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 38,
+        "block": "SOPORTE",
+        "name": "ARMANDO GONZALEZ",
+        "cedula": "V-28.413.014",
+        "phone": "+58 412-8280467",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 39,
+        "block": "SOPORTE",
+        "name": "CARLOS ARAUJO",
+        "cedula": "V-28.073.816",
+        "phone": "+58 424-1216997",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 40,
+        "block": "SOPORTE",
+        "name": "CARLOS GIL",
+        "cedula": "V-28.329.666",
+        "phone": "+58 412-9960741",
+        "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 41,
+        "block": "SOPORTE",
+        "name": "CESAR AUGUSTO CAMPOS LUQUE",
+        "cedula": "V-30.182.542",
+        "phone": "+58 424-1664020",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 42,
+        "block": "SOPORTE",
+        "name": "CESAR ENRIQUE GÓMEZ CONTRERAS",
+        "cedula": "V-30.457.598",
+        "phone": "+58 424-8940008",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 43,
+        "block": "SOPORTE",
+        "name": "DANIEL ALBERTO COLMENARES LIRA",
+        "cedula": "V-23.652.902",
+        "phone": "+58 412-0192634",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 44,
+        "block": "SOPORTE",
+        "name": "DAVID PEREIRA",
+        "cedula": "V-17.926.043",
+        "phone": "+58 412-9072753",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 45,
+        "block": "SOPORTE",
+        "name": "DOUGLAS MAYOBRE",
+        "cedula": "V-25.840.238",
+        "phone": "+58 426-7318611",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 46,
+        "block": "SOPORTE",
+        "name": "ERNESTO GABRIEL DELGADO",
+        "cedula": "V-27.040.347",
+        "phone": "+58 424-2921840",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 47,
+        "block": "SOPORTE",
+        "name": "GABRIEL VICENTE ESPINOZA DUM",
+        "cedula": "V-30.457.808",
+        "phone": "+58 412-9836858",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 48,
+        "block": "SOPORTE",
+        "name": "HENRY CARTAYA",
+        "cedula": "V-14.480.388",
+        "phone": "+58 424-2563811",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 49,
+        "block": "SOPORTE",
+        "name": "HERNÁN JOSÉ LEAL MARTÍNEZ",
+        "cedula": "V-24.523.064",
+        "phone": "+58 416-1539118",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 50,
+        "block": "SOPORTE",
+        "name": "ISAAC RAFAEL SALGADO ALDAMA",
+        "cedula": "V-16.924.451",
+        "phone": "+58 412-0481272",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 51,
+        "block": "SOPORTE",
+        "name": "JEFFERSON DANIEL MARRERO OCHOA",
+        "cedula": "V-20.114.489",
+        "phone": "+58 424-2197479",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 52,
+        "block": "SOPORTE",
+        "name": "JEFFERSON MIGUEL CASTELLANOS HERNANDEZ",
+        "cedula": "V-25.840.293",
+        "phone": "+58 412-9324959",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 53,
+        "block": "SOPORTE",
+        "name": "JESÚS MANUEL ROMERO MUÑOZ",
+        "cedula": "V-24.898.093",
+        "phone": "+58 424-1430039",
+        "cargo": "SOPORTE DE CAMPO CATIA/LA VEGA",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 54,
+        "block": "SOPORTE",
+        "name": "JOBER DUGARTE",
+        "cedula": "V-29.511.879",
+        "phone": "+58 412-6345678",
+        "cargo": "SOPORTE DE CAMPO EL VALLE",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 55,
+        "block": "SOPORTE",
+        "name": "JOHAN RENE RODRIGUEZ MORALES",
+        "cedula": "V-14.216.384",
+        "phone": "+58 424-1247194",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 56,
+        "block": "SOPORTE",
+        "name": "JOLHAN ANTHONY RODRIGUEZ RODRIGUEZ",
+        "cedula": "V-24.998.556",
+        "phone": "+58 424-1514885",
+        "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 57,
+        "block": "SOPORTE",
+        "name": "JONATHAN GUTIERREZ",
+        "cedula": "V-28.307.034",
+        "phone": "+58 424-2114023",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 58,
+        "block": "SOPORTE",
+        "name": "JOSE ENRIQUE LEAL CURIEL",
+        "cedula": "V-14.071.913",
+        "phone": "+58 412-5990012",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 59,
+        "block": "SOPORTE",
+        "name": "JUAN MIJARES",
+        "cedula": "V-14.059.259",
+        "phone": "+58 414-1732347",
+        "cargo": "SUPERVISOR INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 60,
+        "block": "SOPORTE",
+        "name": "JUNIOR ARNALDO ORTA JIMENEZ",
+        "cedula": "V-20.265.676",
+        "phone": "+58 412-9184912",
+        "cargo": "SOPORTE DE CAMPO TEJERIAS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 61,
+        "block": "SOPORTE",
+        "name": "KEHISBER ANTONIO CARABALLO GARCIA",
+        "cedula": "V-30.328.230",
+        "phone": "+58 412-0251325",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 62,
+        "block": "SOPORTE",
+        "name": "KEITHMEL MARCANO",
+        "cedula": "V-30.411.342",
+        "phone": "+58 412-9955190",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 63,
+        "block": "SOPORTE",
+        "name": "KEVIN JOSSUEEP CORTEZ GONZALEZ",
+        "cedula": "V-25.237.424",
+        "phone": "+58 424-2060194",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 64,
+        "block": "SOPORTE",
+        "name": "LUIS ALBERTO ALTUVE MENESES",
+        "cedula": "V-13.717.742",
+        "phone": "+58 424-2897983",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 65,
+        "block": "SOPORTE",
+        "name": "LUIS RODRIGUEZ",
+        "cedula": "V-23.608.565",
+        "phone": "+58 414-7444457",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 66,
+        "block": "SOPORTE",
+        "name": "MOISES ALBERTO PIÑANGO RODRÍGUEZ",
+        "cedula": "V-27.597.252",
+        "phone": "+58 412-6916741",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 67,
+        "block": "SOPORTE",
+        "name": "MOISES ALEJANDRO MUJICA BALZA",
+        "cedula": "V-29.751.880",
+        "phone": "+58 422-3344952",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 68,
+        "block": "SOPORTE",
+        "name": "RANDY EIDAN MORENO CHACOA",
+        "cedula": "V-29.850.452",
+        "phone": "+58 424-2508330",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 69,
+        "block": "SOPORTE",
+        "name": "RONEL JOSE VARGAS VADEL",
+        "cedula": "V-21.118.209",
+        "phone": "+58 412-4215662",
+        "cargo": "SOPORTE DE CAMPO ALTOS MIRANDINOS",
+        "departamento": "SOPORTE DE CAMPO"
+    },
+    {
+        "id": 70,
+        "block": "SOPORTE",
+        "name": "ROOSEVELT LARA",
+        "cedula": "V-28.073.912",
+        "phone": "+58 424-1257816",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 71,
+        "block": "SOPORTE",
+        "name": "SIMON TORRES",
+        "cedula": "V-30.328.690",
+        "phone": "+58 414-9905942",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 72,
+        "block": "SOPORTE",
+        "name": "STEVEN RAFAEL MARDACH TORRES",
+        "cedula": "V-22.667.018",
+        "phone": "+58 414-2681380",
+        "cargo": "INSTALADOR",
+        "departamento": "INSTALACION"
+    },
+    {
+        "id": 73,
+        "block": "SOPORTE",
+        "name": "ZADKIEL MENDOZA",
+        "cedula": "V-26.498.545",
+        "phone": "+58 414-1612261",
+        "cargo": "SUPERVISOR INSTALADOR",
+        "departamento": "INSTALACION"
+    }
+];
+
+    const DEFAULT_DRIVERS = [
+    {
+        "id": 1,
+        "name": "JEFFERSON PLAZA",
+        "cedula": "V-12.879.751",
+        "phone": "+58 414-1339787",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 2,
+        "name": "NELSON VEGAS",
+        "cedula": "V-11.817.677",
+        "phone": "+58 424-2842089",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 3,
+        "name": "ALEJANDRO CAMACHO",
+        "cedula": "V-10.503.027",
+        "phone": "+58 412-9016479",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 4,
+        "name": "IRVIN SANTANA",
+        "cedula": "V-8.677.687",
+        "phone": "+58 412-7846519",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 5,
+        "name": "WILLIAM GREGORIO NIEVES",
+        "cedula": "V-15.315.119",
+        "phone": "+58 412-5481476",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 6,
+        "name": "JONMEL FERNANDEZ GARCIA",
+        "cedula": "V-16.935.592",
+        "phone": "+58 414-2014293",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 7,
+        "name": "RAFAEL ANGEL VELASQUEZ GOUDETH",
+        "cedula": "V-16.249.337",
+        "phone": "+58 412-9709191",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 8,
+        "name": "ROBERTO ANTONIO CHACÓN SÁNCHEZ",
+        "cedula": "V-10.161.454",
+        "phone": "+58 414-4729147",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 9,
+        "name": "MAICKEL LEANDRO CAPOTE PEÑA",
+        "cedula": "V-15.715.053",
+        "phone": "+58 412-3771725",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 10,
+        "name": "YORLAN ALEXANDER ALGUILAR BORGES",
+        "cedula": "V-12.765.034",
+        "phone": "+58 414-0168955",
+        "cargo": "CHOFER"
+    },
+    {
+        "id": 11,
+        "name": "OLIVER DARIO VEGAS CASTILLO",
+        "cedula": "V-14.674.092",
+        "phone": "+58 424-2844092",
+        "cargo": "CHOFER"
+    }
+];
+
+    const DEFAULT_VEHS = [
+      { id: 1, model: "RICH ZN", plate: "A00CR8G" },
+      { id: 2, model: "RICH ZN", plate: "A98DP5K" },
+      { id: 3, model: "EKXPRESS II 150", plate: "AG2L05E" },
+      { id: 4, model: "EMPIRE HORSE", plate: "AK7J67M" },
+      { id: 5, model: "EMPIRE HORSE", plate: "AL3Y16G" },
+      { id: 6, model: "BERA - KAVAK", plate: "AT2X63D" },
+      { id: 7, model: "DT-200 BR ENDUR", plate: "AL3Y16G" },
+      { id: 8, model: "MITSUBISHI PANEL L300", plate: "13HDBA" },
+      { id: 9, model: "HILUX", plate: "A59EW0A" }
+    ];
+
+    // Presets with explicit letters (Nombres completos oficiales según base de datos)
+    const WEEKDAY_TEAMS = [
+      { id: "M", letter: "M", type: "AFECTACIONES", active: true, techs: ["JOE FRANCO MACHADO", "GERAL ANDRES ARIAS"], driver: "", vehicle: "RICH ZN", plate: "A00CR8G", rawTickets: "" },
+      { id: "E", letter: "E", type: "AFECTACIONES", active: true, techs: ["JORGE MACHADO", "ALEXIS GARCIA OROPEZA", "JEAN CARLOS BURGOS"], driver: "", vehicle: "RICH ZN", plate: "A98DP5K", rawTickets: "" },
+      { id: "P", letter: "P", type: "AFECTACIONES", active: true, techs: ["CARLOS JOSÉ BURGOS PINEDA", "DIEGO ANDRÉS MORONTA VIERA"], driver: "", vehicle: "RICH ZN", plate: "A98DP5K", rawTickets: "" },
+      { id: "V", letter: "V", type: "SOPORTE TÉCNICO", active: true, techs: ["JESÚS MANUEL ROMERO MUÑOZ"], driver: "", vehicle: "EKXPRESS II 150", plate: "AG2L05E", rawTickets: "" },
+      { id: "J", letter: "J", type: "SOPORTE TÉCNICO", active: true, techs: ["JOBER DUGARTE"], driver: "", vehicle: "EMPIRE HORSE", plate: "AK7J67M", rawTickets: "" },
+      { id: "G", letter: "G", type: "SOPORTE TÉCNICO", active: true, techs: ["CARLOS GIL"], driver: "", vehicle: "EMPIRE HORSE", plate: "AK7J67M", rawTickets: "" },
+      { id: "R", letter: "R", type: "SOPORTE TÉCNICO", active: true, techs: ["RONEL JOSE VARGAS VADEL"], driver: "", vehicle: "EMPIRE HORSE", plate: "AK7J67M", rawTickets: "" },
+      { id: "S", letter: "S", type: "SOPORTE TÉCNICO", active: true, techs: ["JOLHAN ANTHONY RODRIGUEZ RODRIGUEZ"], driver: "", vehicle: "EMPIRE HORSE", plate: "AL3Y16G", rawTickets: "" },
+      { id: "H", letter: "H", type: "SOPORTE TÉCNICO", active: true, techs: ["HERNÁN JOSÉ LEAL MARTÍNEZ"], driver: "", vehicle: "BERA - KAVAK", plate: "AT2X63D", rawTickets: "" },
+      { id: "Y", letter: "Y", type: "SOPORTE TÉCNICO", active: true, techs: ["JUNIOR ARNALDO ORTA JIMENEZ"], driver: "", vehicle: "DT-200 BR ENDUR", plate: "AL3Y16G", rawTickets: "" }
+    ];
+
+    const DEFAULT_WEEKEND_TEAMS = [
+      { id: "GUARDIA-1", letter: "F", customTitle: '', type: "AFECTACIONES", active: true, techs: [], driver: "", vehicle: "MITSUBISHI PANEL L300", plate: "13HDBA", rawTickets: "" },
+      { id: "GUARDIA-2", letter: "xD", customTitle: '', type: "SOPORTE TÉCNICO", active: false, techs: [], driver: "", vehicle: "EMPIRE HORSE", plate: "AK7J67M", rawTickets: "" }
+    ];
+
+    // State Variables
+    let routesDB = JSON.parse(localStorage.getItem("powerlink_routes")) || DEFAULT_ROUTES;
+    let techniciansDB = JSON.parse(localStorage.getItem("powerlink_techs")) || DEFAULT_TECHS;
+    let driversDB = JSON.parse(localStorage.getItem("powerlink_drivers")) || DEFAULT_DRIVERS;
+    let vehiclesDB = JSON.parse(localStorage.getItem("powerlink_vehicles")) || DEFAULT_VEHS;
+
+    // Sincronizar y curar técnicos: asegurar que todos los de DEFAULT_TECHS tengan su nombre, cédula y teléfono al día
+    DEFAULT_TECHS.forEach(dt => {
+      const idx = techniciansDB.findIndex(t => t.id === dt.id || normalizeText(t.name) === normalizeText(dt.name));
+      if (idx === -1) {
+        techniciansDB.push(dt);
+      } else {
+        if (!techniciansDB[idx].cedula || techniciansDB[idx].cedula !== dt.cedula) techniciansDB[idx].cedula = dt.cedula;
+        if (!techniciansDB[idx].phone || techniciansDB[idx].phone !== dt.phone) techniciansDB[idx].phone = dt.phone;
+        if (!techniciansDB[idx].block) techniciansDB[idx].block = dt.block;
+      }
+    });
+
+    // Ensure all 5 technicians are classified as AFECTACIONES
+    const afectacionesTechs = ["GABRIEL HERNANDEZ", "LUIS MELENDEZ", "REINALDO FERNANDEZ", "FRANYERSON RAMIREZ", "CARLOS BURGOS"];
+    techniciansDB.forEach(t => {
+      if (afectacionesTechs.includes(t.name)) {
+        t.block = "AFECTACIONES";
+      } else if (!t.block) {
+        const found = DEFAULT_TECHS.find(dt => dt.name === t.name);
+        t.block = found ? found.block : "AFECTACIONES";
+      }
+    });
+    localStorage.setItem("powerlink_techs", JSON.stringify(techniciansDB));
+    localStorage.setItem("powerlink_drivers", JSON.stringify(driversDB));
+
+    let currentPresetMode = "WEEKDAY"; // "WEEKDAY" or "WEEKEND"
+    let currentInputMode = "TEAM_MANAGER"; // "TEAM_MANAGER" or "MASSIVE_INPUT"
+    let currentOutputView = "TEXT"; // "TEXT" or "AUDIT"
+
+    let teamsState = JSON.parse(JSON.stringify(WEEKDAY_TEAMS));
+    let parsedActivitiesStore = [];
+
+    // ============================================================
+    // 2. HELPER UTILITIES & SMART TECHNICIAN MATCHER
+    // ============================================================
+    function normalizeText(str) {
+      if (!str) return "";
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+    }
+
+    // Tabla de alias y nombres comunes para garantizar coincidencia incluso con abreviaturas o apodos
+    const TECH_ALIASES = {
+      "JOE MACHADO": "JOE FRANCO MACHADO",
+      "ANDRES ARIAS": "GERAL ANDRES ARIAS",
+      "CARLOS JOSÉ BURGOS": "CARLOS JOSÉ BURGOS PINEDA",
+      "CARLOS JOSE BURGOS": "CARLOS JOSÉ BURGOS PINEDA",
+      "CARLOS BURGOS": "CARLOS JOSÉ BURGOS PINEDA",
+      "DIEGO MORONTA": "DIEGO ANDRÉS MORONTA VIERA",
+      "JESUS ROMERO": "JESÚS MANUEL ROMERO MUÑOZ",
+      "RONEL VARGAS": "RONEL JOSE VARGAS VADEL",
+      "ANTHONY RODRIGUEZ": "JOLHAN ANTHONY RODRIGUEZ RODRIGUEZ",
+      "HERNAN LEAL": "HERNÁN JOSÉ LEAL MARTÍNEZ",
+      "JUNIOR ORTA": "JUNIOR ARNALDO ORTA JIMENEZ",
+      "ALEXIS GARCIA": "ALEXIS GARCIA OROPEZA",
+      "ELIAS JIMENEZ": "ELIAS MIGUEL JIMENEZ MARMOLET",
+      "FRANCISCO REYES": "FRANCISCO RODOLFO REYES URIEPERO",
+      "FRANYELO PEREZ": "FRANYELO JOSÉ PEREZ VELASQUEZ",
+      "JOYNERKER SUAREZ": "JOYNERKER DAVID SUÁREZ MEJÍAS",
+      "KERVIN MARQUEZ": "KERVIN MANUEL MARQUEZ CASTRO",
+      "MAIKER PINEDA": "MAIKER GUILLERMO PINEDA RANGEL",
+      "NEOMAR GUAINA": "NEOMAR ALBERTO GUAINA GONZÁLEZ",
+      "ORLANDO MARRERO": "ORLANDO ANTONIO MARRERO CASTILLO",
+      "TOMAS MUJICA": "TOMAS SIMON MUJICA MARMOLE",
+      "UDMAR FERNANDEZ": "UDMAR ALEXIS FERNANDEZ PARADA",
+      "VICTOR HERNANDEZ": "VICTOR MANUEL HERNANDEZ ORDAZ",
+      "WOLFAN BARRIOS": "WOLFAN OLEIDY BARRIOS GARCIA",
+      "CESAR CAMPOS": "CESAR AUGUSTO CAMPOS LUQUE",
+      "CESAR GOMEZ": "CESAR ENRIQUE GÓMEZ CONTRERAS",
+      "DANIEL COLMENARES": "DANIEL ALBERTO COLMENARES LIRA",
+      "ERNESTO DELGADO": "ERNESTO GABRIEL DELGADO",
+      "GABRIEL ESPINOZA": "GABRIEL VICENTE ESPINOZA DUM",
+      "ISAAC SALGADO": "ISAAC RAFAEL SALGADO ALDAMA",
+      "JEFFERSON MARRERO": "JEFFERSON DANIEL MARRERO OCHOA",
+      "JEFFERSON CASTELLANOS": "JEFFERSON MIGUEL CASTELLANOS HERNANDEZ",
+      "JOHAN RODRIGUEZ": "JOHAN RENE RODRIGUEZ MORALES",
+      "JOSE LEAL": "JOSE ENRIQUE LEAL CURIEL",
+      "KEHISBER CARABALLO": "KEHISBER ANTONIO CARABALLO GARCIA",
+      "KEVIN CORTEZ": "KEVIN JOSSUEEP CORTEZ GONZALEZ",
+      "LUIS ALTUVE": "LUIS ALBERTO ALTUVE MENESES",
+      "MOISES PIÑANGO": "MOISES ALBERTO PIÑANGO RODRÍGUEZ",
+      "MOISES MUJICA": "MOISES ALEJANDRO MUJICA BALZA",
+      "RANDY MORENO": "RANDY EIDAN MORENO CHACOA",
+      "STEVEN MARDACH": "STEVEN RAFAEL MARDACH TORRES"
+    };
+
+    function findTechnician(query) {
+      if (!query || typeof query !== "string") return null;
+      const cleanQ = query.trim();
+      if (!cleanQ) return null;
+      const normQ = normalizeText(cleanQ);
+
+      // 1. Coincidencia exacta de nombre
+      let found = techniciansDB.find(t => normalizeText(t.name) === normQ);
+      if (found) return found;
+
+      // 2. Coincidencia por cédula (solo dígitos)
+      const digitsQ = cleanQ.replace(/\D/g, '');
+      if (digitsQ.length >= 6) {
+        found = techniciansDB.find(t => {
+          const tDigits = (t.cedula || '').replace(/\D/g, '');
+          return tDigits && tDigits === digitsQ;
+        });
+        if (found) return found;
+      }
+
+      // 3. Diccionario de alias conocidos
+      for (const [alias, realName] of Object.entries(TECH_ALIASES)) {
+        if (normalizeText(alias) === normQ) {
+          found = techniciansDB.find(t => normalizeText(t.name) === normalizeText(realName));
+          if (found) return found;
+        }
+      }
+
+      // 4. Subconjunto de tokens (todas las palabras de la consulta están en el nombre del técnico)
+      const qTokens = normQ.split(/\s+/).filter(w => w.length > 1);
+      if (qTokens.length >= 2) {
+        const candidates = techniciansDB.filter(t => {
+          const tTokens = normalizeText(t.name).split(/\s+/);
+          return qTokens.every(qk => tTokens.includes(qk));
+        });
+        if (candidates.length === 1) return candidates[0];
+      }
+
+      // 5. Inclusión de cadenas
+      found = techniciansDB.find(t => {
+        const tn = normalizeText(t.name);
+        return normQ.length > 5 && (tn.includes(normQ) || normQ.includes(tn));
+      });
+      if (found) return found;
+
+      return null;
+    }
+
+    function sanitizeTeamTechNames(teams) {
+      if (!teams || !Array.isArray(teams)) return;
+      teams.forEach(team => {
+        if (team.techs && Array.isArray(team.techs)) {
+          team.techs = team.techs.map(tName => {
+            const found = findTechnician(tName);
+            return found ? found.name : tName;
+          });
+        }
+      });
+    }
+
+    // Asegurar que las cuadrillas iniciales usen los nombres oficiales
+    sanitizeTeamTechNames(teamsState);
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function saveDBs() {
+      localStorage.setItem("powerlink_routes", JSON.stringify(routesDB));
+      localStorage.setItem("powerlink_techs", JSON.stringify(techniciansDB));
+      localStorage.setItem("powerlink_drivers", JSON.stringify(driversDB));
+      localStorage.setItem("powerlink_vehicles", JSON.stringify(vehiclesDB));
+      updateBadges();
+    }
+
+    function updateBadges() {
+      document.getElementById("routesCountBadge").innerText = routesDB.length;
+      document.getElementById("techsCountBadge").innerText = techniciansDB.length;
+      const dBadge = document.getElementById("driversCountBadge"); if (dBadge) dBadge.innerText = driversDB.length;
+      document.getElementById("vehsCountBadge").innerText = vehiclesDB.length;
+      document.getElementById("invCountModal").innerText = routesDB.length;
+    }
+
+    // Returns grouped tech options for selects
+    function getGroupedTechOptionsHtml() {
+      const afec = techniciansDB.filter(t => t.block === "AFECTACIONES");
+      const sopo = techniciansDB.filter(t => t.block === "SOPORTE");
+      const otros = techniciansDB.filter(t => t.block !== "AFECTACIONES" && t.block !== "SOPORTE");
+
+      let html = `<option value="">+ Añadir Técnico...</option>`;
+      if (afec.length > 0) {
+        html += `<optgroup label="⚡ Afectaciones (${afec.length} Técnicos)">`;
+        afec.forEach(t => html += `<option value="${t.name}">${t.name} (${t.cedula})</option>`);
+        html += `</optgroup>`;
+      }
+      if (sopo.length > 0) {
+        html += `<optgroup label="🏍️ Soporte Técnico (${sopo.length} Técnicos)">`;
+        sopo.forEach(t => html += `<option value="${t.name}">${t.name} (${t.cedula})</option>`);
+        html += `</optgroup>`;
+      }
+      if (otros.length > 0) {
+        html += `<optgroup label="🔄 Otros / Relevos">`;
+        otros.forEach(t => html += `<option value="${t.name}">${t.name} (${t.cedula})</option>`);
+        html += `</optgroup>`;
+      }
+      return html;
+    }
+
+    // ============================================================
+    // 3. VGT MATCHING ENGINE (SCORING + CONTEXT)
+    // ============================================================
+    function getVGTForAddress(address, onu = "", zona = "") {
+      const normAddr = normalizeText(address);
+      const normOnu  = normalizeText(onu);
+      const normZona = normalizeText(zona);
+      const fullContext = `${normAddr} ${normOnu} ${normZona}`;
+
+      // --- Deterministic High-Priority Rules ---
+      if (fullContext.includes("CENTRO LOS TEQUES") || fullContext.includes("CENTRO TEQUES")) {
+        return "VGT-2023-P-679";
+      }
+
+      if (fullContext.includes("CUMBRE ROJA") || fullContext.includes("TEJERIA") || fullContext.includes("TEJERIAS")) {
+        return "VGT-2024-P-429";
+      }
+
+      if (fullContext.includes("SAN ANTONIO")) {
+        const exceptions = ["LA MORITA", "CASTORES", "LOS CASTORES", "LAS MINAS", "LA COLINA", "COLISEO", "CLUB DE CAMPO"];
+        const isException = exceptions.some(exc => fullContext.includes(exc));
+        if (!isException) {
+          return "VGT-2023-P-774";
+        }
+      }
+
+      if (fullContext.includes("SAN PEDRO")) {
+        return "VGT-2023-P-1142";
+      }
+
+      // Caracas Rules
+      if (fullContext.includes("KM 0") || fullContext.includes("KM0") || fullContext.includes("LAS MAYAS") || fullContext.includes("LA MAYA")) {
+        return "VGT-2025-P-131";
+      }
+      if (fullContext.includes("CATIA") || fullContext.includes("PROPATRIA")) {
+        return "VGT-2025-P-2415";
+      }
+      if (fullContext.includes("VALLE")) {
+        return "VGT-2024-P-1750";
+      }
+      if (fullContext.includes("COCHE")) {
+        return "VGT-2025-P-2136";
+      }
+      if (fullContext.includes("LA VEGA") || fullContext.includes("VEGA")) {
+        return "VGT-2025-P-2076";
+      }
+
+      // Contextual High-Accuracy Matches for CMDP / Hotspots
+      if (fullContext.includes("LAGUNETICA")) {
+        return "VGT-2024-P-1438";
+      }
+      if (fullContext.includes("CARRETERA VIEJA") || fullContext.includes("ESPERANZA") || normOnu.includes("ESPERANZA")) {
+        return "VGT-2023-P-770";
+      }
+      if (fullContext.includes("AYACUCHO") || normOnu.includes("AYACUCHO") || fullContext.includes("CHORRITO")) {
+        return "VGT-2023-P-676";
+      }
+      if (fullContext.includes("PIEDRA AZUL") || normOnu.includes("P. AZUL") || normOnu.includes("P.AZUL") || normOnu.includes("PIEDRA AZUL")) {
+        return "VGT-2024-P-2270";
+      }
+
+      // --- Weighted Scoring over routesDB ---
+      let bestMatch = null;
+      let bestScore = 0;
+
+      for (const r of routesDB) {
+        if (!r.vgt || r.vgt === "-" || r.vgt === "PENDIENTE" || r.vgt.includes("NO FACTIBLE")) continue;
+        const normDesc = normalizeText(r.description);
+
+        let score = 0;
+
+        if (fullContext.includes(normDesc)) {
+          score += 120;
+        }
+
+        const terms = normDesc.split(/[\s\-\/\,]+/).filter(t => 
+          t.length > 3 && !['ACTUALIZADA','PROYECTO','COMPLETO','FASE','ETAPA','POR','IMPRIMIR','LOS','LOS TEQUES','TEQUES'].includes(t)
+        );
+
+        let matchedCount = 0;
+        for (const term of terms) {
+          if (normAddr.includes(term)) {
+            matchedCount++;
+            score += 25 + term.length;
+          } else if (normOnu.includes(term) || normZona.includes(term)) {
+            matchedCount++;
+            score += 20 + term.length;
+          }
+        }
+
+        if (matchedCount > 0 && score > bestScore) {
+          bestScore = score;
+          bestMatch = r.vgt.replace('.-P-', '-P-');
+        }
+      }
+
+      return bestMatch || "SIN NÚMERO";
+    }
+
+    // ============================================================
+    // 4. SMART TICKET & RAW TEXT PARSER
+    // ============================================================
+    function parseTicketsText(rawText) {
+      if (!rawText || !rawText.trim()) return [];
+
+      const text = rawText.trim();
+      const activities = [];
+
+      const isTicketFormat = /(?:UBICACI[ÓO]N|DIRECCI[ÓO]N)\s*:/i.test(text);
+
+      if (isTicketFormat) {
+        let generalZona = "";
+        const zonaMatch = text.match(/ZONA\s*:\s*([^\r\n=]+)/i);
+        if (zonaMatch) {
+          generalZona = zonaMatch[1].trim();
+        }
+
+        const blocks = text.split(/(?:\r?\n)?\s*={3,}\s*(?:\r?\n)?/);
+
+        for (const block of blocks) {
+          const bTrim = block.trim();
+          if (!bTrim) continue;
+
+          const uMatch = bTrim.match(/(?:UBICACI[ÓO]N|DIRECCI[ÓO]N)\s*:\s*([^\r\n]+)/i);
+          if (uMatch) {
+            let addr = uMatch[1].trim();
+            addr = addr.replace(/^["'\*]+|["'\*]+$/g, '').trim();
+
+            let onu = "";
+            const onuMatch = bTrim.match(/ONU\s*:\s*([^\r\n]+)/i);
+            if (onuMatch) onu = onuMatch[1].trim();
+
+            let localZona = generalZona;
+            const bZonaMatch = bTrim.match(/ZONA\s*:\s*([^\r\n]+)/i);
+            if (bZonaMatch) localZona = bZonaMatch[1].trim();
+
+            if (addr) {
+              activities.push({
+                address: addr,
+                onu: onu,
+                zona: localZona,
+                manualVgt: null
+              });
+            }
+          }
+        }
+
+        if (activities.length === 0) {
+          const lines = text.split(/\r?\n/);
+          let currentOnu = "";
+          for (const line of lines) {
+            const clean = line.trim();
+            const oMatch = clean.match(/^ONU\s*:\s*(.+)/i);
+            if (oMatch) currentOnu = oMatch[1].trim();
+
+            const m = clean.match(/^(?:UBICACI[ÓO]N|DIRECCI[ÓO]N)\s*:\s*(.+)/i);
+            if (m) {
+              activities.push({
+                address: m[1].trim(),
+                onu: currentOnu,
+                zona: generalZona,
+                manualVgt: null
+              });
+              currentOnu = "";
+            }
+          }
+        }
+
+      } else {
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+        for (const line of lines) {
+          const clean = line.replace(/^\*+|\*+$/g, '').trim();
+          const norm = normalizeText(clean);
+
+          if (norm.startsWith("===") || norm.startsWith("---") ||
+              norm.includes("EQUIPO") || norm.includes("ACTIVIDAD") ||
+              norm.startsWith("TECNICO") || norm.startsWith("VEHICULO") ||
+              norm.startsWith("PLACA") || norm.startsWith("CHOFER") ||
+              /V-\d+/i.test(clean) || /\+\d{2,}/.test(clean)) {
+            continue;
+          }
+
+          activities.push({
+            address: clean,
+            onu: "",
+            zona: "",
+            manualVgt: null
+          });
+        }
+      }
+
+      return activities;
+    }
+
+    // ============================================================
+    // 5. GESTOR DE CUADRILLAS (RENDER & ACTIONS)
+    // ============================================================
+    
+    // ============================================================
+    // BUSCADOR RÁPIDO DE PERSONAL (TÉCNICOS Y CHOFERES)
+    // ============================================================
+    let currentPersonnelCategory = 'ALL';
+
+    function setPersonnelFilter(cat, btnEl) {
+      currentPersonnelCategory = cat;
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      const q = document.getElementById("personnelSearchInput") ? document.getElementById("personnelSearchInput").value : "";
+      handleLivePersonnelSearch(q);
+    }
+
+    function clearLivePersonnelSearch() {
+      const inp = document.getElementById("personnelSearchInput");
+      if (inp) inp.value = "";
+      const clearBtn = document.getElementById("clearPersonnelSearchBtn");
+      if (clearBtn) clearBtn.style.display = "none";
+      const resultsPanel = document.getElementById("personnelSearchResults");
+      if (resultsPanel) {
+        resultsPanel.style.display = "none";
+        resultsPanel.innerHTML = "";
+      }
+    }
+
+    function handleLivePersonnelSearch(query) {
+      const q = normalizeText(query);
+      const clearBtn = document.getElementById("clearPersonnelSearchBtn");
+      const resultsPanel = document.getElementById("personnelSearchResults");
+      if (!resultsPanel) return;
+
+      if (clearBtn) clearBtn.style.display = query.length > 0 ? "block" : "none";
+
+      if (!query && currentPersonnelCategory === 'ALL') {
+        resultsPanel.style.display = "none";
+        resultsPanel.innerHTML = "";
+        return;
+      }
+
+      // Aggregate personnel
+      let list = [];
+      if (currentPersonnelCategory === 'ALL' || currentPersonnelCategory === 'AFECTACIONES' || currentPersonnelCategory === 'SOPORTE') {
+        techniciansDB.forEach(t => {
+          if (currentPersonnelCategory === 'ALL' || t.block === currentPersonnelCategory) {
+            list.push({
+              type: 'TECH',
+              name: t.name,
+              cedula: t.cedula,
+              phone: t.phone,
+              block: t.block,
+              cargo: t.cargo || (t.block === 'AFECTACIONES' ? 'Afectación' : 'Soporte')
+            });
+          }
+        });
+      }
+      if (currentPersonnelCategory === 'ALL' || currentPersonnelCategory === 'CHOFER') {
+        driversDB.forEach(d => {
+          list.push({
+            type: 'DRIVER',
+            name: d.name,
+            cedula: d.cedula,
+            phone: d.phone,
+            block: 'CHOFER',
+            cargo: d.role || d.cargo || 'Chofer'
+          });
+        });
+      }
+
+      // Filter by query
+      let matches = list;
+      if (q) {
+        matches = list.filter(p => 
+          normalizeText(p.name).includes(q) ||
+          normalizeText(p.cedula).includes(q) ||
+          normalizeText(p.phone).includes(q) ||
+          normalizeText(p.cargo).includes(q)
+        );
+      }
+
+      if (matches.length === 0) {
+        resultsPanel.innerHTML = `<div style="padding:10px; color:var(--text-muted); font-size:12px; text-align:center;">🔍 No se encontró personal que coincida con "${query}"</div>`;
+        resultsPanel.style.display = "block";
+        return;
+      }
+
+      const teamOptionsHtml = teamsState.map((tm, i) => 
+        `<option value="${i}">Equipo "${tm.letter || tm.id}"</option>`
+      ).join("");
+
+      resultsPanel.innerHTML = matches.slice(0, 15).map(p => {
+        let assignedTeam = null;
+        teamsState.forEach(tm => {
+          if (tm.techs && tm.techs.some(t => {
+            const tObj = findTechnician(t);
+            return (tObj && normalizeText(tObj.name) === normalizeText(p.name)) || normalizeText(t) === normalizeText(p.name);
+          })) {
+            assignedTeam = tm.letter || tm.id;
+          }
+          if (tm.driver && normalizeText(tm.driver) === normalizeText(p.name)) {
+            assignedTeam = `${tm.letter || tm.id} (Chofer)`;
+          }
+        });
+
+        const icon = p.type === 'DRIVER' ? '👤' : (p.block === 'AFECTACIONES' ? '⚡' : '🏍️');
+        const badgeClass = p.type === 'DRIVER' ? 'badge-orange' : (p.block === 'AFECTACIONES' ? 'badge-purple' : 'badge-info');
+
+        return `
+          <div class="person-result-card">
+            <div class="person-info">
+              <span style="font-size:16px;">${icon}</span>
+              <div style="min-width:0; overflow:hidden;">
+                <div class="person-name">${p.name}</div>
+                <div class="person-meta">
+                  <span class="badge ${badgeClass}" style="font-size:9.5px; padding:1px 6px;">${p.cargo}</span>
+                  <code>${p.cedula || '—'}</code>
+                  <span style="color:var(--text-gold); font-family:var(--font-mono);">${p.phone || ''}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${assignedTeam 
+                ? `<span class="person-status status-assigned">📍 En Equipo ${assignedTeam}</span>` 
+                : `<span class="person-status status-available">🟢 Disponible</span>`}
+              
+              <div style="display:inline-flex; align-items:center; gap:4px;">
+                <select class="select-input" style="width: auto; padding: 2px 6px; font-size: 10.5px;" onchange="if(this.value!=='') { quickAssignPerson('${p.name}', ${p.type === 'DRIVER'}, this.value); this.value=''; }">
+                  <option value="">➕ Asignar a...</option>
+                  ${teamOptionsHtml}
+                </select>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      resultsPanel.style.display = "block";
+    }
+
+    function quickAssignPerson(personName, isDriverRole, teamIdx) {
+      teamIdx = parseInt(teamIdx);
+      if (isNaN(teamIdx) || !teamsState[teamIdx]) return;
+
+      if (isDriverRole) {
+        teamsState[teamIdx].driver = personName;
+        showToast(`✅ ${personName} asignado como Chofer al Equipo "${teamsState[teamIdx].letter || teamsState[teamIdx].id}"`);
+      } else {
+        if (!teamsState[teamIdx].techs.includes(personName)) {
+          teamsState[teamIdx].techs.push(personName);
+          showToast(`✅ ${personName} añadido al Equipo "${teamsState[teamIdx].letter || teamsState[teamIdx].id}"`);
+        } else {
+          showToast(`ℹ️ ${personName} ya estaba en ese equipo`);
+        }
+      }
+      renderTeamCards();
+      const el = document.getElementById(`teamCard_${teamIdx}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.borderColor = 'var(--brand-gold-bright)';
+        setTimeout(() => { if (el) el.style.borderColor = ''; }, 1800);
+      }
+      const q = document.getElementById("personnelSearchInput") ? document.getElementById("personnelSearchInput").value : "";
+      handleLivePersonnelSearch(q);
+    }
+
+    function handleInlineTechAdd(teamIdx, inputEl) {
+      const val = (inputEl.value || "").trim();
+      if (!val) return;
+      const found = findTechnician(val);
+      if (found) {
+        addTechToTeam(teamIdx, found.name);
+        inputEl.value = "";
+      } else {
+        const norm = normalizeText(val);
+        const foundDriver = driversDB.find(d => normalizeText(d.name) === norm);
+        if (foundDriver) {
+          addTechToTeam(teamIdx, foundDriver.name);
+          inputEl.value = "";
+        } else {
+          showToast("⚠️ Técnico no encontrado");
+        }
+      }
+    }
+
+    
+    function handleTeamLetterChange(idx, val) {
+      const cleanVal = val.trim();
+      teamsState[idx].letter = cleanVal;
+      teamsState[idx].customTitle = ""; // Clear fixed title so custom typed letter takes effect!
+      const avatar = document.getElementById(`teamAvatar_${idx}`);
+      if (avatar) avatar.innerText = cleanVal.substring(0, 3) || 'EQ';
+      generateManagerialReport();
+      if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+    }
+
+    function removeTeamCard(idx) {
+      if (teamsState.length <= 1) return;
+      const team = teamsState[idx];
+      const name = team.letter ? `EQUIPO "${team.letter}"` : (team.customTitle || "esta cuadrilla");
+      if (confirm(`¿Desea eliminar ${name}?`)) {
+        teamsState.splice(idx, 1);
+        renderTeamCards();
+        if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+        showToast("🗑️ Cuadrilla eliminada");
+      }
+    }
+
+    function renderTeamCards() {
+      const container = document.getElementById("teamsList");
+      container.innerHTML = "";
+
+      document.getElementById("teamListCount").innerText = teamsState.length;
+      const totalPCount = document.getElementById("totalPersonnelCount");
+      if (totalPCount) totalPCount.innerText = techniciansDB.length + driversDB.length;
+
+      teamsState.forEach((team, idx) => {
+        const activities = parseTicketsText(team.rawTickets);
+        const card = document.createElement("div");
+        card.className = `team-card ${team.active ? '' : 'inactive'}`;
+        card.id = `teamCard_${idx}`;
+
+        // Build Technician Chips
+        let techChipsHtml = team.techs.map(tName => {
+          const techObj = findTechnician(tName);
+          const displayName = techObj ? techObj.name : tName;
+          const label = techObj ? `${displayName} (${techObj.cedula})` : tName;
+          return `
+            <span class="tech-chip">
+              👨‍🔧 ${label}
+              <span class="tech-chip-remove" onclick="removeTechFromTeam(${idx}, '${tName.replace(/'/g, "\\'")}')" title="Quitar">×</span>
+            </span>
+          `;
+        }).join("");
+
+        // Vehicle options
+        const vehOptions = vehiclesDB.map(v => 
+          `<option value="${v.model}|${v.plate}" ${team.plate === v.plate ? 'selected' : ''}>${v.model} [${v.plate}]</option>`
+        ).join("");
+
+        // Title display
+        const displayTitle = team.customTitle ? team.customTitle : `EQUIPO "${team.letter || team.id}"`;
+
+        card.innerHTML = `
+          <div class="team-card-top">
+            <div class="team-title-group">
+              <label class="toggle-switch" title="Activar / Desactivar equipo para el reporte de hoy">
+                <input type="checkbox" ${team.active ? 'checked' : ''} onchange="toggleTeamActive(${idx}, this.checked)">
+                <span class="slider"></span>
+              </label>
+              <div class="team-letter-avatar" id="teamAvatar_${idx}">${(team.letter || 'EQ').substring(0, 3)}</div>
+              
+              <div class="team-name-input-wrap" title="Haz clic para editar la letra o nombre del equipo (ej. F, xD, GUARDIA...)">
+                <span class="team-name-prefix">EQUIPO "</span>
+                <input type="text" class="team-letter-input" 
+                       value="${team.letter || ''}" 
+                       placeholder="F, xD..." 
+                       oninput="handleTeamLetterChange(${idx}, this.value)">
+                <span class="team-name-prefix">"</span>
+              </div>
+              <select class="team-type-select" onchange="updateTeamProp(${idx}, 'type', this.value)">
+                <option value="AFECTACIONES" ${team.type === 'AFECTACIONES' ? 'selected' : ''}>AFECTACIONES</option>
+                <option value="SOPORTE TÉCNICO" ${team.type === 'SOPORTE TÉCNICO' ? 'selected' : ''}>SOPORTE TÉCNICO</option>
+              </select>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge ${activities.length > 0 ? 'badge-green' : 'badge-orange'}">
+                ${activities.length} Actividades
+              </span>
+              <button class="btn btn-secondary" style="padding: 2px 7px; font-size: 11px;" onclick="clearSingleTeamTickets(${idx})" title="Limpiar entradas de este equipo">✕</button>
+              ${teamsState.length > 1 ? `<button class="btn btn-danger" style="padding: 2px 7px; font-size: 11px;" onclick="removeTeamCard(${idx})" title="Eliminar esta cuadrilla">🗑️</button>` : ''}
+            </div>
+          </div>
+
+          <div class="crew-row">
+            <div class="crew-field">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="crew-label">👨‍🔧 Técnico(s) Asignado(s):</span>
+                <select class="select-input" style="width: auto; padding: 2px 6px; font-size: 11px;" onchange="addTechToTeam(${idx}, this.value); this.value='';">
+                  ${getGroupedTechOptionsHtml()}
+                </select>
+              </div>
+              <div class="tech-search-bar-inline">
+                <input type="text" list="allTechsDatalist" class="tech-quick-input" 
+                       placeholder="🔍 Escribe para buscar y añadir técnico..." 
+                       onchange="handleInlineTechAdd(${idx}, this)">
+              </div>
+              <div class="tech-chips" id="techChips_${idx}">
+                ${techChipsHtml || '<span style="font-size:11px; color:var(--text-muted);">Sin técnicos asignados</span>'}
+              </div>
+            </div>
+
+            <div class="crew-field">
+              <span class="crew-label">👤 Chofer (Opcional):</span>
+              <input type="text" list="driversList" class="text-input" placeholder="🔍 Escribir o buscar chofer..." value="${team.driver || ''}" 
+                     onchange="updateTeamProp(${idx}, 'driver', this.value)">
+            </div>
+
+            <div class="crew-field">
+              <span class="crew-label">🚗 Vehículo &amp; Placa:</span>
+              <select class="select-input" onchange="handleTeamVehChange(${idx}, this.value)">
+                <option value="|">-- Sin Vehículo --</option>
+                ${vehOptions}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <textarea class="team-tickets-input" id="teamTickets_${idx}"
+                      placeholder="Pegue aquí los tickets o direcciones de este equipo (soporta formato WhatsApp con UBICACIÓN/ONU)..."
+                      oninput="updateTeamTickets(${idx}, this.value)">${team.rawTickets}</textarea>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      // Update technicians datalist for autocomplete
+      let tList = document.getElementById("allTechsDatalist");
+      if (!tList) {
+        tList = document.createElement("datalist");
+        tList.id = "allTechsDatalist";
+        document.body.appendChild(tList);
+      }
+      tList.innerHTML = techniciansDB.map(t => 
+        `<option value="${t.name}">${t.name} (${t.cedula}) - ${t.block === 'AFECTACIONES' ? '⚡ Afectaciones' : '🏍️ Soporte'}</option>`
+      ).join("");
+
+      // Update drivers datalist with registered drivers and technicians
+      let dList = document.getElementById("driversList");
+      if (!dList) {
+        dList = document.createElement("datalist");
+        dList.id = "driversList";
+        document.body.appendChild(dList);
+      }
+      dList.innerHTML = driversDB.map(d => `<option value="${d.name}">${d.name} (${d.cedula}) - 👤 Chofer [${d.phone || ''}]</option>`).join("") + 
+                         techniciansDB.map(t => `<option value="${t.name}">${t.name} (${t.cedula}) - Técnico</option>`).join("");
+
+      generateManagerialReport();
+    }
+
+    function toggleTeamActive(idx, isActive) {
+      teamsState[idx].active = isActive;
+      const el = document.getElementById(`teamCard_${idx}`);
+      if (el) el.classList.toggle("inactive", !isActive);
+      generateManagerialReport();
+      if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+    }
+
+    function updateTeamProp(idx, prop, value) {
+      teamsState[idx][prop] = value;
+      generateManagerialReport();
+      if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+    }
+
+    function handleTeamVehChange(idx, compoundVal) {
+      const parts = compoundVal.split("|");
+      teamsState[idx].vehicle = parts[0] || "";
+      teamsState[idx].plate = parts[1] || "";
+      generateManagerialReport();
+      if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+    }
+
+    function addTechToTeam(teamIdx, techName) {
+      if (!techName) return;
+      if (!teamsState[teamIdx].techs.includes(techName)) {
+        teamsState[teamIdx].techs.push(techName);
+        renderTeamCards();
+        if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+      }
+    }
+
+    function removeTechFromTeam(teamIdx, techName) {
+      teamsState[teamIdx].techs = teamsState[teamIdx].techs.filter(t => t !== techName);
+      renderTeamCards();
+      if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+    }
+
+    function updateTeamTickets(idx, value) {
+      teamsState[idx].rawTickets = value;
+      generateManagerialReport();
+    }
+
+    function clearSingleTeamTickets(idx) {
+      teamsState[idx].rawTickets = "";
+      const txt = document.getElementById(`teamTickets_${idx}`);
+      if (txt) txt.value = "";
+      renderTeamCards();
+      showToast("🧹 Tickets del equipo limpiados");
+    }
+
+    function clearAllTeamTickets() {
+      if (confirm("¿Desea limpiar los tickets y direcciones de todos los equipos?")) {
+        teamsState.forEach(t => t.rawTickets = "");
+        renderTeamCards();
+        showToast("🧹 Todos los tickets han sido vaciados");
+      }
+    }
+
+    function addNewTeamCard() {
+      const letter = prompt("Ingrese la letra o identificador del nuevo equipo (ej: K, Z, ESPECIAL):", "N");
+      if (!letter) return;
+      const cleanLetter = letter.trim().toUpperCase();
+      const newTeam = {
+        id: "EXTRA-" + Date.now(),
+        letter: cleanLetter,
+        customTitle: `EQUIPO "${cleanLetter}"`,
+        type: "SOPORTE TÉCNICO",
+        active: true,
+        techs: [],
+        driver: "",
+        vehicle: "EMPIRE HORSE",
+        plate: "AK7J67M",
+        rawTickets: ""
+      };
+      teamsState.push(newTeam);
+      renderTeamCards();
+      if (typeof autoSaveGuardTeams === "function") autoSaveGuardTeams();
+      showToast(`✅ Cuadrilla EQUIPO "${cleanLetter}" agregada`);
+    }
+
+    // ============================================================
+    // 6. PRESETS & MODALITIES (RECORDATORIO Y MEMORIA DE GUARDIA)
+    // ============================================================
+    function autoSaveGuardTeams() {
+      if (currentPresetMode !== "WEEKEND") return;
+      // Guardar estructura de cuadrilla limpiando tickets para el siguiente día (ej. Domingo)
+      const snapshot = teamsState.map(t => ({
+        id: t.id,
+        letter: t.letter,
+        customTitle: t.customTitle || '',
+        type: t.type,
+        active: t.active,
+        techs: [...(t.techs || [])],
+        driver: t.driver || '',
+        vehicle: t.vehicle || '',
+        plate: t.plate || '',
+        rawTickets: ''
+      }));
+
+      const now = new Date();
+      const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+      const dayName = days[now.getDay()];
+      const dateStr = `${dayName} ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}`;
+
+      const meta = {
+        dateStr: dateStr,
+        dayOfWeek: now.getDay(),
+        timestamp: now.getTime(),
+        teams: snapshot
+      };
+
+      localStorage.setItem("powerlink_guard_preset", JSON.stringify(snapshot));
+      localStorage.setItem("powerlink_weekend_guard_meta", JSON.stringify(meta));
+      updateGuardReminderBanner();
+    }
+
+    function updateGuardReminderBanner() {
+      const banner = document.getElementById("guardReminderBanner");
+      if (!banner) return;
+      if (currentPresetMode !== "WEEKEND") {
+        banner.style.display = "none";
+        return;
+      }
+
+      const metaRaw = localStorage.getItem("powerlink_weekend_guard_meta");
+      const dateTag = document.getElementById("guardReminderDateTag");
+      const descEl = document.getElementById("guardReminderDesc");
+
+      if (metaRaw) {
+        try {
+          const meta = JSON.parse(metaRaw);
+          if (dateTag) dateTag.innerText = `Guardia: ${meta.dateStr}`;
+          if (descEl) descEl.innerHTML = `Cuadrillas del fin de semana (<strong>${meta.dateStr}</strong>) cargadas. El técnico del domingo o feriado ya tiene los equipos, técnicos, choferes y vehículos listos para trabajar sin tener que crearlos nuevamente. Puedes modificar integrantes, agregar o eliminar cuadrillas fácilmente.`;
+        } catch(e) {
+          if (dateTag) dateTag.innerText = "Guardia de Fin de Semana";
+        }
+      } else {
+        if (dateTag) dateTag.innerText = "Plantilla de Guardia Activa";
+        if (descEl) descEl.innerText = "Modo Guardia / Fin de Semana / Feriados activo. Modifica los integrantes o vehículos y se guardarán automáticamente para el resto del fin de semana.";
+      }
+      banner.style.display = "flex";
+    }
+
+    function dismissGuardReminder() {
+      const banner = document.getElementById("guardReminderBanner");
+      if (banner) banner.style.display = "none";
+    }
+
+    function switchPreset(mode) {
+      currentPresetMode = mode;
+      document.getElementById("presetWeekdayBtn").classList.toggle("active", mode === "WEEKDAY");
+      document.getElementById("presetWeekendBtn").classList.toggle("active", mode === "WEEKEND");
+
+      const resetBtn = document.getElementById("resetPresetBtn");
+      const loadBtn = document.getElementById("guardLoadBtn");
+
+      if (mode === "WEEKDAY") {
+        teamsState = JSON.parse(JSON.stringify(WEEKDAY_TEAMS));
+        sanitizeTeamTechNames(teamsState);
+        if (resetBtn) resetBtn.innerHTML = "↺ Restablecer L-V";
+        if (loadBtn) loadBtn.style.display = "none";
+        const banner = document.getElementById("guardReminderBanner");
+        if (banner) banner.style.display = "none";
+        showToast("🏢 Modalidad: Lunes a Viernes (10 Equipos Fijos M, E, P, V, J, G, R, S, H, Y)");
+      } else {
+        if (resetBtn) resetBtn.innerHTML = "↺ Reset Plantilla Guardia";
+        if (loadBtn) loadBtn.style.display = "inline-flex";
+
+        let savedGuard = localStorage.getItem("powerlink_guard_preset");
+        // Limpiar versiones obsoletas que traían técnicos hardcodeados
+        if (savedGuard && (savedGuard.includes("RONEL VARGAS") || savedGuard.includes("STEVEN MARDACH"))) {
+          localStorage.removeItem("powerlink_guard_preset");
+          localStorage.removeItem("powerlink_weekend_guard_meta");
+          savedGuard = null;
+        }
+
+        if (savedGuard) {
+          try {
+            teamsState = JSON.parse(savedGuard);
+          } catch(e) {
+            teamsState = JSON.parse(JSON.stringify(DEFAULT_WEEKEND_TEAMS));
+          }
+        } else {
+          teamsState = JSON.parse(JSON.stringify(DEFAULT_WEEKEND_TEAMS));
+        }
+        sanitizeTeamTechNames(teamsState);
+        updateGuardReminderBanner();
+        showToast("🛡️ Modalidad: Guardia / Fin de Semana / Feriados");
+      }
+
+      renderTeamCards();
+    }
+
+    function saveCurrentAsGuardPreset() {
+      autoSaveGuardTeams();
+      showToast("💾 ¡Cuadrillas de guardia guardadas en memoria para el fin de semana!");
+    }
+
+    function loadLastGuardPreset() {
+      const metaRaw = localStorage.getItem("powerlink_weekend_guard_meta");
+      const savedPreset = localStorage.getItem("powerlink_guard_preset");
+      let teams = null;
+      let dateText = "fin de semana";
+
+      if (metaRaw) {
+        try {
+          const meta = JSON.parse(metaRaw);
+          teams = meta.teams;
+          if (meta.dateStr) dateText = meta.dateStr;
+        } catch(e) {}
+      }
+      if (!teams && savedPreset) {
+        try { teams = JSON.parse(savedPreset); } catch(e) {}
+      }
+
+      if (teams && Array.isArray(teams) && teams.length > 0) {
+        teamsState = JSON.parse(JSON.stringify(teams));
+        sanitizeTeamTechNames(teamsState);
+        renderTeamCards();
+        updateGuardReminderBanner();
+        showToast(`📋 Cuadrilla de guardia recuperada (${dateText})`);
+      } else {
+        showToast("⚠️ No hay una guardia previa guardada en el navegador");
+      }
+    }
+
+    function resetGuardPreset() {
+      if (confirm("¿Deseas restablecer las cuadrillas de guardia a la plantilla inicial limpia (F y xD en blanco)?\n\nIdeal para comenzar una nueva guardia de feriado o un nuevo fin de semana desde cero.")) {
+        teamsState = JSON.parse(JSON.stringify(DEFAULT_WEEKEND_TEAMS));
+        localStorage.removeItem("powerlink_guard_preset");
+        localStorage.removeItem("powerlink_weekend_guard_meta");
+        renderTeamCards();
+        updateGuardReminderBanner();
+        showToast("↺ Plantilla inicial de guardia restablecida (lista para feriado o nuevo fin de semana)");
+      }
+    }
+
+    function resetCurrentPreset() {
+      if (currentPresetMode === "WEEKEND") {
+        resetGuardPreset();
+      } else {
+        if (confirm("¿Restablecer las 10 cuadrillas fijas de Lunes a Viernes a sus valores predeterminados?")) {
+          teamsState = JSON.parse(JSON.stringify(WEEKDAY_TEAMS));
+          sanitizeTeamTechNames(teamsState);
+          renderTeamCards();
+          showToast("↺ Cuadrillas de Lunes a Viernes restablecidas");
+        }
+      }
+    }
+
+    function switchInputTab(tab) {
+      currentInputMode = tab;
+      document.getElementById("tabTeamManagerBtn").classList.toggle("active", tab === "TEAM_MANAGER");
+      document.getElementById("tabMassiveBtn").classList.toggle("active", tab === "MASSIVE_INPUT");
+
+      document.getElementById("teamManagerView").style.display = (tab === "TEAM_MANAGER") ? "block" : "none";
+      document.getElementById("massiveInputView").style.display = (tab === "MASSIVE_INPUT") ? "block" : "none";
+
+      if (tab === "MASSIVE_INPUT") {
+        const massiveArea = document.getElementById("massiveRawInput");
+        if (!massiveArea.value.trim()) {
+          syncTeamsToMassiveText();
+        }
+      } else {
+        generateManagerialReport();
+      }
+    }
+
+    function syncTeamsToMassiveText() {
+      let blocks = [];
+      teamsState.forEach(team => {
+        if (!team.active) return;
+        let b = [];
+        b.push("====================================");
+        b.push("");
+        const title = team.customTitle || `EQUIPO "${team.letter}"`;
+        b.push(`${title} DE ${team.type}`);
+        b.push("");
+        b.push("NÚMERO DE ACTIVIDADES: ");
+        b.push("");
+        b.push("TÉCNICO(S):");
+        team.techs.forEach(tName => {
+          const tObj = findTechnician(tName);
+          if (tObj) b.push(`${tObj.name}, ${tObj.cedula} (${tObj.phone})`);
+          else b.push(tName);
+        });
+        if (team.driver) b.push(`CHOFER: ${team.driver}`);
+        if (team.vehicle) b.push(`VEHÍCULO: ${team.vehicle}, PLACA: ${team.plate}`);
+        b.push("");
+        if (team.rawTickets) b.push(team.rawTickets.trim());
+        b.push("");
+        blocks.push(b.join("\n"));
+      });
+      document.getElementById("massiveRawInput").value = blocks.join("\n\n");
+    }
+
+    function handleMassiveInput() {
+      generateManagerialReport();
+    }
+
+    // ============================================================
+    // 7. MANAGERIAL REPORT GENERATOR
+    // ============================================================
+    function generateManagerialReport() {
+      let allOutputBlocks = [];
+      let totalActividades = 0;
+      let totalConVGT = 0;
+      let totalSinVGT = 0;
+      let activeEquiposCount = 0;
+      parsedActivitiesStore = [];
+
+      if (currentInputMode === "TEAM_MANAGER") {
+        teamsState.forEach((team, teamIdx) => {
+          if (!team.active) return;
+
+          const activities = parseTicketsText(team.rawTickets);
+          if (activities.length === 0 && !team.rawTickets.trim()) return;
+
+          activeEquiposCount++;
+          totalActividades += activities.length;
+
+          let out = [];
+          if (allOutputBlocks.length === 0) {
+            out.push("POWERLINK CORP.");
+            out.push("");
+          }
+
+          const headerTitle = team.customTitle || `EQUIPO "${team.letter}"`;
+          out.push(`${headerTitle} DE ${team.type}`);
+          out.push("");
+          out.push(`NÚMERO DE ACTIVIDADES: ${activities.length}`);
+          out.push("");
+
+          if (team.techs.length > 0) {
+            out.push("TÉCNICO(S):");
+            team.techs.forEach(tName => {
+              const tObj = findTechnician(tName);
+              if (tObj) out.push(`${tObj.name}, ${tObj.cedula} (${tObj.phone})`);
+              else out.push(tName);
+            });
+          }
+
+          if (team.driver) {
+            out.push(`CHOFER: ${team.driver}`);
+          }
+
+          if (team.vehicle && team.plate) {
+            out.push(`VEHÍCULO: ${team.vehicle}, PLACA: ${team.plate}`);
+          }
+
+          out.push("");
+          out.push("====================================");
+          out.push("");
+          out.push("DATOS DE ACTIVIDAD:");
+          out.push("");
+
+          activities.forEach((act, actIdx) => {
+            const vgtCode = act.manualVgt || getVGTForAddress(act.address, act.onu, act.zona);
+            if (vgtCode !== "SIN NÚMERO") totalConVGT++;
+            else totalSinVGT++;
+
+            parsedActivitiesStore.push({
+              teamIdx: teamIdx,
+              teamName: headerTitle,
+              teamType: team.type,
+              actIdx: actIdx,
+              address: act.address,
+              vgt: vgtCode,
+              onu: act.onu,
+              zona: act.zona
+            });
+
+            out.push(`N° DE CORRELATIVO (VGT): ${vgtCode}`);
+            out.push(`TIPO DE ACTIVIDAD: ${team.type}`);
+            out.push("CANTIDAD DE POSTES A TRABAJAR: 1");
+            out.push(`DIRECCIÓN: ${act.address}`);
+            out.push("====================================");
+            if (actIdx < activities.length - 1) {
+              out.push("");
+            }
+          });
+
+          allOutputBlocks.push(out.join("\n"));
+        });
+
+      } else {
+        const rawText = document.getElementById("massiveRawInput").value;
+        const rawBlocks = rawText.split(/(?:\r?\n)?\s*={3,}\s*(?:\r?\n)?/);
+
+        for (let bIndex = 0; bIndex < rawBlocks.length; bIndex++) {
+          const blockText = rawBlocks[bIndex].trim();
+          if (!blockText) continue;
+
+          const lines = blockText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+          if (lines.length === 0) continue;
+
+          let equipoHeader = "";
+          let tipoActividad = "AFECTACIONES";
+          let techLines = [];
+          let vehicleLine = "";
+          let rawActivitiesText = [];
+          let inTechSection = false;
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const cleanLine = line.replace(/^\*+|\*+$/g, '').trim();
+            const cleanNorm = normalizeText(cleanLine);
+
+            if (!cleanLine || cleanLine.startsWith("===") || cleanLine.startsWith("---")) continue;
+
+            if (cleanNorm.includes("EQUIPO")) {
+              equipoHeader = cleanLine;
+              if (cleanNorm.includes("AFECTACION")) tipoActividad = "AFECTACIONES";
+              else tipoActividad = "SOPORTE TÉCNICO";
+              inTechSection = false;
+              continue;
+            }
+
+            if (cleanNorm.includes("NUMERO DE ACTIVIDADES")) continue;
+
+            if (cleanNorm.startsWith("TECNICO") || cleanNorm.startsWith("TECNICOS")) {
+              inTechSection = true;
+              if (!techLines.includes("TÉCNICO(S):")) techLines.push("TÉCNICO(S):");
+              continue;
+            }
+
+            if (cleanNorm.includes("PLACA:") || cleanNorm.includes("VEHICULO:") || cleanNorm.includes("VEHICULO :")) {
+              vehicleLine = cleanLine;
+              inTechSection = false;
+              autoLearnVehicle(cleanLine);
+              continue;
+            }
+
+            if (cleanNorm.startsWith("CHOFER")) {
+              if (!techLines.includes("TÉCNICO(S):")) techLines.push("TÉCNICO(S):");
+              techLines.push(cleanLine);
+              continue;
+            }
+
+            const hasCedula = /V-\d+/i.test(cleanLine);
+            const hasPhone  = /\+\d{2,}/.test(cleanLine);
+            const isTech = hasCedula || hasPhone || (inTechSection && !cleanLine.includes(",") && !cleanLine.includes(":"));
+
+            if (isTech) {
+              if (!techLines.includes("TÉCNICO(S):")) techLines.push("TÉCNICO(S):");
+              if (!hasCedula && !hasPhone) {
+                const foundTech = findTechnician(cleanLine);
+                if (foundTech) {
+                  techLines.push(`${foundTech.name}, ${foundTech.cedula} (${foundTech.phone})`);
+                } else {
+                  techLines.push(cleanLine);
+                }
+              } else {
+                techLines.push(cleanLine);
+                autoLearnTechnician(cleanLine);
+              }
+            } else {
+              inTechSection = false;
+              rawActivitiesText.push(cleanLine);
+            }
+          }
+
+          const activities = parseTicketsText(rawActivitiesText.join("\n"));
+          if (activities.length === 0 && !equipoHeader) continue;
+
+          activeEquiposCount++;
+          totalActividades += activities.length;
+
+          let out = [];
+          if (allOutputBlocks.length === 0) {
+            out.push("POWERLINK CORP.");
+            out.push("");
+          }
+          out.push(equipoHeader || `EQUIPO “M” DE ${tipoActividad}`);
+          out.push("");
+          out.push(`NÚMERO DE ACTIVIDADES: ${activities.length}`);
+          out.push("");
+
+          if (techLines.length > 0) techLines.forEach(t => out.push(t));
+          if (vehicleLine) out.push(vehicleLine);
+
+          out.push("");
+          out.push("====================================");
+          out.push("");
+          out.push("DATOS DE ACTIVIDAD:");
+          out.push("");
+
+          activities.forEach((act, actIdx) => {
+            const vgtCode = act.manualVgt || getVGTForAddress(act.address, act.onu, act.zona);
+            if (vgtCode !== "SIN NÚMERO") totalConVGT++;
+            else totalSinVGT++;
+
+            parsedActivitiesStore.push({
+              teamIdx: bIndex,
+              teamName: equipoHeader || "EQUIPO",
+              teamType: tipoActividad,
+              actIdx: actIdx,
+              address: act.address,
+              vgt: vgtCode,
+              onu: act.onu,
+              zona: act.zona
+            });
+
+            out.push(`N° DE CORRELATIVO (VGT): ${vgtCode}`);
+            out.push(`TIPO DE ACTIVIDAD: ${tipoActividad}`);
+            out.push("CANTIDAD DE POSTES A TRABAJAR: 1");
+            out.push(`DIRECCIÓN: ${act.address}`);
+            out.push("====================================");
+            if (actIdx < activities.length - 1) {
+              out.push("");
+            }
+          });
+
+          allOutputBlocks.push(out.join("\n"));
+        }
+      }
+
+      const finalOutputText = allOutputBlocks.join("\n\n\n");
+      document.getElementById("formattedOutput").innerText = finalOutputText || "(No hay datos de actividades para generar el parte)";
+
+      document.getElementById("statEquipos").innerText = activeEquiposCount;
+      document.getElementById("statActividades").innerText = totalActividades;
+      document.getElementById("statConVGT").innerText = totalConVGT;
+      document.getElementById("statSinVGT").innerText = totalSinVGT;
+
+      renderAuditCards();
+    }
+
+    // ============================================================
+    // 8. AUDIT CARDS & VGT OVERRIDE
+    // ============================================================
+    function toggleAuditView() {
+      const textView = document.getElementById("formattedOutput");
+      const auditView = document.getElementById("auditOutput");
+      const btn = document.getElementById("toggleAuditBtn");
+
+      if (currentOutputView === "TEXT") {
+        currentOutputView = "AUDIT";
+        textView.style.display = "none";
+        auditView.style.display = "flex";
+        btn.innerText = "📄 Vista Texto";
+        btn.classList.add("btn-primary");
+        btn.classList.remove("btn-secondary");
+      } else {
+        currentOutputView = "TEXT";
+        textView.style.display = "block";
+        auditView.style.display = "none";
+        btn.innerText = "🗂️ Vista Auditoría";
+        btn.classList.remove("btn-primary");
+        btn.classList.add("btn-secondary");
+      }
+    }
+
+    function renderAuditCards() {
+      const container = document.getElementById("auditOutput");
+      container.innerHTML = "";
+
+      if (parsedActivitiesStore.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Sin actividades detectadas para auditar.</div>';
+        return;
+      }
+
+      const routeOptions = routesDB.filter(r => r.vgt && r.vgt !== "-" && !r.vgt.includes("NO FACTIBLE")).map(r => 
+        `<option value="${r.vgt}">${r.vgt} - ${r.description}</option>`
+      ).join("");
+
+      parsedActivitiesStore.forEach((item, storeIdx) => {
+        const card = document.createElement("div");
+        card.className = "audit-card";
+
+        const hasVGT = item.vgt !== "SIN NÚMERO";
+
+        card.innerHTML = `
+          <div class="audit-card-header">
+            <span><strong>${item.teamName}</strong> • ${item.teamType}</span>
+            <span class="badge ${hasVGT ? 'badge-green' : 'badge-orange'}">${item.vgt}</span>
+          </div>
+
+          <div class="audit-address">📍 ${item.address}</div>
+          ${item.onu ? `<div style="font-size:11.5px; color:var(--accent-purple);">📟 ONU / CMDP: <code>${item.onu}</code></div>` : ''}
+
+          <div class="audit-vgt-row">
+            <span style="font-size:11.5px; color:var(--text-muted);">Correlativo asignado:</span>
+            <select class="vgt-override-select" onchange="overrideActivityVGT(${storeIdx}, this.value)">
+              <option value="${item.vgt}">${item.vgt} (Actual)</option>
+              <option value="SIN NÚMERO">SIN NÚMERO</option>
+              <optgroup label="Seleccionar Ruta VGT:">
+                ${routeOptions}
+              </optgroup>
+            </select>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function overrideActivityVGT(storeIdx, newVgt) {
+      if (!parsedActivitiesStore[storeIdx]) return;
+      const target = parsedActivitiesStore[storeIdx];
+      target.vgt = newVgt;
+
+      if (currentInputMode === "TEAM_MANAGER" && teamsState[target.teamIdx]) {
+        const activities = parseTicketsText(teamsState[target.teamIdx].rawTickets);
+        if (activities[target.actIdx]) {
+          activities[target.actIdx].manualVgt = newVgt;
+        }
+      }
+
+      showToast(`✨ VGT actualizado a ${newVgt}`);
+      generateManagerialReport();
+    }
+
+    // ============================================================
+    // 9. EXPORT & CLIPBOARD
+    // ============================================================
+    function copyToClipboard() {
+      const text = document.getElementById("formattedOutput").innerText;
+      if (!text || text.includes("(No hay datos")) {
+        showToast("⚠️ Nada que copiar todavía");
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("✅ ¡Formato gerencial copiado para WhatsApp!");
+      });
+    }
+
+    function exportToExcel() {
+      if (parsedActivitiesStore.length === 0) {
+        showToast("⚠️ No hay actividades para exportar");
+        return;
+      }
+
+      const rows = [];
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      parsedActivitiesStore.forEach((act, idx) => {
+        let techNames = "";
+        let vehicleStr = "";
+
+        if (currentInputMode === "TEAM_MANAGER" && teamsState[act.teamIdx]) {
+          techNames = teamsState[act.teamIdx].techs.map(t => {
+            const found = findTechnician(t);
+            return found ? `${found.name} (${found.cedula})` : t;
+          }).join(" / ");
+          vehicleStr = `${teamsState[act.teamIdx].vehicle} [${teamsState[act.teamIdx].plate}]`;
+        }
+
+        rows.push({
+          "Fecha": todayStr,
+          "N°": idx + 1,
+          "Equipo": act.teamName,
+          "Tipo de Actividad": act.teamType,
+          "Técnico(s)": techNames || "Según Reporte",
+          "Vehículo / Placa": vehicleStr || "Según Reporte",
+          "Correlativo (VGT)": act.vgt,
+          "Postes": 1,
+          "Dirección / Ubicación": act.address,
+          "ONU / CMDP": act.onu || "",
+          "Zona": act.zona || ""
+        });
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Parte_Diario_VGT");
+
+      const filename = `Parte_Diario_VGT_${todayStr}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+      showToast(`📊 Planilla ${filename} descargada exitosamente!`);
+    }
+
+    // ============================================================
+    // 10. AUTO-LEARNING & PERSISTENCE
+    // ============================================================
+    function autoLearnTechnician(line) {
+      const match = line.match(/^([^,]+),\s*([Vv]-\d[\d\.]*)\s*\((.*?)\)/);
+      if (match) {
+        const name = match[1].trim().toUpperCase();
+        const cedula = match[2].trim().toUpperCase();
+        const phone = match[3].trim();
+
+        const exists = findTechnician(cedula) || findTechnician(name);
+        if (!exists) {
+          techniciansDB.push({
+            id: techniciansDB.length + 1,
+            block: "APOYO",
+            name: name,
+            cedula: cedula,
+            phone: phone
+          });
+          saveDBs();
+          showToast(`✨ Nuevo Técnico Registrado: ${name}`);
+        }
+      }
+    }
+
+    function autoLearnVehicle(line) {
+      const match = line.match(/VEH[IÍ]CULO\s*:\s*([^,]+),\s*PLACA\s*:\s*([A-Z0-9]+)/i);
+      if (match) {
+        const model = match[1].trim().toUpperCase();
+        const plate = match[2].trim().toUpperCase();
+
+        const exists = vehiclesDB.find(v => v.plate === plate);
+        if (!exists) {
+          vehiclesDB.push({
+            id: vehiclesDB.length + 1,
+            model: model,
+            plate: plate
+          });
+          saveDBs();
+          showToast(`✨ Nuevo Vehículo Registrado: ${model} [${plate}]`);
+        }
+      }
+    }
+
+    // ============================================================
+    // 11. MODALS LOGIC
+    // ============================================================
+    function openInventoryModal() {
+      renderInventoryTable(routesDB);
+      document.getElementById("inventoryModal").classList.add("active");
+    }
+    function closeInventoryModal() {
+      document.getElementById("inventoryModal").classList.remove("active");
+    }
+
+    function renderInventoryTable(data) {
+      const tbody = document.getElementById("inventoryTableBody");
+      tbody.innerHTML = "";
+      data.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight: 600; color: var(--accent-indigo);">${item.id}</td>
+          <td style="font-weight: 500;">${item.description}</td>
+          <td><code style="background: rgba(255,255,255,0.08); padding: 3px 6px; border-radius: 4px; color: var(--accent-blue);">${item.vgt}</code></td>
+          <td>${item.postes || '-'}</td>
+          <td>${item.distancia_km ? item.distancia_km + ' KM' : '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterInventory() {
+      const query = normalizeText(document.getElementById("inventorySearch").value);
+      const filtered = routesDB.filter(r => 
+        normalizeText(r.description).includes(query) ||
+        normalizeText(r.vgt).includes(query) ||
+        normalizeText(r.id).includes(query)
+      );
+      renderInventoryTable(filtered);
+    }
+
+    function resetDefaultRoutes() {
+      if (confirm("¿Restablecer las 74 rutas de inventario de fábrica?")) {
+        routesDB = JSON.parse(JSON.stringify(DEFAULT_ROUTES));
+        saveDBs();
+        renderInventoryTable(routesDB);
+        showToast("↺ Rutas restablecidas");
+      }
+    }
+
+    // Tech Modal
+    function openTechModal() {
+      renderTechTable(techniciansDB);
+      document.getElementById("techModal").classList.add("active");
+    }
+    function closeTechModal() {
+      document.getElementById("techModal").classList.remove("active");
+    }
+
+    function renderTechTable(data) {
+      const tbody = document.getElementById("techTableBody");
+      tbody.innerHTML = "";
+      data.forEach(t => {
+        const tr = document.createElement("tr");
+        const blockBadge = t.block === 'AFECTACIONES' 
+          ? '<span class="badge badge-purple">⚡ Afectaciones</span>' 
+          : (t.block === 'SOPORTE' ? '<span class="badge badge-info">🏍️ Soporte</span>' : '<span class="badge badge-orange">🔄 Apoyo</span>');
+
+        tr.innerHTML = `
+          <td style="color:var(--text-muted);">${t.id}</td>
+          <td>${blockBadge}</td>
+          <td style="font-weight:600;">${t.name}</td>
+          <td><code style="color:var(--accent-blue);">${t.cedula}</code></td>
+          <td>${t.phone || '-'}</td>
+          <td><button class="btn btn-danger" style="padding: 2px 7px; font-size: 11px;" onclick="deleteTech(${t.id})">🗑</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTechs() {
+      const q = normalizeText(document.getElementById("techSearch").value);
+      const filtered = techniciansDB.filter(t => 
+        normalizeText(t.name).includes(q) ||
+        normalizeText(t.cedula).includes(q) ||
+        normalizeText(t.phone).includes(q) ||
+        normalizeText(t.block).includes(q)
+      );
+      renderTechTable(filtered);
+    }
+
+    function showAddTechForm() {
+      const f = document.getElementById("addTechForm");
+      f.style.display = f.style.display === "none" ? "block" : "none";
+    }
+
+    function addTechManually() {
+      const name = document.getElementById("newTechName").value.trim().toUpperCase();
+      const cedula = document.getElementById("newTechCedula").value.trim().toUpperCase();
+      const phone = document.getElementById("newTechPhone").value.trim();
+      const block = document.getElementById("newTechBlock").value;
+
+      if (!name || !cedula) {
+        alert("Ingrese Nombre y Cédula.");
+        return;
+      }
+
+      techniciansDB.push({ id: Date.now(), block, name, cedula, phone });
+      saveDBs();
+      renderTechTable(techniciansDB);
+      renderTeamCards();
+
+      document.getElementById("newTechName").value = "";
+      document.getElementById("newTechCedula").value = "";
+      document.getElementById("newTechPhone").value = "";
+      document.getElementById("addTechForm").style.display = "none";
+      showToast(`✅ Técnico guardado: ${name}`);
+    }
+
+    function deleteTech(id) {
+      if (confirm("¿Desea eliminar este técnico?")) {
+        techniciansDB = techniciansDB.filter(t => t.id !== id);
+        saveDBs();
+        renderTechTable(techniciansDB);
+        renderTeamCards();
+      }
+    }
+
+    
+    // Driver Modal Functions
+    function openDriverModal() {
+      renderDriverTable(driversDB);
+      document.getElementById("driverModal").classList.add("active");
+    }
+    function closeDriverModal() {
+      document.getElementById("driverModal").classList.remove("active");
+    }
+    function renderDriverTable(data) {
+      const tbody = document.getElementById("driverTableBody");
+      tbody.innerHTML = "";
+      data.forEach(d => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="color:var(--text-muted);">${d.id}</td>
+          <td style="font-weight:600;">${d.name}</td>
+          <td><code style="color:var(--accent-blue);">${d.cedula}</code></td>
+          <td>${d.phone || '-'}</td>
+          <td><span class="badge badge-orange">${d.cargo || 'CHOFER'}</span></td>
+          <td><button class="btn btn-danger" style="padding: 2px 7px; font-size: 11px;" onclick="deleteDriver(${d.id})">🗑</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function filterDrivers() {
+      const q = normalizeText(document.getElementById("driverSearch").value);
+      const filtered = driversDB.filter(d => 
+        normalizeText(d.name).includes(q) ||
+        normalizeText(d.cedula).includes(q) ||
+        normalizeText(d.phone).includes(q)
+      );
+      renderDriverTable(filtered);
+    }
+    function showAddDriverForm() {
+      const f = document.getElementById("addDriverForm");
+      f.style.display = f.style.display === "none" ? "block" : "none";
+    }
+    function addDriverManually() {
+      const name = document.getElementById("newDriverName").value.trim().toUpperCase();
+      const cedula = document.getElementById("newDriverCedula").value.trim().toUpperCase();
+      const phone = document.getElementById("newDriverPhone").value.trim();
+      if (!name || !cedula) { alert("Ingrese Nombre y Cédula."); return; }
+      driversDB.push({ id: Date.now(), name, cedula, phone, cargo: 'CHOFER' });
+      saveDBs();
+      renderDriverTable(driversDB);
+      renderTeamCards();
+      document.getElementById("newDriverName").value = "";
+      document.getElementById("newDriverCedula").value = "";
+      document.getElementById("newDriverPhone").value = "";
+      document.getElementById("addDriverForm").style.display = "none";
+      showToast(`✅ Chofer guardado: ${name}`);
+    }
+    function deleteDriver(id) {
+      if (confirm("¿Desea eliminar este chofer?")) {
+        driversDB = driversDB.filter(d => d.id !== id);
+        saveDBs();
+        renderDriverTable(driversDB);
+        renderTeamCards();
+      }
+    }
+
+    // Vehicle Modal
+    function openVehModal() {
+      renderVehTable(vehiclesDB);
+      document.getElementById("vehModal").classList.add("active");
+    }
+    function closeVehModal() {
+      document.getElementById("vehModal").classList.remove("active");
+    }
+
+    function renderVehTable(data) {
+      const tbody = document.getElementById("vehTableBody");
+      tbody.innerHTML = "";
+      data.forEach(v => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="color:var(--text-muted);">${v.id}</td>
+          <td style="font-weight:600;">${v.model}</td>
+          <td><code style="color:var(--accent-purple); font-weight:700;">${v.plate}</code></td>
+          <td><button class="btn btn-danger" style="padding: 2px 7px; font-size: 11px;" onclick="deleteVeh(${v.id})">🗑</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterVehs() {
+      const q = normalizeText(document.getElementById("vehSearch").value);
+      const filtered = vehiclesDB.filter(v => 
+        normalizeText(v.model).includes(q) ||
+        normalizeText(v.plate).includes(q)
+      );
+      renderVehTable(filtered);
+    }
+
+    function showAddVehForm() {
+      const f = document.getElementById("addVehForm");
+      f.style.display = f.style.display === "none" ? "block" : "none";
+    }
+
+    function addVehManually() {
+      const model = document.getElementById("newVehModel").value.trim().toUpperCase();
+      const plate = document.getElementById("newVehPlate").value.trim().toUpperCase();
+
+      if (!model || !plate) {
+        alert("Ingrese Modelo y Placa.");
+        return;
+      }
+
+      vehiclesDB.push({ id: Date.now(), model, plate });
+      saveDBs();
+      renderVehTable(vehiclesDB);
+      renderTeamCards();
+
+      document.getElementById("newVehModel").value = "";
+      document.getElementById("newVehPlate").value = "";
+      document.getElementById("addVehForm").style.display = "none";
+      showToast(`✅ Vehículo guardado: ${model} [${plate}]`);
+    }
+
+    function deleteVeh(id) {
+      if (confirm("¿Desea eliminar este vehículo?")) {
+        vehiclesDB = vehiclesDB.filter(v => v.id !== id);
+        saveDBs();
+        renderVehTable(vehiclesDB);
+        renderTeamCards();
+      }
+    }
+
+    // Backup & Restore
+    function openBackupModal() {
+      document.getElementById("backupModal").classList.add("active");
+    }
+    function closeBackupModal() {
+      document.getElementById("backupModal").classList.remove("active");
+    }
+
+    function downloadBackupJSON() {
+      const backup = {
+        exportDate: new Date().toISOString(),
+        technicians: techniciansDB,
+        vehicles: vehiclesDB,
+        drivers: driversDB,
+        routes: routesDB,
+        guardPreset: localStorage.getItem("powerlink_guard_preset")
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `POWERLINK_BACKUP_${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("💾 Respaldo JSON descargado con éxito");
+    }
+
+    function restoreBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.technicians) techniciansDB = data.technicians;
+          if (data.vehicles) vehiclesDB = data.vehicles;
+          if (data.drivers) driversDB = data.drivers;
+          if (data.routes) routesDB = data.routes;
+          if (data.guardPreset) localStorage.setItem("powerlink_guard_preset", data.guardPreset);
+
+          saveDBs();
+          renderTeamCards();
+          closeBackupModal();
+          showToast("✅ ¡Datos restaurados exitosamente desde el respaldo!");
+        } catch (err) {
+          alert("Error al leer el archivo JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function handleExcelUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+        let newRoutes = [];
+        for (let i = 0; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          if (row && row[0] && (String(row[0]).startsWith("R-") || String(row[0]).startsWith("R "))) {
+            newRoutes.push({
+              id: String(row[0]).trim(),
+              description: row[1] ? String(row[1]).trim() : '',
+              vgt: row[3] ? String(row[3]).trim() : 'SIN NÚMERO',
+              postes: row[4] ? String(row[4]).trim() : '',
+              distancia_km: row[12] ? String(row[12]).trim() : ''
+            });
+          }
+        }
+
+        if (newRoutes.length > 0) {
+          routesDB = newRoutes;
+          saveDBs();
+          generateManagerialReport();
+          alert(`✅ ¡Base de datos de inventario actualizada con éxito! Se cargaron ${newRoutes.length} rutas desde el Excel.`);
+        } else {
+          alert("⚠️ No se pudieron extraer filas de rutas válidas del archivo Excel subido.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // ============================================================
+    // THEME MANAGEMENT (POWERLINK LIGHT / DARK MODE)
+    // ============================================================
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle("light-mode");
+      const icon = document.getElementById("themeToggleIcon");
+      const text = document.getElementById("themeToggleText");
+      if (isLight) {
+        if (icon) icon.textContent = "🌙";
+        if (text) text.textContent = "Modo Oscuro";
+        localStorage.setItem("powerlink_theme", "light");
+        showToast("☀️ Modo Claro activado (Powerlink)");
+      } else {
+        if (icon) icon.textContent = "☀️";
+        if (text) text.textContent = "Modo Claro";
+        localStorage.setItem("powerlink_theme", "dark");
+        showToast("🌙 Modo Oscuro activado");
+      }
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem("powerlink_theme");
+      if (savedTheme === "light") {
+        document.body.classList.add("light-mode");
+        const icon = document.getElementById("themeToggleIcon");
+        const text = document.getElementById("themeToggleText");
+        if (icon) icon.textContent = "🌙";
+        if (text) text.textContent = "Modo Oscuro";
+      }
+    }
+
+    // ============================================================
+    // 12. INITIALIZATION
+    // ============================================================
+    window.onload = function() {
+      initTheme();
+
+      // Detección automática de fin de semana (0: Domingo, 6: Sábado)
+      const todayDay = new Date().getDay();
+      if (todayDay === 0 || todayDay === 6) {
+        switchPreset("WEEKEND");
+      } else {
+        switchPreset("WEEKDAY");
+      }
+
+      updateBadges();
+      renderTeamCards();
+
+      // Cerrar modales al hacer clic fuera del contenido (en el overlay)
+      document.querySelectorAll(".modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", function(e) {
+          if (e.target === this) {
+            this.classList.remove("active");
+          }
+        });
+      });
+
+      // Cerrar modales con tecla Escape
+      document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+          document.querySelectorAll(".modal-overlay.active").forEach(m => m.classList.remove("active"));
+        }
+      });
+    };
+  </script>
+  </div> <!-- /content-wrapper -->
+</body>
+</html>

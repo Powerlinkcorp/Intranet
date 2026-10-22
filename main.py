@@ -257,9 +257,21 @@ async def login_for_access_token(
     }
 
 @app.post("/api/auth/logout")
-async def logout(response: Response):
-    response.delete_cookie("access_token")
-    return {"message": "Sesión cerrada correctamente."}
+@app.get("/api/auth/logout")
+async def api_auth_logout():
+    response = JSONResponse(content={"status": "success", "message": "Sesión cerrada correctamente."})
+    response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="token", path="/")
+    return response
+
+@app.get("/logout")
+async def logout_redirect():
+    response = RedirectResponse(url="/login?logout=1", status_code=302)
+    response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="token", path="/")
+    return response
 
 @app.get("/api/auth/me")
 async def get_me(current_user: models.User = Depends(security.get_current_user)):
@@ -896,16 +908,23 @@ async def update_popup_notification(
 # ==========================================
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, db: Session = Depends(get_db)):
-    token = security.get_token_from_request(request)
-    if token:
-        try:
-            user = security.get_current_user(request, db)
-            if user and user.is_active:
-                return RedirectResponse(url="/")
-        except Exception:
-            pass
+    is_logout = request.query_params.get("logout") == "1"
+    if not is_logout:
+        token = security.get_token_from_request(request)
+        if token:
+            try:
+                user = security.get_current_user(request, db)
+                if user and user.is_active:
+                    return RedirectResponse(url="/")
+            except Exception:
+                pass
     embed = request.query_params.get("embed") == "1"
-    return templates.TemplateResponse(request, "login.html", {"embed": embed})
+    response = templates.TemplateResponse(request, "login.html", {"embed": embed})
+    if is_logout:
+        response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+        response.delete_cookie(key="access_token", path="/")
+        response.delete_cookie(key="token", path="/")
+    return response
 
 @app.get("/", response_class=HTMLResponse)
 async def home_page(request: Request, db: Session = Depends(get_db)):
@@ -2687,6 +2706,27 @@ async def api_get_db():
         for key in ['reports', 'afectaciones', 'techs', 'assignments', 'motivos', 'zonas', 'users', 'logs']:
             if key not in data or not isinstance(data[key], list):
                 data[key] = []
+
+        # Auto-cargar colecciones VGT si no existen en db.json
+        vgt_defaults = {
+            'vgt_routes': 'static/vgt/routes_db.json',
+            'vgt_technicians': 'static/vgt/technicians_db.json',
+            'vgt_drivers': 'static/vgt/drivers_db.json',
+            'vgt_vehicles': 'static/vgt/vehicles_db.json'
+        }
+        for vkey, vpath in vgt_defaults.items():
+            if vkey not in data or not isinstance(data[vkey], list) or len(data[vkey]) == 0:
+                if os.path.exists(vpath):
+                    try:
+                        with open(vpath, "r", encoding="utf-8") as vf:
+                            data[vkey] = json.load(vf)
+                    except Exception:
+                        data[vkey] = []
+                else:
+                    data[vkey] = []
+
+        if 'vgt_teams' not in data or not isinstance(data['vgt_teams'], list):
+            data['vgt_teams'] = []
                 
         # Aliases para máxima compatibilidad
         data['reportes'] = data.get('reports', [])
@@ -2705,7 +2745,12 @@ async def api_get_db():
             "motivos": [],
             "zonas": [],
             "users": [], "operadores": [],
-            "logs": [], "bitacora": []
+            "logs": [], "bitacora": [],
+            "vgt_routes": [],
+            "vgt_technicians": [],
+            "vgt_drivers": [],
+            "vgt_vehicles": [],
+            "vgt_teams": []
         }
 
 @app.post("/api/db")
@@ -2731,13 +2776,18 @@ async def api_post_db(request: Request):
             (['zonas'], 'zonas'),
             (['users', 'operadores'], 'users'),
             (['logs', 'bitacora'], 'logs'),
+            (['vgt_routes'], 'vgt_routes'),
+            (['vgt_technicians'], 'vgt_technicians'),
+            (['vgt_drivers'], 'vgt_drivers'),
+            (['vgt_vehicles'], 'vgt_vehicles'),
+            (['vgt_teams'], 'vgt_teams'),
         ]
         
         for keys, canonical_key in mappings:
             for k in keys:
                 if k in payload and isinstance(payload[k], list):
-                    # Si el payload viene con lista vacía pero db.json ya tiene datos de motivos/zonas, no sobreescribir con vacío
-                    if len(payload[k]) == 0 and len(data.get(canonical_key, [])) > 0 and canonical_key in ['motivos', 'zonas']:
+                    # Si el payload viene con lista vacía pero db.json ya tiene datos de motivos/zonas/vgt, no sobreescribir con vacío
+                    if len(payload[k]) == 0 and len(data.get(canonical_key, [])) > 0 and canonical_key in ['motivos', 'zonas', 'vgt_routes', 'vgt_technicians', 'vgt_drivers', 'vgt_vehicles']:
                         continue
                     data[canonical_key] = payload[k]
                     break
