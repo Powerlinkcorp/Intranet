@@ -439,3 +439,54 @@ class OzmapLearnedBox(Base):
     official_box = Column(String(150), nullable=False)
     date = Column(String(50), nullable=False)
     is_primary = Column(Boolean, default=False)
+
+
+class SupportCase(Base):
+    __tablename__ = "support_cases"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    fecha = Column(String(20), nullable=False, index=True)          # DD/MM/YYYY
+    fecha_iso = Column(String(20), nullable=False, index=True)      # YYYY-MM-DD
+    numero_caso = Column(Integer, nullable=False, default=1)        # Consecutivo diario (N CASO)
+    cedula = Column(String(50), nullable=False, index=True)
+    nombre_cliente = Column(String(200), default="")
+    id_servicio = Column(String(50), default="")
+    telefono = Column(String(60), default="")
+    plan = Column(String(120), default="")
+    analista = Column(String(120), nullable=False, index=True)
+    reporte = Column(String(150), nullable=False, index=True)       # Falla reportada
+    solucion = Column(String(150), nullable=False, index=True)      # Resolución
+    observacion = Column(String(250), default="Rubpi")              # Canal / Observación (Rubpi, Llamada, etc.)
+    notas_adicionales = Column(Text, default="")
+    hub = Column(String(50), nullable=False, index=True)            # Botón manual (CMDP, MAC, VALL, etc.)
+    zona = Column(String(150), default="")                          # Urbanización / Ciudad / Zona
+    ubicacion = Column(Text, default="")                            # Dirección del servicio
+    router_limitado = Column(Boolean, default=False)
+    router_modelo = Column(String(100), default="")
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "fecha": self.fecha,
+            "fecha_iso": self.fecha_iso,
+            "numero_caso": self.numero_caso,
+            "cedula": self.cedula,
+            "nombre_cliente": self.nombre_cliente or "",
+            "id_servicio": self.id_servicio or "",
+            "telefono": self.telefono or "",
+            "plan": self.plan or "",
+            "analista": self.analista,
+            "reporte": self.reporte,
+            "solucion": self.solucion,
+            "observacion": self.observacion or "Rubpi",
+            "notas_adicionales": self.notas_adicionales or "",
+            "hub": self.hub,
+            "zona": self.zona or "",
+            "ubicacion": self.ubicacion or "",
+            "router_limitado": bool(self.router_limitado),
+            "router_modelo": self.router_modelo or "",
+            "hora": self.created_at.strftime("%I:%M %p") if self.created_at else "",
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+

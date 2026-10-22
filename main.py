@@ -110,6 +110,12 @@ try:
 except ImportError:
     pass
 
+try:
+    from routers.soporte_router import router as soporte_router
+    app.include_router(soporte_router)
+except ImportError:
+    pass
+
 # Pydantic Schemas
 class FeedbackCreate(BaseModel):
     content: str

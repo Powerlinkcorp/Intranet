@@ -1073,7 +1073,6 @@ html.dark input[readonly] {
             </ul>
         </li>
 
-        {% if user.role == 'admin' or 'ver_cajas_nap' in (user.permissions or '') or 'ver_flasheo' in (user.permissions or '') or 'ver_aprovisionamiento' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') or 'perm_reporte' in (user.permissions or '') or 'perm_aprov' in (user.permissions or '') %}
         <div class="menu-section">Soporte</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-soporte', this)">
@@ -1084,6 +1083,7 @@ html.dark input[readonly] {
                 <i class="fa-solid fa-chevron-down chevron"></i>
             </div>
             <ul class="submenu" id="submenu-soporte">
+                <li><a href="/soporte/casos"><i class="fa-solid fa-headset" style="margin-right: 8px;"></i> Casos Soporte Remoto</a></li>
                 <!-- <li><a href="#"><i class="fa-solid fa-box" style="margin-right: 8px;"></i> Cajas NAP</a></li> -->
                 {% if user.role == 'admin' or 'perm_reporte' in (user.permissions or '') or 'ver_reportes' in (user.permissions or '') %}
                 <li><a href="/reporte"><i class="fa-solid fa-file-invoice" style="margin-right: 8px;"></i> Reporte</a></li>
@@ -1096,7 +1096,6 @@ html.dark input[readonly] {
                 {% endif %}
             </ul>
         </li>
-        {% endif %}
 
         <div class="menu-section">Operaciones</div>
         <li>

@@ -1,0 +1,2706 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación de Casos — Soporte Remoto | Power Link Corp.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-muted: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-col: #e2e8f0;
+            --gold: #FFC107;
+            --gold-hover: #e0a800;
+            --gold-soft: rgba(255, 193, 7, 0.14);
+            --green: #10b981;
+            --red: #ef4444;
+            --blue: #3b82f6;
+        }
+
+        html.dark {
+            --bg-body: #09090b;
+            --bg-card: #101014;
+            --bg-muted: #16161c;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-col: rgba(212, 175, 55, 0.2);
+            --gold: #D4AF37;
+            --gold-hover: #E5C358;
+            --gold-soft: rgba(212, 175, 55, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .page-container {
+            max-width: 1460px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* HEADER */
+        .module-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            border-radius: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-col);
+            margin-bottom: 20px;
+        }
+
+        .module-title-group h1 {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .module-title-group h1 i {
+            color: var(--gold);
+        }
+
+        .module-title-group p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* KPI ROW */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-col);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .stat-card .stat-val {
+            font-size: 26px;
+            font-weight: 800;
+            margin-top: 4px;
+            color: var(--text-main);
+        }
+
+        .stat-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: var(--gold-soft);
+            color: var(--gold);
+        }
+
+        /* MAIN WORKSPACE GRID */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-col);
+            border-radius: 14px;
+            padding: 22px 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-col);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .panel-header h2 {
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .panel-header h2 i {
+            color: var(--gold);
+        }
+
+        /* FORM SECTIONS */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+
+        .col-2 { grid-column: span 2; }
+        .col-3 { grid-column: span 3; }
+        .col-4 { grid-column: span 4; }
+        .col-5 { grid-column: span 5; }
+        .col-6 { grid-column: span 6; }
+        .col-8 { grid-column: span 8; }
+        .col-12 { grid-column: span 12; }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .field-label span.req {
+            color: var(--gold);
+            margin-left: 3px;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px 13px;
+            border-radius: 9px;
+            border: 1px solid var(--border-col);
+            background: var(--bg-muted);
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--gold);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--gold-soft);
+        }
+
+        /* CLIENT BANNER */
+        .client-found-banner {
+            grid-column: span 12;
+            padding: 14px 18px;
+            border-radius: 11px;
+            background: var(--bg-muted);
+            border: 1px solid var(--border-col);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .client-found-banner.visible {
+            display: flex;
+        }
+
+        .client-banner-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .client-badge-status {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .status-activo {
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .status-suspendido {
+            background: rgba(239, 68, 68, 0.18);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        /* QUICK CHIPS FOR REPORTE & SOLUCION */
+        .quick-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .chip-btn {
+            padding: 4px 10px;
+            font-size: 11.5px;
+            border-radius: 20px;
+            background: var(--bg-muted);
+            border: 1px solid var(--border-col);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+
+        .chip-btn:hover, .chip-btn.active {
+            background: var(--gold-soft);
+            color: var(--gold);
+            border-color: var(--gold);
+        }
+
+        /* MANUAL HUB BUTTONS */
+        .hub-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+            gap: 8px;
+        }
+
+        .hub-btn {
+            padding: 11px 8px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border-col);
+            background: var(--bg-muted);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .hub-btn:hover {
+            border-color: var(--gold);
+            transform: translateY(-1px);
+        }
+
+        .hub-btn.selected {
+            background: var(--gold) !important;
+            color: #000000 !important;
+            border-color: var(--gold) !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-gold {
+            background: var(--gold);
+            color: #000000 !important;
+            font-weight: 800;
+        }
+
+        .btn-gold:hover {
+            background: var(--gold-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            background: var(--bg-muted);
+            color: var(--text-main);
+            border-color: var(--border-col);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* SWITCH / CHECKBOX */
+        .checkbox-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 9px;
+            background: var(--bg-muted);
+            border: 1px solid var(--border-col);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        .checkbox-pill input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+
+        /* TABLE */
+        .filters-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-col);
+        }
+
+        table.cases-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table.cases-table th {
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-muted);
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-col);
+            white-space: nowrap;
+        }
+
+        table.cases-table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border-col);
+            vertical-align: middle;
+        }
+
+        table.cases-table tbody tr:hover {
+            background: rgba(212, 175, 55, 0.06);
+        }
+
+        .hub-tag {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 11px;
+            background: var(--gold-soft);
+            color: var(--gold);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+        }
+
+        /* MODAL DE DIRECCIONES MÚLTIPLES */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(4px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-col);
+            border-radius: 16px;
+            max-width: 780px;
+            width: 100%;
+            max-height: 86vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            animation: modalPop 0.2s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-col);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 {
+            font-size: 17px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .service-option-card {
+            padding: 15px 18px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-col);
+            background: var(--bg-muted);
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .service-option-card:hover {
+            border-color: var(--gold);
+            background: var(--gold-soft);
+            transform: translateY(-1px);
+        }
+
+        .service-address-title {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-meta-line {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .toast-alert {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 4000;
+            padding: 13px 20px;
+            border-radius: 10px;
+            background: #10b981;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13.5px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .col-3, .col-4, .col-5, .col-6, .col-8 { grid-column: span 12; }
+        }
+    </style>
+</head>
+<body>
+    {% include 'sidebar.html' %}
+
+    <div class="content-wrapper" id="contentWrapper">
+        <div class="page-container">
+
+            <!-- HEADER -->
+            <div class="module-header">
+                <div class="module-title-group">
+                    <h1>
+                        <i class="fa-solid fa-headset"></i>
+                        Documentación de Casos — Soporte Remoto
+                    </h1>
+                    <div style="margin-top: 8px; display: flex; gap: 8px; align-items: center;">
+                        <button type="button" class="btn btn-ghost" onclick="exportarCSV(true)" style="padding: 5px 11px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); border-radius: 7px;" title="Descargar absolutamente todos los casos registrados">
+                            <i class="fa-solid fa-file-csv" style="color: var(--gold);"></i> Exportar CSV (Todo)
+                        </button>
+                        <button type="button" class="btn btn-ghost" onclick="exportarCSV(false)" style="padding: 5px 11px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); border-radius: 7px;" title="Descargar según el filtro de fecha actual">
+                            <i class="fa-solid fa-filter" style="color: var(--gold);"></i> Exportar Filtro
+                        </button>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" id="tabBtnRegistro" class="btn btn-gold" onclick="cambiarNodoVista('registro')">
+                        <i class="fa-solid fa-pen-to-square"></i> Registro de Casos
+                    </button>
+                    <button type="button" id="tabBtnEstadisticas" class="btn btn-ghost" onclick="cambiarNodoVista('estadisticas')">
+                        <i class="fa-solid fa-chart-pie"></i> Estadísticas
+                    </button>
+                </div>
+            </div>
+
+            <!-- NODO 1: REGISTRO Y LISTADO DE CASOS -->
+            <div id="nodoRegistro">
+            <!-- KPIs DEL DÍA -->
+            <div class="kpi-row">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-label">Próximo N° Caso Hoy</div>
+                        <div class="stat-val" id="kpiProximoCaso">#1</div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-hashtag"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-label">Mis Casos Atendidos Hoy</div>
+                        <div class="stat-val" id="kpiMisCasos">0</div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-label">Total Equipo Hoy</div>
+                        <div class="stat-val" id="kpiTotalDia">0</div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-users-gear"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-label">Analista en Sesión</div>
+                        <div class="stat-val" style="font-size:17px; margin-top:8px;" id="kpiAnalistaActivo">
+                            {{ user.full_name or user.username }}
+                        </div>
+                    </div>
+                    <div class="stat-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                </div>
+            </div>
+
+            <div class="workspace-grid">
+
+                <!-- TARJETA 1: FORMULARIO DE REGISTRO RÁPIDO -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-bolt"></i> Nuevo Registro de Atención</h2>
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <button type="button" class="btn btn-gold" style="padding:7px 14px; font-size:12px;" onclick="abrirModalAfectacionMasiva()">
+                                <i class="fa-solid fa-bolt-lightning"></i> Crear Tickets de Afectación
+                            </button>
+                            <button type="button" class="btn btn-ghost" style="padding:6px 12px; font-size:12px;" onclick="limpiarFormulario()">
+                                <i class="fa-solid fa-eraser"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <form id="formCasoSoporte" onsubmit="guardarCaso(event)">
+                        <div class="form-grid">
+
+                            <!-- 1. CÉDULA / RIF -->
+                            <div class="field-group col-6">
+                                <label class="field-label">
+                                    <span>1. Cédula o RIF del Cliente <span class="req">*</span></span>
+                                    <span id="searchStatusSpinner" style="display:none; color:var(--gold); font-size:11px;">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i> Buscando...
+                                    </span>
+                                </label>
+                                <div class="input-with-btn">
+                                    <input
+                                        type="text"
+                                        id="inputCedula"
+                                        class="form-input"
+                                        placeholder="Ej: 19763671 o J-310701784"
+                                        autocomplete="off"
+                                        required
+                                    >
+                                    <button type="button" class="btn btn-gold" onclick="buscarClientePorCedula()" title="Consultar servicios del cliente">
+                                        <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- CANAL -->
+                            <div class="field-group col-6">
+                                <label class="field-label">Canal de Atención</label>
+                                <select id="inputObservacion" class="form-select">
+                                    <option value="Rubpi" selected>Rubpi</option>
+                                    <option value="Llamada">Llamada</option>
+                                    <option value="Requerimientos">Requerimientos</option>
+                                </select>
+                            </div>
+
+                            <!-- ANALISTA (Autocompletado transparente por sesión) -->
+                            <input type="hidden" id="inputAnalista" value="{{ user.full_name or user.username }}">
+
+                            <!-- BANNER DEL CLIENTE ENCONTRADO -->
+                            <div id="clientBanner" class="client-found-banner">
+                                <div class="client-banner-info">
+                                    <div>
+                                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Titular Identificado</div>
+                                        <div style="font-size:15px; font-weight:800; color:var(--gold);" id="bannerNombreCliente">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">ID Servicio / Plan</div>
+                                        <div style="font-size:13px; font-weight:700;" id="bannerServicioPlan">—</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Teléfono</div>
+                                        <div style="font-size:13px;" id="bannerTelefono">—</div>
+                                    </div>
+                                    <span id="bannerEstadoBadge" class="client-badge-status status-activo">ACTIVO</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span id="badgeMultiplesServicios" style="display:none; font-size:12px; font-weight:700; color:var(--gold);"></span>
+                                    <button type="button" id="btnCambiarServicio" class="btn btn-ghost" style="display:none; padding:7px 12px; font-size:12px;" onclick="abrirModalServicios()">
+                                        <i class="fa-solid fa-location-dot"></i> Elegir otra dirección
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- ALERTA DE HISTORIAL RECIENTE DE ESTA CÉDULA -->
+                            <div id="clientHistoryAlert" class="col-12" style="display:none; padding:10px 14px; border-radius:9px; background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.3); font-size:12.5px;">
+                            </div>
+
+                            <!-- 2. FALLA QUE PRESENTA EL CLIENTE -->
+                            <div class="field-group col-6">
+                                <label class="field-label">
+                                    <span>2. Falla que presenta el cliente <span class="req">*</span></span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="inputReporte"
+                                    list="listaReportes"
+                                    class="form-input"
+                                    placeholder="Selecciona un botón abajo o escribe la falla..."
+                                    oninput="sincronizarSolucionPorFalla(this.value)"
+                                    required
+                                >
+                                <datalist id="listaReportes">
+                                    {% for rep in reportes %}
+                                    <option value="{{ rep }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                                <div class="quick-chips" id="chipsReporte">
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Sin servicio', this)">Sin servicio</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Lentitud', this)">Lentitud</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Intermitencia', this)">Intermitencia</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Afectación', this)">Afectación</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Asesoría', this)">Asesoría</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Cambio de clave', this)">Cambio de clave</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Adecuaciones', this)">Adecuaciones</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Suspendido administrativamente', this)">Suspendido adm.</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('Fibra caída / holgada', this)">Fibra caída / holgada</button>
+                                    <button type="button" class="chip-btn" onclick="seleccionarFalla('PowerLink GO', this)">PowerLink GO</button>
+                                </div>
+                            </div>
+
+                            <!-- 3. RESOLUCIÓN -->
+                            <div class="field-group col-6">
+                                <label class="field-label">
+                                    <span>3. Resolución <span class="req">*</span></span>
+                                    <span id="autoSolucionBadge" style="display:none; font-size:11px; color:var(--gold); font-weight:700;">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Autocompletada por falla
+                                    </span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="inputSolucion"
+                                    list="listaSoluciones"
+                                    class="form-input"
+                                    placeholder="Selecciona un botón abajo o escribe la solución..."
+                                    required
+                                >
+                                <datalist id="listaSoluciones">
+                                    {% for sol in soluciones %}
+                                    <option value="{{ sol }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                                <div class="quick-chips" id="chipsSolucion">
+                                    <button type="button" class="chip-btn" data-sol="Reinicio / Resincronización de ONU" onclick="seleccionarSolucion('Reinicio / Resincronización de ONU', this)" style="font-weight:800; border-color:var(--gold);">
+                                        <i class="fa-solid fa-rotate"></i> Reinicio / Resincronización de ONU
+                                    </button>
+                                    <button type="button" class="chip-btn" data-sol="Visita técnica" onclick="seleccionarSolucion('Visita técnica', this)">Visita técnica</button>
+                                    <button type="button" class="chip-btn" data-sol="Cambio de VLAN" onclick="seleccionarSolucion('Cambio de VLAN', this)">Cambio de VLAN</button>
+                                    <button type="button" class="chip-btn" data-sol="Red interna / Router cliente" onclick="seleccionarSolucion('Red interna / Router cliente', this)">Red interna / Router</button>
+                                    <button type="button" class="chip-btn" data-sol="Falla de proveedor" onclick="seleccionarSolucion('Falla de proveedor', this)">Falla de proveedor</button>
+                                    <button type="button" class="chip-btn" data-sol="Caso de afectación" onclick="seleccionarSolucion('Caso de afectación', this)">Caso de afectación</button>
+                                    <button type="button" class="chip-btn" data-sol="Asesoría facilitada" onclick="seleccionarSolucion('Asesoría facilitada', this)">Asesoría facilitada</button>
+                                    <button type="button" class="chip-btn" data-sol="Cambio de clave realizado" onclick="seleccionarSolucion('Cambio de clave realizado', this)">Cambio de clave realizado</button>
+                                    <button type="button" class="chip-btn" data-sol="Remitido a otro departamento" onclick="seleccionarSolucion('Remitido a otro departamento', this)">Remitido a otro dpto.</button>
+                                    <button type="button" class="chip-btn" data-sol="Adecuación de red" onclick="seleccionarSolucion('Adecuación de red', this)">Adecuación de red</button>
+                                    <button type="button" class="chip-btn" data-sol="Sin respuesta del cliente" onclick="seleccionarSolucion('Sin respuesta del cliente', this)">Sin respuesta</button>
+                                </div>
+                            </div>
+
+                            <!-- 4. SELECCIÓN MANUAL DE HUB (BOTONES) -->
+                            <div class="field-group col-12">
+                                <label class="field-label">
+                                    <span>4. Selecciona el HUB (Botón Manual) <span class="req">*</span></span>
+                                    <span id="hubSugeridoHint" style="font-size:11.5px; color:var(--gold); display:none;"></span>
+                                </label>
+                                <input type="hidden" id="inputHub" value="" required>
+                                <div class="hub-buttons-grid" id="hubButtonsContainer">
+                                    {% for h in hubs %}
+                                    <button
+                                        type="button"
+                                        class="hub-btn"
+                                        data-hub="{{ h.code }}"
+                                        onclick="seleccionarHubManual('{{ h.code }}')"
+                                    >
+                                        <i class="fa-solid fa-tower-broadcast" style="font-size:11px; opacity:0.75;"></i>
+                                        {{ h.label }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- 5. DIRECCIÓN (UBICACIÓN) Y ZONA -->
+                            <div class="field-group col-6">
+                                <label class="field-label">
+                                    <span>5. Dirección del Cliente (Ubicación)</span>
+                                    <span style="font-size:11px; font-weight:500;">Autocompletada al elegir servicio o editable</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="inputUbicacion"
+                                    class="form-input"
+                                    placeholder="Dirección o referencia del servicio..."
+                                >
+                            </div>
+
+                            <div class="field-group col-3">
+                                <label class="field-label">Zona / Urbanización</label>
+                                <input
+                                    type="text"
+                                    id="inputZona"
+                                    class="form-input"
+                                    placeholder="Ej: Los Teques, San Diego, El Valle..."
+                                >
+                            </div>
+
+                            <div class="field-group col-3">
+                                <label class="field-label">Estado de Router / Equipo</label>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <label class="checkbox-pill" style="flex:1;">
+                                        <input type="checkbox" id="inputRouterLimitado">
+                                        <span>Router Limitado</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- CAMPOS OCULTOS DEL CLIENTE -->
+                            <input type="hidden" id="inputNombreCliente" value="">
+                            <input type="hidden" id="inputIdServicio" value="">
+                            <input type="hidden" id="inputTelefono" value="">
+                            <input type="hidden" id="inputPlan" value="">
+
+                            <!-- BOTÓN GUARDAR -->
+                            <div class="col-12" style="display:flex; justify-content:flex-end; gap:12px; margin-top:4px;">
+                                <button type="submit" class="btn btn-gold" id="btnGuardarCaso" style="padding:12px 28px; font-size:14.5px;">
+                                    <i class="fa-solid fa-floppy-disk"></i> Registrar Caso en Soporte
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TARJETA 2: HISTORIAL DEL DÍA Y BÚSQUEDA -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-table-list"></i> Casos Documentados</h2>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <button type="button" class="btn btn-ghost" id="btnFiltroMisCasos" onclick="alternarMisCasos()" style="padding:7px 13px; font-size:12px;">
+                                <i class="fa-solid fa-user"></i> Ver Solo Mis Casos
+                            </button>
+                            <button type="button" class="btn btn-ghost" onclick="cargarCasos()" style="padding:7px 13px; font-size:12px;">
+                                <i class="fa-solid fa-arrows-rotate"></i> Refrescar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BARRA DE FILTROS -->
+                    <div class="filters-bar">
+                        <input
+                            type="date"
+                            id="filtroFecha"
+                            class="form-input"
+                            style="width:auto;"
+                            onchange="cargarCasos()"
+                        >
+                        <input
+                            type="text"
+                            id="filtroBusqueda"
+                            class="form-input"
+                            style="flex:1; min-width:220px;"
+                            placeholder="Buscar por cédula, nombre, dirección o zona..."
+                            oninput="debounceCargarCasos()"
+                        >
+                        <select id="filtroHub" class="form-select" style="width:150px;" onchange="cargarCasos()">
+                            <option value="TODOS">Todos los HUBs</option>
+                            {% for h in hubs %}
+                            <option value="{{ h.code }}">HUB: {{ h.label }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="filtroReporte" class="form-select" style="width:190px;" onchange="cargarCasos()">
+                            <option value="TODOS">Todas las Fallas</option>
+                            {% for rep in reportes %}
+                            <option value="{{ rep }}">{{ rep }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="cases-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha / Hora</th>
+                                    <th>N° Caso</th>
+                                    <th>Cédula / Cliente</th>
+                                    <th>Analista</th>
+                                    <th>Reporte (Falla)</th>
+                                    <th>Solución</th>
+                                    <th>Canal</th>
+                                    <th>HUB</th>
+                                    <th>Zona / Dirección</th>
+                                    <th>Router Lim.</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCasosBody">
+                                <tr>
+                                    <td colspan="11" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                        Cargando registros...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            </div> <!-- FIN NODO 1: REGISTRO -->
+
+            <!-- NODO 2: ESTADÍSTICAS PURAS DE SOPORTE REMOTO -->
+            <div id="nodoEstadisticas" style="display:none;">
+                <!-- BARRA DE FILTROS DINÁMICOS -->
+                <div class="panel-card" style="margin-bottom: 18px;">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-sliders"></i> Filtros Dinámicos — Resumen de Soporte Remoto</h2>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                            <button type="button" id="btnRangoHoy" class="btn btn-ghost" style="padding:7px 13px; font-size:12px;" onclick="setRangoEstadisticas('hoy')">
+                                <i class="fa-solid fa-calendar-day"></i> Hoy
+                            </button>
+                            <button type="button" id="btnRangoMes" class="btn btn-gold" style="padding:7px 13px; font-size:12px;" onclick="setRangoEstadisticas('mes')">
+                                <i class="fa-solid fa-calendar-days"></i> Este Mes
+                            </button>
+                            <button type="button" id="btnRangoTodo" class="btn btn-ghost" style="padding:7px 13px; font-size:12px;" onclick="setRangoEstadisticas('todo')">
+                                <i class="fa-solid fa-infinity"></i> Todo el Historial
+                            </button>
+                            <button type="button" class="btn btn-ghost" style="padding:7px 13px; font-size:12px;" onclick="cargarEstadisticas()">
+                                <i class="fa-solid fa-arrows-rotate"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="field-group col-2">
+                            <label class="field-label">Fecha Inicio</label>
+                            <input type="date" id="statDesde" class="form-input" onchange="cargarEstadisticas()">
+                        </div>
+                        <div class="field-group col-2">
+                            <label class="field-label">Fecha Fin</label>
+                            <input type="date" id="statHasta" class="form-input" onchange="cargarEstadisticas()">
+                        </div>
+                        <div class="field-group col-3">
+                            <label class="field-label">Analista</label>
+                            <select id="statAnalista" class="form-select" onchange="cargarEstadisticas()">
+                                <option value="TODOS">Todos los Analistas</option>
+                            </select>
+                        </div>
+                        <div class="field-group col-3">
+                            <label class="field-label">Medio de Atención</label>
+                            <select id="statCanal" class="form-select" onchange="cargarEstadisticas()">
+                                <option value="TODOS">Todos (Rubpi / Llamada / Req.)</option>
+                                {% for obs in observaciones %}
+                                <option value="{{ obs }}">{{ obs }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="field-group col-2">
+                            <label class="field-label">HUB</label>
+                            <select id="statHub" class="form-select" onchange="cargarEstadisticas()">
+                                <option value="TODOS">Todos los HUBs</option>
+                                {% for h in hubs %}
+                                <option value="{{ h.code }}">HUB: {{ h.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 KPIs EJECUTIVOS DE SOPORTE REMOTO -->
+                <div class="kpi-row" style="margin-bottom: 18px;">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Total Casos (Filtro)</div>
+                            <div class="stat-val" id="statKpiTotal">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Resueltos en Remoto</div>
+                            <div class="stat-val" id="statKpiRemoto" style="color: var(--success);">0 (0%)</div>
+                        </div>
+                        <div class="stat-icon" style="color: var(--success); background: rgba(16,185,129,0.12);"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Escalados a Visita Técnica</div>
+                            <div class="stat-val" id="statKpiVisita" style="color: #f59e0b;">0 (0%)</div>
+                        </div>
+                        <div class="stat-icon" style="color: #f59e0b; background: rgba(245,158,11,0.12);"><i class="fa-solid fa-truck-fast"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Routers Limitados Detectados</div>
+                            <div class="stat-val" id="statKpiRouter">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-wifi"></i></div>
+                    </div>
+                </div>
+
+                <!-- MATRIZ DE TABLAS DINÁMICAS (HOJA RESUMEN DE SOPORTE REMOTO) -->
+                <div class="form-grid" style="gap: 18px;">
+                    <!-- GENERADOR DE REPORTE DE CORTE WHATSAPP (6:00 PM / 10:00 PM) -->
+                    <div class="panel-card col-12" style="border-color: rgba(37, 211, 102, 0.35);">
+                        <div class="panel-header">
+                            <h2>
+                                <i class="fa-brands fa-whatsapp" style="color: #25D366; font-size: 20px;"></i>
+                                Generador de Reporte de Corte — WhatsApp (6:00 PM / 10:00 PM)
+                            </h2>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" id="btnCorte6pm" class="btn btn-gold" style="padding:7px 13px; font-size:12px;" onclick="aplicarCorteRapido('06:00 PM')">
+                                    <i class="fa-regular fa-clock"></i> Corte 06:00 PM
+                                </button>
+                                <button type="button" id="btnCorte10pm" class="btn btn-ghost" style="padding:7px 13px; font-size:12px;" onclick="aplicarCorteRapido('10:00 PM')">
+                                    <i class="fa-regular fa-clock" style="color:var(--gold);"></i> Corte 10:00 PM
+                                </button>
+                                <button type="button" class="btn btn-gold" style="padding:8px 16px; font-size:12.5px; background:#25D366; border-color:#25D366; color:#000 !important;" onclick="copiarReporteWhatsApp()">
+                                    <i class="fa-brands fa-whatsapp"></i> Copiar Mensaje WhatsApp
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-grid" style="align-items: start;">
+                            <!-- COLUMNA IZQUIERDA: GESTOR DE AFECTACIONES DEL CORTE -->
+                            <div class="col-6" style="display:flex; flex-direction:column; gap:14px;">
+                                <!-- GESTOR DE AFECTACIONES DEL CORTE -->
+                                <div style="background: var(--bg-muted); border: 1px solid var(--border-col); border-radius: 11px; padding: 14px;">
+                                    <div class="field-label" style="margin-bottom: 8px;">
+                                        <span><i class="fa-solid fa-bolt-lightning" style="color:var(--gold);"></i> Agregar Afectaciones al Reporte</span>
+                                        <span style="font-size:11px; font-weight:500; text-transform:none;">Ej: MACARENA (REALIZADA)</span>
+                                    </div>
+                                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                        <input
+                                            type="text"
+                                            id="waInputAfectacionZona"
+                                            class="form-input"
+                                            style="flex:1; min-width:170px;"
+                                            placeholder="Escribe la zona (ej. MACARENA, LLANO ALTO)..."
+                                        >
+                                        <button type="button" class="btn btn-ghost" style="padding:8px 12px; font-size:12px; border-color:rgba(16,185,129,0.4); color:#34d399;" onclick="agregarAfectacionWa('REALIZADA')">
+                                            + REALIZADA
+                                        </button>
+                                        <button type="button" class="btn btn-ghost" style="padding:8px 12px; font-size:12px; border-color:rgba(245,158,11,0.4); color:#fbbf24;" onclick="agregarAfectacionWa('EN PROCESO')">
+                                            + EN PROCESO
+                                        </button>
+                                    </div>
+
+                                    <!-- SUGERENCIAS AUTOMÁTICAS DE ZONAS CON REPORTE=AFECTACIÓN -->
+                                    <div id="waSugerenciasZonasWrap" style="margin-top:10px; display:none;">
+                                        <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px;">
+                                            Zonas detectadas hoy con casos de "Afectación" (clic para añadir):
+                                        </div>
+                                        <div class="quick-chips" id="waChipsZonasDetectadas"></div>
+                                    </div>
+
+                                    <!-- LISTA DE AFECTACIONES CARGADAS -->
+                                    <div id="waListaAfectaciones" style="margin-top:12px; display:flex; flex-direction:column; gap:6px;"></div>
+                                </div>
+                            </div>
+
+                            <!-- COLUMNA DERECHA: VISTA PREVIA ESTILO WHATSAPP (EDITABLE) -->
+                            <div class="col-6">
+                                <div style="background: #133629; border: 1px solid rgba(37, 211, 102, 0.35); border-radius: 14px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.35);">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                        <span style="font-size:11.5px; font-weight:800; color:#86efac; text-transform:uppercase; letter-spacing:0.5px;">
+                                            <i class="fa-brands fa-whatsapp"></i> Vista Previa del Mensaje (Editable)
+                                        </span>
+                                        <span style="font-size:11px; color:rgba(255,255,255,0.65);" id="waPreviewHora">Corte listo para copiar</span>
+                                    </div>
+                                    <textarea
+                                        id="waTextoPreview"
+                                        style="width:100%; min-height:330px; background:rgba(0,0,0,0.18); border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:#f1f5f9; font-family:'Plus Jakarta Sans', system-ui, sans-serif; font-size:13px; line-height:1.5; padding:12px; resize:vertical; outline:none;"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1. CASOS POR FALLA (REPORTE) -->
+                    <div class="panel-card col-6">
+                        <div class="panel-header">
+                            <h2><i class="fa-solid fa-triangle-exclamation"></i> 1. Incidencias por Falla (Reporte)</h2>
+                            <span class="hub-tag" id="badgeTotalReporte">0 tipos</span>
+                        </div>
+                        <div class="table-responsive" style="max-height: 360px; overflow-y: auto;">
+                            <table class="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th>Reporte (Falla)</th>
+                                        <th style="text-align:right;">Casos</th>
+                                        <th style="width:150px;">% Participación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statTablaReporte"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 2. CASOS POR ANALISTA -->
+                    <div class="panel-card col-6">
+                        <div class="panel-header">
+                            <h2><i class="fa-solid fa-user-check"></i> 2. Casos por Analista</h2>
+                            <span class="hub-tag" id="badgeTotalAnalista">0 analistas</span>
+                        </div>
+                        <div class="table-responsive" style="max-height: 360px; overflow-y: auto;">
+                            <table class="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th>Analista</th>
+                                        <th style="text-align:right;">Casos</th>
+                                        <th style="width:150px;">% Participación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statTablaAnalista"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. MEDIO DE ATENCIÓN (CANAL) -->
+                    <div class="panel-card col-6">
+                        <div class="panel-header">
+                            <h2><i class="fa-solid fa-comments"></i> 3. Medio de Atención (Canal)</h2>
+                        </div>
+                        <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                            <table class="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th>Canal</th>
+                                        <th style="text-align:right;">Casos</th>
+                                        <th style="width:150px;">% Participación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statTablaCanal"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 4. DISTRIBUCIÓN POR HUB -->
+                    <div class="panel-card col-6">
+                        <div class="panel-header">
+                            <h2><i class="fa-solid fa-network-wired"></i> 4. Distribución por HUB</h2>
+                        </div>
+                        <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                            <table class="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th>HUB</th>
+                                        <th style="text-align:right;">Casos</th>
+                                        <th style="width:150px;">% Participación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statTablaHub"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 5. CASOS POR ZONA / SUB-SECTOR -->
+                    <div class="panel-card col-12">
+                        <div class="panel-header">
+                            <h2><i class="fa-solid fa-map-location-dot"></i> 5. Casos por Zona / Sub-Sectores (Top 20)</h2>
+                        </div>
+                        <div class="table-responsive" style="max-height: 340px; overflow-y: auto;">
+                            <table class="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th>Zona / Sector</th>
+                                        <th style="text-align:right;">Cantidad de Casos</th>
+                                        <th style="width:220px;">Distribución</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="statTablaZona"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 6. MONITOR DE COINCIDENCIA / REINCIDENCIA Y ALARMAS POR CLIENTE (SEMANAL Y MENSUAL) -->
+                    <div class="panel-card col-12" id="panelAlarmasReincidencia" style="border-color: rgba(239, 68, 68, 0.35);">
+                        <div class="panel-header">
+                            <h2>
+                                <i class="fa-solid fa-bell" style="color: #ef4444;"></i>
+                                6. Reporte de Coincidencia y Alarmas por Cliente (Semanal / Mensual)
+                            </h2>
+                            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                                <button type="button" id="btnReincSemana" class="btn btn-ghost" style="padding:7px 13px; font-size:12px;" onclick="cambiarModoReincidencia('semana')">
+                                    <i class="fa-solid fa-calendar-week"></i> Vista Semanal (7 Días)
+                                </button>
+                                <button type="button" id="btnReincMes" class="btn btn-gold" style="padding:7px 13px; font-size:12px;" onclick="cambiarModoReincidencia('mes')">
+                                    <i class="fa-solid fa-calendar-days"></i> Vista Mensual
+                                </button>
+                                <button type="button" id="btnReincTodo" class="btn btn-ghost" style="padding:7px 13px; font-size:12px;" onclick="cambiarModoReincidencia('todo')">
+                                    <i class="fa-solid fa-layer-group"></i> Todo el Historial
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- FILTROS Y CONTADORES DE ALARMAS -->
+                        <div class="form-grid" style="margin-bottom: 14px; align-items: end;">
+                            <div class="field-group col-3">
+                                <label class="field-label">Buscar Cliente Concreto (Cédula o Nombre)</label>
+                                <input
+                                    type="text"
+                                    id="reincInputBuscar"
+                                    class="form-input"
+                                    placeholder="Ej: 21119429 o María Curvelo..."
+                                    oninput="debounceReincidencias()"
+                                >
+                            </div>
+                            <div class="field-group col-2" id="wrapReincMes">
+                                <label class="field-label">Mes a Evaluar</label>
+                                <select id="reincSelectMes" class="form-select" onchange="cargarReincidenciasClientes()">
+                                    <option value="2026-10">Octubre 2026</option>
+                                    <option value="2026-09">Septiembre 2026</option>
+                                    <option value="2026-08">Agosto 2026</option>
+                                    <option value="2026-07">Julio 2026</option>
+                                    <option value="2026-06">Junio 2026</option>
+                                    <option value="2026-05">Mayo 2026</option>
+                                    <option value="2026-04">Abril 2026</option>
+                                    <option value="2026-03">Marzo 2026</option>
+                                    <option value="2026-02">Febrero 2026</option>
+                                    <option value="2026-01">Enero 2026</option>
+                                </select>
+                            </div>
+                            <div class="field-group col-2" id="wrapReincFechaRef" style="display:none;">
+                                <label class="field-label">Corte Semanal (Hasta)</label>
+                                <input type="date" id="reincInputFechaRef" class="form-input" onchange="cargarReincidenciasClientes()">
+                            </div>
+                            <div class="field-group col-2">
+                                <label class="field-label">Mínimo Coincidencias</label>
+                                <select id="reincSelectMin" class="form-select" onchange="cargarReincidenciasClientes()">
+                                    <option value="2">2 o más reportes</option>
+                                    <option value="3" selected>3 o más reportes</option>
+                                    <option value="4">4 o más reportes</option>
+                                    <option value="5">5 o más reportes (Crítico)</option>
+                                </select>
+                            </div>
+                            <div class="field-group col-2">
+                                <label class="field-label">Filtrar por HUB</label>
+                                <select id="reincSelectHub" class="form-select" onchange="cargarReincidenciasClientes()">
+                                    <option value="TODOS">Todos los HUBs</option>
+                                    {% for h in hubs %}
+                                    <option value="{{ h.code }}">HUB: {{ h.label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="field-group col-3" style="display:flex; flex-direction:row; gap:8px; justify-content:flex-end;">
+                                <div style="flex:1; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); border-radius:9px; padding:6px 10px; text-align:center;">
+                                    <div style="font-size:10px; font-weight:800; color:#f87171; text-transform:uppercase;">Críticas</div>
+                                    <div style="font-size:16px; font-weight:800; color:#f87171;" id="reincKpiCriticas">0</div>
+                                </div>
+                                <div style="flex:1; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:9px; padding:6px 10px; text-align:center;">
+                                    <div style="font-size:10px; font-weight:800; color:#fbbf24; text-transform:uppercase;">Altas</div>
+                                    <div style="font-size:16px; font-weight:800; color:#fbbf24;" id="reincKpiAltas">0</div>
+                                </div>
+                                <div style="flex:1; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.35); border-radius:9px; padding:6px 10px; text-align:center;">
+                                    <div style="font-size:10px; font-weight:800; color:#60a5fa; text-transform:uppercase;">Total</div>
+                                    <div style="font-size:16px; font-weight:800; color:#60a5fa;" id="reincKpiTotal">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                            <table class="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:130px;">Nivel Alarma</th>
+                                        <th>Cédula / Cliente</th>
+                                        <th>HUB / Zona / Dirección API</th>
+                                        <th style="text-align:center;">Semana (7d)</th>
+                                        <th style="text-align:center;">Mes Eval.</th>
+                                        <th style="text-align:center;">Total Año</th>
+                                        <th>Falla Recurrente</th>
+                                        <th>Fechas de Reporte</th>
+                                        <th style="text-align:right;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaReincidenciasBody">
+                                    <tr>
+                                        <td colspan="9" style="text-align:center; padding:26px; color:var(--text-muted);">
+                                            Cargando análisis de coincidencia y alarmas por cliente...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- FIN NODO 2: ESTADÍSTICAS -->
+
+        </div>
+    </div>
+
+    <!-- MODAL DE SELECCIÓN DE DIRECCIÓN / SERVICIO CUANDO LA CÉDULA TIENE VARIOS CONTRATOS -->
+    <div class="modal-backdrop" id="modalServicios">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>
+                    <i class="fa-solid fa-map-location-dot" style="color:var(--gold);"></i>
+                    Selecciona la Dirección / Servicio del Cliente
+                </h3>
+                <button type="button" class="btn btn-ghost" style="padding:6px 10px;" onclick="cerrarModalServicios()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div style="padding:12px 24px; background:var(--bg-muted); border-bottom:1px solid var(--border-col); font-size:13px;">
+                El cliente <b id="modalClienteNombre" style="color:var(--gold);"></b> (<span id="modalClienteCedula"></span>) posee <b id="modalCantidadServicios"></b> servicios registrados. Haz clic sobre la dirección que estás atendiendo:
+            </div>
+            <div class="modal-body" id="modalServiciosLista">
+                <!-- Tarjetas generadas dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE FICHA DE CLIENTE: FALLAS REPORTADAS, RESOLUCIÓN Y REINCIDENCIA -->
+    <div class="modal-backdrop" id="modalDetalleReincidencia" onclick="if(event.target===this) cerrarModalDetalleReincidencia()">
+        <div class="modal-card" style="max-width: 880px;">
+            <div class="modal-header">
+                <h3>
+                    <i class="fa-solid fa-id-card-clip" style="color:var(--gold);"></i>
+                    Ficha del Cliente — Fallas Reportadas y Resolución Aplicada
+                </h3>
+                <button type="button" class="btn btn-ghost" style="padding:6px 10px;" onclick="cerrarModalDetalleReincidencia()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalDetalleReincidenciaBody" style="padding:18px 24px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CREACIÓN MASIVA DE TICKETS DE AFECTACIÓN -->
+    <div class="modal-backdrop" id="modalAfectacionMasiva">
+        <div class="modal-card" style="max-width: 720px;">
+            <div class="modal-header">
+                <h3>
+                    <i class="fa-solid fa-bolt-lightning" style="color:var(--gold);"></i>
+                    Crear Tickets por Afectación Masiva
+                </h3>
+                <button type="button" class="btn btn-ghost" style="padding:6px 10px;" onclick="cerrarModalAfectacionMasiva()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div style="padding:12px 24px; background:var(--bg-muted); border-bottom:1px solid var(--border-col); font-size:13px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span>Genera múltiples tickets consecutivos sin cédula cuando ocurre una caída o afectación masiva.</span>
+                <span class="hub-tag">Falla: Afectación → Caso de afectación</span>
+            </div>
+            <div class="modal-body" style="padding: 20px 24px; overflow-y: auto;">
+                <form id="formAfectacionMasiva" onsubmit="guardarAfectacionMasiva(event)">
+                    <div class="form-grid">
+                        <!-- 1. CANTIDAD DE TICKETS -->
+                        <div class="field-group col-6">
+                            <label class="field-label">1. Cantidad de Tickets a Crear <span class="req">*</span></label>
+                            <input type="number" id="masivoCantidad" class="form-input" min="1" max="500" value="50" required>
+                            <div class="quick-chips">
+                                <button type="button" class="chip-btn" onclick="setCantidadMasiva(10)">10 tickets</button>
+                                <button type="button" class="chip-btn" onclick="setCantidadMasiva(25)">25 tickets</button>
+                                <button type="button" class="chip-btn active" onclick="setCantidadMasiva(50)">50 tickets</button>
+                                <button type="button" class="chip-btn" onclick="setCantidadMasiva(100)">100 tickets</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. CANAL DE ATENCIÓN -->
+                        <div class="field-group col-6">
+                            <label class="field-label">2. Canal de Atención</label>
+                            <select id="masivoObservacion" class="form-select">
+                                {% for obs in observaciones %}
+                                <option value="{{ obs }}" {% if obs == 'Rubpi' %}selected{% endif %}>{{ obs }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- 3. SUB-SECTOR / DIRECCIÓN Y AGRUPACIÓN AUTOMÁTICA DE ZONA -->
+                        <div class="field-group col-12">
+                            <label class="field-label">
+                                <span>3. Sub-sector afectado (Agrupa automáticamente la Zona) <span class="req">*</span></span>
+                                <span style="font-size:11px; color:var(--gold); text-transform:none;">Ej: escribe "La Matica" → Zona: LOS TEQUES</span>
+                            </label>
+                            <div class="form-grid" style="gap:10px;">
+                                <div class="col-4">
+                                    <select id="masivoFiltroZona" class="form-select" onchange="filtrarSubsectoresMasivo()">
+                                        <option value="TODAS">Todas las Zonas</option>
+                                        <option value="LOS TEQUES">LOS TEQUES</option>
+                                        <option value="EL VALLE">EL VALLE</option>
+                                        <option value="TEJERIAS">TEJERIAS</option>
+                                        <option value="SAN DIEGO">SAN DIEGO</option>
+                                        <option value="SAN ANTONIO">SAN ANTONIO</option>
+                                        <option value="CARRIZAL">CARRIZAL</option>
+                                        <option value="CUMBRE ROJA">CUMBRE ROJA</option>
+                                        <option value="PROPATRIA">PROPATRIA</option>
+                                        <option value="COCHE">COCHE</option>
+                                        <option value="LA VEGA">LA VEGA</option>
+                                    </select>
+                                </div>
+                                <div class="col-8">
+                                    <input
+                                        type="text"
+                                        id="masivoBuscarSubsector"
+                                        class="form-input"
+                                        placeholder="Buscar sub-sector (ej. La Matica, La Macarena, Curiepe, Calle 18)..."
+                                        oninput="filtrarSubsectoresMasivo()"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- LISTA DE SUB-SECTORES SUGERIDOS -->
+                            <div id="masivoListaSubsectores" style="max-height:150px; overflow-y:auto; margin-top:6px; border:1px solid var(--border-col); border-radius:9px; background:var(--bg-muted); padding:6px; display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:6px;">
+                            </div>
+                        </div>
+
+                        <!-- RESUMEN DE DIRECCIÓN Y ZONA ASIGNADA -->
+                        <div class="field-group col-8">
+                            <label class="field-label">Dirección / Sub-sector Seleccionado <span class="req">*</span></label>
+                            <input type="text" id="masivoUbicacion" class="form-input" placeholder="Ej: Miranda, Los Teques, La Matica" required oninput="inferirZonaDesdeTextoMasivo(this.value)">
+                        </div>
+                        <div class="field-group col-4">
+                            <label class="field-label">Zona Agrupada <span class="req">*</span></label>
+                            <input type="text" id="masivoZona" class="form-input" placeholder="Ej: LOS TEQUES" style="font-weight:800; color:var(--gold);" required>
+                        </div>
+
+                        <!-- 4. SELECCIÓN MANUAL DE HUB -->
+                        <div class="field-group col-12">
+                            <label class="field-label">
+                                <span>4. Selecciona el HUB de la Afectación <span class="req">*</span></span>
+                            </label>
+                            <input type="hidden" id="masivoInputHub" value="">
+                            <div class="hub-buttons-grid" id="masivoHubButtonsContainer">
+                                {% for h in hubs %}
+                                <button
+                                    type="button"
+                                    class="hub-btn"
+                                    data-hub-masivo="{{ h.code }}"
+                                    onclick="seleccionarHubMasivo('{{ h.code }}')"
+                                >
+                                    {{ h.label }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="col-12" style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+                            <button type="button" class="btn btn-ghost" onclick="cerrarModalAfectacionMasiva()">Cancelar</button>
+                            <button type="submit" class="btn btn-gold" id="btnSubmitMasivo">
+                                <i class="fa-solid fa-layer-group"></i> Generar Lote de Tickets
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotif" class="toast-alert">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastText">Caso guardado</span>
+    </div>
+
+    <script>
+        let serviciosClienteActual = [];
+        let soloMisCasos = false;
+        const usuarioActualNombre = {{ (user.full_name or user.username)|tojson }};
+        let debounceTimer = null;
+
+        const vistaInicial = {{ (vista_inicial or 'registro')|tojson }};
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const hoy = new Date().toISOString().split("T")[0];
+            const primerDiaMes = hoy.slice(0, 8) + "01";
+            document.getElementById("filtroFecha").value = hoy;
+            document.getElementById("statDesde").value = primerDiaMes;
+            document.getElementById("statHasta").value = hoy;
+
+            const inputCedula = document.getElementById("inputCedula");
+            inputCedula.addEventListener("keydown", (ev) => {
+                if (ev.key === "Enter") {
+                    ev.preventDefault();
+                    buscarClientePorCedula();
+                }
+            });
+
+            cargarCasos();
+            if (vistaInicial === "estadisticas" || window.location.hash === "#estadisticas") {
+                cambiarNodoVista("estadisticas");
+            }
+        });
+
+        function mostrarToast(msg, isError = false) {
+            const t = document.getElementById("toastNotif");
+            const txt = document.getElementById("toastText");
+            txt.textContent = msg;
+            t.style.background = isError ? "#ef4444" : "#10b981";
+            t.style.display = "flex";
+            setTimeout(() => { t.style.display = "none"; }, 3200);
+        }
+
+        function seleccionarHubManual(hubCode) {
+            document.getElementById("inputHub").value = hubCode;
+            document.querySelectorAll("#hubButtonsContainer .hub-btn").forEach(btn => {
+                if (btn.getAttribute("data-hub") === hubCode) {
+                    btn.classList.add("selected");
+                } else {
+                    btn.classList.remove("selected");
+                }
+            });
+        }
+
+        const MAPA_SOLUCION_DIRECTA = {
+            "Afectación": "Caso de afectación",
+            "Cambio de clave": "Cambio de clave realizado",
+            "Adecuaciones": "Adecuación de red",
+            "Suspendido administrativamente": "Remitido a otro departamento",
+            "Asesoría": "Asesoría facilitada",
+            "Fibra caída / holgada": "Visita técnica"
+        };
+
+        function seleccionarFalla(valor, chipEl) {
+            const inputRep = document.getElementById("inputReporte");
+            inputRep.value = valor;
+            document.querySelectorAll("#chipsReporte .chip-btn").forEach(c => c.classList.remove("active"));
+            if (chipEl) chipEl.classList.add("active");
+            sincronizarSolucionPorFalla(valor);
+        }
+
+        function seleccionarSolucion(valor, chipEl, esAuto = false) {
+            const inputSol = document.getElementById("inputSolucion");
+            inputSol.value = valor;
+            document.querySelectorAll("#chipsSolucion .chip-btn").forEach(c => {
+                if (c.getAttribute("data-sol") === valor) {
+                    c.classList.add("active");
+                } else {
+                    c.classList.remove("active");
+                }
+            });
+            if (chipEl) chipEl.classList.add("active");
+            document.getElementById("autoSolucionBadge").style.display = esAuto ? "inline" : "none";
+        }
+
+        function sincronizarSolucionPorFalla(fallaTexto) {
+            const limpia = (fallaTexto || "").trim();
+            if (MAPA_SOLUCION_DIRECTA[limpia]) {
+                seleccionarSolucion(MAPA_SOLUCION_DIRECTA[limpia], null, true);
+            } else {
+                document.getElementById("autoSolucionBadge").style.display = "none";
+            }
+        }
+
+        async function buscarClientePorCedula() {
+            const q = document.getElementById("inputCedula").value.trim();
+            if (!q) return;
+
+            const spinner = document.getElementById("searchStatusSpinner");
+            spinner.style.display = "inline-block";
+
+            try {
+                const res = await fetch(`/api/soporte/buscar_cliente?q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+
+                // Mostrar historial previo y alarma de reincidencia si existe
+                renderizarAlertaHistorial(
+                    data.historial_casos || [],
+                    data.ultimo_hub_sugerido || "",
+                    data.casos_ultima_semana || 0,
+                    data.casos_ultimo_mes || 0,
+                    data.total_historial_casos || 0,
+                    data.nivel_alarma || "NORMAL",
+                    q
+                );
+
+                if (!data.encontrado || !data.servicios || data.servicios.length === 0) {
+                    serviciosClienteActual = [];
+                    document.getElementById("clientBanner").classList.remove("visible");
+                    if (data.ultima_ubicacion_sugerida && !document.getElementById("inputUbicacion").value) {
+                        document.getElementById("inputUbicacion").value = data.ultima_ubicacion_sugerida;
+                    }
+                    if (data.ultima_zona_sugerida && !document.getElementById("inputZona").value) {
+                        document.getElementById("inputZona").value = data.ultima_zona_sugerida;
+                    }
+                    mostrarToast("Cédula no encontrada en el padrón. Puedes llenar la dirección manualmente.", true);
+                    return;
+                }
+
+                serviciosClienteActual = data.servicios;
+
+                if (serviciosClienteActual.length === 1) {
+                    aplicarServicioSeleccionado(serviciosClienteActual[0], false);
+                } else {
+                    // Tiene múltiples servicios -> Aplicar el primero por defecto y abrir el Modal inmediatamente
+                    aplicarServicioSeleccionado(serviciosClienteActual[0], true);
+                    abrirModalServicios();
+                }
+            } catch (err) {
+                console.error(err);
+                mostrarToast("Error consultando la API de clientes", true);
+            } finally {
+                spinner.style.display = "none";
+            }
+        }
+
+        function renderizarAlertaHistorial(historial, ultimoHub, casosSemana = 0, casosMes = 0, totalHist = 0, nivelAlarma = "NORMAL", cedulaBuscada = "") {
+            const alertBox = document.getElementById("clientHistoryAlert");
+            const hubHint = document.getElementById("hubSugeridoHint");
+
+            if (ultimoHub) {
+                hubHint.style.display = "inline";
+                hubHint.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> HUB dominante del cliente: <b>${ultimoHub}</b>`;
+                if (!document.getElementById("inputHub").value) {
+                    seleccionarHubManual(ultimoHub);
+                }
+            } else {
+                hubHint.style.display = "none";
+            }
+
+            if (!historial || historial.length === 0) {
+                alertBox.style.display = "none";
+                return;
+            }
+
+            const u = historial[0];
+            alertBox.style.display = "block";
+
+            let alarmaBadgeHtml = "";
+            if (nivelAlarma === "CRITICA") {
+                alertBox.style.background = "rgba(239, 68, 68, 0.14)";
+                alertBox.style.borderColor = "rgba(239, 68, 68, 0.45)";
+                alarmaBadgeHtml = `<span style="background:#ef4444; color:#fff; font-weight:800; font-size:11px; padding:3px 9px; border-radius:99px;"><i class="fa-solid fa-bell"></i> ALARMA CRÍTICA: ${casosSemana} en 7 días / ${casosMes} este mes</span>`;
+            } else if (nivelAlarma === "ALTA") {
+                alertBox.style.background = "rgba(245, 158, 11, 0.14)";
+                alertBox.style.borderColor = "rgba(245, 158, 11, 0.45)";
+                alarmaBadgeHtml = `<span style="background:#f59e0b; color:#000; font-weight:800; font-size:11px; padding:3px 9px; border-radius:99px;"><i class="fa-solid fa-triangle-exclamation"></i> REINCIDENCIA ALTA: ${casosSemana} en 7 días / ${casosMes} este mes</span>`;
+            } else {
+                alertBox.style.background = "rgba(59, 130, 246, 0.1)";
+                alertBox.style.borderColor = "rgba(59, 130, 246, 0.3)";
+                alarmaBadgeHtml = `<span style="background:rgba(59,130,246,0.2); color:#93c5fd; font-weight:700; font-size:11px; padding:3px 9px; border-radius:99px;">Semana: ${casosSemana} | Mes: ${casosMes} | Total Año: ${totalHist}</span>`;
+            }
+
+            alertBox.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        ${alarmaBadgeHtml}
+                        <span>
+                            Último reporte: <b>${u.fecha}</b> por <b>${u.analista}</b>
+                            — <b>${u.reporte}</b> (${u.solucion}) | HUB: <b>${u.hub}</b>
+                        </span>
+                    </div>
+                    <button type="button" class="btn btn-ghost" style="padding:4px 10px; font-size:11px;" onclick="irAReincidenciaCliente('${(cedulaBuscada || u.cedula || '').replace(/'/g, "\\'")}')">
+                        <i class="fa-solid fa-chart-line"></i> Ver Frecuencia Semanal/Mensual (${totalHist})
+                    </button>
+                </div>
+            `;
+        }
+
+        function aplicarServicioSeleccionado(srv, tieneMultiples) {
+            document.getElementById("inputCedula").value = srv.doc || srv.cedula || document.getElementById("inputCedula").value;
+            document.getElementById("inputNombreCliente").value = srv.nombre || "";
+            document.getElementById("inputIdServicio").value = srv.id_servicio || "";
+            document.getElementById("inputTelefono").value = srv.telefono1 || "";
+            document.getElementById("inputPlan").value = srv.plan || "";
+            document.getElementById("inputUbicacion").value = srv.ubicacion || "";
+            document.getElementById("inputZona").value = srv.zona || srv.urban || srv.city || "";
+
+            // Actualizar Banner
+            const banner = document.getElementById("clientBanner");
+            banner.classList.add("visible");
+            document.getElementById("bannerNombreCliente").textContent = srv.nombre || "Cliente sin nombre";
+            document.getElementById("bannerServicioPlan").textContent = `#${srv.id_servicio || 'N/A'} — ${srv.plan || 'Sin Plan'} (${srv.tipo_servicio || 'RESIDENCIAL'})`;
+            document.getElementById("bannerTelefono").textContent = srv.telefono1 || "No registrado";
+
+            const badge = document.getElementById("bannerEstadoBadge");
+            const est = (srv.estado_servicio || "ACTIVO").toUpperCase();
+            badge.textContent = est;
+            badge.className = "client-badge-status " + (est === "ACTIVO" ? "status-activo" : "status-suspendido");
+
+            const btnCambiar = document.getElementById("btnCambiarServicio");
+            const badgeMulti = document.getElementById("badgeMultiplesServicios");
+            if (tieneMultiples || serviciosClienteActual.length > 1) {
+                btnCambiar.style.display = "inline-flex";
+                badgeMulti.style.display = "inline";
+                badgeMulti.textContent = `(${serviciosClienteActual.length} servicios asociados)`;
+            } else {
+                btnCambiar.style.display = "none";
+                badgeMulti.style.display = "none";
+            }
+        }
+
+        function abrirModalServicios() {
+            if (!serviciosClienteActual || serviciosClienteActual.length === 0) return;
+
+            const titular = serviciosClienteActual[0];
+            document.getElementById("modalClienteNombre").textContent = titular.nombre || "Cliente";
+            document.getElementById("modalClienteCedula").textContent = titular.cedula || titular.doc || "";
+            document.getElementById("modalCantidadServicios").textContent = serviciosClienteActual.length;
+
+            const contenedor = document.getElementById("modalServiciosLista");
+            contenedor.innerHTML = "";
+
+            serviciosClienteActual.forEach((srv, idx) => {
+                const card = document.createElement("div");
+                card.className = "service-option-card";
+                const est = (srv.estado_servicio || "ACTIVO").toUpperCase();
+                const badgeClass = est === "ACTIVO" ? "status-activo" : "status-suspendido";
+
+                card.innerHTML = `
+                    <div style="flex:1;">
+                        <div class="service-address-title">
+                            <i class="fa-solid fa-location-dot" style="color:var(--gold);"></i>
+                            <span>${srv.ubicacion || 'Sin dirección especificada'}</span>
+                        </div>
+                        <div class="service-meta-line">
+                            <span><b>ID Servicio:</b> #${srv.id_servicio || 'N/A'}</span>
+                            <span><b>Tipo:</b> ${srv.tipo_servicio || 'RESIDENCIAL'}</span>
+                            <span><b>Plan:</b> ${srv.plan || 'N/A'}</span>
+                            <span><b>Zona/Urb:</b> ${srv.zona_completa || srv.zona || 'N/A'}</span>
+                            ${srv.onu ? `<span><b>ONU:</b> ${srv.onu}</span>` : ''}
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                        <span class="client-badge-status ${badgeClass}">${est}</span>
+                        <button type="button" class="btn btn-gold" style="padding:6px 12px; font-size:12px;">
+                            Elegir esta dirección
+                        </button>
+                    </div>
+                `;
+                card.addEventListener("click", () => {
+                    aplicarServicioSeleccionado(srv, true);
+                    cerrarModalServicios();
+                    mostrarToast(`Dirección seleccionada (Servicio #${srv.id_servicio || idx + 1})`);
+                });
+                contenedor.appendChild(card);
+            });
+
+            document.getElementById("modalServicios").classList.add("open");
+        }
+
+        function cerrarModalServicios() {
+            document.getElementById("modalServicios").classList.remove("open");
+        }
+
+        async function guardarCaso(ev) {
+            ev.preventDefault();
+
+            const cedula = document.getElementById("inputCedula").value.trim();
+            const reporte = document.getElementById("inputReporte").value.trim();
+            const solucion = document.getElementById("inputSolucion").value.trim();
+            const hub = document.getElementById("inputHub").value.trim();
+
+            if (!hub) {
+                mostrarToast("Por favor selecciona un HUB haciendo clic en uno de los botones (4. HUB)", true);
+                return;
+            }
+
+            const payload = {
+                cedula: cedula,
+                nombre_cliente: document.getElementById("inputNombreCliente").value.trim(),
+                id_servicio: document.getElementById("inputIdServicio").value.trim(),
+                telefono: document.getElementById("inputTelefono").value.trim(),
+                plan: document.getElementById("inputPlan").value.trim(),
+                analista: document.getElementById("inputAnalista").value.trim(),
+                reporte: reporte,
+                solucion: solucion,
+                observacion: document.getElementById("inputObservacion").value,
+                hub: hub,
+                zona: document.getElementById("inputZona").value.trim(),
+                ubicacion: document.getElementById("inputUbicacion").value.trim(),
+                router_limitado: document.getElementById("inputRouterLimitado").checked,
+                fecha_iso: document.getElementById("filtroFecha").value || ""
+            };
+
+            const btn = document.getElementById("btnGuardarCaso");
+            btn.disabled = true;
+
+            try {
+                const res = await fetch("/api/soporte/casos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || "Error al guardar el caso");
+                }
+
+                mostrarToast(data.mensaje || "Caso registrado con éxito");
+                limpiarFormulario();
+                await cargarCasos();
+                document.getElementById("inputCedula").focus();
+            } catch (err) {
+                mostrarToast(err.message, true);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function limpiarFormulario() {
+            document.getElementById("inputCedula").value = "";
+            document.getElementById("inputNombreCliente").value = "";
+            document.getElementById("inputIdServicio").value = "";
+            document.getElementById("inputTelefono").value = "";
+            document.getElementById("inputPlan").value = "";
+            document.getElementById("inputReporte").value = "";
+            document.getElementById("inputSolucion").value = "";
+            document.getElementById("inputUbicacion").value = "";
+            document.getElementById("inputZona").value = "";
+            document.getElementById("inputRouterLimitado").checked = false;
+            document.getElementById("inputHub").value = "";
+            document.querySelectorAll("#hubButtonsContainer .hub-btn").forEach(b => b.classList.remove("selected"));
+            document.querySelectorAll(".quick-chips .chip-btn").forEach(c => c.classList.remove("active"));
+            document.getElementById("clientBanner").classList.remove("visible");
+            document.getElementById("clientHistoryAlert").style.display = "none";
+            document.getElementById("hubSugeridoHint").style.display = "none";
+            document.getElementById("autoSolucionBadge").style.display = "none";
+            serviciosClienteActual = [];
+        }
+
+        function debounceCargarCasos() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => cargarCasos(), 260);
+        }
+
+        function alternarMisCasos() {
+            soloMisCasos = !soloMisCasos;
+            const btn = document.getElementById("btnFiltroMisCasos");
+            if (soloMisCasos) {
+                btn.classList.remove("btn-ghost");
+                btn.classList.add("btn-gold");
+                btn.innerHTML = `<i class="fa-solid fa-user-check"></i> Viendo Solo Mis Casos`;
+            } else {
+                btn.classList.remove("btn-gold");
+                btn.classList.add("btn-ghost");
+                btn.innerHTML = `<i class="fa-solid fa-user"></i> Ver Solo Mis Casos`;
+            }
+            cargarCasos();
+        }
+
+        async function cargarCasos() {
+            const fecha = document.getElementById("filtroFecha").value || "";
+            const q = document.getElementById("filtroBusqueda").value.trim();
+            const hub = document.getElementById("filtroHub").value;
+            const reporte = document.getElementById("filtroReporte").value;
+            const analista = soloMisCasos ? usuarioActualNombre : "TODOS";
+
+            const params = new URLSearchParams({
+                fecha_iso: fecha,
+                q: q,
+                hub: hub,
+                reporte: reporte,
+                analista: analista
+            });
+
+            try {
+                const res = await fetch(`/api/soporte/casos?${params.toString()}`);
+                const data = await res.json();
+
+                if (data.resumen) {
+                    document.getElementById("kpiProximoCaso").textContent = `#${data.resumen.proximo_numero_caso || 1}`;
+                    document.getElementById("kpiMisCasos").textContent = data.resumen.mis_casos_dia || 0;
+                    document.getElementById("kpiTotalDia").textContent = data.resumen.total_dia || 0;
+                }
+
+                const tbody = document.getElementById("tablaCasosBody");
+                const casos = data.casos || [];
+
+                if (casos.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="11" style="text-align:center; padding:32px; color:var(--text-muted);">
+                                No hay casos documentados para los filtros seleccionados.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = casos.map(c => `
+                    <tr>
+                        <td style="white-space:nowrap;">
+                            <div style="font-weight:700;">${c.fecha}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">${c.hora || ''}</div>
+                        </td>
+                        <td><b style="color:var(--gold);">#${c.numero_caso}</b></td>
+                        <td>
+                            <div style="font-weight:800;">${c.cedula}</div>
+                            <div style="font-size:11.5px; color:var(--text-muted);">${c.nombre_cliente || ''} ${c.id_servicio ? `(#${c.id_servicio})` : ''}</div>
+                        </td>
+                        <td>${c.analista}</td>
+                        <td><span style="font-weight:700;">${c.reporte}</span></td>
+                        <td>${c.solucion}</td>
+                        <td><span style="font-size:12px; color:var(--text-muted);">${c.observacion || 'Rubpi'}</span></td>
+                        <td><span class="hub-tag">${c.hub}</span></td>
+                        <td style="max-width:290px;">
+                            ${c.zona ? `<div style="font-size:11px; font-weight:700; color:var(--gold);">${c.zona}</div>` : ''}
+                            <div style="font-size:12px; white-space:normal; line-height:1.35;">${c.ubicacion || '—'}</div>
+                        </td>
+                        <td style="text-align:center;">
+                            ${c.router_limitado
+                                ? '<span style="color:#f87171; font-weight:800;">SÍ</span>'
+                                : '<span style="color:var(--text-muted);">NO</span>'}
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-ghost" style="padding:5px 9px; font-size:11px; color:#f87171;" onclick="eliminarCaso(${c.id}, ${c.numero_caso})" title="Eliminar registro">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join("");
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function eliminarCaso(id, num) {
+            if (!confirm(`¿Seguro que deseas eliminar el Caso #${num}?`)) return;
+            try {
+                const res = await fetch(`/api/soporte/casos/${id}`, { method: "DELETE" });
+                if (res.ok) {
+                    mostrarToast(`Caso #${num} eliminado`);
+                    cargarCasos();
+                }
+            } catch (e) {
+                mostrarToast("No se pudo eliminar el caso", true);
+            }
+        }
+
+        function cambiarNodoVista(vista) {
+            const nodoReg = document.getElementById("nodoRegistro");
+            const nodoEst = document.getElementById("nodoEstadisticas");
+            const btnReg = document.getElementById("tabBtnRegistro");
+            const btnEst = document.getElementById("tabBtnEstadisticas");
+
+            if (vista === "estadisticas") {
+                nodoReg.style.display = "none";
+                nodoEst.style.display = "block";
+                btnEst.classList.remove("btn-ghost");
+                btnEst.classList.add("btn-gold");
+                btnReg.classList.remove("btn-gold");
+                btnReg.classList.add("btn-ghost");
+                cargarEstadisticas();
+            } else {
+                nodoEst.style.display = "none";
+                nodoReg.style.display = "block";
+                btnReg.classList.remove("btn-ghost");
+                btnReg.classList.add("btn-gold");
+                btnEst.classList.remove("btn-gold");
+                btnEst.classList.add("btn-ghost");
+                cargarCasos();
+            }
+        }
+
+        function setRangoEstadisticas(tipo) {
+            const hoy = new Date().toISOString().split("T")[0];
+            const desdeEl = document.getElementById("statDesde");
+            const hastaEl = document.getElementById("statHasta");
+
+            ["btnRangoHoy", "btnRangoMes", "btnRangoTodo"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove("btn-gold");
+                    el.classList.add("btn-ghost");
+                }
+            });
+
+            if (tipo === "hoy") {
+                desdeEl.value = hoy;
+                hastaEl.value = hoy;
+                document.getElementById("btnRangoHoy")?.classList.replace("btn-ghost", "btn-gold");
+            } else if (tipo === "mes") {
+                desdeEl.value = hoy.slice(0, 8) + "01";
+                hastaEl.value = hoy;
+                document.getElementById("btnRangoMes")?.classList.replace("btn-ghost", "btn-gold");
+            } else {
+                desdeEl.value = "";
+                hastaEl.value = "";
+                document.getElementById("btnRangoTodo")?.classList.replace("btn-ghost", "btn-gold");
+            }
+            cargarEstadisticas();
+        }
+
+        function renderizarTablaEstadistica(tbodyId, items, barColor = "var(--gold)") {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align:center; padding:22px; color:var(--text-muted);">
+                            Sin registros para este filtro
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = items.map(item => `
+                <tr>
+                    <td style="font-weight:700;">${item.nombre}</td>
+                    <td style="text-align:right; font-weight:800; color:var(--text-main);">${item.cantidad}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="flex:1; height:7px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden;">
+                                <div style="width:${Math.min(100, item.porcentaje)}%; height:100%; background:${barColor}; border-radius:99px;"></div>
+                            </div>
+                            <span style="font-size:11.5px; color:var(--text-muted); min-width:38px; text-align:right;">${item.porcentaje}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        let ultimosDatosEstadisticas = null;
+        let listaAfectacionesWa = [];
+
+        async function cargarEstadisticas() {
+            const desde = document.getElementById("statDesde").value || "";
+            const hasta = document.getElementById("statHasta").value || "";
+            const analista = document.getElementById("statAnalista").value || "TODOS";
+            const canal = document.getElementById("statCanal").value || "TODOS";
+            const hub = document.getElementById("statHub").value || "TODOS";
+
+            const params = new URLSearchParams({
+                desde: desde,
+                hasta: hasta,
+                analista: analista,
+                canal: canal,
+                hub: hub
+            });
+
+            try {
+                const res = await fetch(`/api/soporte/estadisticas?${params.toString()}`);
+                const data = await res.json();
+                ultimosDatosEstadisticas = data;
+
+                // Poblar selector de analistas manteniendo selección actual
+                const selAnalista = document.getElementById("statAnalista");
+                if (selAnalista && Array.isArray(data.analistas_disponibles)) {
+                    const actual = selAnalista.value || "TODOS";
+                    selAnalista.innerHTML = `<option value="TODOS">Todos los Analistas</option>` +
+                        data.analistas_disponibles.map(a => `<option value="${a}">${a}</option>`).join("");
+                    selAnalista.value = data.analistas_disponibles.includes(actual) ? actual : "TODOS";
+                }
+
+                // Actualizar 4 KPIs ejecutivos
+                document.getElementById("statKpiTotal").textContent = data.total_casos || 0;
+                document.getElementById("statKpiRemoto").textContent = `${data.resueltos_remoto || 0} (${data.porcentaje_remoto || 0}%)`;
+                document.getElementById("statKpiVisita").textContent = `${data.escalados_visita || 0} (${data.porcentaje_visita || 0}%)`;
+                document.getElementById("statKpiRouter").textContent = data.routers_limitados || 0;
+
+                const badgeRep = document.getElementById("badgeTotalReporte");
+                if (badgeRep) badgeRep.textContent = `${(data.por_reporte || []).length} tipos`;
+                const badgeAna = document.getElementById("badgeTotalAnalista");
+                if (badgeAna) badgeAna.textContent = `${(data.por_analista || []).length} analistas`;
+
+                // Renderizar las 5 tablas dinámicas del resumen de Soporte Remoto
+                renderizarTablaEstadistica("statTablaReporte", data.por_reporte, "var(--gold)");
+                renderizarTablaEstadistica("statTablaAnalista", data.por_analista, "#60a5fa");
+                renderizarTablaEstadistica("statTablaCanal", data.por_canal, "#a78bfa");
+                renderizarTablaEstadistica("statTablaHub", data.por_hub, "var(--gold)");
+                renderizarTablaEstadistica("statTablaZona", data.por_zona, "#38bdf8");
+
+                renderizarSugerenciasZonasAfectacion(data.zonas_afectacion || []);
+                regenerarTextoWhatsApp();
+                cargarReincidenciasClientes();
+            } catch (err) {
+                console.error(err);
+                mostrarToast("Error cargando estadísticas de soporte remoto", true);
+            }
+        }
+
+        let horaCorteWaActual = "06:00 PM";
+
+        function aplicarCorteRapido(hora) {
+            horaCorteWaActual = hora;
+            const btn6 = document.getElementById("btnCorte6pm");
+            const btn10 = document.getElementById("btnCorte10pm");
+            if (hora === "06:00 PM") {
+                btn6?.classList.replace("btn-ghost", "btn-gold");
+                btn10?.classList.replace("btn-gold", "btn-ghost");
+            } else {
+                btn10?.classList.replace("btn-ghost", "btn-gold");
+                btn6?.classList.replace("btn-gold", "btn-ghost");
+            }
+            // Asegurar que el corte filtre los casos del día de hoy
+            setRangoEstadisticas("hoy");
+        }
+
+        function renderizarSugerenciasZonasAfectacion(zonas) {
+            const wrap = document.getElementById("waSugerenciasZonasWrap");
+            const cont = document.getElementById("waChipsZonasDetectadas");
+            if (!wrap || !cont) return;
+            if (!zonas || zonas.length === 0) {
+                wrap.style.display = "none";
+                return;
+            }
+            wrap.style.display = "block";
+            cont.innerHTML = zonas.map(z => `
+                <button type="button" class="chip-btn" onclick="seleccionarZonaSugeridaWa('${z.replace(/'/g, "\\'")}')">
+                    + ${z}
+                </button>
+            `).join("");
+        }
+
+        function seleccionarZonaSugeridaWa(zonaNombre) {
+            document.getElementById("waInputAfectacionZona").value = zonaNombre;
+            agregarAfectacionWa("EN PROCESO");
+        }
+
+        function agregarAfectacionWa(estado) {
+            const input = document.getElementById("waInputAfectacionZona");
+            const zona = (input.value || "").trim().toUpperCase();
+            if (!zona) {
+                mostrarToast("Escribe el nombre de la zona de la afectación (ej. MACARENA)", true);
+                input.focus();
+                return;
+            }
+            const existente = listaAfectacionesWa.find(a => a.zona === zona);
+            if (existente) {
+                existente.estado = estado;
+            } else {
+                listaAfectacionesWa.push({ zona, estado });
+            }
+            input.value = "";
+            renderizarListaAfectacionesWa();
+            regenerarTextoWhatsApp();
+        }
+
+        function alternarEstadoAfectacionWa(idx) {
+            if (!listaAfectacionesWa[idx]) return;
+            listaAfectacionesWa[idx].estado =
+                listaAfectacionesWa[idx].estado === "REALIZADA" ? "EN PROCESO" : "REALIZADA";
+            renderizarListaAfectacionesWa();
+            regenerarTextoWhatsApp();
+        }
+
+        function eliminarAfectacionWa(idx) {
+            listaAfectacionesWa.splice(idx, 1);
+            renderizarListaAfectacionesWa();
+            regenerarTextoWhatsApp();
+        }
+
+        function renderizarListaAfectacionesWa() {
+            const cont = document.getElementById("waListaAfectaciones");
+            if (!cont) return;
+            if (listaAfectacionesWa.length === 0) {
+                cont.innerHTML = `<div style="font-size:11.5px; color:var(--text-muted); font-style:italic;">No se han añadido afectaciones al corte actual.</div>`;
+                return;
+            }
+            cont.innerHTML = listaAfectacionesWa.map((item, idx) => {
+                const esRealizada = item.estado === "REALIZADA";
+                const colorEstado = esRealizada ? "#34d399" : "#fbbf24";
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:rgba(255,255,255,0.04); border:1px solid var(--border-col); border-radius:8px; font-size:12px;">
+                        <div>
+                            <b style="color:var(--text-main);">${item.zona}</b>
+                            <span style="color:${colorEstado}; font-weight:800; margin-left:6px;">(${item.estado})</span>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="alternarEstadoAfectacionWa(${idx})" title="Cambiar entre REALIZADA y EN PROCESO">
+                                <i class="fa-solid fa-repeat"></i> Estado
+                            </button>
+                            <button type="button" class="btn btn-ghost" style="padding:3px 8px; font-size:11px; color:#f87171;" onclick="eliminarAfectacionWa(${idx})">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function formatearFechaDMY(isoStr) {
+            if (!isoStr || !isoStr.includes("-")) {
+                const hoy = new Date();
+                const d = String(hoy.getDate()).padStart(2, "0");
+                const m = String(hoy.getMonth() + 1).padStart(2, "0");
+                const y = hoy.getFullYear();
+                return `${d}-${m}-${y}`;
+            }
+            const partes = isoStr.split("-");
+            return `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+
+        function regenerarTextoWhatsApp() {
+            const data = ultimosDatosEstadisticas || { por_reporte: [], por_canal: [] };
+            const fechaBase = document.getElementById("statHasta").value || document.getElementById("statDesde").value || "";
+            const fechaTexto = formatearFechaDMY(fechaBase);
+
+            const motivos = [...(data.por_reporte || [])];
+            motivos.sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
+
+            const lineasMotivos = motivos.length > 0
+                ? motivos.map(m => `• ${m.nombre}: ${m.cantidad}`).join("\n")
+                : "• Sin incidencias registradas: 0";
+
+            let cantChat = 0;
+            let cantLlamadas = 0;
+            let cantTaquilla = 0;
+            (data.por_canal || []).forEach(c => {
+                const n = (c.nombre || "").toLowerCase();
+                if (n.includes("rubpi") || n.includes("chat")) {
+                    cantChat += c.cantidad;
+                } else if (n.includes("llamada")) {
+                    cantLlamadas += c.cantidad;
+                } else if (n.includes("requerimiento") || n.includes("taquilla")) {
+                    cantTaquilla += c.cantidad;
+                }
+            });
+
+            const totalAtendidos = cantChat + cantLlamadas + cantTaquilla;
+
+            const lineasAfectaciones = listaAfectacionesWa.length > 0
+                ? listaAfectacionesWa.map(a => `${a.zona} (*${a.estado}*)`).join("\n")
+                : "SIN AFECTACIONES";
+
+            const mensaje = [
+                "*REPORTE DE SOPORTE*",
+                `*Fecha:* ${fechaTexto}`,
+                `*Hora de corte:* ${horaCorteWaActual}`,
+                "",
+                "*Motivos:*",
+                "",
+                lineasMotivos,
+                "",
+                `*CANTIDAD DE CHAT:* ${cantChat}`,
+                `*CANTIDAD DE LLAMADAS:* ${cantLlamadas}`,
+                `*CANTIDAD EN TAQUILLA:* ${cantTaquilla}`,
+                `*TOTAL ATENDIDOS:* ${totalAtendidos}`,
+                "",
+                "*AFECTACIONES:*",
+                "",
+                lineasAfectaciones
+            ].join("\n");
+
+            const preview = document.getElementById("waTextoPreview");
+            if (preview) preview.value = mensaje;
+        }
+
+        async function copiarReporteWhatsApp() {
+            const preview = document.getElementById("waTextoPreview");
+            if (!preview || !preview.value) return;
+            try {
+                await navigator.clipboard.writeText(preview.value);
+                mostrarToast("¡Reporte copiado! Ya puedes pegarlo en WhatsApp (Ctrl + V)");
+            } catch (e) {
+                preview.select();
+                document.execCommand("copy");
+                mostrarToast("¡Reporte copiado al portapapeles!");
+            }
+        }
+
+        // ====================================================================
+        // LOTE DE TICKETS POR AFECTACIÓN MASIVA (SUB-SECTOR -> ZONA + HUB)
+        // ====================================================================
+        const catalogoSubsectores = {{ (subsectores or [])|tojson }};
+
+        function abrirModalAfectacionMasiva() {
+            document.getElementById("modalAfectacionMasiva").classList.add("open");
+            filtrarSubsectoresMasivo();
+            document.getElementById("masivoBuscarSubsector").focus();
+        }
+
+        function cerrarModalAfectacionMasiva() {
+            document.getElementById("modalAfectacionMasiva").classList.remove("open");
+        }
+
+        function setCantidadMasiva(n) {
+            document.getElementById("masivoCantidad").value = n;
+        }
+
+        function seleccionarHubMasivo(hubCode) {
+            document.getElementById("masivoInputHub").value = hubCode;
+            document.querySelectorAll("#masivoHubButtonsContainer .hub-btn").forEach(btn => {
+                if (btn.getAttribute("data-hub-masivo") === hubCode) {
+                    btn.classList.add("selected");
+                } else {
+                    btn.classList.remove("selected");
+                }
+            });
+        }
+
+        function filtrarSubsectoresMasivo() {
+            const zonaFiltro = document.getElementById("masivoFiltroZona").value || "TODAS";
+            const q = (document.getElementById("masivoBuscarSubsector").value || "").trim().toLowerCase();
+            const cont = document.getElementById("masivoListaSubsectores");
+            if (!cont) return;
+
+            const filtrados = catalogoSubsectores.filter(item => {
+                if (zonaFiltro !== "TODAS" && item.zona !== zonaFiltro) return false;
+                if (!q) return true;
+                return (
+                    (item.subsector || "").toLowerCase().includes(q) ||
+                    (item.direccion || "").toLowerCase().includes(q) ||
+                    (item.zona || "").toLowerCase().includes(q)
+                );
+            }).slice(0, 60);
+
+            if (filtrados.length === 0) {
+                cont.innerHTML = `<div style="grid-column:1/-1; padding:10px; font-size:12px; color:var(--text-muted); text-align:center;">Sin coincidencias en el catálogo. Puedes escribir el sub-sector abajo manualmente.</div>`;
+                return;
+            }
+
+            cont.innerHTML = filtrados.map(item => `
+                <button
+                    type="button"
+                    class="btn btn-ghost"
+                    style="justify-content:flex-start; text-align:left; padding:7px 10px; font-size:11.5px; display:flex; flex-direction:column; align-items:flex-start; gap:2px;"
+                    onclick="elegirSubsectorMasivo('${(item.direccion || '').replace(/'/g, "\\'")}', '${(item.zona || '').replace(/'/g, "\\'")}')"
+                >
+                    <span style="font-weight:800; color:var(--text-main);">${item.subsector}</span>
+                    <span style="font-size:10px; color:var(--gold);">${item.zona} — ${item.direccion}</span>
+                </button>
+            `).join("");
+        }
+
+        function elegirSubsectorMasivo(direccion, zona) {
+            document.getElementById("masivoUbicacion").value = direccion;
+            document.getElementById("masivoZona").value = zona;
+        }
+
+        function inferirZonaDesdeTextoMasivo(texto) {
+            const t = (texto || "").toUpperCase();
+            if (!t) return;
+            const matchExacto = catalogoSubsectores.find(
+                s => s.subsector.toUpperCase() === t || s.direccion.toUpperCase() === t
+            );
+            if (matchExacto) {
+                document.getElementById("masivoZona").value = matchExacto.zona;
+                return;
+            }
+            if (t.includes("TEJERIA") || t.includes("TEJERÍA")) document.getElementById("masivoZona").value = "TEJERIAS";
+            else if (t.includes("CARRIZAL") || t.includes("LLANO ALTO") || t.includes("CORRALITO") || t.includes("BAROLA")) document.getElementById("masivoZona").value = "CARRIZAL";
+            else if (t.includes("SAN DIEGO") || t.includes("SAN JOSE") || t.includes("SAN JOSÉ") || t.includes("AGUA FRIA")) document.getElementById("masivoZona").value = "SAN DIEGO";
+            else if (t.includes("SAN ANTONIO") || t.includes("ROSALEDA") || t.includes("CASTORES") || t.includes("LAS MINAS")) document.getElementById("masivoZona").value = "SAN ANTONIO";
+            else if (t.includes("PROPATRIA") || t.includes("CATIA") || t.includes("SILSA")) document.getElementById("masivoZona").value = "PROPATRIA";
+            else if (t.includes("LA VEGA")) document.getElementById("masivoZona").value = "LA VEGA";
+            else if (t.includes("COCHE")) document.getElementById("masivoZona").value = "COCHE";
+            else if (t.includes("CUMBRE ROJA")) document.getElementById("masivoZona").value = "CUMBRE ROJA";
+            else if (t.includes("EL VALLE") || t.includes("BRUZUAL") || t.includes("LAS MAYAS")) document.getElementById("masivoZona").value = "EL VALLE";
+            else if (t.includes("LOS TEQUES") || t.includes("SAN PEDRO") || t.includes("POZO DE ROSAS") || t.includes("MATICA") || t.includes("MACARENA") || t.includes("EL PASO") || t.includes("NACIONAL") || t.includes("LAGUNETICA") || t.includes("GUAREMAL") || t.includes("RAMO VERDE")) {
+                document.getElementById("masivoZona").value = "LOS TEQUES";
+            }
+        }
+
+        async function guardarAfectacionMasiva(ev) {
+            ev.preventDefault();
+            const cantidad = parseInt(document.getElementById("masivoCantidad").value || "0", 10);
+            const hub = (document.getElementById("masivoInputHub").value || "").trim();
+            const ubicacion = (document.getElementById("masivoUbicacion").value || "").trim();
+            const zona = (document.getElementById("masivoZona").value || "").trim();
+            const observacion = document.getElementById("masivoObservacion").value || "Rubpi";
+            const fecha_iso = document.getElementById("filtroFecha").value || "";
+
+            if (!hub) {
+                mostrarToast("Por favor selecciona el HUB de la afectación haciendo clic en uno de los botones.", true);
+                return;
+            }
+            if (!ubicacion || !zona) {
+                mostrarToast("Por favor selecciona o indica el sub-sector y la zona.", true);
+                return;
+            }
+
+            const btn = document.getElementById("btnSubmitMasivo");
+            btn.disabled = true;
+
+            try {
+                const res = await fetch("/api/soporte/casos/masivos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        cantidad,
+                        hub,
+                        ubicacion,
+                        zona,
+                        observacion,
+                        fecha_iso
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || "No se pudieron crear los tickets masivos");
+                }
+                mostrarToast(data.mensaje || `Se crearon ${cantidad} tickets de afectación`);
+                cerrarModalAfectacionMasiva();
+                await cargarCasos();
+            } catch (err) {
+                mostrarToast(err.message, true);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function exportarCSV(todo = false) {
+            if (todo) {
+                const params = new URLSearchParams({ fecha_iso: "todas", hub: "TODOS", analista: "TODOS" });
+                window.location.href = `/api/soporte/exportar?${params.toString()}`;
+                return;
+            }
+            const fecha = document.getElementById("filtroFecha").value || "";
+            const hub = document.getElementById("filtroHub").value || "TODOS";
+            const analista = soloMisCasos ? usuarioActualNombre : "TODOS";
+            const params = new URLSearchParams({ fecha_iso: fecha, hub: hub, analista: analista });
+            window.location.href = `/api/soporte/exportar?${params.toString()}`;
+        }
+
+        // =========================================================================
+        // MONITOR DE COINCIDENCIA / REINCIDENCIA Y ALARMAS POR CLIENTE (SEMANA/MES)
+        // =========================================================================
+        let modoReincidenciaActual = "mes";
+        let debounceReincTimer = null;
+        let cacheReincidenciasClientes = [];
+
+        function cambiarModoReincidencia(nuevoModo) {
+            modoReincidenciaActual = nuevoModo;
+            ["btnReincSemana", "btnReincMes", "btnReincTodo"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove("btn-gold");
+                    el.classList.add("btn-ghost");
+                }
+            });
+
+            const wrapMes = document.getElementById("wrapReincMes");
+            const wrapRef = document.getElementById("wrapReincFechaRef");
+            const selMin = document.getElementById("reincSelectMin");
+
+            if (nuevoModo === "semana") {
+                document.getElementById("btnReincSemana")?.classList.replace("btn-ghost", "btn-gold");
+                if (wrapMes) wrapMes.style.display = "none";
+                if (wrapRef) wrapRef.style.display = "flex";
+                if (selMin) selMin.value = "2";
+            } else if (nuevoModo === "mes") {
+                document.getElementById("btnReincMes")?.classList.replace("btn-ghost", "btn-gold");
+                if (wrapMes) wrapMes.style.display = "flex";
+                if (wrapRef) wrapRef.style.display = "none";
+                if (selMin) selMin.value = "3";
+            } else {
+                document.getElementById("btnReincTodo")?.classList.replace("btn-ghost", "btn-gold");
+                if (wrapMes) wrapMes.style.display = "none";
+                if (wrapRef) wrapRef.style.display = "none";
+                if (selMin) selMin.value = "5";
+            }
+            cargarReincidenciasClientes();
+        }
+
+        function debounceReincidencias() {
+            clearTimeout(debounceReincTimer);
+            debounceReincTimer = setTimeout(() => cargarReincidenciasClientes(), 280);
+        }
+
+        async function cargarReincidenciasClientes() {
+            const tbody = document.getElementById("tablaReincidenciasBody");
+            if (!tbody) return;
+
+            const q = (document.getElementById("reincInputBuscar")?.value || "").trim();
+            const mes = document.getElementById("reincSelectMes")?.value || "2026-10";
+            const fechaRef = document.getElementById("reincInputFechaRef")?.value || "";
+            const minCasos = document.getElementById("reincSelectMin")?.value || "2";
+            const hub = document.getElementById("reincSelectHub")?.value || "TODOS";
+
+            const params = new URLSearchParams({
+                modo: modoReincidenciaActual,
+                mes: mes,
+                fecha_ref: fechaRef,
+                min_casos: minCasos,
+                hub: hub,
+                q: q
+            });
+
+            try {
+                const res = await fetch(`/api/soporte/reincidencias?${params.toString()}`);
+                const data = await res.json();
+                cacheReincidenciasClientes = data.clientes || [];
+
+                const refInput = document.getElementById("reincInputFechaRef");
+                if (refInput && !refInput.value && data.fecha_ref) {
+                    refInput.value = data.fecha_ref;
+                }
+
+                document.getElementById("reincKpiCriticas").textContent = data.kpi_criticas || 0;
+                document.getElementById("reincKpiAltas").textContent = data.kpi_altas || 0;
+                document.getElementById("reincKpiTotal").textContent = data.total_clientes_alarma || 0;
+
+                if (cacheReincidenciasClientes.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align:center; padding:28px; color:var(--text-muted);">
+                                No se encontraron clientes con ese umbral de reincidencia en el periodo seleccionado.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = cacheReincidenciasClientes.map((c, idx) => {
+                    let badgeAlarma = "";
+                    if (c.nivel_alarma === "CRITICA") {
+                        badgeAlarma = `<span style="display:inline-flex; align-items:center; gap:5px; background:rgba(239,68,68,0.18); color:#f87171; border:1px solid rgba(239,68,68,0.45); padding:4px 9px; border-radius:99px; font-size:11px; font-weight:800;"><i class="fa-solid fa-bell"></i> CRÍTICA</span>`;
+                    } else if (c.nivel_alarma === "ALTA") {
+                        badgeAlarma = `<span style="display:inline-flex; align-items:center; gap:5px; background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); padding:4px 9px; border-radius:99px; font-size:11px; font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> ALTA</span>`;
+                    } else {
+                        badgeAlarma = `<span style="display:inline-flex; align-items:center; gap:5px; background:rgba(59,130,246,0.16); color:#93c5fd; border:1px solid rgba(59,130,246,0.35); padding:4px 9px; border-radius:99px; font-size:11px; font-weight:700;">OBSERVACIÓN</span>`;
+                    }
+
+                    const fechasChips = (c.fechas_periodo || []).slice(-4).map(f =>
+                        `<span style="display:inline-block; background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:5px; font-size:10.5px; margin:1px;">${f}</span>`
+                    ).join(" ");
+
+                    return `
+                        <tr onclick="abrirDetalleReincidencia(${idx})" style="cursor:pointer;" title="Haz clic para abrir la Ficha de Fallas y Resoluciones del cliente">
+                            <td>${badgeAlarma}</td>
+                            <td>
+                                <div style="font-weight:800; color:var(--gold); text-decoration:underline; text-underline-offset:3px;">${c.cedula}</div>
+                                <div style="font-size:12px; color:var(--text-main); font-weight:700;">${c.nombre_cliente} ${c.id_servicio ? `<span style="opacity:0.75;">(#${c.id_servicio})</span>` : ""}</div>
+                            </td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+                                    <span class="hub-tag">${c.hub}</span>
+                                    <span style="font-size:11px; font-weight:700; color:var(--text-muted);">${c.zona}</span>
+                                </div>
+                                <div style="font-size:11px; color:var(--text-muted); max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${c.ubicacion}">${c.ubicacion || "—"}</div>
+                            </td>
+                            <td style="text-align:center;">
+                                <span style="font-weight:800; font-size:14px; color:${c.casos_semana >= 2 ? '#f87171' : 'var(--text-main)'};">${c.casos_semana}</span>
+                            </td>
+                            <td style="text-align:center;">
+                                <span style="font-weight:800; font-size:14px; color:${c.casos_mes >= 3 ? '#fbbf24' : 'var(--text-main)'};">${c.casos_mes}</span>
+                            </td>
+                            <td style="text-align:center; font-weight:700; color:var(--text-muted);">
+                                ${c.casos_historial}
+                            </td>
+                            <td>
+                                <span style="font-weight:700; font-size:12px;">${c.falla_frecuente}</span>
+                                ${c.visitas_periodo > 0 ? `<div style="font-size:10.5px; color:#fbbf24;"><i class="fa-solid fa-truck-fast"></i> ${c.visitas_periodo} Visita(s)</div>` : ""}
+                            </td>
+                            <td>${fechasChips}</td>
+                            <td style="text-align:right;">
+                                <button type="button" class="btn btn-gold" style="padding:5px 11px; font-size:11.5px;" onclick="event.stopPropagation(); abrirDetalleReincidencia(${idx})">
+                                    <i class="fa-solid fa-id-card-clip"></i> Ver Ficha
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function abrirDetalleReincidencia(idx) {
+            const c = cacheReincidenciasClientes[idx];
+            if (!c) return;
+            const body = document.getElementById("modalDetalleReincidenciaBody");
+
+            const selMesEl = document.getElementById("reincSelectMes");
+            const mesTexto = selMesEl && selMesEl.selectedOptions[0] ? selMesEl.selectedOptions[0].text : "Mes seleccionado";
+            const etiquetaRango = modoReincidenciaActual === "semana"
+                ? `Semana evaluada (${document.getElementById("reincInputFechaRef")?.value || "Últimos 7 días"})`
+                : (modoReincidenciaActual === "mes" ? mesTexto : "Rango seleccionado");
+
+            const fallasResumenHtml = (c.resumen_fallas || []).map(f => `
+                <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.28); border-radius:8px; padding:7px 11px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:12px; color:var(--text-main);">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:#f87171; margin-right:5px;"></i>${f.nombre}
+                    </span>
+                    <span style="font-weight:800; font-size:12px; color:#f87171;">${f.cantidad}</span>
+                </div>
+            `).join("");
+
+            const solucionesResumenHtml = (c.resumen_soluciones || []).map(s => `
+                <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.28); border-radius:8px; padding:7px 11px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700; font-size:12px; color:var(--text-main);">
+                        <i class="fa-solid fa-screwdriver-wrench" style="color:#34d399; margin-right:5px;"></i>${s.nombre}
+                    </span>
+                    <span style="font-weight:800; font-size:12px; color:#34d399;">${s.cantidad}</span>
+                </div>
+            `).join("");
+
+            const historialHtml = (c.ultimos_casos || []).map(u => {
+                const esVisita = (u.solucion || "").toLowerCase().includes("visita");
+                const solBadge = esVisita
+                    ? `<span style="display:inline-flex; align-items:center; gap:4px; background:rgba(245,158,11,0.16); color:#fbbf24; border:1px solid rgba(245,158,11,0.35); padding:3px 8px; border-radius:6px; font-weight:700; font-size:11.5px;"><i class="fa-solid fa-truck-fast"></i> ${u.solucion}</span>`
+                    : `<span style="display:inline-flex; align-items:center; gap:4px; background:rgba(16,185,129,0.13); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:3px 8px; border-radius:6px; font-weight:700; font-size:11.5px;"><i class="fa-solid fa-circle-check"></i> ${u.solucion}</span>`;
+
+                return `
+                    <tr>
+                        <td style="white-space:nowrap; font-weight:700;">${u.fecha}</td>
+                        <td style="font-weight:800; color:var(--gold);">#${u.numero_caso}</td>
+                        <td><span style="font-weight:800; color:#f87171;">${u.reporte}</span></td>
+                        <td>${solBadge}</td>
+                        <td style="font-size:12px;">${u.analista}</td>
+                    </tr>
+                `;
+            }).join("");
+
+            body.innerHTML = `
+                <!-- ENCABEZADO SIMPLIFICADO DE LA FICHA EN EL RANGO DE ALARMA -->
+                <div style="background:var(--bg-muted); border:1px solid var(--border-col); border-radius:12px; padding:14px 18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <div style="font-size:16px; font-weight:800; color:var(--gold);">
+                            ${c.nombre_cliente}
+                            <span style="color:var(--text-main); font-size:13.5px; margin-left:6px;">Cédula: ${c.cedula}</span>
+                            ${c.id_servicio ? `<span class="hub-tag" style="margin-left:6px;">#${c.id_servicio}</span>` : ""}
+                        </div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">
+                            <b>HUB:</b> <span style="color:var(--gold); font-weight:800;">${c.hub}</span> &nbsp;|&nbsp;
+                            <b>Dirección:</b> ${c.ubicacion || "—"}
+                        </div>
+                    </div>
+                    <span class="hub-tag" style="border-color:rgba(239,68,68,0.45); color:#f87171; font-size:12.5px; padding:6px 12px;">
+                        ${etiquetaRango}: ${c.casos_periodo} reportes
+                    </span>
+                </div>
+
+                <!-- CONTEO DE FALLAS Y RESOLUCIONES EXCLUSIVAMENTE DEL RANGO CONSULTADO -->
+                <div class="form-grid" style="margin-bottom:14px;">
+                    <div class="col-6">
+                        <div class="field-label" style="margin-bottom:6px; color:#f87171;">
+                            <span><i class="fa-solid fa-triangle-exclamation"></i> Fallas Reportadas (${etiquetaRango})</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            ${fallasResumenHtml || '<span style="font-size:12px; color:var(--text-muted);">Sin registros en este rango</span>'}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="field-label" style="margin-bottom:6px; color:#34d399;">
+                            <span><i class="fa-solid fa-screwdriver-wrench"></i> Resoluciones Aplicadas (${etiquetaRango})</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            ${solucionesResumenHtml || '<span style="font-size:12px; color:var(--text-muted);">Sin registros en este rango</span>'}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLA SIMPLIFICADA SOLO CON LOS CASOS DEL RANGO DE ALARMA -->
+                <div class="field-label" style="margin-bottom:6px;">
+                    <span><i class="fa-solid fa-table-list" style="color:var(--gold);"></i> Detalle de Casos en ${etiquetaRango} (${(c.ultimos_casos || []).length})</span>
+                </div>
+                <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                    <table class="cases-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>N° Caso</th>
+                                <th>Falla Reportada</th>
+                                <th>Resolución Aplicada</th>
+                                <th>Analista</th>
+                            </tr>
+                        </thead>
+                        <tbody>${historialHtml}</tbody>
+                    </table>
+                </div>
+            `;
+            document.getElementById("modalDetalleReincidencia").classList.add("open");
+        }
+
+        function cerrarModalDetalleReincidencia() {
+            document.getElementById("modalDetalleReincidencia").classList.remove("open");
+        }
+
+        function irAReincidenciaCliente(cedula) {
+            cambiarVistaSoporte("estadisticas");
+            const input = document.getElementById("reincInputBuscar");
+            if (input) {
+                input.value = cedula;
+                cargarReincidenciasClientes();
+                document.getElementById("panelAlarmasReincidencia")?.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+    </script>
+</body>
+</html>
