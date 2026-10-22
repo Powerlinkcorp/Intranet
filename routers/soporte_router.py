@@ -19,6 +19,7 @@ import urllib.error
 import urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
+import threading
 from typing import List, Optional
 
 import requests
@@ -213,15 +214,107 @@ def _normalizar_zona_oficial(texto: str) -> str:
     return u_clean
 
 
+def _ejecutar_sincronizacion_rubpi() -> dict:
+    """
+    Descarga directamente desde la API oficial de Rubpi los padrones residencial y corporativo
+    y los guarda en static/uploads/last_snapshot.json y last_snapshot_corporativo.json.
+    """
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    login_url = "https://powerlink.rubpi.com/api/login"
+    creds = {"username": "api_exp", "password": "-?J+\\FcmKT2zWl5A28=~"}
+
+    try:
+        req = urllib.request.Request(
+            login_url,
+            data=json.dumps(creds).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            login_data = json.loads(resp.read().decode())
+            api_token = login_data.get("token") or login_data.get("access_token")
+        if not api_token:
+            raise Exception("No se recibió token de Rubpi API")
+
+        def _export_and_wait(url_export: str):
+            r = urllib.request.Request(
+                url_export,
+                headers={"Authorization": f"Bearer {api_token}", "Accept": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(r, timeout=15) as resp2:
+                tid = json.loads(resp2.read().decode()).get("task_id")
+            if not tid:
+                raise Exception("No se recibió task_id de exportación")
+            for _ in range(25):
+                time.sleep(2)
+                r2 = urllib.request.Request(
+                    f"https://powerlink.rubpi.com/api/exports/users/{tid}",
+                    headers={"Authorization": f"Bearer {api_token}"},
+                    method="GET",
+                )
+                try:
+                    with urllib.request.urlopen(r2, timeout=30) as resp3:
+                        return json.loads(resp3.read().decode())
+                except urllib.error.HTTPError as he:
+                    if he.code == 400:
+                        continue
+                    raise
+            raise Exception("Tiempo de espera agotado descargando clientes de Rubpi")
+
+        print("[SOPORTE] Descargando padrón residencial desde Rubpi API...", flush=True)
+        data_gen = _export_and_wait("https://powerlink.rubpi.com/api/exports/users")
+        path_res = os.path.join(UPLOAD_DIR, "last_snapshot.json")
+        with open(path_res, "w", encoding="utf-8") as f:
+            json.dump(data_gen, f)
+
+        print("[SOPORTE] Descargando padrón corporativo desde Rubpi API...", flush=True)
+        data_corp = _export_and_wait("https://powerlink.rubpi.com/api/exports/users?is_natural=0")
+        path_corp = os.path.join(UPLOAD_DIR, "last_snapshot_corporativo.json")
+        with open(path_corp, "w", encoding="utf-8") as f:
+            json.dump(data_corp, f)
+
+        # Forzar recarga del índice en memoria
+        global _multi_clients_mtimes
+        _multi_clients_mtimes = (0, 0)
+        idx, by_srv = _get_multi_clients_index()
+
+        print(f"[SOPORTE] Sincronización exitosa: {len(by_srv)} servicios indexados", flush=True)
+        return {
+            "status": "ok",
+            "total_contratos": len(by_srv),
+            "mensaje": f"Padrón de clientes sincronizado automáticamente ({len(by_srv)} servicios indexados).",
+        }
+    except Exception as e:
+        print(f"[SOPORTE] Error en sincronización con Rubpi API: {e}", flush=True)
+        return {"status": "error", "mensaje": str(e)}
+
+
 def _get_multi_clients_index():
     """
     Indexa todos los contratos de last_snapshot.json y last_snapshot_corporativo.json
     agrupando en una LISTA todos los servicios que pertenecen a una misma Cédula o RIF.
+    Si los archivos no existen (ej. primera ejecución tras clonar), los descarga automáticamente.
     """
     global _multi_clients_index, _multi_services_by_id, _multi_clients_mtimes
 
     path_res = os.path.join(UPLOAD_DIR, "last_snapshot.json")
     path_corp = os.path.join(UPLOAD_DIR, "last_snapshot_corporativo.json")
+
+    # Si no existen los snapshots, descargarlos automáticamente de la API de Rubpi
+    if not os.path.exists(path_res):
+        print("[SOPORTE] No existe snapshot local de clientes. Descargando automáticamente de Rubpi...", flush=True)
+        _ejecutar_sincronizacion_rubpi()
+    elif os.path.exists(path_res) and (time.time() - os.path.getmtime(path_res) > 86400 * 2):
+        # Si tiene más de 48 horas de antigüedad, actualizar en segundo plano sin congelar
+        if not getattr(_ejecutar_sincronizacion_rubpi, "_is_syncing", False):
+            _ejecutar_sincronizacion_rubpi._is_syncing = True
+            def _bg_sync():
+                try:
+                    _ejecutar_sincronizacion_rubpi()
+                finally:
+                    _ejecutar_sincronizacion_rubpi._is_syncing = False
+            threading.Thread(target=_bg_sync, daemon=True).start()
 
     mtime_res = os.path.getmtime(path_res) if os.path.exists(path_res) else 0
     mtime_corp = os.path.getmtime(path_corp) if os.path.exists(path_corp) else 0
@@ -594,71 +687,10 @@ def sincronizar_base_clientes(request: Request):
     if not token:
         raise HTTPException(status_code=401, detail="No autorizado")
 
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    login_url = "https://powerlink.rubpi.com/api/login"
-    creds = {"username": "api_exp", "password": "-?J+\\FcmKT2zWl5A28=~"}
-
-    try:
-        req = urllib.request.Request(
-            login_url,
-            data=json.dumps(creds).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            login_data = json.loads(resp.read().decode())
-            api_token = login_data.get("token") or login_data.get("access_token")
-        if not api_token:
-            raise Exception("No se recibió token de Rubpi API")
-
-        def _export_and_wait(url_export: str):
-            r = urllib.request.Request(
-                url_export,
-                headers={"Authorization": f"Bearer {api_token}", "Accept": "application/json"},
-                method="POST",
-            )
-            with urllib.request.urlopen(r, timeout=15) as resp2:
-                tid = json.loads(resp2.read().decode()).get("task_id")
-            if not tid:
-                raise Exception("No se recibió task_id de exportación")
-            for _ in range(25):
-                time.sleep(2)
-                r2 = urllib.request.Request(
-                    f"https://powerlink.rubpi.com/api/exports/users/{tid}",
-                    headers={"Authorization": f"Bearer {api_token}"},
-                    method="GET",
-                )
-                try:
-                    with urllib.request.urlopen(r2, timeout=30) as resp3:
-                        return json.loads(resp3.read().decode())
-                except urllib.error.HTTPError as he:
-                    if he.code == 400:
-                        continue
-                    raise
-            raise Exception("Tiempo de espera agotado descargando clientes")
-
-        data_gen = _export_and_wait("https://powerlink.rubpi.com/api/exports/users")
-        path_res = os.path.join(UPLOAD_DIR, "last_snapshot.json")
-        with open(path_res, "w", encoding="utf-8") as f:
-            json.dump(data_gen, f)
-
-        data_corp = _export_and_wait("https://powerlink.rubpi.com/api/exports/users?is_natural=0")
-        path_corp = os.path.join(UPLOAD_DIR, "last_snapshot_corporativo.json")
-        with open(path_corp, "w", encoding="utf-8") as f:
-            json.dump(data_corp, f)
-
-        # Forzar recarga del índice en memoria
-        global _multi_clients_mtimes
-        _multi_clients_mtimes = (0, 0)
-        idx, by_srv = _get_multi_clients_index()
-
-        return {
-            "status": "ok",
-            "total_contratos": len(by_srv),
-            "mensaje": f"Base de clientes actualizada ({len(by_srv)} servicios indexados).",
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error sincronizando clientes: {str(e)}")
+    res = _ejecutar_sincronizacion_rubpi()
+    if res.get("status") == "error":
+        raise HTTPException(status_code=500, detail=res.get("mensaje", "Error sincronizando clientes"))
+    return res
 
 
 # ============================================================================
