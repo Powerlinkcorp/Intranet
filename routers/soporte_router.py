@@ -19,6 +19,18 @@ import urllib.error
 import urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
+try:
+    import zoneinfo
+    CARACAS_TZ = zoneinfo.ZoneInfo("America/Caracas")
+except Exception:
+    from datetime import timezone
+    CARACAS_TZ = timezone(timedelta(hours=-4))
+
+
+def _now_caracas() -> datetime:
+    """Retorna datetime actual garantizado en zona horaria Venezuela (GMT-4 / America/Caracas)."""
+    return datetime.now(CARACAS_TZ)
+
 import threading
 from typing import List, Optional
 
@@ -43,11 +55,267 @@ except Exception as e:
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
+
+def _cedula_sql_normalizada():
+    """
+    Expresión SQL de la cédula sin puntos, guiones, comas ni espacios.
+    Permite encontrar casos guardados como "16.472.781" o "V-16472781" al buscar "16472781".
+    (REPLACE existe tanto en SQLite como en PostgreSQL).
+    """
+    expr = models.SupportCase.cedula
+    for ch in (".", "-", ",", " "):
+        expr = func.replace(expr, ch, "")
+    return expr
+
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "static/uploads")
 GOOGLE_SHEETS_WEBHOOK_URL = os.getenv(
     "GOOGLE_SHEETS_WEBHOOK_URL",
     "https://script.google.com/macros/s/AKfycbwqpPJoqAdWqz7u9gxw6uOq0LSwaHvbcq14c8VoXX2FnpQUzKmhj0BQGkBcSMiHead_ZA/exec",
 )
+GOOGLE_SHEETS_CSV_URL = os.getenv(
+    "GOOGLE_SHEETS_CSV_URL",
+    "https://docs.google.com/spreadsheets/d/1EKUDXbf_1jjUi-68RYw_TMoh3Sbc6BqTBdeA0E4Usdc/export?format=csv&gid=246682208",
+)
+
+_sheets_sync_lock = threading.Lock()
+_last_sheets_sync_ts = 0.0
+
+
+def _parse_fecha_sheet(f_str: str):
+    f_str = (f_str or "").strip()
+    m = re.match(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$", f_str)
+    if m:
+        d, mo, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if y < 100:
+            y += 2000
+        if y in (206, 2025):
+            y = 2026
+        if 1 <= mo <= 12 and 1 <= d <= 31:
+            return f"{y:04d}-{mo:02d}-{d:02d}", f"{d}/{mo:02d}/{y:04d}"
+    m2 = re.match(r"^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$", f_str)
+    if m2:
+        y, mo, d = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
+        if y in (206, 2025):
+            y = 2026
+        if 1 <= mo <= 12 and 1 <= d <= 31:
+            return f"{y:04d}-{mo:02d}-{d:02d}", f"{d}/{mo:02d}/{y:04d}"
+    return None
+
+
+def _enriquecer_fila_sheet(
+    r: list,
+    f_iso: str,
+    f_disp: str,
+    idx_map: dict,
+    hub_dominante_por_cedula: dict,
+    clientes_multidireccion: set,
+) -> dict:
+    num_raw = re.sub(r"[^0-9]", "", r[1] if len(r) > 1 else "")
+    numero_caso = int(num_raw) if num_raw else 1
+    ced_raw = (r[2] if len(r) > 2 else "").strip() or "S/C"
+    analista = (r[3] if len(r) > 3 else "").strip() or "Soporte"
+    reporte = (r[4] if len(r) > 4 else "").strip() or "Sin especificar"
+    solucion = (r[5] if len(r) > 5 else "").strip() or "Sin especificar"
+    observacion = (r[6] if len(r) > 6 else "").strip() or "Rubpi"
+    hub_raw = (r[7] if len(r) > 7 else "").strip().upper() or "N/A"
+    if hub_raw == "VAL":
+        hub_raw = "VALL"
+    zona_sheet = (r[8] if len(r) > 8 else "").strip()
+    ubic_sheet = (r[9] if len(r) > 9 else "").strip()
+    r_lim_str = (r[10] if len(r) > 10 else "").strip().upper()
+    router_limitado = r_lim_str in ("TRUE", "SI", "SÍ", "1", "VERDADERO")
+    router_modelo = (r[11] if len(r) > 11 else "").strip()
+
+    ced_upper = ced_raw.upper()
+    digits = re.sub(r"[^0-9]", "", ced_upper)
+    alnum = re.sub(r"[^0-9A-Z]", "", ced_upper)
+
+    nombre_final = ""
+    id_srv_final = ""
+    tel_final = ""
+    plan_final = ""
+    ubic_final = ubic_sheet
+    hub_final = hub_raw
+
+    if digits and len(digits) >= 5:
+        if digits not in clientes_multidireccion and digits in hub_dominante_por_cedula:
+            hub_final = hub_dominante_por_cedula[digits]
+            if hub_final == "VAL":
+                hub_final = "VALL"
+
+        srvs = idx_map.get(ced_upper) or idx_map.get(alnum) or idx_map.get(digits)
+        if srvs:
+            elegido = srvs[0]
+            nombre_final = elegido.get("nombre") or ""
+            id_srv_final = elegido.get("id_servicio") or ""
+            tel_final = elegido.get("telefono1") or ""
+            plan_final = elegido.get("plan") or ""
+            ubic_final = elegido.get("ubicacion") or ubic_final
+            zona_api = _normalizar_zona_oficial(
+                f"{elegido.get('zona_completa') or ''} {ubic_final}", hub_final
+            )
+            zona_final = (
+                zona_api
+                or elegido.get("zona")
+                or _normalizar_zona_oficial(f"{zona_sheet} {ubic_sheet}", hub_final)
+                or zona_sheet
+            )
+        else:
+            zona_final = _normalizar_zona_oficial(f"{zona_sheet} {ubic_sheet}", hub_final) or zona_sheet
+    else:
+        zona_final = _normalizar_zona_oficial(f"{zona_sheet} {ubic_sheet}", hub_final) or zona_sheet
+
+    return {
+        "fecha": f_disp,
+        "fecha_iso": f_iso,
+        "numero_caso": numero_caso,
+        "cedula": ced_raw,
+        "nombre_cliente": nombre_final,
+        "id_servicio": id_srv_final,
+        "telefono": tel_final,
+        "plan": plan_final,
+        "analista": analista,
+        "reporte": reporte,
+        "solucion": solucion,
+        "observacion": observacion,
+        "hub": hub_final,
+        "zona": zona_final,
+        "ubicacion": ubic_final,
+        "router_limitado": router_limitado,
+        "router_modelo": router_modelo,
+    }
+
+
+def _sincronizar_desde_google_sheets(db: Session, force: bool = False) -> dict:
+    """
+    Descarga el CSV en vivo de Google Sheets y sincroniza incrementalmente cualquier fila nueva
+    o editada en la hoja hacia la base de datos local/activa al refrescar con F5.
+    Usa un lock y ventana de 5s para evitar descargas duplicadas en llamadas simultáneas del mismo F5.
+    """
+    global _last_sheets_sync_ts
+    now_ts = time.time()
+    if not force and (now_ts - _last_sheets_sync_ts < 5.0):
+        return {"status": "cached"}
+
+    with _sheets_sync_lock:
+        now_ts = time.time()
+        if not force and (now_ts - _last_sheets_sync_ts < 5.0):
+            return {"status": "cached"}
+        try:
+            resp = requests.get(GOOGLE_SHEETS_CSV_URL, timeout=12)
+            if resp.status_code != 200:
+                return {"status": "error", "code": resp.status_code}
+            resp.encoding = "utf-8"
+            csv_rows = list(csv.reader(io.StringIO(resp.text)))[1:]
+
+            valid_csv = []
+            for r in csv_rows:
+                parsed = _parse_fecha_sheet(r[0] if len(r) > 0 else "")
+                has_data = any((r[i] if i < len(r) else "").strip() for i in range(1, 10))
+                if not parsed or not has_data:
+                    continue
+                valid_csv.append((parsed[0], parsed[1], r))
+
+            db_rows = (
+                db.query(models.SupportCase)
+                .order_by(models.SupportCase.id.asc())
+                .all()
+            )
+
+            # Verificar si hay diferencias o filas nuevas
+            n_csv = len(valid_csv)
+            n_db = len(db_rows)
+            changed_indices = []
+            min_len = min(n_csv, n_db)
+
+            for i in range(min_len):
+                f_iso, f_disp, r = valid_csv[i]
+                c_db = db_rows[i]
+                num_csv = int(re.sub(r"[^0-9]", "", r[1] if len(r) > 1 else "") or 0)
+                ced_csv = (r[2] if len(r) > 2 else "").strip() or "S/C"
+                ana_csv = (r[3] if len(r) > 3 else "").strip() or "Soporte"
+                rep_csv = (r[4] if len(r) > 4 else "").strip() or "Sin especificar"
+                sol_csv = (r[5] if len(r) > 5 else "").strip() or "Sin especificar"
+                obs_csv = (r[6] if len(r) > 6 else "").strip() or "Rubpi"
+                if (
+                    c_db.fecha_iso != f_iso
+                    or c_db.numero_caso != num_csv
+                    or c_db.cedula != ced_csv
+                    or c_db.analista != ana_csv
+                    or c_db.reporte != rep_csv
+                    or c_db.solucion != sol_csv
+                    or (c_db.observacion or "Rubpi") != obs_csv
+                ):
+                    changed_indices.append(i)
+
+            if not changed_indices and n_csv == n_db:
+                _last_sheets_sync_ts = time.time()
+                return {"status": "up_to_date", "total": n_db}
+
+            idx_map, _ = _get_multi_clients_index()
+
+            # Precalcular clientes multi-dirección y HUB dominante histórico
+            clientes_multidireccion = set()
+            for k, srvs in idx_map.items():
+                if k.isdigit() and len(srvs) > 1:
+                    dirs = {
+                        re.sub(r"[^A-Z0-9]", "", str(s.get("ubicacion") or "").upper())
+                        for s in srvs
+                        if re.sub(r"[^A-Z0-9]", "", str(s.get("ubicacion") or "").upper())
+                        not in ("", "SINDIRECCIONREGISTRADA", "NA", "NONE")
+                    }
+                    if len(dirs) > 1:
+                        clientes_multidireccion.add(k)
+
+            hub_counts_by_ced = defaultdict(Counter)
+            for _, _, r in valid_csv:
+                digs = re.sub(r"[^0-9]", "", (r[2] if len(r) > 2 else ""))
+                h_val = (r[7] if len(r) > 7 else "").strip().upper()
+                if len(digs) >= 5 and h_val not in ("", "N/A", "SIN HUB", "NONE"):
+                    hub_counts_by_ced[digs][h_val] += 1
+            hub_dominante_por_cedula = {
+                d: cnt.most_common(1)[0][0] for d, cnt in hub_counts_by_ced.items() if cnt
+            }
+
+            # 1. Actualizar filas modificadas
+            for i in changed_indices:
+                f_iso, f_disp, r = valid_csv[i]
+                enriq = _enriquecer_fila_sheet(
+                    r, f_iso, f_disp, idx_map, hub_dominante_por_cedula, clientes_multidireccion
+                )
+                c_db = db_rows[i]
+                for k, v in enriq.items():
+                    setattr(c_db, k, v)
+
+            # 2. Insertar filas nuevas al final
+            insertados = 0
+            if n_csv > n_db:
+                now_car = _now_caracas()
+                nuevos_objs = []
+                for i in range(n_db, n_csv):
+                    f_iso, f_disp, r = valid_csv[i]
+                    enriq = _enriquecer_fila_sheet(
+                        r, f_iso, f_disp, idx_map, hub_dominante_por_cedula, clientes_multidireccion
+                    )
+                    nuevos_objs.append(models.SupportCase(**enriq, created_at=now_car))
+                db.add_all(nuevos_objs)
+                insertados = len(nuevos_objs)
+
+            db.commit()
+            _last_sheets_sync_ts = time.time()
+            print(
+                f"[SOPORTE <- SHEETS] Sincronizado: +{insertados} nuevos, {len(changed_indices)} actualizados (Total: {n_csv})",
+                flush=True,
+            )
+            return {
+                "status": "synced",
+                "insertados": insertados,
+                "actualizados": len(changed_indices),
+                "total": n_csv,
+            }
+        except Exception as e:
+            print(f"[SOPORTE <- SHEETS] Advertencia en sync automático: {e}", flush=True)
+            return {"status": "error", "detalle": str(e)}
 
 
 def _enviar_casos_a_google_sheets(casos_dicts: list) -> dict:
@@ -136,20 +404,6 @@ CATALOGO_OBSERVACIONES = [
 ]
 
 
-def _cargar_catalogo_subsectores() -> list:
-    path_sub = os.path.join(UPLOAD_DIR, "catalogo_subsectores.json")
-    try:
-        if os.path.exists(path_sub):
-            with open(path_sub, "r", encoding="utf-8") as f:
-                return json.load(f)
-    except Exception as e:
-        print(f"[SOPORTE] Error cargando catalogo_subsectores.json: {e}")
-    return []
-
-
-CATALOGO_SUBSECTORES = _cargar_catalogo_subsectores()
-
-
 # ============================================================================
 # ÍNDICE MULTISERVICIO EN MEMORIA (UN CLIENTE -> MÚLTIPLES DIRECCIONES/CONTRATOS)
 # ============================================================================
@@ -179,39 +433,304 @@ def _build_zona_str(u: dict) -> str:
     return ", ".join(parts)
 
 
-def _normalizar_zona_oficial(texto: str) -> str:
+def _build_ubicacion_con_subsector(u: dict) -> str:
     """
-    Normaliza cualquier dirección/sector de la API o del Sheets a las macro-zonas oficiales,
-    agrupando San Pedro dentro de LOS TEQUES tal como fue solicitado.
+    Construye la dirección (ubicación) garantizando que siempre incluya el sub-sector / urbanización
+    de la base de datos cuando el campo address es genérico (ej. 'Calle principal, Casa s/n').
+    """
+    address = str(u.get("address") or "").strip().rstrip(",").strip()
+    sector = str(u.get("sector") or "").strip()
+    urban = str(u.get("urban") or "").strip()
+    city = str(u.get("city") or "").strip()
+
+    sec_valid = sector if sector.upper() not in ("", "NONE", "N/A", "SIN SECTOR") else ""
+    urb_valid = urban if urban.upper() not in ("", "NONE", "N/A", "SIN URBANIZACION") else ""
+    if "CECILIO ACOSTA" in urb_valid.upper():
+        urb_valid = "San Diego de los Altos"
+
+    if not address:
+        parts = [p for p in (urb_valid, sec_valid) if p]
+        return ", ".join(dict.fromkeys(parts)) or city or "Sin dirección registrada"
+
+    addr_up = address.upper()
+    has_sec = bool(sec_valid and sec_valid.upper() in addr_up)
+    has_urb = bool(urb_valid and urb_valid.upper() in addr_up)
+    has_locality = any(
+        loc in addr_up
+        for loc in (
+            "LOS TEQUES", "SAN PEDRO", "SAN ANTONIO", "SAN DIEGO", "CARRIZAL",
+            "TEJERIA", "TEJERÍA", "EL VALLE", "PROPATRIA", "CATIA", "SILSA",
+            "COCHE", "LAS MAYAS", "LA VEGA", "CUMBRE ROJA",
+        )
+    )
+
+    # Si la dirección no menciona ni el sub-sector ni la urbanización ni la localidad
+    # (ej. "Calle principal, Casa s/n"), anteponer el sub-sector de la BD.
+    if not has_sec and not has_urb and not has_locality:
+        prefix_parts = []
+        if urb_valid:
+            prefix_parts.append(urb_valid)
+        if sec_valid and sec_valid.upper() != urb_valid.upper():
+            if sec_valid.upper().startswith(("SECTOR", "URB", "RES", "BARRIO", "C.C")):
+                prefix_parts.append(sec_valid)
+            else:
+                prefix_parts.append(f"Sector {sec_valid}")
+        if prefix_parts:
+            return f"{', '.join(prefix_parts)} — {address}"
+
+    return address
+
+
+def _normalizar_zona_oficial(texto: str, hub: str = "") -> str:
+    """
+    Normaliza cualquier dirección/sector de la API o del Sheets a las 10 macro-zonas oficiales:
+      LOS TEQUES, TEJERIAS, EL VALLE, SAN DIEGO, SAN ANTONIO, CARRIZAL,
+      CUMBRE ROJA, PROPATRIA, COCHE, LA VEGA.
+    Usa el contexto de la dirección, sub-sectores de la BD y el HUB para desambiguar
+    sub-sectores homónimos (ej. 'San Pedro de los Altos, Sector Finca Minerva Los Helechos' -> LOS TEQUES,
+    'Carretera Vieja Caracas-Los Teques' / 'Residencias Caracas' -> LOS TEQUES,
+    'Edif. Araguaney, Los Teques' -> LOS TEQUES, 'Carrizalito' -> LOS TEQUES).
     """
     u = str(texto or "").upper().strip()
+    h = str(hub or "").upper().strip()
+    if h == "VAL":
+        h = "VALL"
     u_clean = re.sub(r"\b(N/A|SIN ZONA|NONE|SIN DIRECCION REGISTRADA)\b", "", u).strip()
-    if not u_clean:
+    if not u_clean and h in ("", "N/A", "NONE", "SIN HUB", "AF"):
         return ""
-    if any(k in u_clean for k in ("TEJERIA", "TEJERÍA", "SANTOS MICHELENA", "CURIEPE", "JABILLAL", "CAÑAOTE", "CANAOTE", "BUCARAL", "TRAPICHE DEL MEDIO", "TINAPUEY", "LA GRUTA", "ARAGUA")):
+
+    # Limpiar falsos positivos de subcadenas antes de evaluar palabras clave:
+    # - "ARAGUANEY" contiene "ARAGUA" (Edif. Araguaney en Los Teques no es el estado Aragua)
+    # - "CARRIZALITO" contiene "CARRIZAL" (Carrizalito en Carretera Vieja / Los Teques no es el municipio Carrizal)
+    u_eval = (
+        u_clean
+        .replace("ARAGUANEY", " ")
+        .replace("CARRIZALITO", "LOS TEQUES")
+    )
+
+    tiene_ltq_explicito = any(k in u_eval for k in (
+        "LOS TEQUES", "SAN PEDRO", "POZO DE ROSAS", "LAS LOMITAS",
+        "CARRETERA VIEJA CARACAS", "LA MATICA", "LA MACARENA",
+        "MACARENA", "EL PASO", "MAL PASO", "EL NACIONAL", "LAGUNETICA", "EL VIGIA",
+        "SOLAR DE LA QUINTA", "URB LA QUINTA", "SECTOR LA QUINTA", "GUAREMAL",
+        "RAMO VERDE", "SANTA EULALIA", "PALO ALTO", "LOS LAGOS",
+        "RETAMAL", "EL BARBECHO", "BARBECHO", "EL TRIGO", "CABOTAJE", "ROMULO GALLEGO",
+        "ALBERTO RAVELL", "PUNTA BRAVA", "JOSE GREGORIO", "BERMUDEZ",
+        "ALTO VERDE", "RESIDENCIAS CARACAS", "RES CARACAS", "RES. CARACAS", "BARRIO AYACUCHO",
+        "CUMBRE ROJA", "CUMBRE ROJAS", "CAÑA LARGA", "CANA LARGA", "TRABUCO",
+        "EL AYACUCHO", "QUEBRADA DE LA VIRGEN", "QUEBRADA LA VIRGEN", "ALTOS DE CORO",
+        "EL LLANO", "CALLE GUAICAIPURO", "FINCA MINERVA", "EL ENCANTO",
+        "AV BICENTENARIO", "AVENIDA BICENTENARIA", "LA GONZALERA", "LOS AMARILLOS",
+        "BARRIO MIRANDA", "AQUILES NAZOA", "COLINAS DEL ANGEL", "EL RETEN", "RIO ARRIBA",
+        "EL BEISBOL", "RES. TIUNA", "SANTA EDUVIGES", "BARRIO LA CRUZ", "LOS BARRIALES",
+        "LAS CADENAS", "RES. MIRAFLORES", "VICTORINO SANTAELLA", "MANUELA SAENZ",
+        "EL RINCON", "LOS CERRITOS", "RES. LA CIMA", "EL TAMBOR", "TINANTONIA",
+        "EL PUINKY", "EL PANADERO"
+    ))
+
+    # 1. TEJERIAS / SANTOS MICHELENA / ARAGUA
+    if any(k in u_eval for k in (
+        "TEJERIA", "TEJERÍA", "SANTOS MICHELENA", "SANTO MICHELENA", "LOS LIMITES",
+        "LOS LÍMITES", "LOS PANAMERICANOS", "CURIEPE", "JABILLAL", "CAÑAOTE", "CANAOTE",
+        "CAAOTE", "TRAPICHE DEL MEDIO", "TINAPUEY", "LA GRUTA", "LA CONCEPCION",
+        "SANTO DOMINGO", "CIUDAD GUAYAS", "CIUDAD GUAYA", "JERUSALEN"
+    )) or re.search(r"\bARAGUA\b", u_eval):
         return "TEJERIAS"
-    if any(k in u_clean for k in ("CARRIZAL", "LLANO ALTO", "BRISAS DE ORIENTE", "CORRALITO", "BAROLA", "YERBA BUENA", "JOSE MANUEL ALVAREZ", "JOSÉ MANUEL ALVAREZ", "MONTAÑA ALTA", "MONTANA ALTA", "POTRERITO", "COLISEO", "LOMAS DE URQUIA", "AMIGOS REUNIDOS")):
-        return "CARRIZAL"
-    if any(k in u_clean for k in ("SAN DIEGO", "CECILIO ACOSTA", "SAN JOSE", "SAN JOSÉ", "AGUA FRIA", "CANTARANA", "GUAREGUARE", "EL NARANJAL", "EL PRADO", "CORTADA EL GUAYABO", "EL PEÑON", "EL PENON", "LA CRUCECITA", "LA OCI", "LAS YEGUAS", "VISTA HERMOSA")):
-        return "SAN DIEGO"
-    if any(k in u_clean for k in ("LOS SALIAS", "SAN ANTONIO DE LOS ALTOS", "SAN ANTORIO", "LA ROSALEDA", "LOS CASTORES", "LAS MINAS", "LAS POLONIAS", "EL RETIRO", "LOS HELECHOS", "LA MORITA", "EL PARAMO", "EL PÁRAMO", "RES. OPS", "SIERRA BRAVA", "LA POMOROSA", "C.C LA CASONA", "C.C COLINAS", "LAS CHURUATAS")):
-        return "SAN ANTONIO"
-    if "SAN ANTONIO" in u_clean and "EL VALLE" not in u_clean and "CARACAS" not in u_clean:
-        return "SAN ANTONIO"
-    if any(k in u_clean for k in ("PROPATRIA", "CATIA", "LA SILSA", "PEREZ BONALDE", "PÉREZ BONALDE", "MAGALLANES", "CALLE ECUADOR", "CALLE COLOMBIA", "CERRO NEGRO")):
-        return "PROPATRIA"
-    if "LA VEGA" in u_clean:
+    if "BUCARAL" in u_eval and not tiene_ltq_explicito and h not in ("CMDP", "MAC"):
+        return "TEJERIAS"
+
+    # 3. LA VEGA
+    if "LA VEGA" in u_eval or ("LAS TORRES" in u_eval and h in ("VALL", "PRIN", "TIB")):
         return "LA VEGA"
-    if any(k in u_clean for k in ("COCHE", "VEREDAS DE COCHE", "LAS MAYAS")):
+
+    # 4. COCHE (incluye Las Mayas, Veredas de Coche y Fundapol)
+    if any(k in u_eval for k in ("COCHE", "VEREDAS DE COCHE", "LAS MAYAS", "FUNDAPOL")):
         return "COCHE"
-    if any(k in u_clean for k in ("CUMBRE ROJA", "CUMBRE ROJAS", "CAÑA LARGA", "CANA LARGA", "TRABUCO")):
-        return "CUMBRE ROJA"
-    if any(k in u_clean for k in ("EL VALLE", "BRUZUAL", "LOS JARDINES", "CALLE 18", "EL 70", "LOS EUCALIPTOS", "EL CEIBO", "LOS CARDONES", "EL TAMARINDO", "CALLE 5 DE JULIO", "SANTA ROSALIA", "TURMERITO", "FONVICA", "LIBERTADOR", "CARACAS")):
-        return "EL VALLE"
-    # San Pedro y sectores de Guaicaipuro se agrupan en LOS TEQUES
-    if any(k in u_clean for k in ("LOS TEQUES", "SAN PEDRO", "POZO DE ROSAS", "GUAICAIPURO", "LA MATICA", "LA MACARENA", "MACARENA", "EL PASO", "EL NACIONAL", "LAGUNETICA", "EL VIGIA", "LA QUINTA", "SOLAR DE LA QUINTA", "GUAREMAL", "RAMO VERDE", "SANTA EULALIA", "PALO ALTO", "LOS LAGOS", "SANTA ROSA", "LOS ALPES", "EL CHORRITO", "RETAMAL", "EL BARBECHO", "EL TRIGO", "CABOTAJE", "ROMULO GALLEGO", "ALBERTO RAVELL", "23 DE ENERO", "LA ESTRELLA", "PUNTA BRAVA", "JOSE GREGORIO", "VALLE ALTO", "BERMUDEZ", "ALTO VERDE")):
+
+    # 5. PROPATRIA / CATIA (Sucre, Dtto Capital)
+    if any(k in u_eval for k in (
+        "PROPATRIA", "CATIA", "LA SILSA", "PEREZ BONALDE", "PÉREZ BONALDE",
+        "MAGALLANES DE CATIA", "CALLE ECUADOR", "CALLE COLOMBIA", "CERRO NEGRO",
+        "CASALTA", "ALTA VISTA", "GRAMOVEN", "RUPERTO LUGO", "LOS FRAILES"
+    )):
+        return "PROPATRIA"
+    if "MAGALLANES" in u_eval and not tiene_ltq_explicito:
+        return "PROPATRIA"
+
+    # 6. SAN PEDRO DE LOS ALTOS -> siempre se agrupa en LOS TEQUES
+    if "SAN PEDRO" in u_eval and "EL VALLE" not in u_eval:
         return "LOS TEQUES"
+
+    # 7. CARRIZAL
+    if any(k in u_eval for k in (
+        "LLANO ALTO", "BRISAS DE ORIENTE", "CORRALITO", "BAROLA", "YERBA BUENA",
+        "YERBABUENA", "JOSE MANUEL ALVAREZ", "JOSÉ MANUEL ALVAREZ", "MONTAÑA ALTA",
+        "MONTANA ALTA", "MONATAA ALTA", "POTRERITO", "POTRERO DEL MEDIO", "POTRERO MEDIO",
+        "COLISEO", "LOMAS DE URQUIA", "AMIGOS REUNIDOS"
+    )):
+        return "CARRIZAL"
+    if "CARRIZAL" in u_eval and "SAN DIEGO" not in u_eval:
+        return "CARRIZAL"
+
+    # 8. SAN DIEGO DE LOS ALTOS (Parroquia Cecilio Acosta)
+    if any(k in u_eval for k in (
+        "SAN DIEGO", "CECILIO ACOSTA", "CANTARANA", "CANTARRANA", "GUAREGUARE",
+        "EL NARANJAL", "CORTADA EL GUAYABO", "CORTADA DEL GUAYABO", "EL PEÑON",
+        "EL PENON", "LA CRUCECITA", "CRUZECITA", "LA OCI", "LAS YEGUAS",
+        "COCOROTE", "CACHAPAL", "LOS AMISTOSOS"
+    )):
+        return "SAN DIEGO"
+    if any(k in u_eval for k in ("SAN JOSE", "SAN JOSÉ", "AGUA FRIA", "EL PRADO", "VISTA HERMOSA")) and not tiene_ltq_explicito and "SAN ANTONIO" not in u_eval and "LOS SALIAS" not in u_eval and h not in ("CMDP", "MAC", "RET", "PAR"):
+        return "SAN DIEGO"
+
+    # 9. SAN ANTONIO DE LOS ALTOS (Municipio Los Salias)
+    if any(k in u_eval for k in (
+        "LA ROSALEDA", "ROSALEDA", "LOS CASTORES", "LAS MINAS", "LAS POLONIAS",
+        "EL RETIRO", "LA MORITA", "EL PARAMO", "EL PÁRAMO", "RES. OPS", "SIERRA BRAVA",
+        "LA POMOROSA", "C.C LA CASONA", "LA CASONA", "C.C COLINAS", "C.C LA COLINA",
+        "LAS CHURUATAS", "CLUB DE CAMPO", "LA GUADALUPE", "AGUA LINDA"
+    )):
+        return "SAN ANTONIO"
+    if "LOS HELECHOS" in u_eval:
+        # Si pertenece a San Pedro ("Sector Finca Minerva Los Helechos"), Guaremal, Los Teques o HUB CMDP/MAC/CUM -> LOS TEQUES
+        if tiene_ltq_explicito or h in ("CMDP", "MAC", "CUM"):
+            return "LOS TEQUES"
+        return "SAN ANTONIO"
+    if any(k in u_eval for k in ("LOS SALIAS", "SAN ANTONIO DE LOS ALTOS", "SAN ANTORIO")):
+        if tiene_ltq_explicito and ("LA GONZALERA" in u_eval or "LA MATICA" in u_eval or "EL PUEBLO, LOS TEQUES" in u_eval):
+            return "LOS TEQUES"
+        return "SAN ANTONIO"
+    if "SAN ANTONIO" in u_eval and not tiene_ltq_explicito and "EL VALLE" not in u_eval and "CARACAS" not in u_eval and h not in ("CMDP", "MAC", "VALL", "VAL", "PRIN", "TIB"):
+        return "SAN ANTONIO"
+
+    # 10. EL VALLE
+    if any(k in u_eval for k in (
+        "EL VALLE", "BRUZUAL", "LOS JARDINES", "JARDINES DEL VALLE", "CALLE 18",
+        "EL 70", "EL CEIBO", "LOS CARDONES", "EL TAMARINDO", "CALLE 5 DE JULIO",
+        "SANTA ROSALIA", "TURMERITO", "FONVICA", "SAN ANDRES", "LA PEDRERA"
+    )) and "VIRGEN DEL VALLE, LOS TEQUES" not in u_eval:
+        return "EL VALLE"
+
+    # 11. Señal explícita de LOS TEQUES / GUAICAIPURO (Res. Caracas, Carretera Vieja Caracas-Los Teques, Macarena Calle Libertador, El Nacional Los Eucaliptos)
+    if tiene_ltq_explicito:
+        return "LOS TEQUES"
+
+    # 12. Palabras compartidas entre El Valle/Caracas y Los Teques (LOS EUCALIPTOS, LIBERTADOR, CARACAS)
+    if any(k in u_eval for k in ("LOS EUCALIPTOS", "LIBERTADOR", "CARACAS")):
+        if h in ("CMDP", "MAC", "CUM"):
+            return "LOS TEQUES"
+        if h == "PROP":
+            return "PROPATRIA"
+        return "EL VALLE"
+
+    # 13. Otros sectores de LOS TEQUES / GUAICAIPURO
+    if any(k in u_eval for k in ("GUAICAIPURO", "LA QUINTA", "LOS ALPES", "SANTA ROSA", "EL CHORRITO", "23 DE ENERO", "LA ESTRELLA", "VALLE ALTO", "ENCANTO")):
+        if h == "PROP":
+            return "PROPATRIA"
+        if h in ("VALL", "VAL", "PRIN", "TIB"):
+            return "EL VALLE"
+        return "LOS TEQUES"
+
+    # 14. Fallback por HUB cuando la dirección es genérica (ej. "Calle principal, Casa s/n")
+    if h in ("CMDP", "MAC", "CUM"):
+        return "LOS TEQUES"
+    if h == "TEJ":
+        return "TEJERIAS"
+    if h == "SJ":
+        return "SAN DIEGO"
+    if h in ("RET", "PAR"):
+        return "SAN ANTONIO"
+    if h == "PROP":
+        return "PROPATRIA"
+    if h in ("VALL", "VAL", "PRIN", "TIB"):
+        return "EL VALLE"
+
     return u_clean
+
+
+def _cargar_catalogo_subsectores() -> list:
+    """
+    Carga el catálogo de sub-sectores para autocompletado y afectaciones masivas.
+    Si el archivo JSON no existe en static/uploads/, lo genera automáticamente a partir
+    de los snapshots de clientes (last_snapshot.json / last_snapshot_corporativo.json).
+    """
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    path_sub = os.path.join(UPLOAD_DIR, "catalogo_subsectores.json")
+    try:
+        if os.path.exists(path_sub):
+            with open(path_sub, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list) and len(data) > 0:
+                    return data
+    except Exception as e:
+        print(f"[SOPORTE] Error leyendo catalogo_subsectores.json: {e}")
+
+    # Construir automáticamente desde los snapshots de clientes
+    try:
+        conteo = Counter()
+        meta_por_clave = {}
+        for fn in ("last_snapshot.json", "last_snapshot_corporativo.json"):
+            p = os.path.join(UPLOAD_DIR, fn)
+            if not os.path.exists(p):
+                continue
+            with open(p, "r", encoding="utf-8") as f:
+                rows = json.load(f).get("data", [])
+            for u in rows:
+                st = str(u.get("state") or "").strip()
+                ci = str(u.get("city") or "").strip()
+                ur = str(u.get("urban") or "").strip()
+                se = str(u.get("sector") or "").strip()
+                if not se or se.upper() in ("NONE", "N/A", "SIN SECTOR"):
+                    se = ur
+                if not se:
+                    continue
+                zc = _build_zona_str(u)
+                zn = _normalizar_zona_oficial(zc)
+                if zn not in (
+                    "LOS TEQUES", "EL VALLE", "TEJERIAS", "SAN DIEGO", "SAN ANTONIO",
+                    "CARRIZAL", "PROPATRIA", "COCHE", "LA VEGA"
+                ):
+                    continue
+                sub_label = se.strip()
+                if sub_label.upper() in ("CASCO CENTRAL", "EL PUEBLO") and ur:
+                    sub_label = f"{ur} ({se})"
+                key = (zn, sub_label.upper())
+                conteo[key] += 1
+                if key not in meta_por_clave:
+                    meta_por_clave[key] = {
+                        "subsector": sub_label,
+                        "direccion": zc,
+                        "zona": zn,
+                    }
+
+        # Asegurar que sub-sectores emblemáticos como Finca Minerva Los Helechos estén siempre presentes
+        especiales = [
+            {
+                "subsector": "San Pedro — Sector Finca Minerva Los Helechos",
+                "direccion": "Miranda, Guaicaipuro, San Pedro de los Altos, Sector Finca Minerva Los Helechos",
+                "zona": "LOS TEQUES",
+            },
+            {
+                "subsector": "Urb. Los Helechos (San Antonio)",
+                "direccion": "Miranda, Los Salias, San Antonio de los Altos, Urb. Los Helechos",
+                "zona": "SAN ANTONIO",
+            },
+        ]
+        generados = [meta_por_clave[k] for k, _ in conteo.most_common(260)]
+        for esp in especiales:
+            if not any(x["subsector"].upper() == esp["subsector"].upper() for x in generados):
+                generados.insert(0, esp)
+
+        if generados:
+            with open(path_sub, "w", encoding="utf-8") as f:
+                json.dump(generados, f, ensure_ascii=False, indent=2)
+            return generados
+    except Exception as e:
+        print(f"[SOPORTE] Error generando catalogo_subsectores.json: {e}")
+    return []
+
+
+CATALOGO_SUBSECTORES = _cargar_catalogo_subsectores()
 
 
 def _ejecutar_sincronizacion_rubpi() -> dict:
@@ -337,6 +856,12 @@ def _get_multi_clients_index():
         id_srv = str(u.get("id_servicio") or "").strip()
         service_type = str(u.get("service_type") or default_tipo).strip().upper()
 
+        # Soporte remoto solo atiende servicios de Internet (Fibra / Radiofrecuencia):
+        # se excluyen los contratos IPTV y los planes exclusivos de TV (sin Internet).
+        plan_upper = str(u.get("plan") or "").strip().upper()
+        if "IPTV" in service_type or plan_upper == "TV":
+            return
+
         onu_val = u.get("onu_sn") or u.get("onu") or u.get("onu_mac") or ""
         if " / " in str(onu_val):
             onu_val = str(onu_val).split(" / ")[0].strip()
@@ -359,7 +884,7 @@ def _get_multi_clients_index():
             "telefono1": _format_phone(u.get("phone")),
             "telefono2": _format_phone(u.get("phone_2")),
             "email": str(u.get("email") or "").strip(),
-            "ubicacion": address or urban or zona_compuesta or "Sin dirección registrada",
+            "ubicacion": _build_ubicacion_con_subsector(u),
             "zona": zona_oficial or urban or city or zona_compuesta or "",
             "zona_completa": zona_compuesta,
             "state": state,
@@ -599,10 +1124,16 @@ def buscar_cliente_por_cedula(
         try:
             all_prev = (
                 db.query(models.SupportCase)
-                .filter(models.SupportCase.cedula.ilike(f"%{clean_digits}%"))
+                .filter(_cedula_sql_normalizada().ilike(f"%{clean_digits}%"))
                 .order_by(desc(models.SupportCase.id))
                 .all()
             )
+            # El ILIKE es solo un prefiltro rápido; se exige coincidencia EXACTA de dígitos
+            # para no mezclar cédulas que contienen la buscada (ej. 2111942 vs 21119429).
+            all_prev = [
+                pc for pc in all_prev
+                if re.sub(r"[^0-9]", "", pc.cedula or "") == clean_digits
+            ]
             total_historial_casos = len(all_prev)
             for pc in all_prev[:5]:
                 historial_casos.append(pc.to_dict())
@@ -620,12 +1151,13 @@ def buscar_cliente_por_cedula(
                 ultima_ubicacion_sugerida = all_prev[0].ubicacion or ""
 
                 # Calcular reincidencia en los últimos 7 días y en el mes actual (según la fecha más reciente o hoy)
-                hoy_dt = datetime.now()
-                hace_7d = (hoy_dt - timedelta(days=7)).strftime("%Y-%m-%d")
+                hoy_dt = _now_caracas()
+                # 7 días calendario reales: hoy + los 6 días anteriores (igual criterio que la sección 6)
+                hace_7d = (hoy_dt - timedelta(days=6)).strftime("%Y-%m-%d")
                 mes_actual = hoy_dt.strftime("%Y-%m")
                 for pc in all_prev:
                     f_iso = (pc.fecha_iso or "").strip()
-                    if f_iso >= hace_7d:
+                    if hace_7d <= f_iso <= hoy_dt.strftime("%Y-%m-%d"):
                         casos_ultima_semana += 1
                     if f_iso.startswith(mes_actual):
                         casos_ultimo_mes += 1
@@ -715,7 +1247,8 @@ def listar_casos_soporte(
         raise HTTPException(status_code=401, detail="No autorizado")
 
     user = security.get_current_user(request, db)
-    hoy_iso = datetime.now().strftime("%Y-%m-%d")
+    _sincronizar_desde_google_sheets(db)
+    hoy_iso = _now_caracas().strftime("%Y-%m-%d")
     target_fecha = fecha_iso if fecha_iso else hoy_iso
 
     query = db.query(models.SupportCase)
@@ -819,7 +1352,7 @@ def crear_caso_soporte(
     if not (payload.hub or "").strip():
         raise HTTPException(status_code=400, detail="Debe elegir el HUB mediante los botones de selección.")
 
-    now = datetime.now()
+    now = _now_caracas()
     if payload.fecha_iso and re.match(r"^\d{4}-\d{2}-\d{2}$", payload.fecha_iso.strip()):
         fecha_iso = payload.fecha_iso.strip()
         dt_obj = datetime.strptime(fecha_iso, "%Y-%m-%d")
@@ -827,6 +1360,9 @@ def crear_caso_soporte(
     else:
         fecha_iso = now.strftime("%Y-%m-%d")
         fecha_display = f"{now.day}/{now.strftime('%m/%Y')}"
+
+    # Sincronizar primero con Google Sheets para no colisionar el consecutivo N° CASO del día
+    _sincronizar_desde_google_sheets(db)
 
     # Calcular el consecutivo N° CASO del día (igual que en la hoja de Google Sheets)
     max_num = (
@@ -879,10 +1415,12 @@ def crear_caso_soporte(
         # Si el cliente NO tiene múltiples direcciones físicas distintas, normalizar su HUB al dominante histórico
         if not tiene_direcciones_distintas and len(digits_ced) >= 5:
             prev_hubs = (
-                db.query(models.SupportCase.hub)
-                .filter(models.SupportCase.cedula.ilike(f"%{digits_ced}%"))
+                db.query(models.SupportCase.hub, models.SupportCase.cedula)
+                .filter(_cedula_sql_normalizada().ilike(f"%{digits_ced}%"))
                 .all()
             )
+            # Solo casos cuya cédula coincide EXACTAMENTE (evita contar HUBs de otros clientes)
+            prev_hubs = [ph for ph in prev_hubs if re.sub(r"[^0-9]", "", ph[1] or "") == digits_ced]
             conteo_hub = Counter(
                 (ph[0] or "").strip().upper()
                 for ph in prev_hubs
@@ -906,7 +1444,7 @@ def crear_caso_soporte(
         observacion=(payload.observacion or "Rubpi").strip(),
         notas_adicionales=(payload.notas_adicionales or "").strip(),
         hub=hub_final,
-        zona=_normalizar_zona_oficial(f"{zona_final} {ubicacion_final}"),
+        zona=_normalizar_zona_oficial(f"{zona_final} {ubicacion_final}", hub_final),
         ubicacion=ubicacion_final,
         router_limitado=bool(payload.router_limitado),
         router_modelo=(payload.router_modelo or "").strip(),
@@ -916,6 +1454,11 @@ def crear_caso_soporte(
     db.add(nuevo_caso)
     db.commit()
     db.refresh(nuevo_caso)
+
+    # Enviar hacia Google Sheets en vivo y actualizar timestamp de caché local
+    global _last_sheets_sync_ts
+    _enviar_casos_a_google_sheets([nuevo_caso.to_dict()])
+    _last_sheets_sync_ts = time.time()
 
     return {
         "status": "ok",
@@ -948,9 +1491,9 @@ def crear_casos_afectacion_masivos(
     if not ubicacion_clean:
         raise HTTPException(status_code=400, detail="Debe seleccionar o indicar el sub-sector / dirección.")
 
-    zona_clean = _normalizar_zona_oficial(f"{payload.zona or ''} {ubicacion_clean}") or "LOS TEQUES"
+    zona_clean = _normalizar_zona_oficial(f"{payload.zona or ''} {ubicacion_clean}", hub_clean) or "LOS TEQUES"
 
-    now = datetime.now()
+    now = _now_caracas()
     if payload.fecha_iso and re.match(r"^\d{4}-\d{2}-\d{2}$", payload.fecha_iso.strip()):
         fecha_iso = payload.fecha_iso.strip()
         dt_obj = datetime.strptime(fecha_iso, "%Y-%m-%d")
@@ -958,6 +1501,8 @@ def crear_casos_afectacion_masivos(
     else:
         fecha_iso = now.strftime("%Y-%m-%d")
         fecha_display = f"{now.day}/{now.strftime('%m/%Y')}"
+
+    _sincronizar_desde_google_sheets(db)
 
     max_num = (
         db.query(func.max(models.SupportCase.numero_caso))
@@ -998,6 +1543,10 @@ def crear_casos_afectacion_masivos(
     db.add_all(nuevos_objetos)
     db.commit()
 
+    global _last_sheets_sync_ts
+    _enviar_casos_a_google_sheets([obj.to_dict() for obj in nuevos_objetos])
+    _last_sheets_sync_ts = time.time()
+
     ultimo_num = base_numero + cantidad - 1
     return {
         "status": "ok",
@@ -1025,9 +1574,13 @@ def actualizar_caso_soporte(
     if not caso:
         raise HTTPException(status_code=404, detail="Caso no encontrado")
 
-    for field, val in payload.model_dump(exclude_unset=True).items():
+    updates = payload.model_dump(exclude_unset=True)
+    for field, val in updates.items():
         if val is not None:
             setattr(caso, field, val.strip() if isinstance(val, str) else val)
+
+    if any(k in updates for k in ("zona", "ubicacion", "hub")):
+        caso.zona = _normalizar_zona_oficial(f"{caso.zona or ''} {caso.ubicacion or ''}", caso.hub or "") or caso.zona
 
     db.commit()
     db.refresh(caso)
@@ -1070,6 +1623,7 @@ def exportar_casos_csv(
     if not token:
         raise HTTPException(status_code=401, detail="No autorizado")
 
+    _sincronizar_desde_google_sheets(db)
     query = db.query(models.SupportCase)
     if desde and hasta:
         query = query.filter(models.SupportCase.fecha_iso >= desde, models.SupportCase.fecha_iso <= hasta)
@@ -1131,7 +1685,7 @@ def exportar_casos_csv(
         )
 
     output.seek(0)
-    filename_date = fecha_iso or datetime.now().strftime("%Y-%m-%d")
+    filename_date = fecha_iso or _now_caracas().strftime("%Y-%m-%d")
     headers = {
         "Content-Disposition": f'attachment; filename="Incidencias_Soporte_Remoto_{filename_date}.csv"'
     }
@@ -1187,6 +1741,7 @@ def obtener_estadisticas_soporte(
     if not token:
         raise HTTPException(status_code=401, detail="No autorizado")
 
+    _sincronizar_desde_google_sheets(db)
     query = db.query(models.SupportCase)
 
     if desde:
@@ -1222,7 +1777,7 @@ def obtener_estadisticas_soporte(
         can = (c.observacion or "Rubpi").strip()
         ana = (c.analista or "Sin asignar").strip()
         hb = (c.hub or "N/A").strip().upper()
-        zn = _normalizar_zona_oficial(f"{c.zona or ''} {c.ubicacion or ''}") or "SIN ZONA"
+        zn = _normalizar_zona_oficial(f"{c.zona or ''} {c.ubicacion or ''}", hb) or "SIN ZONA"
         f_iso = (c.fecha_iso or "").strip()
 
         cnt_reporte[rep] += 1
@@ -1306,18 +1861,19 @@ def obtener_reincidencias_clientes(
     if not token:
         raise HTTPException(status_code=401, detail="No autorizado")
 
+    _sincronizar_desde_google_sheets(db)
     # Determinar la fecha más reciente en la BD para usar como referencia por defecto
     max_fecha_db = (
         db.query(func.max(models.SupportCase.fecha_iso))
         .filter(models.SupportCase.fecha_iso.like("2026-%"))
         .scalar()
-    ) or datetime.now().strftime("%Y-%m-%d")
+    ) or _now_caracas().strftime("%Y-%m-%d")
 
     ref_date_str = (fecha_ref or "").strip() or max_fecha_db
     try:
         ref_dt = datetime.strptime(ref_date_str, "%Y-%m-%d")
     except ValueError:
-        ref_dt = datetime.now()
+        ref_dt = _now_caracas()
         ref_date_str = ref_dt.strftime("%Y-%m-%d")
 
     semana_inicio_str = (ref_dt - timedelta(days=6)).strftime("%Y-%m-%d")
@@ -1334,7 +1890,7 @@ def obtener_reincidencias_clientes(
         if q_digits and len(q_digits) >= 4:
             query = query.filter(
                 or_(
-                    models.SupportCase.cedula.ilike(f"%{q_digits}%"),
+                    _cedula_sql_normalizada().ilike(f"%{q_digits}%"),
                     models.SupportCase.nombre_cliente.ilike(f"%{q_clean}%"),
                 )
             )
@@ -1480,7 +2036,13 @@ def obtener_reincidencias_clientes(
     kpi_altas = 0
     kpi_observacion = 0
 
+    # Si el usuario buscó una cédula numérica y existe coincidencia exacta de dígitos,
+    # filtrar exclusivamente esa cédula para no mezclar clientes con subcadenas similares.
+    tiene_match_exacto_cedula = bool(q_digits and len(q_digits) >= 5 and q_digits in clientes_map)
+
     for digits, item in clientes_map.items():
+        if tiene_match_exacto_cedula and digits != q_digits:
+            continue
         # Si hay búsqueda específica por cliente (`q`), mostrar aunque tenga 1 caso; si no, exigir `min_casos`
         umbral_efectivo = 1 if q_clean else min_casos
         if item["casos_periodo"] < umbral_efectivo:

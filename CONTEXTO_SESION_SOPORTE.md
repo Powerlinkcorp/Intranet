@@ -2,54 +2,59 @@
 
 **Rama:** `Segovia`  
 **Usuario:** Daniel Segovia  
-**Fecha de corte:** 21 de Octubre de 2026  
+**Fecha de corte:** 22 de Octubre de 2026  
+**Servidor local:** `http://127.0.0.1:8000/soporte/casos`
 
 ---
 
-## 1. Resumen de Funcionalidades Implementadas
+## 1. Resumen de Funcionalidades y Mejoras Implementadas
 
-### A. Prioridad a la Dirección Oficial de la API de Rubpi
-- Para todos los clientes cuya Cédula/RIF existe en el padrón de Rubpi (`static/uploads/last_snapshot.json` y `last_snapshot_corporativo.json`), se prioriza siempre la dirección física oficial, nombre del titular, ID de contrato y macro-zona normalizada.
-- Se eliminaron las discrepancias de analistas que seleccionaban sub-sectores erróneos en el Google Sheet (ejemplo: Cédula `21119429` María Curvelo `#53031`, cuyos 19 casos históricos ahora muestran su dirección oficial en `Clavelito Sector la fila casa número 36`).
-- **San Pedro** se encuentra unificado bajo la macro-zona **`LOS TEQUES`**.
+### A. Unificación y Normalización Geográfica de Macro-Zonas
+- **Cumbre Roja y HUB `CUM` unificados en `LOS TEQUES`:**
+  - Toda incidencia perteneciente a *Cumbre Roja*, *Caña Larga*, *El Trabuco*, *Los Amarillos*, *El Puinky* o atendida bajo el **HUB `CUM`** ahora clasifica y se lee directamente bajo la macro-zona **`LOS TEQUES`**.
+  - Se actualizaron los 1.368 casos históricos de la base de datos a `LOS TEQUES`.
+- **San Pedro de los Altos y Los Helechos en `LOS TEQUES`:**
+  - Sub-sectores como *"San Pedro de los Altos, Sector Finca Minerva Los Helechos"* o *"Guaremal ... Los Helechos"* se clasifican estrictamente en **`LOS TEQUES`**.
+  - La *Urb. Los Helechos* de Los Salias (HUB `RET` / `PAR`) permanece correctamente asignada a **`SAN ANTONIO`**.
+- **Resolución de Colisiones por Subcadena:**
+  - **`ARAGUANEY` vs. `ARAGUA`:** Edificios como *Edif. Araguaney* en Los Teques (Centro / El Encanto / Cabotaje) ya no se desvían a `TEJERIAS`; clasifican en **`LOS TEQUES`**.
+  - **`CARRIZALITO` vs. `CARRIZAL`:** El sector *Carrizalito* (Carretera Vieja Caracas-Los Teques) clasifica en **`LOS TEQUES`**. A su vez, los contratos de *San Diego de los Altos* que en Rubpi tenían `city="Carrizal"` se asignan limpiamente a **`SAN DIEGO`**.
+  - **`CARACAS` / `LIBERTADOR` / `LOS EUCALIPTOS` en Los Teques:** Sectores como *Carretera Vieja Caracas-Los Teques*, *Residencias Caracas (Los Teques)*, *Macarena Calle Libertador* y *El Nacional / Palo Alto Sector Los Eucaliptos* clasifican en **`LOS TEQUES`** en lugar de desviarse a `EL VALLE`.
+  - **`VISTA HERMOSA` / `SAN JOSÉ`:** Casos de *El Vigía / Mal Paso / Lagunetica Urb. Vista Hermosa* y *Liceo San José (El Llano, Los Teques)* clasifican en **`LOS TEQUES`**.
 
-### B. Normalización Inteligente de HUBs
-- En clientes con una sola dirección física, el HUB se unifica automáticamente a la **moda/HUB dominante histórico** del cliente (ejemplo: María Curvelo normalizada 100% a `CUM`, corrigiendo registros erróneos donde se le había colocado `CMDP`).
-- **Exclusión multi-servicio:** Clientes con 2 o más contratos de fibra en direcciones físicas distintas (`537` clientes) no se unifican para respetar que cada inmueble pueda pertenecer a un HUB diferente.
-- Al documentar un caso nuevo, el sistema preselecciona automáticamente el HUB dominante histórico del cliente.
+### B. Enriquecimiento Automático de Direcciones Genéricas
+- Para clientes cuyo campo `address` en Rubpi era genérico o incompleto (ej. `"Calle principal, Casa s/n"` o `"Sn"`), la función `_build_ubicacion_con_subsector` antepone automáticamente la urbanización y el sub-sector registrados en la base de datos (ej. `"La Vega, Sector LAS TORRES — Calle principal, Sn"`, `"Las Tejerias, Sector Casco Central — Calle principal, casa s/n"`).
 
-### C. Reporte de Coincidencia y Alarmas por Cliente (Semanal y Mensual)
-- Ubicado en la sección **6 de Estadísticas de Soporte** (`#panelAlarmasReincidencia`).
-- **Filtros:**
-  - **Vista Semanal:** Evalúa coincidencias en los últimos 7 días.
-  - **Vista Mensual:** Selector de mes (`Octubre 2026`, `Septiembre 2026`, etc.).
-  - **Todo el Historial:** Análisis anual.
-  - Filtro por HUB y buscador directo por Cédula/Nombre.
-- **Semáforo de Alarmas:**
-  - 🔴 **CRÍTICA:** $\ge 3$ reportes en 7 días o $\ge 5$ reportes en el mes.
-  - 🟠 **ALTA:** $2$ reportes en 7 días o $3\text{--}4$ reportes en el mes.
-  - 🟡 **OBSERVACIÓN:** Reincidencia moderada.
-- **Ficha Simplificada del Cliente (`#modalDetalleReincidencia`):**
-  - Al dar clic sobre cualquier cliente (ejemplo: `8680370` Elizabeth Galindez en Octubre 2026), la ficha se abre mostrando **exclusivamente lo ocurrido en el rango de alarma consultado**:
-    1. Datos del cliente + total de reportes en el periodo.
-    2. Conteo de Fallas Reportadas en el rango vs. Resoluciones Aplicadas en el rango.
-    3. Detalle caso por caso de ese rango (Fecha, N° Caso, Falla Reportada, Resolución Aplicada, Analista).
+### C. Catálogo Oficial de Sub-Sectores Autogenerado
+- El archivo `static/uploads/catalogo_subsectores.json` se genera de forma 100% automática a partir de los snapshots de clientes si no existe en disco, poblando 262 sub-sectores reales mapeados a su macro-zona para el buscador de **Afectación Masiva**.
 
-### D. Otras Herramientas Activas
-- **Generador de Corte WhatsApp (6:00 PM / 10:00 PM):** Conteo 100% automático de Rubpi, Llamadas y Taquilla, motivos ordenados A-Z, constructor de afectaciones (REALIZADA / EN PROCESO) y botón de 1 clic para copiar.
-- **Creador Masivo de Tickets de Afectación:** Generación de 1 a 500 tickets consecutivos sin cédula (`S/C - AFECTACIÓN`) con catálogo oficial de 342 sub-sectores.
+### D. Sincronización en Vivo con Google Sheets (F5 y Webhook)
+- **Descarga incremental al pulsar F5:** Se consulta el CSV en vivo del Google Sheets oficial (`gid=246682208`) con un cooldown seguro de 5s, sincronizando tickets nuevos o editados en tiempo real (empatando 49.221 filas 1:1 con la hoja).
+- **Envío hacia Google Sheets:** Tanto `crear_caso_soporte` como `crear_casos_afectacion_masivos` sincronizan primero para evitar colisiones en el consecutivo `N° Caso` y despachan los nuevos tickets al Webhook oficial de Apps Script.
+- **Hora oculta en frontend:** Se ocultó el campo de hora en la tabla para coincidir con el formato de la hoja de cálculo.
+- **Zona Horaria GMT-4:** Todo cálculo de fechas (`fecha_display`, `fecha_iso`, métricas y filtros) está garantizado bajo `America/Caracas` (GMT-4).
+
+### E. Monitor de Reincidencias y Alarmas (Sección 6)
+- **Filtros:** Semanal (últimos 7 días), Mensual (por selector dinámico de meses) y Todo el Historial.
+- **Semáforo:** 🔴 Crítica ($\ge 3$ rep. en 7d o $\ge 5$ en el mes), 🟠 Alta ($2$ rep. en 7d o $3\text{--}4$ en el mes), 🟡 Observación.
+- **Búsqueda Exacta:** Al buscar por cédula numérica, se exige coincidencia exacta de dígitos para no mezclar clientes con cédulas similares.
+- **Ficha del Cliente:** Muestra exclusivamente los casos, motivos y resoluciones del rango de alarma seleccionado. El botón *"Ver Frecuencia Semanal/Mensual"* abre directamente la ficha sin colisiones de peticiones asíncronas.
 
 ---
 
-## 2. Instrucciones para Reanudar en PC de Casa
-1. Abrir la terminal en la carpeta del proyecto y verificar estar en la rama `Segovia`:
+## 2. Instrucciones para Reanudar en la PC del Trabajo
+
+1. **Abrir la terminal en la carpeta del proyecto y verificar la rama:**
    ```bash
+   git checkout Segovia
    git pull origin Segovia
    ```
-2. Iniciar el servidor local:
+2. **Activar el entorno virtual e iniciar el servidor:**
    ```bash
+   .\venv\Scripts\activate
    python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
    ```
-3. Si los snapshots JSON no están descargados, presionar el botón **"Sincronizar Padrón de Clientes"** en el módulo para descargarlos desde Rubpi API.
-4. En Antigravity, puedes indicarle al asistente:
-   *"Continuemos con el proyecto de Intranet Soporte. Lee el archivo `CONTEXTO_SESION_SOPORTE.md` para retomar la lógica actual."*
+3. **Descarga inicial de padrón (si es una instalación limpia o clon nuevo):**
+   - Si no existen los archivos en `static/uploads/last_snapshot.json`, el sistema los descarga automáticamente de la API de Rubpi en la primera petición o al pulsar el botón *"Sincronizar Padrón de Clientes"*.
+4. **Instrucción para el asistente en la PC de trabajo:**
+   *"Continuemos con el proyecto de Intranet Soporte. Lee el archivo `CONTEXTO_SESION_SOPORTE.md` para retomar el estado actual en la rama Segovia."*

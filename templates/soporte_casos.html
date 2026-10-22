@@ -834,6 +834,7 @@
                                     id="inputUbicacion"
                                     class="form-input"
                                     placeholder="Dirección o referencia del servicio..."
+                                    oninput="inferirZonaDesdeUbicacionManual(this.value)"
                                 >
                             </div>
 
@@ -922,7 +923,7 @@
                         <table class="cases-table">
                             <thead>
                                 <tr>
-                                    <th>Fecha / Hora</th>
+                                    <th>Fecha</th>
                                     <th>N° Caso</th>
                                     <th>Cédula / Cliente</th>
                                     <th>Analista</th>
@@ -1308,7 +1309,7 @@
                                         <th>HUB / Zona / Dirección API</th>
                                         <th style="text-align:center;">Semana (7d)</th>
                                         <th style="text-align:center;">Mes Eval.</th>
-                                        <th style="text-align:center;">Total Año</th>
+                                        <th style="text-align:center;">Total Histórico</th>
                                         <th>Falla Recurrente</th>
                                         <th>Fechas de Reporte</th>
                                         <th style="text-align:right;">Acción</th>
@@ -1425,7 +1426,6 @@
                                         <option value="SAN DIEGO">SAN DIEGO</option>
                                         <option value="SAN ANTONIO">SAN ANTONIO</option>
                                         <option value="CARRIZAL">CARRIZAL</option>
-                                        <option value="CUMBRE ROJA">CUMBRE ROJA</option>
                                         <option value="PROPATRIA">PROPATRIA</option>
                                         <option value="COCHE">COCHE</option>
                                         <option value="LA VEGA">LA VEGA</option>
@@ -1503,8 +1503,25 @@
 
         const vistaInicial = {{ (vista_inicial or 'registro')|tojson }};
 
+        function getHoyCaracasISO() {
+            try {
+                return new Intl.DateTimeFormat('en-CA', {
+                    timeZone: 'America/Caracas',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).format(new Date());
+            } catch (e) {
+                const d = new Date();
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, "0");
+                const day = String(d.getDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`;
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
-            const hoy = new Date().toISOString().split("T")[0];
+            const hoy = getHoyCaracasISO();
             const primerDiaMes = hoy.slice(0, 8) + "01";
             document.getElementById("filtroFecha").value = hoy;
             document.getElementById("statDesde").value = primerDiaMes;
@@ -1670,7 +1687,7 @@
             } else {
                 alertBox.style.background = "rgba(59, 130, 246, 0.1)";
                 alertBox.style.borderColor = "rgba(59, 130, 246, 0.3)";
-                alarmaBadgeHtml = `<span style="background:rgba(59,130,246,0.2); color:#93c5fd; font-weight:700; font-size:11px; padding:3px 9px; border-radius:99px;">Semana: ${casosSemana} | Mes: ${casosMes} | Total Año: ${totalHist}</span>`;
+                alarmaBadgeHtml = `<span style="background:rgba(59,130,246,0.2); color:#93c5fd; font-weight:700; font-size:11px; padding:3px 9px; border-radius:99px;">Semana: ${casosSemana} | Mes: ${casosMes} | Total Histórico: ${totalHist}</span>`;
             }
 
             alertBox.innerHTML = `
@@ -1679,7 +1696,7 @@
                         ${alarmaBadgeHtml}
                         <span>
                             Último reporte: <b>${u.fecha}</b> por <b>${u.analista}</b>
-                            — <b>${u.reporte}</b> (${u.solucion}) | HUB: <b>${u.hub}</b>
+                            — <b>${u.reporte}</b> (${u.solucion})
                         </span>
                     </div>
                     <button type="button" class="btn btn-ghost" style="padding:4px 10px; font-size:11px;" onclick="irAReincidenciaCliente('${(cedulaBuscada || u.cedula || '').replace(/'/g, "\\'")}')">
@@ -1914,7 +1931,6 @@
                     <tr>
                         <td style="white-space:nowrap;">
                             <div style="font-weight:700;">${c.fecha}</div>
-                            <div style="font-size:11px; color:var(--text-muted);">${c.hora || ''}</div>
                         </td>
                         <td><b style="color:var(--gold);">#${c.numero_caso}</b></td>
                         <td>
@@ -1973,7 +1989,7 @@
                 btnEst.classList.add("btn-gold");
                 btnReg.classList.remove("btn-gold");
                 btnReg.classList.add("btn-ghost");
-                cargarEstadisticas();
+                return cargarEstadisticas();
             } else {
                 nodoEst.style.display = "none";
                 nodoReg.style.display = "block";
@@ -1981,12 +1997,12 @@
                 btnReg.classList.add("btn-gold");
                 btnEst.classList.remove("btn-gold");
                 btnEst.classList.add("btn-ghost");
-                cargarCasos();
+                return cargarCasos();
             }
         }
 
         function setRangoEstadisticas(tipo) {
-            const hoy = new Date().toISOString().split("T")[0];
+            const hoy = getHoyCaracasISO();
             const desdeEl = document.getElementById("statDesde");
             const hastaEl = document.getElementById("statHasta");
 
@@ -2204,14 +2220,8 @@
         }
 
         function formatearFechaDMY(isoStr) {
-            if (!isoStr || !isoStr.includes("-")) {
-                const hoy = new Date();
-                const d = String(hoy.getDate()).padStart(2, "0");
-                const m = String(hoy.getMonth() + 1).padStart(2, "0");
-                const y = hoy.getFullYear();
-                return `${d}-${m}-${y}`;
-            }
-            const partes = isoStr.split("-");
+            const base = (isoStr && isoStr.includes("-")) ? isoStr : getHoyCaracasISO();
+            const partes = base.split("-");
             return `${partes[2]}-${partes[1]}-${partes[0]}`;
         }
 
@@ -2352,28 +2362,55 @@
             document.getElementById("masivoZona").value = zona;
         }
 
-        function inferirZonaDesdeTextoMasivo(texto) {
-            const t = (texto || "").toUpperCase();
-            if (!t) return;
+        function detectarMacroZonaPorTexto(texto, hubCode = "") {
+            const raw = (texto || "").toUpperCase().trim();
+            const h = (hubCode || "").toUpperCase().trim();
+            if (!raw) return "";
             const matchExacto = catalogoSubsectores.find(
-                s => s.subsector.toUpperCase() === t || s.direccion.toUpperCase() === t
+                s => s.subsector.toUpperCase() === raw || s.direccion.toUpperCase() === raw
             );
-            if (matchExacto) {
-                document.getElementById("masivoZona").value = matchExacto.zona;
-                return;
+            if (matchExacto) return matchExacto.zona;
+
+            const t = raw.replace(/ARAGUANEY/g, " ").replace(/CARRIZALITO/g, "LOS TEQUES");
+            const esLtq = [
+                "LOS TEQUES", "SAN PEDRO", "POZO DE ROSAS", "LAS LOMITAS", "CARRETERA VIEJA CARACAS",
+                "LA MATICA", "MATICA", "MACARENA", "EL PASO", "MAL PASO", "EL NACIONAL", "LAGUNETICA",
+                "EL VIGIA", "SOLAR DE LA QUINTA", "GUAREMAL", "RAMO VERDE", "SANTA EULALIA", "PALO ALTO",
+                "LOS LAGOS", "RETAMAL", "BARBECHO", "EL TRIGO", "CABOTAJE", "ROMULO GALLEGO",
+                "ALBERTO RAVELL", "PUNTA BRAVA", "JOSE GREGORIO", "BERMUDEZ", "ALTO VERDE",
+                "RESIDENCIAS CARACAS", "RES CARACAS", "FINCA MINERVA", "EL ENCANTO", "LA GONZALERA"
+            ].some(k => t.includes(k));
+
+            
+            if (t.includes("TEJERIA") || t.includes("TEJERÍA") || t.includes("SANTOS MICHELENA") || t.includes("SANTO MICHELENA") || t.includes("CURIEPE") || t.includes("JABILLAL") || t.includes("CAÑAOTE")) return "TEJERIAS";
+            if (t.includes("LA VEGA")) return "LA VEGA";
+            if (t.includes("COCHE") || t.includes("LAS MAYAS") || t.includes("FUNDAPOL")) return "COCHE";
+            if (t.includes("PROPATRIA") || t.includes("CATIA") || t.includes("SILSA") || t.includes("PEREZ BONALDE") || t.includes("CASALTA")) return "PROPATRIA";
+            if (t.includes("SAN PEDRO") && !t.includes("EL VALLE")) return "LOS TEQUES";
+            if (t.includes("CARRIZAL") || t.includes("LLANO ALTO") || t.includes("CORRALITO") || t.includes("BAROLA") || t.includes("MONTAÑA ALTA") || t.includes("BRISAS DE ORIENTE")) return "CARRIZAL";
+            if (t.includes("SAN DIEGO") || t.includes("CECILIO ACOSTA") || t.includes("GUAREGUARE") || t.includes("LA CRUCECITA") || t.includes("COCOROTE")) return "SAN DIEGO";
+            if ((t.includes("SAN JOSE") || t.includes("SAN JOSÉ") || t.includes("AGUA FRIA")) && !esLtq) return "SAN DIEGO";
+            if (t.includes("LOS HELECHOS")) {
+                return (esLtq || ["CMDP", "MAC", "CUM"].includes(h)) ? "LOS TEQUES" : "SAN ANTONIO";
             }
-            if (t.includes("TEJERIA") || t.includes("TEJERÍA")) document.getElementById("masivoZona").value = "TEJERIAS";
-            else if (t.includes("CARRIZAL") || t.includes("LLANO ALTO") || t.includes("CORRALITO") || t.includes("BAROLA")) document.getElementById("masivoZona").value = "CARRIZAL";
-            else if (t.includes("SAN DIEGO") || t.includes("SAN JOSE") || t.includes("SAN JOSÉ") || t.includes("AGUA FRIA")) document.getElementById("masivoZona").value = "SAN DIEGO";
-            else if (t.includes("SAN ANTONIO") || t.includes("ROSALEDA") || t.includes("CASTORES") || t.includes("LAS MINAS")) document.getElementById("masivoZona").value = "SAN ANTONIO";
-            else if (t.includes("PROPATRIA") || t.includes("CATIA") || t.includes("SILSA")) document.getElementById("masivoZona").value = "PROPATRIA";
-            else if (t.includes("LA VEGA")) document.getElementById("masivoZona").value = "LA VEGA";
-            else if (t.includes("COCHE")) document.getElementById("masivoZona").value = "COCHE";
-            else if (t.includes("CUMBRE ROJA")) document.getElementById("masivoZona").value = "CUMBRE ROJA";
-            else if (t.includes("EL VALLE") || t.includes("BRUZUAL") || t.includes("LAS MAYAS")) document.getElementById("masivoZona").value = "EL VALLE";
-            else if (t.includes("LOS TEQUES") || t.includes("SAN PEDRO") || t.includes("POZO DE ROSAS") || t.includes("MATICA") || t.includes("MACARENA") || t.includes("EL PASO") || t.includes("NACIONAL") || t.includes("LAGUNETICA") || t.includes("GUAREMAL") || t.includes("RAMO VERDE")) {
-                document.getElementById("masivoZona").value = "LOS TEQUES";
-            }
+            if (t.includes("SAN ANTONIO") || t.includes("LOS SALIAS") || t.includes("ROSALEDA") || t.includes("CASTORES") || t.includes("LAS MINAS") || t.includes("LAS POLONIAS") || t.includes("EL RETIRO") || t.includes("LA MORITA")) return "SAN ANTONIO";
+            if (t.includes("EL VALLE") || t.includes("BRUZUAL") || t.includes("LOS JARDINES") || t.includes("CALLE 18") || t.includes("EL 70") || t.includes("TURMERITO")) return "EL VALLE";
+            if (esLtq) return "LOS TEQUES";
+            return "";
+        }
+
+        function inferirZonaDesdeTextoMasivo(texto) {
+            const hub = (document.getElementById("masivoInputHub")?.value || "").trim();
+            const z = detectarMacroZonaPorTexto(texto, hub);
+            if (z) document.getElementById("masivoZona").value = z;
+        }
+
+        function inferirZonaDesdeUbicacionManual(texto) {
+            const inputZona = document.getElementById("inputZona");
+            if (!inputZona) return;
+            const hub = (document.getElementById("inputHub")?.value || "").trim();
+            const z = detectarMacroZonaPorTexto(texto, hub);
+            if (z) inputZona.value = z;
         }
 
         async function guardarAfectacionMasiva(ev) {
@@ -2692,14 +2729,31 @@
             document.getElementById("modalDetalleReincidencia").classList.remove("open");
         }
 
-        function irAReincidenciaCliente(cedula) {
-            cambiarVistaSoporte("estadisticas");
+        async function irAReincidenciaCliente(cedula) {
+            const cedulaDigitos = String(cedula || "").replace(/[^0-9]/g, "");
+            if (!cedulaDigitos) return;
+
+            // 1. Preparar filtro de cédula y modo "Todo el Historial" ANTES de cargar estadísticas
+            //    para evitar doble petición asíncrona.
             const input = document.getElementById("reincInputBuscar");
-            if (input) {
-                input.value = cedula;
-                cargarReincidenciasClientes();
-                document.getElementById("panelAlarmasReincidencia")?.scrollIntoView({ behavior: "smooth" });
-            }
+            if (input) input.value = cedulaDigitos;
+            modoReincidenciaActual = "todo";
+            ["btnReincSemana", "btnReincMes", "btnReincTodo"].forEach(id => {
+                document.getElementById(id)?.classList.replace("btn-gold", "btn-ghost");
+            });
+            document.getElementById("btnReincTodo")?.classList.replace("btn-ghost", "btn-gold");
+            const wrapMes = document.getElementById("wrapReincMes");
+            const wrapRef = document.getElementById("wrapReincFechaRef");
+            if (wrapMes) wrapMes.style.display = "none";
+            if (wrapRef) wrapRef.style.display = "none";
+
+            // 2. Cambiar a la pestaña de Estadísticas y esperar a que finalice la carga
+            await cambiarNodoVista("estadisticas");
+            document.getElementById("panelAlarmasReincidencia")?.scrollIntoView({ behavior: "smooth" });
+
+            // 3. Abrir directamente la ficha del cliente con cédula EXACTA
+            const idx = cacheReincidenciasClientes.findIndex(c => String(c.cedula) === cedulaDigitos);
+            if (idx >= 0) abrirDetalleReincidencia(idx);
         }
     </script>
 </body>
