@@ -238,6 +238,7 @@
         box-shadow: 0 0 6px #ef4444;
     }
 
+<<<<<<< HEAD
     /* ESTADO EN LÍNEA (CÍRCULO VERDE) */
     .gc-avatar-wrapper {
         position: relative;
@@ -292,6 +293,8 @@
         display: block;
     }
 
+=======
+>>>>>>> 2a93d44c1fd199694536906f37a2857e98fcda03
     /* PANTALLA DE CHAT ACTIVO */
     .global-chat-active {
         flex: 1;
@@ -506,7 +509,10 @@
         if (headerImg) headerImg.style.display = 'none';
         gcRecipientEmail = null;
         gcCurrentChannel = null;
+<<<<<<< HEAD
         loadGCDirectory();
+=======
+>>>>>>> 2a93d44c1fd199694536906f37a2857e98fcda03
     };
 
     window.openGChat = async function(email, name, avatar) {
@@ -643,6 +649,7 @@
             gcWs.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
+<<<<<<< HEAD
                     
                     // Eventos de presencia en tiempo real (alguien entró o salió de la intranet)
                     if (data.type === 'presence') {
@@ -696,6 +703,50 @@
                 setTimeout(connectGCWs, 5000);
             };
 
+=======
+                    const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
+                    
+                    const isPrivateMatch = gcRecipientEmail && (data.user_email === gcRecipientEmail || data.user_email === myEmail);
+                    const isGeneralMatch = !gcRecipientEmail && data.channel === '#General' && gcCurrentChannel === '#General';
+                    
+                    const widget = document.getElementById('gcWidget');
+                    const widgetVisible = widget && widget.style.display === 'flex';
+                    
+                    if (widgetVisible && (isPrivateMatch || isGeneralMatch)) {
+                        appendGCMsg(data);
+                        scrollGCMessages();
+                    } else {
+                        let badgeId = 'gc_badge_general';
+                        if (data.channel !== '#General') {
+                            if (data.user_email && data.user_email !== myEmail) {
+                                badgeId = 'gc_badge_' + data.user_email.replace(/[@.]/g, '_');
+                            }
+                        }
+                        const b = document.getElementById(badgeId);
+                        if (b && b.style.display !== 'inline-block') {
+                            b.style.display = 'inline-block';
+                            totalUnread++;
+                            updateGCTotalBadge();
+                        }
+
+                        if (Notification.permission === 'granted' && data.user_email !== myEmail) {
+                            new Notification(`Mensaje de ${data.user_name || 'Compañero'}`, {
+                                body: data.message || '',
+                                icon: 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png'
+                            });
+                        }
+                    }
+                } catch(err) {
+                    console.warn("Mensaje WS recibido en formato no estándar:", err);
+                }
+            };
+
+            gcWs.onclose = () => {
+                gcWs = null;
+                setTimeout(connectGCWs, 5000);
+            };
+
+>>>>>>> 2a93d44c1fd199694536906f37a2857e98fcda03
             gcWs.onerror = (e) => {
                 try { gcWs.close(); } catch(err){}
                 gcWs = null;
@@ -708,13 +759,18 @@
     async function loadGCDirectory() {
         try {
             const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
+<<<<<<< HEAD
             const res = await fetch('/api/users/chat_directory?only_online=true', { credentials: 'include' });
+=======
+            const res = await fetch('/api/users/chat_directory', { credentials: 'include' });
+>>>>>>> 2a93d44c1fd199694536906f37a2857e98fcda03
             if (!res.ok) return;
             const depts = await res.json();
             let html = '';
             let totalOnline = 0;
 
             for (const [dept, users] of Object.entries(depts)) {
+<<<<<<< HEAD
                 const filteredUsers = users.filter(u => u.email !== myEmail);
                 if (!filteredUsers || filteredUsers.length === 0) continue;
 
@@ -748,6 +804,23 @@
                 </div>`;
             }
 
+=======
+                html += `<div class="global-chat-dept">${dept}</div><ul class="global-chat-list">`;
+                users.forEach(u => {
+                    if(u.email !== myEmail) {
+                        const bId = 'gc_badge_' + u.email.replace(/[@.]/g, '_');
+                        const avatar = u.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.full_name)}&background=FFC107&color=000`;
+                        html += `
+                        <li onclick="openGChat('${u.email}', '${escapeHtml(u.full_name)}', '${avatar}')">
+                            <img src="${avatar}">
+                            <div class="name">${escapeHtml(u.full_name)}</div>
+                            <div class="badge" id="${bId}"></div>
+                        </li>`;
+                    }
+                });
+                html += `</ul>`;
+            }
+>>>>>>> 2a93d44c1fd199694536906f37a2857e98fcda03
             const container = document.getElementById('gcDynamicUsers');
             if (container) container.innerHTML = html;
         } catch(e) {

@@ -383,8 +383,17 @@ class NetworkEvent(Base):
     
     # Campos específicos guardados como JSON (para mayor flexibilidad según el tipo de causa)
     custom_fields = Column(Text, default="{}") 
+    
+    # Campos de resolución y auditoría
+    accion_tomada = Column(Text, nullable=True)
+    causa_raiz = Column(String(300), nullable=True)
+    clientes_afectados = Column(String(200), nullable=True)
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    closed_at = Column(DateTime, nullable=True)
+    created_by = Column(String(100), nullable=True)
+    closed_by = Column(String(100), nullable=True)
+    
     updates = relationship("NetworkEventUpdate", back_populates="event", cascade="all, delete-orphan")
 
 

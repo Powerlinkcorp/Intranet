@@ -145,7 +145,7 @@
             right: 0;
             bottom: 0;
             background-color: #cbd5e1;
-            transition: .4s;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
             border-radius: 20px;
         }
 
@@ -157,8 +157,9 @@
             left: 2px;
             bottom: 2px;
             background-color: white;
-            transition: .4s;
+            transition: transform 0.15s ease;
             border-radius: 50%;
+            will-change: transform;
         }
 
         input:checked + .slider {
@@ -167,6 +168,155 @@
 
         input:checked + .slider:before {
             transform: translateX(20px);
+        }
+
+        /* =========================================================
+           OPTIMIZACIÓN DE RENDIMIENTO (DOM VIRTUAL / FAST RENDER)
+           ========================================================= */
+        #permissionsTableBody tr {
+            content-visibility: auto;
+            contain-intrinsic-size: 0 49px;
+        }
+
+        /* =========================================================
+           DARK MODE - GESTIÓN DE PERMISOS
+           ========================================================= */
+        html.dark body {
+            background-color: #09090b !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark .navbar {
+            background-color: #101014 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .bg-white {
+            background-color: #101014 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .bg-slate-50,
+        html.dark .bg-slate-100 {
+            background-color: #141418 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        html.dark .border-slate-200,
+        html.dark .border-slate-300,
+        html.dark .divide-slate-100 {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Cabeceras y Títulos */
+        html.dark .text-slate-800,
+        html.dark .text-slate-700 {
+            color: #f8fafc !important;
+        }
+
+        html.dark .text-slate-600,
+        html.dark .text-slate-500 {
+            color: #94a3b8 !important;
+        }
+
+        /* Buscador */
+        html.dark #permisosSearch {
+            background-color: #141418 !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #f8fafc !important;
+        }
+
+        html.dark #permisosSearch:focus {
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 1px #D4AF37 !important;
+        }
+
+        /* Columnas Agrupadas */
+        html.dark th.bg-blue-50\/50 {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+            color: #93c5fd !important;
+        }
+        html.dark th.bg-purple-50\/50 {
+            background-color: rgba(168, 85, 247, 0.15) !important;
+            color: #c084fc !important;
+        }
+        html.dark th.bg-orange-50\/50 {
+            background-color: rgba(249, 115, 22, 0.15) !important;
+            color: #fb923c !important;
+        }
+        html.dark th.bg-green-50\/50 {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #34d399 !important;
+        }
+
+        html.dark td.bg-blue-50\/10 {
+            background-color: rgba(59, 130, 246, 0.03) !important;
+        }
+        html.dark td.bg-purple-50\/10 {
+            background-color: rgba(168, 85, 247, 0.03) !important;
+        }
+        html.dark td.bg-orange-50\/10 {
+            background-color: rgba(249, 115, 22, 0.03) !important;
+        }
+        html.dark td.bg-green-50\/10 {
+            background-color: rgba(16, 185, 129, 0.03) !important;
+        }
+
+        /* Filas y Hover */
+        html.dark #permissionsTableBody tr:hover {
+            background-color: rgba(212, 175, 55, 0.06) !important;
+        }
+
+        html.dark tr.bg-amber-50\/30 {
+            background-color: rgba(212, 175, 55, 0.08) !important;
+        }
+
+        /* Toggles en Modo Oscuro */
+        html.dark .slider {
+            background-color: #27272a !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+
+        html.dark .slider:before {
+            background-color: #a1a1aa !important;
+        }
+
+        html.dark input:checked + .slider {
+            background-color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
+        }
+
+        html.dark input:checked + .slider:before {
+            background-color: #000000 !important;
+        }
+
+        /* Botón Guardar */
+        html.dark #permissionsTableBody button {
+            background-color: #1f1f24 !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+
+        html.dark #permissionsTableBody button:hover {
+            background-color: #D4AF37 !important;
+            color: #000000 !important;
+            border-color: #D4AF37 !important;
+        }
+
+        /* Dropdown Perfil */
+        html.dark .dropdown-menu {
+            background-color: #18181b !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        html.dark .dropdown-menu a {
+            color: #f8fafc !important;
+        }
+
+        html.dark .dropdown-menu a:hover {
+            background-color: #27272a !important;
+            color: #D4AF37 !important;
         }
 
         /* Toast notifications */
@@ -271,7 +421,7 @@
                         </thead>
                         <tbody id="permissionsTableBody" class="divide-y divide-slate-100">
                             {% for u in users %}
-                            <tr class="hover:bg-slate-50/80 transition-colors {{ 'bg-amber-50/30' if u.role == 'admin' else '' }}">
+                            <tr class="hover:bg-slate-50/80 {{ 'bg-amber-50/30' if u.role == 'admin' else '' }}">
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <div class="font-semibold text-slate-800">{{ u.full_name }}</div>
                                     <div class="text-[11px] text-slate-500">{{ u.email }} | <span class="{{ 'text-amber-600 font-bold' if u.role == 'admin' else '' }}">{{ u.role|upper }}</span></div>
