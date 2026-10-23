@@ -1119,15 +1119,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const cliente = await fetchClientePorCedula(cleanDigits);
+            const contratosBox = document.getElementById('sop_contratos_box');
+            const contratosCount = document.getElementById('sop_contratos_count');
+            const contratoSelect = document.getElementById('sop_contrato_select');
+
             if (cliente && cliente.encontrado) {
                 const primerNombre = (cliente.nombre || '').trim().split(' ')[0];
-                setClienteSearchStatus('success', primerNombre ? `✓ ${primerNombre}` : '✓ Registrado');
-                autocompletarCamposCliente(cliente);
+                const totalContratos = Array.isArray(cliente.contratos) ? cliente.contratos.length : 1;
+                setClienteSearchStatus('success', primerNombre ? `✓ ${primerNombre} (${totalContratos})` : '✓ Registrado');
+
+                // Si posee múltiples contratos, mostrar selector desplegable
+                if (contratosBox && contratoSelect && cliente.contratos && cliente.contratos.length > 1) {
+                    contratosBox.style.display = 'block';
+                    if (contratosCount) contratosCount.textContent = `${cliente.contratos.length} encontrados`;
+
+                    contratoSelect.innerHTML = '';
+                    cliente.contratos.forEach((c, idx) => {
+                        const opt = document.createElement('option');
+                        opt.value = idx;
+                        const cId = c.id_servicio ? `#${c.id_servicio}` : `#${idx+1}`;
+                        const cPlan = c.plan || 'Plan';
+                        const cEst = c.estado_servicio || 'ACTIVO';
+                        const cUbi = c.urban || c.ubicacion || '';
+                        opt.textContent = `${cId} • ${cPlan} (${cEst}) ${cUbi ? '— ' + cUbi : ''}`;
+                        contratoSelect.appendChild(opt);
+                    });
+
+                    // Event listener para cambio de contrato
+                    contratoSelect.onchange = function() {
+                        const selIdx = parseInt(this.value, 10);
+                        if (cliente.contratos[selIdx]) {
+                            autocompletarCamposCliente(cliente.contratos[selIdx]);
+                            showToast(`📋 Contrato #${cliente.contratos[selIdx].id_servicio || (selIdx+1)} seleccionado`);
+                        }
+                    };
+
+                    // Autocompletar con el primer contrato
+                    autocompletarCamposCliente(cliente.contratos[0]);
+                } else {
+                    if (contratosBox) contratosBox.style.display = 'none';
+                    autocompletarCamposCliente(cliente);
+                }
+
                 showToast(`✅ Cliente encontrado: ${cliente.nombre || cleanDigits}`);
             } else {
+                if (contratosBox) contratosBox.style.display = 'none';
                 setClienteSearchStatus('not_found', 'No registrado');
             }
         } catch (err) {
+            const contratosBox = document.getElementById('sop_contratos_box');
+            if (contratosBox) contratosBox.style.display = 'none';
             setClienteSearchStatus('error', 'Error consulta');
         }
     }

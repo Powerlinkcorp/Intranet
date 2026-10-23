@@ -2469,6 +2469,7 @@ def _get_clients_index():
         
     new_index = {}
     import re
+    from collections import defaultdict
     
     def _format_phone(p):
         p = str(p or '').strip()
@@ -2480,38 +2481,69 @@ def _get_clients_index():
             return digits[:4] + '-' + digits[4:]
         return p
 
+    contracts_by_doc = defaultdict(list)
+    client_meta_by_doc = {}
+
+    def _process_item(u, tipo_cliente):
+        doc = str(u.get('doc', '')).strip()
+        if not doc:
+            return
+        dt = str(u.get('doc_type', '')).strip().upper()
+        onu = u.get('onu_sn') or u.get('onu') or u.get('onu_mac') or ''
+        if ' / ' in onu:
+            onu = onu.split(' / ')[0].strip()
+        
+        sid = u.get('id_servicio')
+        plan = (u.get('plan') or '').strip()
+        status = (u.get('service_status') or 'ACTIVO').strip().upper()
+        addr = (u.get('address') or '').strip()
+        urban = (u.get('urban') or '').strip()
+        sector = (u.get('sector') or '').strip()
+        tel1 = _format_phone(u.get('phone'))
+        tel2 = _format_phone(u.get('phone_2'))
+
+        contract = {
+            'id_servicio': sid,
+            'contrato': f"Contrato #{sid}" if sid else "Contrato Principal",
+            'plan': plan,
+            'estado_servicio': status,
+            'tipo_cliente': tipo_cliente,
+            'onu': onu,
+            'onu_sn': u.get('onu_sn') or '',
+            'onu_mac': u.get('onu_mac') or '',
+            'ubicacion': addr,
+            'urban': urban,
+            'sector': sector,
+            'city': (u.get('city') or '').strip(),
+            'state': (u.get('state') or '').strip(),
+            'telefono1': tel1,
+            'telefono_raw': u.get('phone') or '',
+            'telefono2': tel2,
+            'email': (u.get('email') or '').strip(),
+            'ip_address': (u.get('ip_address') or '').strip()
+        }
+
+        if doc not in client_meta_by_doc:
+            client_meta_by_doc[doc] = {
+                'doc': doc,
+                'doc_type': dt,
+                'nombre': (u.get('name') or '').strip()
+            }
+        elif not client_meta_by_doc[doc]['nombre'] and u.get('name'):
+            client_meta_by_doc[doc]['nombre'] = (u.get('name') or '').strip()
+
+        # Evitar duplicar el mismo contrato por id_servicio
+        existing_sids = {c['id_servicio'] for c in contracts_by_doc[doc] if c.get('id_servicio')}
+        if not sid or sid not in existing_sids:
+            contracts_by_doc[doc].append(contract)
+
     # Cargar residencial
     if os.path.exists(path_res):
         try:
             with open(path_res, "r", encoding="utf-8") as f:
                 res_data = json.load(f).get("data", [])
                 for u in res_data:
-                    doc = str(u.get('doc', '')).strip()
-                    if not doc:
-                        continue
-                    dt = str(u.get('doc_type', '')).strip().upper()
-                    onu = u.get('onu_sn') or u.get('onu') or u.get('onu_mac') or ''
-                    item = {
-                        'encontrado': True,
-                        'cedula': f"{dt}-{doc}" if dt else doc,
-                        'doc': doc,
-                        'doc_type': dt,
-                        'nombre': u.get('name', ''),
-                        'onu': onu,
-                        'telefono1': _format_phone(u.get('phone')),
-                        'telefono_raw': u.get('phone') or '',
-                        'telefono2': _format_phone(u.get('phone_2')),
-                        'ubicacion': u.get('address') or '',
-                        'urban': u.get('urban') or '',
-                        'plan': u.get('plan') or '',
-                        'estado_servicio': u.get('service_status') or '',
-                        'tipo_cliente': 'Residencial',
-                        'id_servicio': u.get('id_servicio')
-                    }
-                    new_index[doc] = item
-                    if dt:
-                        new_index[f"{dt}-{doc}"] = item
-                        new_index[f"{dt}{doc}"] = item
+                    _process_item(u, 'Residencial')
         except Exception as e:
             print(f"Error indexando last_snapshot.json: {e}")
 
@@ -2521,36 +2553,51 @@ def _get_clients_index():
             with open(path_corp, "r", encoding="utf-8") as f:
                 corp_data = json.load(f).get("data", [])
                 for u in corp_data:
-                    doc = str(u.get('doc', '')).strip()
-                    if not doc:
-                        continue
-                    dt = str(u.get('doc_type', '')).strip().upper()
-                    onu_val = u.get('onu') or u.get('onu_sn') or ''
-                    if ' / ' in onu_val:
-                        onu_val = onu_val.split(' / ')[0].strip()
-                    item = {
-                        'encontrado': True,
-                        'cedula': f"{dt}-{doc}" if dt else doc,
-                        'doc': doc,
-                        'doc_type': dt,
-                        'nombre': u.get('name', ''),
-                        'onu': onu_val,
-                        'telefono1': _format_phone(u.get('phone')),
-                        'telefono_raw': u.get('phone') or '',
-                        'telefono2': _format_phone(u.get('phone_2')),
-                        'ubicacion': u.get('address') or '',
-                        'urban': u.get('urban') or '',
-                        'plan': u.get('plan') or '',
-                        'estado_servicio': u.get('service_status') or '',
-                        'tipo_cliente': 'Corporativo',
-                        'id_servicio': u.get('id_servicio')
-                    }
-                    new_index[doc] = item
-                    if dt:
-                        new_index[f"{dt}-{doc}"] = item
-                        new_index[f"{dt}{doc}"] = item
+                    _process_item(u, 'Corporativo')
         except Exception as e:
             print(f"Error indexando last_snapshot_corporativo.json: {e}")
+
+    # Construir índice unificado con lista de contratos por cliente
+    for doc, clist in contracts_by_doc.items():
+        meta = client_meta_by_doc.get(doc, {'doc': doc, 'doc_type': '', 'nombre': ''})
+        dt = meta['doc_type']
+        
+        # Priorizar contratos ACTIVOS primero, luego orden por ID
+        clist.sort(key=lambda x: (0 if x.get('estado_servicio') == 'ACTIVO' else 1, x.get('id_servicio') or 0))
+        primary = clist[0]
+
+        client_data = {
+            'encontrado': True,
+            'cedula': f"{dt}-{doc}" if dt else doc,
+            'doc': doc,
+            'doc_type': dt,
+            'nombre': meta['nombre'],
+            'tipo_cliente': primary.get('tipo_cliente', 'Residencial'),
+            'total_contratos': len(clist),
+            'contratos': clist,
+            # Campos directos de compatibilidad con código existente
+            'id_servicio': primary.get('id_servicio'),
+            'plan': primary.get('plan', ''),
+            'estado_servicio': primary.get('estado_servicio', ''),
+            'onu': primary.get('onu', ''),
+            'telefono1': primary.get('telefono1', ''),
+            'telefono_raw': primary.get('telefono_raw', ''),
+            'telefono2': primary.get('telefono2', ''),
+            'ubicacion': primary.get('ubicacion', ''),
+            'urban': primary.get('urban', '')
+        }
+
+        new_index[doc] = client_data
+        if dt:
+            new_index[f"{dt}-{doc}"] = client_data
+            new_index[f"{dt}{doc}"] = client_data
+        
+        # Indexar también por id_servicio para búsquedas directas por número de servicio/contrato
+        for c in clist:
+            if c.get('id_servicio'):
+                sid_str = str(c['id_servicio']).strip()
+                if sid_str and sid_str not in new_index:
+                    new_index[sid_str] = client_data
 
     _clients_index = new_index
     _clients_mtimes = current_mtimes
@@ -2583,26 +2630,52 @@ def api_consultar_cliente(q: str = Query(...), db: Session = Depends(get_db)):
     # 4. Fallback a la base de datos SQL
     if digits and hasattr(db, 'query'):
         try:
-            client_sql = db.query(models.Client).filter(
+            clients_sql = db.query(models.Client).filter(
                 (models.Client.cedula.ilike(f"%{digits}%")) | (models.Client.service_id == digits)
-            ).first()
+            ).all()
             
-            if client_sql:
+            if clients_sql:
+                first_client = clients_sql[0]
+                sql_contracts = []
+                for cs in clients_sql:
+                    sql_contracts.append({
+                        "id_servicio": cs.service_id,
+                        "contrato": f"Contrato #{cs.service_id}" if cs.service_id else "Contrato Principal",
+                        "plan": cs.current_plan or "",
+                        "estado_servicio": (cs.status or "ACTIVO").upper(),
+                        "tipo_cliente": cs.client_type or "Residencial",
+                        "onu": "",
+                        "onu_sn": "",
+                        "onu_mac": "",
+                        "ubicacion": "",
+                        "urban": "",
+                        "sector": "",
+                        "city": "",
+                        "state": "",
+                        "telefono1": "",
+                        "telefono_raw": "",
+                        "telefono2": "",
+                        "email": "",
+                        "ip_address": ""
+                    })
                 return {
                     "encontrado": True,
-                    "cedula": client_sql.cedula or digits,
+                    "cedula": first_client.cedula or digits,
                     "doc": digits,
                     "doc_type": "",
-                    "nombre": client_sql.name,
+                    "nombre": first_client.name,
+                    "tipo_cliente": first_client.client_type or "Residencial",
+                    "total_contratos": len(sql_contracts),
+                    "contratos": sql_contracts,
+                    "id_servicio": first_client.service_id,
+                    "plan": first_client.current_plan or "",
+                    "estado_servicio": first_client.status or "",
                     "onu": "",
                     "telefono1": "",
+                    "telefono_raw": "",
                     "telefono2": "",
                     "ubicacion": "",
-                    "urban": "",
-                    "plan": client_sql.current_plan or "",
-                    "estado_servicio": client_sql.status or "",
-                    "tipo_cliente": client_sql.client_type or "Residencial",
-                    "id_servicio": client_sql.service_id
+                    "urban": ""
                 }
         except Exception as e:
             print(f"Error consultando SQL client fallback: {e}")
