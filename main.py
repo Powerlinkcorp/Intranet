@@ -1,6 +1,7 @@
 import os
 import shutil
 import io
+import re
 import asyncio
 import pandas as pd
 from typing import List, Optional
@@ -69,6 +70,28 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    
+    # Content Security Policy (CSP) contra spyware y exfiltracion de datos
+    csp_policy = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; "
+        "img-src 'self' data: blob: https://ngfihmioixtfnrmlrlam.supabase.co https://ui-avatars.com; "
+        "connect-src 'self' ws: wss: https://powerlinkcorp.telecomti.net; "
+        "frame-ancestors 'self'; "
+        "base-uri 'self'; "
+        "form-action 'self';"
+    )
+    response.headers["Content-Security-Policy"] = csp_policy
+
+    content_type = response.headers.get("content-type", "")
+    if "text/html" in content_type:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, private"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
     return response
 
 # Mount Static Files and Templates
@@ -136,29 +159,47 @@ class UserUpdateWithSMTP(BaseModel):
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: dict[str, WebSocket] = {}
+        # Email -> Conjunto de WebSockets activos (soporte multi-pestaña)
+        self.active_connections: dict[str, set[WebSocket]] = {}
 
     async def connect(self, email: str, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[email] = websocket
+        is_first = email not in self.active_connections or len(self.active_connections[email]) == 0
+        if email not in self.active_connections:
+            self.active_connections[email] = set()
+        self.active_connections[email].add(websocket)
+        if is_first:
+            await self.broadcast({"type": "presence", "email": email, "status": "online"})
 
-    def disconnect(self, email: str):
+    async def disconnect(self, email: str, websocket: WebSocket = None):
         if email in self.active_connections:
-            del self.active_connections[email]
+            if websocket and websocket in self.active_connections[email]:
+                self.active_connections[email].discard(websocket)
+            else:
+                self.active_connections[email].clear()
+
+            if not self.active_connections[email]:
+                del self.active_connections[email]
+                await self.broadcast({"type": "presence", "email": email, "status": "offline"})
+
+    def get_online_emails(self) -> set[str]:
+        return {email for email, conns in self.active_connections.items() if len(conns) > 0}
 
     async def broadcast(self, message: dict):
-        for connection in self.active_connections.values():
-            try:
-                await connection.send_json(message)
-            except:
-                pass
+        for conns in list(self.active_connections.values()):
+            for connection in list(conns):
+                try:
+                    await connection.send_json(message)
+                except Exception:
+                    pass
                 
     async def send_personal_message(self, message: dict, email: str):
         if email in self.active_connections:
-            try:
-                await self.active_connections[email].send_json(message)
-            except:
-                pass
+            for connection in list(self.active_connections[email]):
+                try:
+                    await connection.send_json(message)
+                except Exception:
+                    pass
 
 manager = ConnectionManager()
 
@@ -229,9 +270,21 @@ async def login_for_access_token(
     }
 
 @app.post("/api/auth/logout")
-async def logout(response: Response):
-    response.delete_cookie("access_token")
-    return {"message": "Sesión cerrada correctamente."}
+@app.get("/api/auth/logout")
+async def api_auth_logout():
+    response = JSONResponse(content={"status": "success", "message": "Sesión cerrada correctamente."})
+    response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="token", path="/")
+    return response
+
+@app.get("/logout")
+async def logout_redirect():
+    response = RedirectResponse(url="/login?logout=1", status_code=302)
+    response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="token", path="/")
+    return response
 
 @app.get("/api/auth/me")
 async def get_me(current_user: models.User = Depends(security.get_current_user)):
@@ -251,16 +304,14 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
     if not token:
         return RedirectResponse(url="/login")
     try:
-        username = security._decode_token(token)
-        current_user = db.query(models.User).filter(models.User.username == username).first()
-        if not current_user:
-            return RedirectResponse(url="/login")
-    except:
+        current_user = security.get_current_user(request, db)
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
     all_users = db.query(models.User).filter(models.User.is_active == True).all()
     employees = db.query(models.Employee).all()
     emp_map = {emp.name: emp.department for emp in employees}
+    online_emails = manager.get_online_emails()
     
     departments = {}
     for u in all_users:
@@ -272,8 +323,68 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(request, "chat.html", {
         "request": request,
         "user": current_user,
-        "departments": departments
+        "departments": departments,
+        "online_emails": online_emails
     })
+
+# Helper para parsear fechas de cumpleaños en español ("19 de Enero", "YYYY-MM-DD", "DD/MM/YYYY")
+MONTH_MAP = {
+    'enero': 1, 'ene': 1,
+    'febrero': 2, 'feb': 2,
+    'marzo': 3, 'mar': 3,
+    'abril': 4, 'abr': 4,
+    'mayo': 5, 'may': 5,
+    'junio': 6, 'jun': 6,
+    'julio': 7, 'jul': 7,
+    'agosto': 8, 'ago': 8,
+    'septiembre': 9, 'sep': 9, 'setiembre': 9,
+    'octubre': 10, 'oct': 10,
+    'noviembre': 11, 'nov': 11,
+    'diciembre': 12, 'dic': 12
+}
+
+def parse_birthday_day_month(bday_str: str):
+    if not bday_str or not isinstance(bday_str, str):
+        return None
+    s = bday_str.strip().lower()
+    
+    # 1. Formato "DD de Mes" (ej: "19 de Enero", "3 de Febrero")
+    m = re.match(r'^(\d{1,2})\s+de\s+([a-záéíóú]+)', s)
+    if m:
+        day = int(m.group(1))
+        mes_str = m.group(2).replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+        month = MONTH_MAP.get(mes_str)
+        if month and 1 <= day <= 31:
+            return day, month
+
+    # 2. Formato ISO "YYYY-MM-DD"
+    m = re.match(r'^(\d{4})-(\d{1,2})-(\d{1,2})', s)
+    if m:
+        month = int(m.group(2))
+        day = int(m.group(3))
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return day, month
+
+    # 3. Formato "DD/MM/YYYY" o "DD/MM//YYYY" o "DD-MM-YYYY"
+    m = re.match(r'^(\d{1,2})[/\\-]+(\d{1,2})', s)
+    if m:
+        day = int(m.group(1))
+        month = int(m.group(2))
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return day, month
+        elif 1 <= day <= 12 and 1 <= month <= 31:
+            return month, day
+
+    # 4. Formato "Mes DD" (ej: "Enero 19")
+    m = re.match(r'^([a-záéíóú]+)\s+(\d{1,2})', s)
+    if m:
+        mes_str = m.group(1).replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+        day = int(m.group(2))
+        month = MONTH_MAP.get(mes_str)
+        if month and 1 <= day <= 31:
+            return day, month
+
+    return None
 
 # ==========================================
 # RUTAS DE INTRANET GENERAL (USUARIOS)
@@ -294,30 +405,30 @@ async def get_dashboard_data(
     closest_emp = None
     if all_emps_with_bday:
         today = datetime.now().date()
-        
-        def get_next_bday(emp):
-            try:
-                # El HTML envia YYYY-MM-DD o '18 de Julio'
-                # Intentamos parsear YYYY-MM-DD
-                bday = datetime.strptime(emp.birthday_date, '%Y-%m-%d').date()
-                this_year_bday = bday.replace(year=today.year)
-                if this_year_bday < today:
-                    this_year_bday = this_year_bday.replace(year=today.year + 1)
-                return this_year_bday
-            except:
-                return datetime(9999, 12, 31).date()
-
-        sorted_emps = sorted(all_emps_with_bday, key=get_next_bday)
-        closest_emp = sorted_emps[0]
-        
-        # Formatear la fecha para que se vea bonita (ej. 15 de Octubre)
         meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-        try:
-            bday_dt = datetime.strptime(closest_emp.birthday_date, '%Y-%m-%d').date()
-            closest_emp.birthday_date = f"{bday_dt.day} de {meses[bday_dt.month - 1]}"
-        except:
-            pass
-            
+        
+        def get_next_bday_info(emp):
+            parsed = parse_birthday_day_month(emp.birthday_date)
+            if not parsed:
+                return datetime(9999, 12, 31).date(), ""
+            b_day, b_month = parsed
+            try:
+                calc_day = 28 if (b_month == 2 and b_day == 29) else b_day
+                target = datetime(today.year, b_month, calc_day).date()
+                if target < today:
+                    target = datetime(today.year + 1, b_month, calc_day).date()
+                formatted_str = f"{b_day} de {meses[b_month - 1]}"
+                return target, formatted_str
+            except Exception:
+                return datetime(9999, 12, 31).date(), ""
+
+        sorted_emps = sorted(all_emps_with_bday, key=lambda e: get_next_bday_info(e)[0])
+        if sorted_emps:
+            closest_emp = sorted_emps[0]
+            _, formatted_date = get_next_bday_info(closest_emp)
+            if formatted_date:
+                closest_emp.birthday_date = formatted_date
+
     birthday_emp = closest_emp
 
     return {
@@ -352,20 +463,15 @@ import json
 
 @app.get("/reportes", response_class=HTMLResponse)
 async def reportes_page(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token")
-    if token and token.startswith("Bearer "):
-        token = token[len("Bearer "):]
+    token = security.get_token_from_request(request)
     if not token:
         return RedirectResponse(url="/login")
     try:
-        username = security._decode_token(token)
-        user = db.query(models.User).filter(models.User.username == username).first()
-        if not user:
-            return RedirectResponse(url="/login")
+        user = security.get_current_user(request, db)
         if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
             return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "reportes.html", {"request": request, "user": user})
-    except:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 @app.get("/api/chat")
 async def get_chat_messages(
@@ -479,7 +585,9 @@ async def websocket_chat(websocket: WebSocket, db: Session = Depends(get_db)):
             else:
                 await manager.broadcast(payload)
     except WebSocketDisconnect:
-        manager.disconnect(user.email)
+        await manager.disconnect(user.email, websocket)
+    except Exception:
+        await manager.disconnect(user.email, websocket)
 
 # ==========================================
 # RUTAS DE GESTIÓN DE RRHH / ADMIN
@@ -833,11 +941,57 @@ async def resend_password(
     
     import random
     import string
+    import logging
+    logger = logging.getLogger("security")
     new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
     user.hashed_password = security.get_password_hash(new_password)
     db.commit()
-    # Aquí iría el código real de SMTP para enviar el correo
-    return {"message": f"Contraseña reestablecida y enviada a {user.email}. (Contraseña temporal: {new_password})"}
+    logger.warning(f"AUDIT_SECURITY: Admin '{admin_user.username}' restablecio la contrasena del usuario '{user.username}' (ID: {user.id})")
+    return {
+        "message": f"Contraseña restablecida para el usuario '{user.username}'.\n\nATENCIÓN: Debe entregar manualmente esta clave temporal al trabajador para que pueda ingresar:\n\n{new_password}",
+        "temporary_password": new_password
+    }
+
+@app.delete("/api/rrhh/users/{user_id}")
+async def delete_worker_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if user.id == admin_user.id:
+        raise HTTPException(status_code=400, detail="No puedes eliminar tu propia cuenta de administrador")
+
+    # Si existe en Employee con el mismo email o nombre, eliminarlo también
+    if user.email:
+        emp = db.query(models.Employee).filter((models.Employee.email == user.email) | (models.Employee.name == user.full_name)).first()
+        if emp:
+            db.delete(emp)
+
+    db.delete(user)
+    db.commit()
+    return {"message": f"Trabajador '{user.full_name}' eliminado correctamente de la base de datos"}
+
+@app.delete("/api/rrhh/employees/{emp_id}")
+async def delete_single_employee(
+    emp_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    emp = db.query(models.Employee).filter(models.Employee.id == emp_id).first()
+    if not emp:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+    
+    if emp.email:
+        user = db.query(models.User).filter(models.User.email == emp.email).first()
+        if user and user.role != 'admin':
+            db.delete(user)
+
+    db.delete(emp)
+    db.commit()
+    return {"message": f"Empleado '{emp.name}' eliminado correctamente"}
 
 @app.get("/api/popup")
 async def get_popup_notification(
@@ -870,9 +1024,24 @@ async def update_popup_notification(
 # RUTAS DE PLANTILLAS VISTA HTML
 # ==========================================
 @app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_page(request: Request, db: Session = Depends(get_db)):
+    is_logout = request.query_params.get("logout") == "1"
+    if not is_logout:
+        token = security.get_token_from_request(request)
+        if token:
+            try:
+                user = security.get_current_user(request, db)
+                if user and user.is_active:
+                    return RedirectResponse(url="/")
+            except Exception:
+                pass
     embed = request.query_params.get("embed") == "1"
-    return templates.TemplateResponse(request, "login.html", {"embed": embed})
+    response = templates.TemplateResponse(request, "login.html", {"embed": embed})
+    if is_logout:
+        response.delete_cookie(key="access_token", path="/", httponly=True, samesite="lax")
+        response.delete_cookie(key="access_token", path="/")
+        response.delete_cookie(key="token", path="/")
+    return response
 
 @app.get("/", response_class=HTMLResponse)
 async def home_page(request: Request, db: Session = Depends(get_db)):
@@ -882,7 +1051,7 @@ async def home_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = security.get_current_user(request, db)
         return templates.TemplateResponse(request, "home.html", {"request": request, "user": user})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -903,7 +1072,7 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
             "employees": employees,
             "departments": departments
         })
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/admin/permisos", response_class=HTMLResponse)
@@ -917,7 +1086,7 @@ async def admin_permisos_page(request: Request, db: Session = Depends(get_db)):
             return RedirectResponse(url="/")
         users = db.query(models.User).all()
         return templates.TemplateResponse(request, "permisos.html", {"user": user, "users": users})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/integracion", response_class=HTMLResponse)
@@ -931,7 +1100,7 @@ async def integracion_page(request: Request, db: Session = Depends(get_db)):
             return RedirectResponse(url="/")
         embed = request.query_params.get("embed") == "1"
         return templates.TemplateResponse(request, "integracion.html", {"user": user, "embed": embed})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/helpdesk", response_class=HTMLResponse)
@@ -943,7 +1112,7 @@ async def helpdesk_page(request: Request, db: Session = Depends(get_db)):
         user = security.get_current_user(request, db)
         # Permiso abierto por defecto para todos
         return templates.TemplateResponse(request, "helpdesk.html", {"user": user})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 def safe_date_str(val):
@@ -2161,21 +2330,61 @@ async def get_calendar_events(
         models.CalendarEvent.month == month
     ).all()
     
-    # Fetch birthdays for this month (we look at all employees with a birthday)
+    # Fetch birthdays for this month
     employees = db.query(models.Employee).filter(models.Employee.birthday_date != None, models.Employee.birthday_date != "").all()
     birthdays = []
+    seen_names = set()
+
+    DEFAULT_LOGO = "https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png"
+    users_all = db.query(models.User).all()
+    user_avatar_map = {u.email: u.avatar_url for u in users_all if u.email and u.avatar_url and u.avatar_url != "/static/img/default-avatar.png" and u.avatar_url != DEFAULT_LOGO}
+    user_name_avatar_map = {u.full_name.lower(): u.avatar_url for u in users_all if u.full_name and u.avatar_url and u.avatar_url != "/static/img/default-avatar.png" and u.avatar_url != DEFAULT_LOGO}
+
     for emp in employees:
-        try:
-            bday = datetime.strptime(emp.birthday_date, '%Y-%m-%d').date()
-            if bday.month == month:
+        parsed = parse_birthday_day_month(emp.birthday_date)
+        if parsed:
+            b_day, b_month = parsed
+            if b_month == month:
+                emp_name = getattr(emp, 'full_name', None) or f"{emp.name} {emp.apellido or ''}".strip()
+                seen_names.add(emp_name.lower())
+                
+                # Obtener foto real o logo por defecto
+                photo = emp.photo_url
+                if not photo or photo == "/static/img/default-avatar.png":
+                    if emp.email and emp.email in user_avatar_map:
+                        photo = user_avatar_map[emp.email]
+                    elif emp_name.lower() in user_name_avatar_map:
+                        photo = user_name_avatar_map[emp_name.lower()]
+                
+                if not photo or photo == "/static/img/default-avatar.png":
+                    photo = DEFAULT_LOGO
+
                 birthdays.append({
-                    "day": bday.day,
-                    "name": emp.full_name if hasattr(emp, 'full_name') else f"{emp.name} {emp.apellido or ''}".strip(),
-                    "photo_url": emp.photo_url or "/static/img/default-avatar.png",
-                    "department": emp.department
+                    "day": b_day,
+                    "name": emp_name,
+                    "photo_url": photo,
+                    "department": emp.department or "General"
                 })
-        except:
-            pass
+
+    # Also check users with birthday recorded
+    users_with_bday = db.query(models.User).filter(models.User.birthday_date != None, models.User.birthday_date != "").all()
+    for u in users_with_bday:
+        u_name = (u.full_name or u.username).strip()
+        if u_name.lower() not in seen_names:
+            parsed = parse_birthday_day_month(u.birthday_date)
+            if parsed:
+                b_day, b_month = parsed
+                if b_month == month:
+                    seen_names.add(u_name.lower())
+                    photo = u.avatar_url
+                    if not photo or photo == "/static/img/default-avatar.png":
+                        photo = DEFAULT_LOGO
+                    birthdays.append({
+                        "day": b_day,
+                        "name": u_name,
+                        "photo_url": photo,
+                        "department": u.department or "General"
+                    })
             
     # Structure data by day
     days_data = {}
@@ -2255,9 +2464,16 @@ async def get_calendar_events_admin(
 # DIRECTORIO TELEFONICO
 # ==========================================
 @app.get("/directorio", response_class=HTMLResponse)
-async def view_directorio(request: Request, db: Session = Depends(get_db), current_user: models.User = Depends(security.get_current_user)):
-    employees = db.query(models.Employee).all()
-    return templates.TemplateResponse(request, "directorio.html", {"request": request, "user": current_user, "employees": employees})
+async def view_directorio(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+        employees = db.query(models.Employee).all()
+        return templates.TemplateResponse(request, "directorio.html", {"request": request, "user": user, "employees": employees})
+    except (HTTPException, Exception):
+        return RedirectResponse(url="/login")
 
 @app.get("/api/directorio/extensions")
 async def get_extensions(db: Session = Depends(get_db), current_user: models.User = Depends(security.get_current_user)):
@@ -2359,7 +2575,7 @@ async def view_historico(request: Request, db: Session = Depends(get_db)):
             })
 
         return templates.TemplateResponse(request, "historico.html", {"user": user, "embed": embed, "recent_events": recent_events})
-    except HTTPException:
+    except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
 @app.get("/api/historico/{cedula}")
@@ -2592,20 +2808,26 @@ if __name__ == "__main__":
 
 
 @app.get("/api/users/chat_directory")
-async def api_get_chat_directory(db: Session = Depends(get_db)):
+async def api_get_chat_directory(only_online: bool = True, db: Session = Depends(get_db)):
     all_users = db.query(models.User).filter(models.User.is_active == True).all()
     employees = db.query(models.Employee).all()
     emp_map = {emp.name: emp.department for emp in employees}
     
+    online_emails = manager.get_online_emails()
+    
     departments = {}
     for u in all_users:
+        is_online = u.email in online_emails
+        if only_online and not is_online:
+            continue
         dept = emp_map.get(u.full_name, "General")
         if dept not in departments:
             departments[dept] = []
         departments[dept].append({
             "email": u.email,
             "full_name": u.full_name,
-            "avatar_url": u.avatar_url
+            "avatar_url": u.avatar_url,
+            "is_online": is_online
         })
     return departments
 
@@ -2623,18 +2845,17 @@ async def notify_reporte_clients():
 
 @app.get("/reporte", response_class=HTMLResponse)
 async def view_reporte(request: Request, db: Session = Depends(get_db)):
-    user = None
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-    except Exception:
-        user = type('UserMock', (), {
-            'username': 'admin',
-            'full_name': 'Administrador',
-            'role': 'admin',
-            'permissions': 'cargar_datos_usuarios,ver_integracion,ver_reportes,ver_helpdesk,ver_cajas_nap'
-        })()
-    embed = request.query_params.get("embed") == "1"
-    return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})
+        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
+            return RedirectResponse(url="/")
+        embed = request.query_params.get("embed") == "1"
+        return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})
+    except (HTTPException, Exception):
+        return RedirectResponse(url="/login")
 
 @app.get("/api/db")
 async def api_get_db():

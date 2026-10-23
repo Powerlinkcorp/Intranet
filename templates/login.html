@@ -507,9 +507,6 @@
                 </form>
 
                 <div class="demo-credentials">
-                    <button class="btn-demo-quick" onclick="quickFill('sabina@empresa.com', 'User123!')">
-                        👤 Usuario Demo
-                    </button>
                     <button class="btn-demo-quick" onclick="quickFill('admin@empresa.com', 'Admin123!')">
                         ⚙️ Panel Admin
                     </button>
@@ -627,6 +624,13 @@
                 showAlert('Error de conexion con el servidor. Intenta de nuevo.', 'error');
                 setLoading(false);
             }
+        }
+
+        if (window.location.search.includes('logout=1')) {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {}
         }
     </script>
 </body>

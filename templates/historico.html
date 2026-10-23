@@ -325,9 +325,14 @@
     <script>
         async function logout() {
             try {
-                const res = await fetch('/api/auth/logout', { method: 'POST' });
-                if(res.ok) window.location.href = '/login';
-            } catch (e) { console.error(e); }
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch (e) {}
+            try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
+            try {
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            } catch (e) {}
+            window.location.href = '/login?logout=1';
         }
 
         // Permitir buscar al presionar Enter
@@ -426,9 +431,6 @@
             }
         }
     </script>
-{% if not embed %}
-{% include 'global_chat.html' %}
-{% endif %}
 </div>
 </body>
 </html>

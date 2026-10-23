@@ -204,6 +204,26 @@
             object-fit: cover;
         }
 
+        .user-avatar-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-status-online {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            width: 10px;
+            height: 10px;
+            background-color: #22c55e;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(34, 197, 94, 0.7);
+        }
+
         .user-list li span {
             font-size: 14px;
             font-weight: 500;
@@ -476,7 +496,10 @@
                         <!-- No mostrarte a ti mismo en la lista -->
                         {% if u.email != user.email %}
                         <li onclick="openChat('{{ u.email }}', '{{ u.full_name }}', '{{ u.avatar_url }}')" id="li_{{ u.email | replace('@', '_') | replace('.', '_') }}">
-                            <img src="{{ u.avatar_url or '/static/img/default-avatar.png' }}" alt="{{ u.full_name }}">
+                            <div class="user-avatar-wrapper">
+                                <img src="{{ u.avatar_url or '/static/img/default-avatar.png' }}" alt="{{ u.full_name }}">
+                                <span class="chat-status-online" id="online_{{ u.email | replace('@', '_') | replace('.', '_') }}" style="display: {{ 'inline-block' if u.email in online_emails else 'none' }};" title="En línea"></span>
+                            </div>
                             <span>{{ u.full_name }}</span>
                             <span class="unread-badge" id="badge_{{ u.email | replace('@', '_') | replace('.', '_') }}" style="display: none;"></span>
                         </li>
@@ -526,6 +549,16 @@
             
             chatWs.onmessage = (event) => {
                 const data = JSON.parse(event.data);
+                
+                // Si es un evento de presencia en tiempo real
+                if (data.type === 'presence') {
+                    const dotId = 'online_' + data.email.replace('@', '_').replace(/\./g, '_');
+                    const dot = document.getElementById(dotId);
+                    if (dot) {
+                        dot.style.display = (data.status === 'online') ? 'inline-block' : 'none';
+                    }
+                    return;
+                }
                 
                 // Si estamos en este chat, inyectar el mensaje
                 const isPrivateMatch = currentRecipientEmail && (data.user_email === currentRecipientEmail || data.user_email === document.getElementById('currentUserEmail').textContent);
@@ -680,10 +713,16 @@
         }
 
         async function logout() {
-            if(chatWs) chatWs.close();
-            await fetch('/api/auth/logout', { method: 'POST' });
-            localStorage.clear();
-            window.location.href = '/login';
+            if(chatWs) { try { chatWs.close(); } catch(e) {} }
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch(e) {}
+            try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
+            try {
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            } catch(e) {}
+            window.location.href = '/login?logout=1';
         }
 
         // Init connection on load
@@ -697,9 +736,6 @@
             }
         });
     </script>
-{% if not embed %}
-{% include 'global_chat.html' %}
-{% endif %}
 </body>
 
 </html>

@@ -1,55 +1,91 @@
-<!-- BUBBLE CHAT GLOBAL -->
+<!-- BUBBLE CHAT GLOBAL - POWER LINK CORP -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-    /* VARIABLES (Si no están definidas por la plantilla base) */
     :root {
         --chat-acento: #FFC107;
         --chat-acento-hover: #F5C71D;
         --chat-fondo: #ffffff;
         --chat-texto-negro: #1A1A1A;
-        --chat-texto-gris: #4A4A4A;
+        --chat-texto-gris: #64748b;
         --chat-borde: #e2e8f0;
+        --chat-header: #1e293b;
+        --chat-msg-other: #ffffff;
+        --chat-msg-mine: #fef3c7;
+        --chat-input-bg: #f8fafc;
     }
 
-    /* BOTÓN FLOTANTE (FAB) */
+    /* MODO OSCURO (DARK MODE POWERLINK) */
+    html.dark {
+        --chat-fondo: #101014;
+        --chat-texto-negro: #f8fafc;
+        --chat-texto-gris: #94a3b8;
+        --chat-borde: rgba(255, 255, 255, 0.1);
+        --chat-acento: #D4AF37;
+        --chat-acento-hover: #E5C358;
+        --chat-header: #09090b;
+        --chat-msg-other: #18181b;
+        --chat-msg-mine: rgba(212, 175, 55, 0.22);
+        --chat-input-bg: #18181b;
+    }
+
+    /* BOTÓN FLOTANTE (FAB) */
     .global-chat-fab {
         position: fixed;
         bottom: 30px;
         right: 30px;
         width: 60px;
         height: 60px;
-        background-color: var(--chat-acento);
+        background: linear-gradient(135deg, var(--chat-acento), var(--chat-acento-hover));
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
         cursor: pointer;
         z-index: 9999;
-        transition: transform 0.2s, background-color 0.2s;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+        border: 2px solid rgba(255, 255, 255, 0.25);
     }
+
     .global-chat-fab:hover {
-        transform: scale(1.05);
-        background-color: var(--chat-acento-hover);
+        transform: scale(1.1) translateY(-3px);
+        box-shadow: 0 10px 28px rgba(212, 175, 55, 0.45);
     }
+
     .global-chat-fab i {
         font-size: 24px;
-        color: var(--chat-texto-negro);
+        color: #000000;
+        transition: transform 0.2s ease;
     }
+
+    .global-chat-fab:hover i {
+        transform: rotate(-8deg);
+    }
+
     .global-chat-fab .unread-badge-total {
         position: absolute;
-        top: -2px;
-        right: -2px;
+        top: -3px;
+        right: -3px;
         background: #ef4444;
         color: white;
         font-size: 11px;
-        font-weight: bold;
-        width: 22px;
+        font-weight: 800;
+        min-width: 22px;
         height: 22px;
-        border-radius: 50%;
+        padding: 0 5px;
+        border-radius: 11px;
         display: none;
         justify-content: center;
         align-items: center;
-        border: 2px solid white;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        animation: gcPulse 2s infinite;
+    }
+
+    @keyframes gcPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
     }
 
     /* WIDGET VENTANA */
@@ -57,267 +93,337 @@
         position: fixed;
         bottom: 100px;
         right: 30px;
-        width: 360px;
-        height: 520px;
+        width: 380px;
+        height: 540px;
         background: var(--chat-fondo);
-        border-radius: 12px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        border-radius: 16px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
         border: 1px solid var(--chat-borde);
-        display: none; /* Oculto por defecto */
+        display: none;
         flex-direction: column;
         z-index: 9998;
         overflow: hidden;
+        animation: gcSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    @keyframes gcSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 
     /* HEADER */
     .global-chat-header {
-        background: var(--chat-texto-negro);
-        color: white;
-        padding: 12px 15px;
+        background: var(--chat-header);
+        color: #ffffff;
+        padding: 14px 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
+
     .global-chat-header .title {
-        font-weight: 600;
+        font-weight: 700;
         font-size: 15px;
         display: flex;
         align-items: center;
         gap: 10px;
+        color: #f8fafc;
     }
+
     .global-chat-header .title img {
         width: 28px;
         height: 28px;
         border-radius: 50%;
         object-fit: cover;
         display: none;
-    }
-    .global-chat-header .actions {
-        display: flex;
-        gap: 12px;
-    }
-    .global-chat-header .actions i {
-        cursor: pointer;
-        opacity: 0.8;
-        transition: opacity 0.2s;
-    }
-    .global-chat-header .actions i:hover {
-        opacity: 1;
+        border: 1.5px solid var(--chat-acento);
     }
 
-    /* PANTALLA DE DIRECTORIO */
+    .global-chat-header .actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .global-chat-header .actions i {
+        cursor: pointer;
+        opacity: 0.85;
+        font-size: 15px;
+        transition: opacity 0.2s, transform 0.2s;
+        color: #cbd5e1;
+    }
+
+    .global-chat-header .actions i:hover {
+        opacity: 1;
+        transform: scale(1.15);
+        color: var(--chat-acento);
+    }
+
+    /* DIRECTORIO DE CHAT */
     .global-chat-directory {
         flex: 1;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
+        background: var(--chat-fondo);
     }
+
     .global-chat-dept {
-        background: #f8fafc;
-        padding: 8px 15px;
+        background: rgba(0, 0, 0, 0.03);
+        padding: 8px 16px;
         font-size: 11px;
         text-transform: uppercase;
-        color: var(--chat-texto-gris);
+        letter-spacing: 0.5px;
+        color: var(--chat-acento);
         font-weight: 700;
         border-bottom: 1px solid var(--chat-borde);
     }
+
+    html.dark .global-chat-dept {
+        background: #141418;
+    }
+
     .global-chat-list {
         list-style: none;
         margin: 0;
         padding: 0;
     }
+
     .global-chat-list li {
         display: flex;
         align-items: center;
-        padding: 10px 15px;
-        gap: 10px;
+        padding: 11px 16px;
+        gap: 12px;
         cursor: pointer;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--chat-borde);
         transition: background 0.2s;
     }
+
     .global-chat-list li:hover {
-        background: #f8fafc;
+        background: rgba(212, 175, 55, 0.1);
     }
+
     .global-chat-list li img {
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         object-fit: cover;
+        border: 1px solid rgba(0,0,0,0.08);
     }
+
     .global-chat-list li .name {
         flex: 1;
-        font-size: 14px;
-        font-weight: 500;
+        font-size: 13.5px;
+        font-weight: 600;
         color: var(--chat-texto-negro);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .global-chat-list li .badge {
         width: 10px;
         height: 10px;
         background: #ef4444;
         border-radius: 50%;
         display: none;
+        box-shadow: 0 0 6px #ef4444;
     }
 
-    /* PANTALLA ACTIVA */
+    /* ESTADO EN LÍNEA (CÍRCULO VERDE) */
+    .gc-avatar-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .gc-status-online {
+        position: absolute;
+        bottom: 1px;
+        right: 1px;
+        width: 10px;
+        height: 10px;
+        background-color: #22c55e;
+        border: 2px solid var(--chat-fondo);
+        border-radius: 50%;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.75);
+    }
+
+    .gc-user-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .gc-status-text {
+        font-size: 11px;
+        color: #22c55e;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .gc-empty-users {
+        padding: 35px 20px;
+        text-align: center;
+        color: var(--chat-texto-gris);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .gc-empty-users i {
+        font-size: 32px;
+        color: var(--chat-acento);
+        opacity: 0.7;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    /* PANTALLA DE CHAT ACTIVO */
     .global-chat-active {
         flex: 1;
         display: none;
         flex-direction: column;
-        background: #f8fafc;
+        background: var(--chat-fondo);
         height: 100%;
+        overflow: hidden;
     }
+
     .global-chat-messages {
         flex: 1;
         overflow-y: auto;
-        padding: 15px;
+        padding: 16px;
         display: flex;
         flex-direction: column;
         gap: 10px;
     }
+
     .gc-msg {
-        background: white;
-        padding: 8px 12px;
-        border-radius: 8px;
+        background: var(--chat-msg-other);
+        padding: 9px 13px;
+        border-radius: 12px;
         border: 1px solid var(--chat-borde);
-        max-width: 85%;
+        max-width: 82%;
         font-size: 13px;
+        line-height: 1.4;
         align-self: flex-start;
+        color: var(--chat-texto-negro);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        word-break: break-word;
     }
+
     .gc-msg.mine {
         align-self: flex-end;
-        background: #fef3c7;
-        border-color: #fde68a;
+        background: var(--chat-msg-mine);
+        border-color: rgba(212, 175, 55, 0.35);
+        border-bottom-right-radius: 2px;
     }
+
     .gc-msg strong {
         display: block;
         font-size: 11px;
-        color: var(--chat-texto-gris);
-        margin-bottom: 2px;
+        font-weight: 700;
+        color: var(--chat-acento);
+        margin-bottom: 3px;
     }
+
     .global-chat-input {
-        background: white;
-        padding: 12px;
+        background: var(--chat-fondo);
+        padding: 12px 14px;
         border-top: 1px solid var(--chat-borde);
         display: flex;
-        gap: 8px;
+        gap: 9px;
+        align-items: center;
     }
+
     .global-chat-input input {
         flex: 1;
-        padding: 10px 15px;
-        border: 1px solid #cbd5e1;
-        border-radius: 20px;
+        padding: 10px 16px;
+        border: 1px solid var(--chat-borde);
+        background: var(--chat-input-bg);
+        color: var(--chat-texto-negro);
+        border-radius: 22px;
         outline: none;
         font-size: 13px;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
+
+    .global-chat-input input:focus {
+        border-color: var(--chat-acento);
+        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25);
+    }
+
     .global-chat-input button {
-        background: var(--chat-acento);
-        color: var(--chat-texto-negro);
+        background: linear-gradient(135deg, var(--chat-acento), var(--chat-acento-hover));
+        color: #000000;
         border: none;
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         cursor: pointer;
         display: flex;
         justify-content: center;
         align-items: center;
+        font-size: 14px;
+        transition: transform 0.2s;
+        flex-shrink: 0;
     }
 
-        /* ========================================================= */
-        /* RESPONSIVE DESIGN - INJECTED AUTOMATICALLY                */
-        /* ========================================================= */
-        @media screen and (max-width: 1024px) {
-            .main-container, .grid-container, .dashboard-grid, .layout-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+    .global-chat-input button:hover {
+        transform: scale(1.08);
+    }
+
+    /* RESPONSIVE MÓVIL */
+    @media (max-width: 480px) {
+        .global-chat-widget {
+            width: calc(100vw - 24px) !important;
+            right: 12px !important;
+            bottom: 85px !important;
+            height: 72vh !important;
         }
-
-        @media screen and (max-width: 768px) {
-            body {
-                padding-bottom: 20px;
-            }
-            .main-container, .grid-container, .dashboard-grid, .layout-grid, 
-            .kpi-container, .resource-grid, .metrics-grid, .cards-grid {
-                grid-template-columns: 1fr !important;
-                display: flex !important;
-                flex-direction: column !important;
-                padding: 10px;
-                gap: 15px;
-            }
-            
-            .hero {
-                padding: 30px 20px !important;
-                text-align: center;
-            }
-            
-            .hero h1 {
-                font-size: 28px !important;
-            }
-            
-            .sidebar {
-                position: static !important;
-                width: 100% !important;
-                height: auto !important;
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: wrap !important;
-                justify-content: center !important;
-                gap: 10px;
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .content-area, .main-content {
-                margin-left: 0 !important;
-                width: 100% !important;
-                padding: 10px !important;
-            }
-            
-            .card {
-                padding: 15px !important;
-            }
-
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            
-            .flex-container, .navbar, .top-bar {
-                flex-direction: column !important;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .login-container, .login-box {
-                width: 95% !important;
-                margin: 20px auto !important;
-            }
-            
-            .section-title {
-                font-size: 14px;
-            }
+        .global-chat-fab {
+            bottom: 20px !important;
+            right: 20px !important;
+            width: 52px !important;
+            height: 52px !important;
         }
+        .global-chat-fab i {
+            font-size: 20px !important;
+        }
+    }
+</style>
 
-    </style>
-
-<div class="global-chat-fab" id="gcFab" onclick="toggleGlobalChat()">
+<!-- FAB BOTÓN FLOTANTE -->
+<div class="global-chat-fab" id="gcFab" onclick="toggleGlobalChat()" title="Abrir Chat Interno">
     <i class="fa-solid fa-comments"></i>
     <div class="unread-badge-total" id="gcFabBadge">0</div>
 </div>
 
+<!-- WIDGET VENTANA FLOTANTE -->
 <div class="global-chat-widget" id="gcWidget">
     <div class="global-chat-header">
         <div class="title" id="gcHeaderTitle">
-            <i class="fa-solid fa-users" id="gcHeaderIcon"></i>
+            <i class="fa-solid fa-users" id="gcHeaderIcon" style="color: var(--chat-acento);"></i>
             <img id="gcHeaderImg" src="">
             <span id="gcHeaderName">Directorio de Chat</span>
         </div>
         <div class="actions">
-            <i class="fa-solid fa-arrow-left" id="gcBackBtn" style="display:none;" onclick="showDirectory()"></i>
-            <i class="fa-solid fa-xmark" onclick="toggleGlobalChat()"></i>
+            <i class="fa-solid fa-arrow-left" id="gcBackBtn" style="display:none;" onclick="showDirectory()" title="Volver al directorio"></i>
+            <a href="/chat" title="Abrir pantalla completa" style="color:#cbd5e1; text-decoration:none;"><i class="fa-solid fa-up-right-from-square"></i></a>
+            <i class="fa-solid fa-xmark" onclick="toggleGlobalChat()" title="Cerrar"></i>
         </div>
     </div>
 
@@ -347,13 +453,30 @@
 <span id="gcMyName" style="display:none;">{{ user.full_name if user else '' }}</span>
 
 <script>
+(function() {
+    // Protección contra doble inicialización
+    if (window.__globalChatLoaded) {
+        // Remover elementos duplicados en el DOM si se incluyó más de una vez
+        const fabs = document.querySelectorAll('.global-chat-fab');
+        if (fabs.length > 1) {
+            for (let i = 1; i < fabs.length; i++) fabs[i].remove();
+        }
+        const widgets = document.querySelectorAll('.global-chat-widget');
+        if (widgets.length > 1) {
+            for (let i = 1; i < widgets.length; i++) widgets[i].remove();
+        }
+        return;
+    }
+    window.__globalChatLoaded = true;
+
     let gcWs = null;
     let gcRecipientEmail = null;
     let gcCurrentChannel = null;
     let totalUnread = 0;
 
-    function toggleGlobalChat() {
+    window.toggleGlobalChat = function() {
         const widget = document.getElementById('gcWidget');
+        if (!widget) return;
         if (widget.style.display === 'flex') {
             widget.style.display = 'none';
         } else {
@@ -363,35 +486,51 @@
             } else {
                 scrollGCMessages();
             }
+            loadGCDirectory();
         }
-    }
+    };
 
-    function showDirectory() {
-        document.getElementById('gcActive').style.display = 'none';
-        document.getElementById('gcDirectory').style.display = 'flex';
-        document.getElementById('gcBackBtn').style.display = 'none';
-        document.getElementById('gcHeaderName').textContent = 'Directorio de Chat';
-        document.getElementById('gcHeaderIcon').style.display = 'inline-block';
-        document.getElementById('gcHeaderImg').style.display = 'none';
+    window.showDirectory = function() {
+        const active = document.getElementById('gcActive');
+        const dir = document.getElementById('gcDirectory');
+        const backBtn = document.getElementById('gcBackBtn');
+        const headerName = document.getElementById('gcHeaderName');
+        const headerIcon = document.getElementById('gcHeaderIcon');
+        const headerImg = document.getElementById('gcHeaderImg');
+
+        if (active) active.style.display = 'none';
+        if (dir) dir.style.display = 'flex';
+        if (backBtn) backBtn.style.display = 'none';
+        if (headerName) headerName.textContent = 'Directorio de Chat';
+        if (headerIcon) headerIcon.style.display = 'inline-block';
+        if (headerImg) headerImg.style.display = 'none';
         gcRecipientEmail = null;
         gcCurrentChannel = null;
-    }
+        loadGCDirectory();
+    };
 
-    async function openGChat(email, name, avatar) {
-        document.getElementById('gcDirectory').style.display = 'none';
-        document.getElementById('gcActive').style.display = 'flex';
-        document.getElementById('gcBackBtn').style.display = 'inline-block';
+    window.openGChat = async function(email, name, avatar) {
+        const dir = document.getElementById('gcDirectory');
+        const active = document.getElementById('gcActive');
+        const backBtn = document.getElementById('gcBackBtn');
+        const headerName = document.getElementById('gcHeaderName');
+        const headerIcon = document.getElementById('gcHeaderIcon');
+        const headerImg = document.getElementById('gcHeaderImg');
+
+        if (dir) dir.style.display = 'none';
+        if (active) active.style.display = 'flex';
+        if (backBtn) backBtn.style.display = 'inline-block';
         
-        document.getElementById('gcHeaderName').textContent = name;
-        document.getElementById('gcHeaderIcon').style.display = 'none';
+        if (headerName) headerName.textContent = name;
+        if (headerIcon) headerIcon.style.display = 'none';
         
-        if (avatar) {
-            document.getElementById('gcHeaderImg').src = avatar;
-            document.getElementById('gcHeaderImg').style.display = 'inline-block';
+        if (avatar && headerImg) {
+            headerImg.src = avatar;
+            headerImg.style.display = 'inline-block';
         }
 
         gcRecipientEmail = email;
-        const myEmail = document.getElementById('gcMyEmail').textContent;
+        const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
 
         let badgeId = 'gc_badge_general';
         if (email) {
@@ -411,35 +550,51 @@
         }
 
         const msgContainer = document.getElementById('gcMessages');
-        msgContainer.innerHTML = '<div style="text-align:center; padding: 20px; font-size:12px; color:#888;">Cargando mensajes...</div>';
+        if (msgContainer) {
+            msgContainer.innerHTML = '<div style="text-align:center; padding: 25px; font-size:12px; color:#888;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando mensajes...</div>';
 
-        try {
-            const res = await fetch(`/api/chat?channel=${encodeURIComponent(gcCurrentChannel)}`);
-            const messages = await res.json();
-            msgContainer.innerHTML = '';
-            messages.forEach(msg => appendGCMsg(msg));
-            scrollGCMessages();
-        } catch (e) { console.error(e); }
-    }
+            try {
+                const res = await fetch(`/api/chat?channel=${encodeURIComponent(gcCurrentChannel)}`, { credentials: 'include' });
+                const messages = await res.json();
+                msgContainer.innerHTML = '';
+                if (Array.isArray(messages)) {
+                    messages.forEach(msg => appendGCMsg(msg));
+                }
+                scrollGCMessages();
+            } catch (e) {
+                console.error("Error cargando historial de chat:", e);
+                msgContainer.innerHTML = '<div style="text-align:center; padding: 20px; font-size:12px; color:#ef4444;">Error cargando mensajes.</div>';
+            }
+        }
+    };
 
     function appendGCMsg(msg) {
         const msgContainer = document.getElementById('gcMessages');
-        const myName = document.getElementById('gcMyName').textContent;
+        if (!msgContainer) return;
+        const myName = document.getElementById('gcMyName')?.textContent?.trim() || '';
         const isMine = msg.user_name === myName;
         
         const div = document.createElement('div');
         div.className = `gc-msg ${isMine ? 'mine' : ''}`;
-        div.innerHTML = `<strong>${msg.user_name}</strong> ${msg.message}`;
+        div.innerHTML = `<strong>${escapeHtml(msg.user_name || 'Usuario')}</strong> ${escapeHtml(msg.message || '')}`;
         msgContainer.appendChild(div);
+    }
+
+    function escapeHtml(text) {
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
     }
 
     function scrollGCMessages() {
         const msgContainer = document.getElementById('gcMessages');
-        msgContainer.scrollTop = msgContainer.scrollHeight;
+        if (msgContainer) {
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
     }
 
-    function sendGChat() {
+    window.sendGChat = function() {
         const input = document.getElementById('gcInput');
+        if (!input) return;
         const val = input.value.trim();
         if (!val) return;
 
@@ -451,15 +606,25 @@
             gcWs.send(JSON.stringify(payload));
             input.value = '';
         } else {
-            alert("Chat desconectado. Intentando reconectar...");
             connectGCWs();
+            setTimeout(() => {
+                if (gcWs && gcWs.readyState === WebSocket.OPEN) {
+                    const payload = { message: val, channel: gcCurrentChannel };
+                    if(gcCurrentChannel !== '#General') {
+                        payload.recipient_email = gcRecipientEmail;
+                    }
+                    gcWs.send(JSON.stringify(payload));
+                    input.value = '';
+                }
+            }, 600);
         }
-    }
+    };
 
     function updateGCTotalBadge() {
         const fab = document.getElementById('gcFabBadge');
+        if (!fab) return;
         if (totalUnread > 0) {
-            fab.textContent = totalUnread;
+            fab.textContent = totalUnread > 99 ? '99+' : totalUnread;
             fab.style.display = 'flex';
         } else {
             fab.style.display = 'none';
@@ -467,113 +632,191 @@
     }
 
     function connectGCWs() {
-        if (gcWs) return;
+        if (gcWs && (gcWs.readyState === WebSocket.OPEN || gcWs.readyState === WebSocket.CONNECTING)) return;
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        let token = localStorage.getItem('access_token');
-        if (!token) return;
+        let token = localStorage.getItem('access_token') || '';
 
-        gcWs = new WebSocket(`${protocol}//${window.location.host}/api/ws/chat?token=${encodeURIComponent(token)}`);
-        
-        gcWs.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const myEmail = document.getElementById('gcMyEmail').textContent;
+        const wsUrl = `${protocol}//${window.location.host}/api/ws/chat${token ? '?token=' + encodeURIComponent(token) : ''}`;
+        try {
+            gcWs = new WebSocket(wsUrl);
             
-            const isPrivateMatch = gcRecipientEmail && (data.user_email === gcRecipientEmail || data.user_email === myEmail);
-            const isGeneralMatch = !gcRecipientEmail && data.channel === '#General' && gcCurrentChannel === '#General';
-            
-            const widgetVisible = document.getElementById('gcWidget').style.display === 'flex';
-            
-            if (widgetVisible && (isPrivateMatch || isGeneralMatch)) {
-                appendGCMsg(data);
-                scrollGCMessages();
-            } else {
-                // Notificar!
-                let badgeId = 'gc_badge_general';
-                if (data.channel !== '#General') {
-                    if (data.user_email && data.user_email !== myEmail) {
-                        badgeId = 'gc_badge_' + data.user_email.replace(/[@.]/g, '_');
+            gcWs.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    // Eventos de presencia en tiempo real (alguien entró o salió de la intranet)
+                    if (data.type === 'presence') {
+                        const widget = document.getElementById('gcWidget');
+                        const dir = document.getElementById('gcDirectory');
+                        if (widget && widget.style.display === 'flex' && dir && dir.style.display !== 'none') {
+                            loadGCDirectory();
+                        }
+                        return;
                     }
-                }
-                const b = document.getElementById(badgeId);
-                if (b && b.style.display !== 'inline-block') {
-                    b.style.display = 'inline-block';
-                    totalUnread++;
-                    updateGCTotalBadge();
-                }
 
-                if (Notification.permission === 'granted') {
-                    new Notification(`Nuevo mensaje de ${data.user_name || 'Alguien'}`, {
-                        body: data.message,
-                        icon: '/static/img/favicon.ico'
-                    });
-                }
-            }
-        };
+                    const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
+                    
+                    const isPrivateMatch = gcRecipientEmail && (data.user_email === gcRecipientEmail || data.user_email === myEmail);
+                    const isGeneralMatch = !gcRecipientEmail && data.channel === '#General' && gcCurrentChannel === '#General';
+                    
+                    const widget = document.getElementById('gcWidget');
+                    const widgetVisible = widget && widget.style.display === 'flex';
+                    
+                    if (widgetVisible && (isPrivateMatch || isGeneralMatch)) {
+                        appendGCMsg(data);
+                        scrollGCMessages();
+                    } else {
+                        let badgeId = 'gc_badge_general';
+                        if (data.channel !== '#General') {
+                            if (data.user_email && data.user_email !== myEmail) {
+                                badgeId = 'gc_badge_' + data.user_email.replace(/[@.]/g, '_');
+                            }
+                        }
+                        const b = document.getElementById(badgeId);
+                        if (b && b.style.display !== 'inline-block') {
+                            b.style.display = 'inline-block';
+                            totalUnread++;
+                            updateGCTotalBadge();
+                        }
 
-        gcWs.onclose = () => {
-            gcWs = null;
-            setTimeout(connectGCWs, 5000);
-        };
+                        if (Notification.permission === 'granted' && data.user_email !== myEmail) {
+                            new Notification(`Mensaje de ${data.user_name || 'Compañero'}`, {
+                                body: data.message || '',
+                                icon: 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png'
+                            });
+                        }
+                    }
+                } catch(err) {
+                    console.warn("Mensaje WS recibido en formato no estándar:", err);
+                }
+            };
+
+            gcWs.onclose = () => {
+                gcWs = null;
+                setTimeout(connectGCWs, 5000);
+            };
+
+            gcWs.onerror = (e) => {
+                try { gcWs.close(); } catch(err){}
+                gcWs = null;
+            };
+        } catch(e) {
+            console.warn("Error al inicializar WebSocket de chat:", e);
+        }
     }
 
     async function loadGCDirectory() {
         try {
-            const myEmail = document.getElementById('gcMyEmail').textContent;
-            const res = await fetch('/api/users/chat_directory');
+            const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
+            const res = await fetch('/api/users/chat_directory?only_online=true', { credentials: 'include' });
+            if (!res.ok) return;
             const depts = await res.json();
             let html = '';
+            let totalOnline = 0;
+
             for (const [dept, users] of Object.entries(depts)) {
-                html += `<div class="global-chat-dept">${dept}</div><ul class="global-chat-list">`;
-                users.forEach(u => {
-                    if(u.email !== myEmail) {
-                        const bId = 'gc_badge_' + u.email.replace(/[@.]/g, '_');
-                        html += `
-                        <li onclick="openGChat('${u.email}', '${u.full_name}', '${u.avatar_url || '/static/img/default-avatar.png'}')">
-                            <img src="${u.avatar_url || '/static/img/default-avatar.png'}">
-                            <div class="name">${u.full_name}</div>
-                            <div class="badge" id="${bId}"></div>
-                        </li>`;
-                    }
+                const filteredUsers = users.filter(u => u.email !== myEmail);
+                if (!filteredUsers || filteredUsers.length === 0) continue;
+
+                html += `<div class="global-chat-dept">${escapeHtml(dept)}</div><ul class="global-chat-list">`;
+                filteredUsers.forEach(u => {
+                    totalOnline++;
+                    const bId = 'gc_badge_' + u.email.replace(/[@.]/g, '_');
+                    const avatar = u.avatar_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
+                    html += `
+                    <li onclick="openGChat('${u.email}', '${escapeHtml(u.full_name)}', '${avatar}')">
+                        <div class="gc-avatar-wrapper">
+                            <img src="${avatar}" onerror="this.onerror=null; this.src='/static/img/default-avatar.png';" alt="${escapeHtml(u.full_name)}">
+                            <span class="gc-status-online" title="Sesión activa"></span>
+                        </div>
+                        <div class="gc-user-info">
+                            <div class="name">${escapeHtml(u.full_name)}</div>
+                            <div class="gc-status-text"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> En línea</div>
+                        </div>
+                        <div class="badge" id="${bId}"></div>
+                    </li>`;
                 });
                 html += `</ul>`;
             }
-            document.getElementById('gcDynamicUsers').innerHTML = html;
-        } catch(e) { console.error("Error cargando directorio chat", e); }
+
+            if (totalOnline === 0) {
+                html = `
+                <div class="gc-empty-users">
+                    <i class="fa-solid fa-user-clock"></i>
+                    <div><strong>Sin compañeros en línea</strong></div>
+                    <div style="font-size: 11.5px; margin-top: 4px; opacity: 0.85;">No hay otros usuarios con sesión activa en la intranet en este momento.</div>
+                </div>`;
+            }
+
+            const container = document.getElementById('gcDynamicUsers');
+            if (container) container.innerHTML = html;
+        } catch(e) {
+            console.error("Error cargando directorio de chat:", e);
+        }
     }
 
     async function loadGCUnread() {
         try {
-            const res = await fetch('/api/chat/unread');
+            const res = await fetch('/api/chat/unread', { credentials: 'include' });
             if (res.ok) {
                 const data = await res.json();
-                const myEmail = document.getElementById('gcMyEmail').textContent;
-                data.unread.forEach(channel => {
-                    let badgeId = 'gc_badge_general';
-                    if (channel !== '#General') {
-                        let otherEmail = channel.replace('private_', '').replace(myEmail, '').replace('_', '');
-                        badgeId = 'gc_badge_' + otherEmail.replace(/[@.]/g, '_');
-                    }
-                    const b = document.getElementById(badgeId);
-                    if(b) {
-                        b.style.display = 'inline-block';
-                        totalUnread++;
-                    }
-                });
-                updateGCTotalBadge();
+                const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
+                if (data && Array.isArray(data.unread)) {
+                    data.unread.forEach(channel => {
+                        let badgeId = 'gc_badge_general';
+                        if (channel !== '#General') {
+                            let otherEmail = channel.replace('private_', '').replace(myEmail, '').replace('_', '');
+                            badgeId = 'gc_badge_' + otherEmail.replace(/[@.]/g, '_');
+                        }
+                        const b = document.getElementById(badgeId);
+                        if(b && b.style.display !== 'inline-block') {
+                            b.style.display = 'inline-block';
+                            totalUnread++;
+                        }
+                    });
+                    updateGCTotalBadge();
+                }
             }
         } catch (e) {}
     }
 
-    window.addEventListener('DOMContentLoaded', async () => {
-        // Request Notification permission
+    async function initGlobalChat() {
         if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-            Notification.requestPermission();
+            try { Notification.requestPermission(); } catch(e){}
         }
-        
-        if(document.getElementById('gcMyEmail').textContent) {
+
+        let myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
+        let myName = document.getElementById('gcMyName')?.textContent?.trim() || '';
+
+        // Si el usuario no fue inyectado por Jinja2, consultar /api/auth/me
+        if (!myEmail) {
+            try {
+                const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+                if (meRes.ok) {
+                    const meData = await meRes.json();
+                    if (meData && meData.email) {
+                        myEmail = meData.email;
+                        myName = meData.full_name || meData.username;
+                        const elEmail = document.getElementById('gcMyEmail');
+                        if (elEmail) elEmail.textContent = myEmail;
+                        const elName = document.getElementById('gcMyName');
+                        if (elName) elName.textContent = myName;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        if (myEmail) {
             await loadGCDirectory();
             await loadGCUnread();
             connectGCWs();
         }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', initGlobalChat);
+    } else {
+        initGlobalChat();
+    }
+})();
 </script>
