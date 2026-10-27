@@ -390,6 +390,69 @@
             color: #475569;
         }
 
+        /* Detalle del Día - Items de Calendario */
+        .calendar-detail-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        .birthday-card .calendar-detail-avatar {
+            width: 38px !important;
+            height: 38px !important;
+            min-width: 38px !important;
+            min-height: 38px !important;
+            border-radius: 50% !important;
+            object-fit: contain !important;
+            background: #ffffff !important;
+            padding: 2px !important;
+            border: 2px solid var(--acento) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .calendar-detail-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .calendar-detail-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+        .calendar-detail-dept {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .calendar-event-card {
+            margin-top: 6px;
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #ef4444;
+        }
+        .calendar-event-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .calendar-event-desc {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
         .feedback-form textarea {
             width: 100%;
             height: 85px;
@@ -1032,6 +1095,8 @@
             if(bc) bc.style.display = 'none';
         }
 
+        const DEFAULT_LOGO_URL = 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
+
         function showDayDetails(day) {
             const card = document.getElementById('birthdayCard');
             const container = document.getElementById('calendarDayDetails');
@@ -1039,30 +1104,32 @@
             
             if(!data || (data.events.length === 0 && data.birthdays.length === 0)) {
                 // No events
-                container.innerHTML = `<p style="font-size:13px; color:var(--texto-gris); text-align:center;">No hay eventos para este día.</p>`;
+                container.innerHTML = `<p style="font-size:13px; color:var(--texto-gris); text-align:center; margin:8px 0;">No hay eventos para este día.</p>`;
             } else {
                 let html = '';
                 if(data.birthdays.length > 0) {
-                    html += `<div><strong style="color:var(--acento); font-size:12px;">CUMPLEAÑOS</strong>`;
+                    html += `<div><strong style="color:var(--acento); font-size:12px; letter-spacing:0.5px;">CUMPLEAÑOS</strong>`;
                     data.birthdays.forEach(b => {
+                        const hasCustomPhoto = b.photo_url && b.photo_url.trim() !== '' && b.photo_url !== '/static/img/default-avatar.png';
+                        const imgSrc = hasCustomPhoto ? b.photo_url : DEFAULT_LOGO_URL;
                         html += `
-                        <div style="display:flex; align-items:center; gap:10px; margin-top:5px; background:#fff; padding:5px; border-radius:6px; border:1px solid #e2e8f0;">
-                            <img src="${b.photo_url}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
-                            <div>
-                                <div style="font-size:12px; font-weight:bold;">${b.name}</div>
-                                <div style="font-size:10px; color:#64748b;">${b.department}</div>
+                        <div class="calendar-detail-card">
+                            <img src="${imgSrc}" class="calendar-detail-avatar" onerror="this.onerror=null; this.src='/static/img/default-avatar.png';" alt="${b.name}">
+                            <div class="calendar-detail-info">
+                                <div class="calendar-detail-name">${b.name}</div>
+                                <div class="calendar-detail-dept">${b.department || 'General'}</div>
                             </div>
                         </div>`;
                     });
                     html += `</div>`;
                 }
                 if(data.events.length > 0) {
-                    html += `<div style="margin-top:10px;"><strong style="color:#ef4444; font-size:12px;">ACTIVIDADES</strong>`;
+                    html += `<div style="margin-top:10px;"><strong style="color:#ef4444; font-size:12px; letter-spacing:0.5px;">ACTIVIDADES</strong>`;
                     data.events.forEach(e => {
                         html += `
-                        <div style="margin-top:5px; background:#fff; padding:8px; border-radius:6px; border:1px solid #e2e8f0; border-left:3px solid #ef4444;">
-                            <div style="font-size:12px; font-weight:bold;">${e.title}</div>
-                            ${e.description ? `<div style="font-size:11px; color:#64748b; margin-top:3px;">${e.description}</div>` : ''}
+                        <div class="calendar-event-card">
+                            <div class="calendar-event-title">${e.title}</div>
+                            ${e.description ? `<div class="calendar-event-desc">${e.description}</div>` : ''}
                         </div>`;
                     });
                     html += `</div>`;

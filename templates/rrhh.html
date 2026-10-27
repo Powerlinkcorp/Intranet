@@ -1602,6 +1602,7 @@
                                 <button class="btn-action" style="background:#eab308; color:#fff;" onclick="resendPassword(${u.id})" title="Reenviar Contraseña"><i class="fa-solid fa-key"></i></button>
                                 <button class="btn-action" style="background:#3b82f6; color:#fff;" onclick="openEditWorkerModal(${u.id})" title="Editar Trabajador"><i class="fa-solid fa-pen"></i></button>
                                 ${u.is_active ? `<button class="btn-action" style="background:#ef4444; color:#fff;" onclick="openSuspendWorkerModal(${u.id})" title="Suspender Usuario"><i class="fa-solid fa-ban"></i></button>` : `<button class="btn-action" style="background:#10b981; color:#fff;" onclick="activateWorker(${u.id})" title="Activar Usuario"><i class="fa-solid fa-check"></i></button>`}
+                                <button class="btn-action" style="background:#dc2626; color:#fff;" onclick="deleteWorker(${u.id}, ${JSON.stringify(u.full_name)})" title="Eliminar Trabajador"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         `;
                         tbody.appendChild(tr);
@@ -1713,6 +1714,22 @@
                     showToast("Error al restablecer contraseña", "error");
                 }
             } catch(e) { showToast("Error de red", "error"); }
+        }
+
+        async function deleteWorker(id, name) {
+            if(!confirm(`ADVERTENCIA: ¿Estás seguro de eliminar permanentemente a "${name}"?\n\nEsta acción borrará al trabajador y su usuario de la base de datos.`)) return;
+            try {
+                const res = await fetch(`/api/rrhh/users/${id}`, { method: 'DELETE', credentials: 'include' });
+                if(res.ok) {
+                    showToast("Trabajador eliminado con éxito", "success");
+                    loadTrabajadores();
+                } else {
+                    const data = await res.json();
+                    showToast(data.detail || "Error al eliminar trabajador", "error");
+                }
+            } catch(e) {
+                showToast("Error de red", "error");
+            }
         }
     </script>
 </div>
