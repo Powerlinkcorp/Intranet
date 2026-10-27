@@ -79,11 +79,7 @@ async def add_security_headers(request: Request, call_next):
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; "
-<<<<<<< HEAD
         "img-src 'self' data: blob: https://ngfihmioixtfnrmlrlam.supabase.co https://ui-avatars.com; "
-=======
-        "img-src 'self' data: blob: https://ngfihmioixtfnrmlrlam.supabase.co; "
->>>>>>> 2a93d44c1fd199694536906f37a2857e98fcda03
         "connect-src 'self' ws: wss: https://powerlinkcorp.telecomti.net; "
         "frame-ancestors 'self'; "
         "base-uri 'self'; "
@@ -955,7 +951,6 @@ async def resend_password(
         "message": f"Contraseña restablecida para el usuario '{user.username}'.\n\nATENCIÓN: Debe entregar manualmente esta clave temporal al trabajador para que pueda ingresar:\n\n{new_password}",
         "temporary_password": new_password
     }
-<<<<<<< HEAD
 
 @app.delete("/api/rrhh/users/{user_id}")
 async def delete_worker_user(
@@ -997,8 +992,6 @@ async def delete_single_employee(
     db.delete(emp)
     db.commit()
     return {"message": f"Empleado '{emp.name}' eliminado correctamente"}
-=======
->>>>>>> 2a93d44c1fd199694536906f37a2857e98fcda03
 
 @app.get("/api/popup")
 async def get_popup_notification(
