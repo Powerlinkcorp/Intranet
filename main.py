@@ -153,9 +153,9 @@ class SuspendUserRequest(BaseModel):
 
 class UserUpdateWithSMTP(BaseModel):
     email: str
-    password: str
-    smtp_user: str
-    smtp_pass: str
+    password: Optional[str] = None
+    smtp_user: Optional[str] = None
+    smtp_pass: Optional[str] = None
 
 class ConnectionManager:
     def __init__(self):
@@ -752,8 +752,8 @@ cedula=cedula, birthday_date=birthday_date, photo_url=photo_url)
     db.refresh(emp)
     
     # Send email
-    if email and smtp_user and smtp_pass:
-        email_util.send_welcome_email(email, name, usuario, password, smtp_user, smtp_pass, is_update=False)
+    if email:
+        email_util.send_welcome_email(email, name, usuario, password, is_update=False)
         
     return {"message": "Empleado y credenciales agregados.", "employee": emp}
 
@@ -794,8 +794,8 @@ async def update_employee(
     db.commit()
     db.refresh(emp)
     
-    if email and smtp_user and smtp_pass:
-        email_util.send_welcome_email(email, name, "", "", smtp_user, smtp_pass, is_update=True)
+    if email:
+        email_util.send_welcome_email(email, name, "", "", is_update=True)
 
     return {"message": "Empleado actualizado exitosamente.", "employee": emp}
 
@@ -2526,24 +2526,12 @@ async def edit_user(user_id: int, user_data: UserUpdateWithSMTP, db: Session = D
         user.hashed_password = security.get_password_hash(user_data.password)
     db.commit()
     
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = user_data.smtp_user
-        msg['To'] = user.email
-        msg['Subject'] = "Actualización de Credenciales - Intranet Powerlink"
-        
-        body = f"Hola {user.full_name},\n\nTus credenciales de acceso han sido actualizadas.\n\nNuevo Correo: {user.email}\nNueva Contraseña: {user_data.password}\n\nSaludos,\nAdministración."
-        msg.attach(MIMEText(body, 'plain', 'utf-8'))
-        
-        server = smtplib.SMTP('mail.smtp2go.com', 2525)
-        server.starttls()
-        server.login(user_data.smtp_user, user_data.smtp_pass)
-        server.send_message(msg)
-        server.quit()
-    except Exception as e:
-        return {"message": "Usuario actualizado, pero falló el envío de correo.", "error": str(e)}
+    if user.email:
+        email_sent = email_util.send_credentials_update_email(user.email, user.full_name or user.username, user.email, user_data.password)
+        if not email_sent:
+            return {"message": "Usuario actualizado, pero falló el envío del correo de notificación."}
 
-    return {"message": "Usuario actualizado y correo enviado correctamente."}
+    return {"message": "Usuario actualizado y notificación procesada correctamente."}
 
 @app.get("/historico", response_class=HTMLResponse)
 async def view_historico(request: Request, db: Session = Depends(get_db)):

@@ -581,7 +581,7 @@
                     <h3><i class="fa-solid fa-user-plus"></i> Añadir Empleado al Directorio</h3>
                     <button type="button" class="btn-close-modal" onclick="closeModal('empModal')"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <form id="addEmployeeForm" onsubmit="showSmtpModal(event)">
+                <form id="addEmployeeForm" onsubmit="confirmAddEmployee(event)">
                     <input type="hidden" id="empId" value="">
                     <div class="form-group">
                         <label>Cédula de Identidad</label>
@@ -1175,22 +1175,8 @@
             }
         }
 
-        function showSmtpModal(e) {
-            e.preventDefault();
-            // Validate first
-            const form = document.getElementById('addEmployeeForm');
-            if(!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            openModal('smtpModal');
-        }
-
         async function confirmAddEmployee(e) {
             e.preventDefault();
-            
-            const smtpUser = document.getElementById('smtpUser').value.trim();
-            const smtpPass = document.getElementById('smtpPass').value.trim();
             
             const cedula = document.getElementById('empCedula').value.trim();
             const nombre = document.getElementById('empNombre').value.trim();
@@ -1213,8 +1199,6 @@
             formData.append('email', email);
             formData.append('usuario', usuario);
             formData.append('password', password);
-            formData.append('smtp_user', smtpUser);
-            formData.append('smtp_pass', smtpPass);
             if (file) formData.append('photo', file);
 
             try {
@@ -1233,9 +1217,6 @@
                     document.getElementById('addEmployeeForm').reset();
                     document.getElementById('empUsuario').value = '';
                     document.getElementById('empPassword').value = '';
-                    document.getElementById('smtpUser').value = '';
-                    document.getElementById('smtpPass').value = '';
-                    closeModal('smtpModal');
                     closeModal('empModal');
                     loadAdminData(); // Refresh list
                 } else {
@@ -1412,31 +1393,6 @@
         });
     </script>
 
-    <!-- MODAL SMTP CREDENCIALES -->
-    <div class="modal-overlay" id="smtpModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-envelope"></i> Enviar Bienvenida</h3>
-                <button type="button" class="btn-close-modal" onclick="closeModal('smtpModal')"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p style="font-size:13px; margin-bottom:15px;">Ingrese sus credenciales de SMTP para autorizar el envío del correo.</p>
-            <form onsubmit="confirmAddEmployee(event)">
-                <div class="form-group">
-                    <label>Usuario SMTP</label>
-                    <input type="text" id="smtpUser" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña SMTP</label>
-                    <input type="password" id="smtpPass" class="form-control" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-action" style="background:#ddd; color:#333;" onclick="closeModal('smtpModal')">Cancelar</button>
-                    <button type="submit" class="btn-action btn-gold">Guardar y Enviar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Modal for Edit System User -->
     
     <!-- MODAL EDITAR TRABAJADOR -->
@@ -1512,10 +1468,6 @@
             <input type="text" id="editUserEmail" placeholder="Correo" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px;">
             <label style="font-size:12px; color:#64748b; margin-bottom:5px; display:block;">Nueva Contraseña (Opcional)</label>
             <input type="text" id="editUserPassword" placeholder="Dejar en blanco para no cambiar" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px;">
-            <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
-            <p style="font-size:12px; color:#ef4444; margin-bottom:10px;">Para enviar la notificación por correo al usuario, por favor ingrese las credenciales SMTP2GO del sistema:</p>
-            <input type="text" id="editUserSmtpUser" placeholder="Usuario SMTP2GO" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px;">
-            <input type="password" id="editUserSmtpPass" placeholder="Contraseña SMTP2GO" style="width:100%; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:6px;">
             <div style="display:flex; justify-content:flex-end; gap:10px;">
                 <button onclick="closeEditUserModal()" style="padding:8px 15px; border:none; background:#ccc; border-radius:6px; cursor:pointer;">Cancelar</button>
                 <button onclick="submitEditUser()" style="padding:8px 15px; border:none; background:var(--acento); border-radius:6px; cursor:pointer; font-weight:bold;">Guardar Cambios</button>
@@ -1528,8 +1480,6 @@
             document.getElementById('editUserId').value = id;
             document.getElementById('editUserEmail').value = currentEmail;
             document.getElementById('editUserPassword').value = '';
-            document.getElementById('editUserSmtpUser').value = '';
-            document.getElementById('editUserSmtpPass').value = '';
             document.getElementById('editSystemUserModal').style.display = 'flex';
         }
         function closeEditUserModal() {
@@ -1539,19 +1489,15 @@
             const id = document.getElementById('editUserId').value;
             const email = document.getElementById('editUserEmail').value;
             const password = document.getElementById('editUserPassword').value;
-            const smtp_user = document.getElementById('editUserSmtpUser').value;
-            const smtp_pass = document.getElementById('editUserSmtpPass').value;
             
-            if(!email || !smtp_user || !smtp_pass) {
-                alert("Debes proporcionar el correo y las credenciales SMTP2GO.");
+            if(!email) {
+                alert("Debes proporcionar el correo del usuario.");
                 return;
             }
             
             const data = {
                 email: email,
-                password: password,
-                smtp_user: smtp_user,
-                smtp_pass: smtp_pass
+                password: password
             };
             
             try {
