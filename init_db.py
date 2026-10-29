@@ -55,51 +55,15 @@ def init_db():
             db.add(admin_user)
             print("  + Usuario Admin creado: admin@empresa.com / Admin123!")
 
-        sabina_user = db.query(models.User).filter(models.User.email == "sabina@empresa.com").first()
-        if not sabina_user:
-            sabina_user = models.User(
-                username="ssabina",
-                email="sabina@empresa.com",
-                hashed_password=get_password_hash("User123!"),
-                full_name="Sabina S.",
-                role="user",
-                avatar_url="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150"
-            )
-            db.add(sabina_user)
-            print("  + Usuario Estándar creado: sabina@empresa.com / User123!")
-
         # 2. Seed Hero Announcement
         if db.query(models.Announcement).count() == 0:
             announcement = models.Announcement(
-                title="Sabina, ¡revisa las últimas noticias!",
+                title="¡Bienvenidos a la plataforma Intranet Power Link!",
                 image_url="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200",
                 link_url="#"
             )
             db.add(announcement)
             print("  + Anuncio Principal inicial creado.")
-
-        # 3. Seed Resources
-        if db.query(models.Resource).count() == 0:
-            resources = [
-                models.Resource(title="Solicitud de Vacaciones", category="Solicitudes", file_path="/static/docs/planilla_vacaciones.pdf"),
-                models.Resource(title="Aplicación Helpdesk Mobile", category="Aplicaciones", file_path="/static/docs/app_helpdesk.pdf"),
-                models.Resource(title="Plantilla Informe Mensual", category="Plantillas", file_path="/static/docs/plantilla_informe.docx"),
-                models.Resource(title="Manual del Empleado 2026", category="Manual Empleado", file_path="/static/docs/manual_empleado_2026.pdf"),
-            ]
-            db.add_all(resources)
-            print("  + Recursos iniciales creados.")
-
-        # 4. Seed Employees
-        if db.query(models.Employee).count() == 0:
-            employees = [
-                models.Employee(name="Sabina S.", email="sabina@empresa.com", position="Analista de Procesos", photo_url="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150", birthday_date="12 de Mayo"),
-                models.Employee(name="Yaroslav P.", email="yaroslav@empresa.com", position="Desarrollador Senior", photo_url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150", birthday_date="24 de Septiembre"),
-                models.Employee(name="Jane Smith", email="jsmith@empresa.com", position="Diseñadora UX/UI", photo_url="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150", birthday_date="03 de Noviembre"),
-                models.Employee(name="Rosa Bell", email="rbell@empresa.com", position="Especialista RRHH", photo_url="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150", birthday_date="08 de Agosto"),
-                models.Employee(name="Carlos Mendoza", email="cmendoza@empresa.com", position="Coordinador de Operaciones", photo_url="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150", birthday_date="18 de Julio"),
-            ]
-            db.add_all(employees)
-            print("  + Empleados iniciales agregados.")
 
         # 5. Seed KPIs
         if db.query(models.KpiMetric).count() == 0:

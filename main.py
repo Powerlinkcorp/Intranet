@@ -1,6 +1,7 @@
 import os
 import shutil
 import io
+import re
 import asyncio
 import pandas as pd
 from typing import List, Optional
@@ -78,7 +79,7 @@ async def add_security_headers(request: Request, call_next):
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; "
-        "img-src 'self' data: blob: https://ngfihmioixtfnrmlrlam.supabase.co; "
+        "img-src 'self' data: blob: https://ngfihmioixtfnrmlrlam.supabase.co https://ui-avatars.com; "
         "connect-src 'self' ws: wss: https://powerlinkcorp.telecomti.net; "
         "frame-ancestors 'self'; "
         "base-uri 'self'; "
@@ -158,35 +159,53 @@ class SuspendUserRequest(BaseModel):
 
 class UserUpdateWithSMTP(BaseModel):
     email: str
-    password: str
-    smtp_user: str
-    smtp_pass: str
+    password: Optional[str] = None
+    smtp_user: Optional[str] = None
+    smtp_pass: Optional[str] = None
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: dict[str, WebSocket] = {}
+        # Email -> Conjunto de WebSockets activos (soporte multi-pestaña)
+        self.active_connections: dict[str, set[WebSocket]] = {}
 
     async def connect(self, email: str, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[email] = websocket
+        is_first = email not in self.active_connections or len(self.active_connections[email]) == 0
+        if email not in self.active_connections:
+            self.active_connections[email] = set()
+        self.active_connections[email].add(websocket)
+        if is_first:
+            await self.broadcast({"type": "presence", "email": email, "status": "online"})
 
-    def disconnect(self, email: str):
+    async def disconnect(self, email: str, websocket: WebSocket = None):
         if email in self.active_connections:
-            del self.active_connections[email]
+            if websocket and websocket in self.active_connections[email]:
+                self.active_connections[email].discard(websocket)
+            else:
+                self.active_connections[email].clear()
+
+            if not self.active_connections[email]:
+                del self.active_connections[email]
+                await self.broadcast({"type": "presence", "email": email, "status": "offline"})
+
+    def get_online_emails(self) -> set[str]:
+        return {email for email, conns in self.active_connections.items() if len(conns) > 0}
 
     async def broadcast(self, message: dict):
-        for connection in self.active_connections.values():
-            try:
-                await connection.send_json(message)
-            except:
-                pass
+        for conns in list(self.active_connections.values()):
+            for connection in list(conns):
+                try:
+                    await connection.send_json(message)
+                except Exception:
+                    pass
                 
     async def send_personal_message(self, message: dict, email: str):
         if email in self.active_connections:
-            try:
-                await self.active_connections[email].send_json(message)
-            except:
-                pass
+            for connection in list(self.active_connections[email]):
+                try:
+                    await connection.send_json(message)
+                except Exception:
+                    pass
 
 manager = ConnectionManager()
 
@@ -298,6 +317,7 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
     all_users = db.query(models.User).filter(models.User.is_active == True).all()
     employees = db.query(models.Employee).all()
     emp_map = {emp.name: emp.department for emp in employees}
+    online_emails = manager.get_online_emails()
     
     departments = {}
     for u in all_users:
@@ -309,8 +329,68 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(request, "chat.html", {
         "request": request,
         "user": current_user,
-        "departments": departments
+        "departments": departments,
+        "online_emails": online_emails
     })
+
+# Helper para parsear fechas de cumpleaños en español ("19 de Enero", "YYYY-MM-DD", "DD/MM/YYYY")
+MONTH_MAP = {
+    'enero': 1, 'ene': 1,
+    'febrero': 2, 'feb': 2,
+    'marzo': 3, 'mar': 3,
+    'abril': 4, 'abr': 4,
+    'mayo': 5, 'may': 5,
+    'junio': 6, 'jun': 6,
+    'julio': 7, 'jul': 7,
+    'agosto': 8, 'ago': 8,
+    'septiembre': 9, 'sep': 9, 'setiembre': 9,
+    'octubre': 10, 'oct': 10,
+    'noviembre': 11, 'nov': 11,
+    'diciembre': 12, 'dic': 12
+}
+
+def parse_birthday_day_month(bday_str: str):
+    if not bday_str or not isinstance(bday_str, str):
+        return None
+    s = bday_str.strip().lower()
+    
+    # 1. Formato "DD de Mes" (ej: "19 de Enero", "3 de Febrero")
+    m = re.match(r'^(\d{1,2})\s+de\s+([a-záéíóú]+)', s)
+    if m:
+        day = int(m.group(1))
+        mes_str = m.group(2).replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+        month = MONTH_MAP.get(mes_str)
+        if month and 1 <= day <= 31:
+            return day, month
+
+    # 2. Formato ISO "YYYY-MM-DD"
+    m = re.match(r'^(\d{4})-(\d{1,2})-(\d{1,2})', s)
+    if m:
+        month = int(m.group(2))
+        day = int(m.group(3))
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return day, month
+
+    # 3. Formato "DD/MM/YYYY" o "DD/MM//YYYY" o "DD-MM-YYYY"
+    m = re.match(r'^(\d{1,2})[/\\-]+(\d{1,2})', s)
+    if m:
+        day = int(m.group(1))
+        month = int(m.group(2))
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return day, month
+        elif 1 <= day <= 12 and 1 <= month <= 31:
+            return month, day
+
+    # 4. Formato "Mes DD" (ej: "Enero 19")
+    m = re.match(r'^([a-záéíóú]+)\s+(\d{1,2})', s)
+    if m:
+        mes_str = m.group(1).replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+        day = int(m.group(2))
+        month = MONTH_MAP.get(mes_str)
+        if month and 1 <= day <= 31:
+            return day, month
+
+    return None
 
 # ==========================================
 # RUTAS DE INTRANET GENERAL (USUARIOS)
@@ -331,30 +411,30 @@ async def get_dashboard_data(
     closest_emp = None
     if all_emps_with_bday:
         today = datetime.now().date()
-        
-        def get_next_bday(emp):
-            try:
-                # El HTML envia YYYY-MM-DD o '18 de Julio'
-                # Intentamos parsear YYYY-MM-DD
-                bday = datetime.strptime(emp.birthday_date, '%Y-%m-%d').date()
-                this_year_bday = bday.replace(year=today.year)
-                if this_year_bday < today:
-                    this_year_bday = this_year_bday.replace(year=today.year + 1)
-                return this_year_bday
-            except:
-                return datetime(9999, 12, 31).date()
-
-        sorted_emps = sorted(all_emps_with_bday, key=get_next_bday)
-        closest_emp = sorted_emps[0]
-        
-        # Formatear la fecha para que se vea bonita (ej. 15 de Octubre)
         meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
-        try:
-            bday_dt = datetime.strptime(closest_emp.birthday_date, '%Y-%m-%d').date()
-            closest_emp.birthday_date = f"{bday_dt.day} de {meses[bday_dt.month - 1]}"
-        except:
-            pass
-            
+        
+        def get_next_bday_info(emp):
+            parsed = parse_birthday_day_month(emp.birthday_date)
+            if not parsed:
+                return datetime(9999, 12, 31).date(), ""
+            b_day, b_month = parsed
+            try:
+                calc_day = 28 if (b_month == 2 and b_day == 29) else b_day
+                target = datetime(today.year, b_month, calc_day).date()
+                if target < today:
+                    target = datetime(today.year + 1, b_month, calc_day).date()
+                formatted_str = f"{b_day} de {meses[b_month - 1]}"
+                return target, formatted_str
+            except Exception:
+                return datetime(9999, 12, 31).date(), ""
+
+        sorted_emps = sorted(all_emps_with_bday, key=lambda e: get_next_bday_info(e)[0])
+        if sorted_emps:
+            closest_emp = sorted_emps[0]
+            _, formatted_date = get_next_bday_info(closest_emp)
+            if formatted_date:
+                closest_emp.birthday_date = formatted_date
+
     birthday_emp = closest_emp
 
     return {
@@ -511,7 +591,9 @@ async def websocket_chat(websocket: WebSocket, db: Session = Depends(get_db)):
             else:
                 await manager.broadcast(payload)
     except WebSocketDisconnect:
-        manager.disconnect(user.email)
+        await manager.disconnect(user.email, websocket)
+    except Exception:
+        await manager.disconnect(user.email, websocket)
 
 # ==========================================
 # RUTAS DE GESTIÓN DE RRHH / ADMIN
@@ -676,8 +758,8 @@ cedula=cedula, birthday_date=birthday_date, photo_url=photo_url)
     db.refresh(emp)
     
     # Send email
-    if email and smtp_user and smtp_pass:
-        email_util.send_welcome_email(email, name, usuario, password, smtp_user, smtp_pass, is_update=False)
+    if email:
+        email_util.send_welcome_email(email, name, usuario, password, is_update=False)
         
     return {"message": "Empleado y credenciales agregados.", "employee": emp}
 
@@ -718,8 +800,8 @@ async def update_employee(
     db.commit()
     db.refresh(emp)
     
-    if email and smtp_user and smtp_pass:
-        email_util.send_welcome_email(email, name, "", "", smtp_user, smtp_pass, is_update=True)
+    if email:
+        email_util.send_welcome_email(email, name, "", "", is_update=True)
 
     return {"message": "Empleado actualizado exitosamente.", "employee": emp}
 
@@ -875,6 +957,47 @@ async def resend_password(
         "message": f"Contraseña restablecida para el usuario '{user.username}'.\n\nATENCIÓN: Debe entregar manualmente esta clave temporal al trabajador para que pueda ingresar:\n\n{new_password}",
         "temporary_password": new_password
     }
+
+@app.delete("/api/rrhh/users/{user_id}")
+async def delete_worker_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if user.id == admin_user.id:
+        raise HTTPException(status_code=400, detail="No puedes eliminar tu propia cuenta de administrador")
+
+    # Si existe en Employee con el mismo email o nombre, eliminarlo también
+    if user.email:
+        emp = db.query(models.Employee).filter((models.Employee.email == user.email) | (models.Employee.name == user.full_name)).first()
+        if emp:
+            db.delete(emp)
+
+    db.delete(user)
+    db.commit()
+    return {"message": f"Trabajador '{user.full_name}' eliminado correctamente de la base de datos"}
+
+@app.delete("/api/rrhh/employees/{emp_id}")
+async def delete_single_employee(
+    emp_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    emp = db.query(models.Employee).filter(models.Employee.id == emp_id).first()
+    if not emp:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+    
+    if emp.email:
+        user = db.query(models.User).filter(models.User.email == emp.email).first()
+        if user and user.role != 'admin':
+            db.delete(user)
+
+    db.delete(emp)
+    db.commit()
+    return {"message": f"Empleado '{emp.name}' eliminado correctamente"}
 
 @app.get("/api/popup")
 async def get_popup_notification(
@@ -2213,21 +2336,61 @@ async def get_calendar_events(
         models.CalendarEvent.month == month
     ).all()
     
-    # Fetch birthdays for this month (we look at all employees with a birthday)
+    # Fetch birthdays for this month
     employees = db.query(models.Employee).filter(models.Employee.birthday_date != None, models.Employee.birthday_date != "").all()
     birthdays = []
+    seen_names = set()
+
+    DEFAULT_LOGO = "https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png"
+    users_all = db.query(models.User).all()
+    user_avatar_map = {u.email: u.avatar_url for u in users_all if u.email and u.avatar_url and u.avatar_url != "/static/img/default-avatar.png" and u.avatar_url != DEFAULT_LOGO}
+    user_name_avatar_map = {u.full_name.lower(): u.avatar_url for u in users_all if u.full_name and u.avatar_url and u.avatar_url != "/static/img/default-avatar.png" and u.avatar_url != DEFAULT_LOGO}
+
     for emp in employees:
-        try:
-            bday = datetime.strptime(emp.birthday_date, '%Y-%m-%d').date()
-            if bday.month == month:
+        parsed = parse_birthday_day_month(emp.birthday_date)
+        if parsed:
+            b_day, b_month = parsed
+            if b_month == month:
+                emp_name = getattr(emp, 'full_name', None) or f"{emp.name} {emp.apellido or ''}".strip()
+                seen_names.add(emp_name.lower())
+                
+                # Obtener foto real o logo por defecto
+                photo = emp.photo_url
+                if not photo or photo == "/static/img/default-avatar.png":
+                    if emp.email and emp.email in user_avatar_map:
+                        photo = user_avatar_map[emp.email]
+                    elif emp_name.lower() in user_name_avatar_map:
+                        photo = user_name_avatar_map[emp_name.lower()]
+                
+                if not photo or photo == "/static/img/default-avatar.png":
+                    photo = DEFAULT_LOGO
+
                 birthdays.append({
-                    "day": bday.day,
-                    "name": emp.full_name if hasattr(emp, 'full_name') else f"{emp.name} {emp.apellido or ''}".strip(),
-                    "photo_url": emp.photo_url or "/static/img/default-avatar.png",
-                    "department": emp.department
+                    "day": b_day,
+                    "name": emp_name,
+                    "photo_url": photo,
+                    "department": emp.department or "General"
                 })
-        except:
-            pass
+
+    # Also check users with birthday recorded
+    users_with_bday = db.query(models.User).filter(models.User.birthday_date != None, models.User.birthday_date != "").all()
+    for u in users_with_bday:
+        u_name = (u.full_name or u.username).strip()
+        if u_name.lower() not in seen_names:
+            parsed = parse_birthday_day_month(u.birthday_date)
+            if parsed:
+                b_day, b_month = parsed
+                if b_month == month:
+                    seen_names.add(u_name.lower())
+                    photo = u.avatar_url
+                    if not photo or photo == "/static/img/default-avatar.png":
+                        photo = DEFAULT_LOGO
+                    birthdays.append({
+                        "day": b_day,
+                        "name": u_name,
+                        "photo_url": photo,
+                        "department": u.department or "General"
+                    })
             
     # Structure data by day
     days_data = {}
@@ -2369,24 +2532,12 @@ async def edit_user(user_id: int, user_data: UserUpdateWithSMTP, db: Session = D
         user.hashed_password = security.get_password_hash(user_data.password)
     db.commit()
     
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = user_data.smtp_user
-        msg['To'] = user.email
-        msg['Subject'] = "Actualización de Credenciales - Intranet Powerlink"
-        
-        body = f"Hola {user.full_name},\n\nTus credenciales de acceso han sido actualizadas.\n\nNuevo Correo: {user.email}\nNueva Contraseña: {user_data.password}\n\nSaludos,\nAdministración."
-        msg.attach(MIMEText(body, 'plain', 'utf-8'))
-        
-        server = smtplib.SMTP('mail.smtp2go.com', 2525)
-        server.starttls()
-        server.login(user_data.smtp_user, user_data.smtp_pass)
-        server.send_message(msg)
-        server.quit()
-    except Exception as e:
-        return {"message": "Usuario actualizado, pero falló el envío de correo.", "error": str(e)}
+    if user.email:
+        email_sent = email_util.send_credentials_update_email(user.email, user.full_name or user.username, user.email, user_data.password)
+        if not email_sent:
+            return {"message": "Usuario actualizado, pero falló el envío del correo de notificación."}
 
-    return {"message": "Usuario actualizado y correo enviado correctamente."}
+    return {"message": "Usuario actualizado y notificación procesada correctamente."}
 
 @app.get("/historico", response_class=HTMLResponse)
 async def view_historico(request: Request, db: Session = Depends(get_db)):
@@ -2475,6 +2626,7 @@ def _get_clients_index():
         
     new_index = {}
     import re
+    from collections import defaultdict
     
     def _format_phone(p):
         p = str(p or '').strip()
@@ -2486,38 +2638,69 @@ def _get_clients_index():
             return digits[:4] + '-' + digits[4:]
         return p
 
+    contracts_by_doc = defaultdict(list)
+    client_meta_by_doc = {}
+
+    def _process_item(u, tipo_cliente):
+        doc = str(u.get('doc', '')).strip()
+        if not doc:
+            return
+        dt = str(u.get('doc_type', '')).strip().upper()
+        onu = u.get('onu_sn') or u.get('onu') or u.get('onu_mac') or ''
+        if ' / ' in onu:
+            onu = onu.split(' / ')[0].strip()
+        
+        sid = u.get('id_servicio')
+        plan = (u.get('plan') or '').strip()
+        status = (u.get('service_status') or 'ACTIVO').strip().upper()
+        addr = (u.get('address') or '').strip()
+        urban = (u.get('urban') or '').strip()
+        sector = (u.get('sector') or '').strip()
+        tel1 = _format_phone(u.get('phone'))
+        tel2 = _format_phone(u.get('phone_2'))
+
+        contract = {
+            'id_servicio': sid,
+            'contrato': f"Contrato #{sid}" if sid else "Contrato Principal",
+            'plan': plan,
+            'estado_servicio': status,
+            'tipo_cliente': tipo_cliente,
+            'onu': onu,
+            'onu_sn': u.get('onu_sn') or '',
+            'onu_mac': u.get('onu_mac') or '',
+            'ubicacion': addr,
+            'urban': urban,
+            'sector': sector,
+            'city': (u.get('city') or '').strip(),
+            'state': (u.get('state') or '').strip(),
+            'telefono1': tel1,
+            'telefono_raw': u.get('phone') or '',
+            'telefono2': tel2,
+            'email': (u.get('email') or '').strip(),
+            'ip_address': (u.get('ip_address') or '').strip()
+        }
+
+        if doc not in client_meta_by_doc:
+            client_meta_by_doc[doc] = {
+                'doc': doc,
+                'doc_type': dt,
+                'nombre': (u.get('name') or '').strip()
+            }
+        elif not client_meta_by_doc[doc]['nombre'] and u.get('name'):
+            client_meta_by_doc[doc]['nombre'] = (u.get('name') or '').strip()
+
+        # Evitar duplicar el mismo contrato por id_servicio
+        existing_sids = {c['id_servicio'] for c in contracts_by_doc[doc] if c.get('id_servicio')}
+        if not sid or sid not in existing_sids:
+            contracts_by_doc[doc].append(contract)
+
     # Cargar residencial
     if os.path.exists(path_res):
         try:
             with open(path_res, "r", encoding="utf-8") as f:
                 res_data = json.load(f).get("data", [])
                 for u in res_data:
-                    doc = str(u.get('doc', '')).strip()
-                    if not doc:
-                        continue
-                    dt = str(u.get('doc_type', '')).strip().upper()
-                    onu = u.get('onu_sn') or u.get('onu') or u.get('onu_mac') or ''
-                    item = {
-                        'encontrado': True,
-                        'cedula': f"{dt}-{doc}" if dt else doc,
-                        'doc': doc,
-                        'doc_type': dt,
-                        'nombre': u.get('name', ''),
-                        'onu': onu,
-                        'telefono1': _format_phone(u.get('phone')),
-                        'telefono_raw': u.get('phone') or '',
-                        'telefono2': _format_phone(u.get('phone_2')),
-                        'ubicacion': u.get('address') or '',
-                        'urban': u.get('urban') or '',
-                        'plan': u.get('plan') or '',
-                        'estado_servicio': u.get('service_status') or '',
-                        'tipo_cliente': 'Residencial',
-                        'id_servicio': u.get('id_servicio')
-                    }
-                    new_index[doc] = item
-                    if dt:
-                        new_index[f"{dt}-{doc}"] = item
-                        new_index[f"{dt}{doc}"] = item
+                    _process_item(u, 'Residencial')
         except Exception as e:
             print(f"Error indexando last_snapshot.json: {e}")
 
@@ -2527,36 +2710,51 @@ def _get_clients_index():
             with open(path_corp, "r", encoding="utf-8") as f:
                 corp_data = json.load(f).get("data", [])
                 for u in corp_data:
-                    doc = str(u.get('doc', '')).strip()
-                    if not doc:
-                        continue
-                    dt = str(u.get('doc_type', '')).strip().upper()
-                    onu_val = u.get('onu') or u.get('onu_sn') or ''
-                    if ' / ' in onu_val:
-                        onu_val = onu_val.split(' / ')[0].strip()
-                    item = {
-                        'encontrado': True,
-                        'cedula': f"{dt}-{doc}" if dt else doc,
-                        'doc': doc,
-                        'doc_type': dt,
-                        'nombre': u.get('name', ''),
-                        'onu': onu_val,
-                        'telefono1': _format_phone(u.get('phone')),
-                        'telefono_raw': u.get('phone') or '',
-                        'telefono2': _format_phone(u.get('phone_2')),
-                        'ubicacion': u.get('address') or '',
-                        'urban': u.get('urban') or '',
-                        'plan': u.get('plan') or '',
-                        'estado_servicio': u.get('service_status') or '',
-                        'tipo_cliente': 'Corporativo',
-                        'id_servicio': u.get('id_servicio')
-                    }
-                    new_index[doc] = item
-                    if dt:
-                        new_index[f"{dt}-{doc}"] = item
-                        new_index[f"{dt}{doc}"] = item
+                    _process_item(u, 'Corporativo')
         except Exception as e:
             print(f"Error indexando last_snapshot_corporativo.json: {e}")
+
+    # Construir índice unificado con lista de contratos por cliente
+    for doc, clist in contracts_by_doc.items():
+        meta = client_meta_by_doc.get(doc, {'doc': doc, 'doc_type': '', 'nombre': ''})
+        dt = meta['doc_type']
+        
+        # Priorizar contratos ACTIVOS primero, luego orden por ID
+        clist.sort(key=lambda x: (0 if x.get('estado_servicio') == 'ACTIVO' else 1, x.get('id_servicio') or 0))
+        primary = clist[0]
+
+        client_data = {
+            'encontrado': True,
+            'cedula': f"{dt}-{doc}" if dt else doc,
+            'doc': doc,
+            'doc_type': dt,
+            'nombre': meta['nombre'],
+            'tipo_cliente': primary.get('tipo_cliente', 'Residencial'),
+            'total_contratos': len(clist),
+            'contratos': clist,
+            # Campos directos de compatibilidad con código existente
+            'id_servicio': primary.get('id_servicio'),
+            'plan': primary.get('plan', ''),
+            'estado_servicio': primary.get('estado_servicio', ''),
+            'onu': primary.get('onu', ''),
+            'telefono1': primary.get('telefono1', ''),
+            'telefono_raw': primary.get('telefono_raw', ''),
+            'telefono2': primary.get('telefono2', ''),
+            'ubicacion': primary.get('ubicacion', ''),
+            'urban': primary.get('urban', '')
+        }
+
+        new_index[doc] = client_data
+        if dt:
+            new_index[f"{dt}-{doc}"] = client_data
+            new_index[f"{dt}{doc}"] = client_data
+        
+        # Indexar también por id_servicio para búsquedas directas por número de servicio/contrato
+        for c in clist:
+            if c.get('id_servicio'):
+                sid_str = str(c['id_servicio']).strip()
+                if sid_str and sid_str not in new_index:
+                    new_index[sid_str] = client_data
 
     _clients_index = new_index
     _clients_mtimes = current_mtimes
@@ -2589,26 +2787,52 @@ def api_consultar_cliente(q: str = Query(...), db: Session = Depends(get_db)):
     # 4. Fallback a la base de datos SQL
     if digits and hasattr(db, 'query'):
         try:
-            client_sql = db.query(models.Client).filter(
+            clients_sql = db.query(models.Client).filter(
                 (models.Client.cedula.ilike(f"%{digits}%")) | (models.Client.service_id == digits)
-            ).first()
+            ).all()
             
-            if client_sql:
+            if clients_sql:
+                first_client = clients_sql[0]
+                sql_contracts = []
+                for cs in clients_sql:
+                    sql_contracts.append({
+                        "id_servicio": cs.service_id,
+                        "contrato": f"Contrato #{cs.service_id}" if cs.service_id else "Contrato Principal",
+                        "plan": cs.current_plan or "",
+                        "estado_servicio": (cs.status or "ACTIVO").upper(),
+                        "tipo_cliente": cs.client_type or "Residencial",
+                        "onu": "",
+                        "onu_sn": "",
+                        "onu_mac": "",
+                        "ubicacion": "",
+                        "urban": "",
+                        "sector": "",
+                        "city": "",
+                        "state": "",
+                        "telefono1": "",
+                        "telefono_raw": "",
+                        "telefono2": "",
+                        "email": "",
+                        "ip_address": ""
+                    })
                 return {
                     "encontrado": True,
-                    "cedula": client_sql.cedula or digits,
+                    "cedula": first_client.cedula or digits,
                     "doc": digits,
                     "doc_type": "",
-                    "nombre": client_sql.name,
+                    "nombre": first_client.name,
+                    "tipo_cliente": first_client.client_type or "Residencial",
+                    "total_contratos": len(sql_contracts),
+                    "contratos": sql_contracts,
+                    "id_servicio": first_client.service_id,
+                    "plan": first_client.current_plan or "",
+                    "estado_servicio": first_client.status or "",
                     "onu": "",
                     "telefono1": "",
+                    "telefono_raw": "",
                     "telefono2": "",
                     "ubicacion": "",
-                    "urban": "",
-                    "plan": client_sql.current_plan or "",
-                    "estado_servicio": client_sql.status or "",
-                    "tipo_cliente": client_sql.client_type or "Residencial",
-                    "id_servicio": client_sql.service_id
+                    "urban": ""
                 }
         except Exception as e:
             print(f"Error consultando SQL client fallback: {e}")
@@ -2651,20 +2875,26 @@ if __name__ == "__main__":
 
 
 @app.get("/api/users/chat_directory")
-async def api_get_chat_directory(db: Session = Depends(get_db)):
+async def api_get_chat_directory(only_online: bool = True, db: Session = Depends(get_db)):
     all_users = db.query(models.User).filter(models.User.is_active == True).all()
     employees = db.query(models.Employee).all()
     emp_map = {emp.name: emp.department for emp in employees}
     
+    online_emails = manager.get_online_emails()
+    
     departments = {}
     for u in all_users:
+        is_online = u.email in online_emails
+        if only_online and not is_online:
+            continue
         dept = emp_map.get(u.full_name, "General")
         if dept not in departments:
             departments[dept] = []
         departments[dept].append({
             "email": u.email,
             "full_name": u.full_name,
-            "avatar_url": u.avatar_url
+            "avatar_url": u.avatar_url,
+            "is_online": is_online
         })
     return departments
 

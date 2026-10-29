@@ -353,7 +353,7 @@
     <div class="main-content" id="mainContent">
         <nav class="navbar">
             <div class="logo">
-                <i class="fa-solid fa-bars" style="cursor:pointer;" onclick="toggleSidebar()"></i>
+                
                 <span>Gestión Central de Permisos</span>
             </div>
             <div class="user-profile">
@@ -361,7 +361,8 @@
                     <span style="font-weight: 600; font-size: 14px; display: block;">{{ user.full_name }}</span>
                     <span style="font-size: 12px; color: #ccc;">{{ user.role|upper }}</span>
                 </div>
-                <img src="https://ui-avatars.com/api/?name={{ user.full_name }}&background=FFC107&color=fff"
+                <img src="{{ user.avatar_url or '/static/img/default-avatar.png' }}"
+                    onerror="this.onerror=null; this.src='/static/img/default-avatar.png';"
                     alt="Perfil" onclick="toggleDropdown()">
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="/?embed=1"><i class="fa-solid fa-house"></i> Ir al Inicio</a>
@@ -390,7 +391,7 @@
                         <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold">
                             <tr>
                                 <th class="px-4 py-4 whitespace-nowrap border-b border-slate-200">Usuario</th>
-                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-blue-50/50" colspan="3">RRHH & Admin</th>
+                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-blue-50/50" colspan="4">RRHH & Admin</th>
                                 <th class="px-4 py-4 text-center border-b border-slate-200 bg-purple-50/50" colspan="4">Reportes / Dashboard</th>
                                 <th class="px-4 py-4 text-center border-b border-slate-200 bg-orange-50/50" colspan="2">Técnicos & Afectaciones</th>
                                 <th class="px-4 py-4 text-center border-b border-slate-200 bg-green-50/50" colspan="3">Config & Logs</th>
@@ -402,6 +403,7 @@
                                 <th class="px-2 py-2 text-center" title="Cargar Datos Usuarios"><i class="fa-solid fa-upload"></i> Carga Usr</th>
                                 <th class="px-2 py-2 text-center" title="Ver Integración"><i class="fa-solid fa-network-wired"></i> Integ.</th>
                                 <th class="px-2 py-2 text-center" title="Editar Directorio"><i class="fa-solid fa-address-book"></i> Dir. Edición</th>
+                                <th class="px-2 py-2 text-center" title="Resumen Admin"><i class="fa-solid fa-chart-line"></i> Resumen Admin</th>
                                 <!-- Reportes -->
                                 <th class="px-2 py-2 text-center" title="Ver Dashboards"><i class="fa-regular fa-eye"></i> Dash. Ver</th>
                                 <th class="px-2 py-2 text-center" title="Editar/Crear Dashboards"><i class="fa-solid fa-pen"></i> Dash. Editar</th>
@@ -441,6 +443,12 @@
                                 <td class="px-2 py-3 text-center bg-blue-50/10">
                                     <label class="toggle-switch">
                                         <input type="checkbox" id="perm_editar_directorio_{{ u.id }}" {% if 'editar_directorio' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td class="px-2 py-3 text-center bg-blue-50/10">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="perm_resumen_admin_{{ u.id }}" {% if 'resumen_admin' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
@@ -556,7 +564,7 @@
         async function savePermissions(userId) {
             // Lista de los IDs de los checkboxes para este usuario
             const keys = [
-                'cargar_datos_usuarios', 'ver_integracion', 'editar_directorio',
+                'cargar_datos_usuarios', 'ver_integracion', 'editar_directorio', 'resumen_admin',
                 'perm_dashboard_read', 'perm_dashboard_write', 'perm_reporte', 'perm_aprov',
                 'perm_techs_read', 'perm_techs_write',
                 'ver_historico', 'perm_logs_read', 'perm_users_write'
@@ -611,6 +619,7 @@
             }
         }
     </script>
+    {% include 'global_chat.html' %}
 </body>
 
 </html>

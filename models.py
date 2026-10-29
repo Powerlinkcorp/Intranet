@@ -13,7 +13,7 @@ class User(Base):
     full_name = Column(String, nullable=False)
     role = Column(String, default="user") # "admin" (RRHH) or "user"
     permissions = Column(String, default="") # e.g. "cargar_datos_usuarios,ver_integracion"
-    avatar_url = Column(String, default="/static/img/default-avatar.png")
+    avatar_url = Column(String, default="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png")
     is_active = Column(Boolean, default=True)
     department = Column(String, default="")
     cargo = Column(String, default="")
