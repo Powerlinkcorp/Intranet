@@ -15,7 +15,14 @@ import security
 from database import get_db
 import models
 
+import permissions_manager
+
 templates = Jinja2Templates(directory="templates")
+templates.env.globals["has_perm"] = permissions_manager.user_has_perm
+templates.env.globals["has_any_perm"] = permissions_manager.user_has_any_perm
+templates.env.globals["get_perm_registry"] = permissions_manager.load_registry
+templates.env.globals["build_powertrack_perms"] = permissions_manager.build_powertrack_permissions_dict
+templates.env.globals["get_user_perms_list"] = permissions_manager.get_user_effective_perms_list
 router = APIRouter(tags=["operaciones"])
 logger = logging.getLogger("operaciones")
 
@@ -143,6 +150,11 @@ async def operaciones_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
+        if not permissions_manager.user_has_any_perm(user, [
+            "mod_operaciones", "sub_op_welcome", "sub_op_daily", "sub_op_events",
+            "sub_op_guards", "sub_op_projects", "sub_op_activities", "sub_op_ozmap", "sub_op_ozmap_db"
+        ]):
+            return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "operaciones.html", {"user": user})
     except (HTTPException, Exception):
         return RedirectResponse(url="/login")

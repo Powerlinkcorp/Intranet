@@ -4,15 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intranet - Gestión de Permisos</title>
+    <title>Intranet - Gestión de Roles y Permisos por Módulo</title>
     <link rel="icon" type="image/png"
         href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Outfit"', '"Segoe UI"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         :root {
-            --fondo-principal: #ffffff;
+            --fondo-principal: #f8fafc;
             --blanco: #ffffff;
             --cabeceras: #1A1A1A;
             --acento: #FFC107;
@@ -61,7 +73,7 @@
         }
 
         .navbar .logo {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -86,7 +98,6 @@
             object-fit: cover;
             border: 2px solid var(--acento);
             cursor: pointer;
-            transition: transform 0.3s ease;
         }
 
         .dropdown-menu {
@@ -114,7 +125,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: background 0.2s ease, color 0.2s ease;
             font-size: 14px;
         }
 
@@ -128,7 +138,13 @@
             position: relative;
             display: inline-block;
             width: 40px;
-            height: 20px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.sm {
+            width: 34px;
+            height: 18px;
         }
 
         .toggle-switch input {
@@ -145,8 +161,8 @@
             right: 0;
             bottom: 0;
             background-color: #cbd5e1;
-            transition: background-color 0.15s ease, border-color 0.15s ease;
-            border-radius: 20px;
+            transition: background-color 0.15s ease;
+            border-radius: 22px;
         }
 
         .slider:before {
@@ -154,12 +170,18 @@
             content: "";
             height: 16px;
             width: 16px;
-            left: 2px;
-            bottom: 2px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
             transition: transform 0.15s ease;
             border-radius: 50%;
-            will-change: transform;
+        }
+
+        .toggle-switch.sm .slider:before {
+            height: 12px;
+            width: 12px;
+            left: 3px;
+            bottom: 3px;
         }
 
         input:checked + .slider {
@@ -167,20 +189,15 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(20px);
+            transform: translateX(18px);
+            background-color: #111827;
         }
 
-        /* =========================================================
-           OPTIMIZACIÓN DE RENDIMIENTO (DOM VIRTUAL / FAST RENDER)
-           ========================================================= */
-        #permissionsTableBody tr {
-            content-visibility: auto;
-            contain-intrinsic-size: 0 49px;
+        .toggle-switch.sm input:checked + .slider:before {
+            transform: translateX(16px);
         }
 
-        /* =========================================================
-           DARK MODE - GESTIÓN DE PERMISOS
-           ========================================================= */
+        /* Dark Mode */
         html.dark body {
             background-color: #09090b !important;
             color: #f8fafc !important;
@@ -191,87 +208,16 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
-        html.dark .bg-white {
+        html.dark .card-surface {
             background-color: #101014 !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
         }
 
-        html.dark .bg-slate-50,
-        html.dark .bg-slate-100 {
-            background-color: #141418 !important;
+        html.dark .sub-surface {
+            background-color: #16161c !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
         }
 
-        html.dark .border-slate-200,
-        html.dark .border-slate-300,
-        html.dark .divide-slate-100 {
-            border-color: rgba(255, 255, 255, 0.08) !important;
-        }
-
-        /* Cabeceras y Títulos */
-        html.dark .text-slate-800,
-        html.dark .text-slate-700 {
-            color: #f8fafc !important;
-        }
-
-        html.dark .text-slate-600,
-        html.dark .text-slate-500 {
-            color: #94a3b8 !important;
-        }
-
-        /* Buscador */
-        html.dark #permisosSearch {
-            background-color: #141418 !important;
-            border-color: rgba(255, 255, 255, 0.15) !important;
-            color: #f8fafc !important;
-        }
-
-        html.dark #permisosSearch:focus {
-            border-color: #D4AF37 !important;
-            box-shadow: 0 0 0 1px #D4AF37 !important;
-        }
-
-        /* Columnas Agrupadas */
-        html.dark th.bg-blue-50\/50 {
-            background-color: rgba(59, 130, 246, 0.15) !important;
-            color: #93c5fd !important;
-        }
-        html.dark th.bg-purple-50\/50 {
-            background-color: rgba(168, 85, 247, 0.15) !important;
-            color: #c084fc !important;
-        }
-        html.dark th.bg-orange-50\/50 {
-            background-color: rgba(249, 115, 22, 0.15) !important;
-            color: #fb923c !important;
-        }
-        html.dark th.bg-green-50\/50 {
-            background-color: rgba(16, 185, 129, 0.15) !important;
-            color: #34d399 !important;
-        }
-
-        html.dark td.bg-blue-50\/10 {
-            background-color: rgba(59, 130, 246, 0.03) !important;
-        }
-        html.dark td.bg-purple-50\/10 {
-            background-color: rgba(168, 85, 247, 0.03) !important;
-        }
-        html.dark td.bg-orange-50\/10 {
-            background-color: rgba(249, 115, 22, 0.03) !important;
-        }
-        html.dark td.bg-green-50\/10 {
-            background-color: rgba(16, 185, 129, 0.03) !important;
-        }
-
-        /* Filas y Hover */
-        html.dark #permissionsTableBody tr:hover {
-            background-color: rgba(212, 175, 55, 0.06) !important;
-        }
-
-        html.dark tr.bg-amber-50\/30 {
-            background-color: rgba(212, 175, 55, 0.08) !important;
-        }
-
-        /* Toggles en Modo Oscuro */
         html.dark .slider {
             background-color: #27272a !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -290,24 +236,9 @@
             background-color: #000000 !important;
         }
 
-        /* Botón Guardar */
-        html.dark #permissionsTableBody button {
-            background-color: #1f1f24 !important;
-            color: #f8fafc !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        }
-
-        html.dark #permissionsTableBody button:hover {
-            background-color: #D4AF37 !important;
-            color: #000000 !important;
-            border-color: #D4AF37 !important;
-        }
-
-        /* Dropdown Perfil */
         html.dark .dropdown-menu {
             background-color: #18181b !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
         }
 
         html.dark .dropdown-menu a {
@@ -319,21 +250,24 @@
             color: #D4AF37 !important;
         }
 
-        /* Toast notifications */
         .toast {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 15px 25px;
-            background: #333;
+            bottom: 28px;
+            right: 28px;
+            padding: 14px 22px;
+            background: #18181b;
             color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             z-index: 9999;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .toast.show {
@@ -341,12 +275,18 @@
             opacity: 1;
         }
 
-        .toast.success { background: var(--exito); }
-        .toast.error { background: var(--error); }
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
     </style>
 </head>
 
-<body>
+<body class="bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-slate-100">
 
     {% include 'sidebar.html' %}
 
@@ -354,262 +294,2193 @@
         <nav class="navbar">
             <div class="logo">
                 <i class="fa-solid fa-bars" style="cursor:pointer;" onclick="toggleSidebar()"></i>
-                <span>Gestión Central de Permisos</span>
+                <i class="fa-solid fa-shield-halved text-[#FFC107]"></i>
+                <span>Centro de Roles y Permisos <span>RBAC + PBAC</span></span>
             </div>
             <div class="user-profile">
                 <div style="text-align: right; line-height: 1.2;">
                     <span style="font-weight: 600; font-size: 14px; display: block;">{{ user.full_name }}</span>
-                    <span style="font-size: 12px; color: #ccc;">{{ user.role|upper }}</span>
+                    <span style="font-size: 11px; color: #FFC107; font-weight: 700;">{{ user.role|upper }}</span>
                 </div>
-                <img src="https://ui-avatars.com/api/?name={{ user.full_name }}&background=FFC107&color=fff"
+                <img src="https://ui-avatars.com/api/?name={{ user.full_name }}&background=FFC107&color=000"
                     alt="Perfil" onclick="toggleDropdown()">
                 <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="/?embed=1"><i class="fa-solid fa-house"></i> Ir al Inicio</a>
+                    <a href="/"><i class="fa-solid fa-house"></i> Ir al Inicio</a>
                     <a href="/logout" style="color: var(--error);"><i class="fa-solid fa-sign-out-alt"></i> Cerrar Sesión</a>
                 </div>
             </div>
         </nav>
 
-        <main class="p-8">
-            
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-6 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+        <main class="p-6 lg:p-8 max-w-[1750px] w-full mx-auto space-y-6">
+
+            <!-- CABECERA Y PESTAÑAS DE NAVEGACIÓN -->
+            <div class="card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 p-6 shadow-sm">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-shield-halved text-[#FFC107] mr-2"></i> Matriz de Permisos Global</h2>
-                        <p class="text-sm text-slate-500 mt-1">Configura el acceso granular a las vistas y módulos para cada usuario.</p>
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <span class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-[#D4AF37] border border-amber-500/30">
+                                <i class="fa-solid fa-layer-group mr-1"></i>Arquitectura RBAC + PBAC (Power Track)
+                            </span>
+                            <span id="statsSummaryBadge" class="text-xs text-slate-500 dark:text-slate-400 font-medium"></span>
+                        </div>
+                        <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">
+                            Sistema de Roles y Permisos por Módulo y Desplegable
+                        </h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Herencia de <strong>Rol Base</strong> + personalización por <strong>Módulo</strong> <i class="fa-solid fa-arrow-right text-[10px] mx-1 text-amber-500"></i> <strong>Desplegable</strong> <i class="fa-solid fa-arrow-right text-[10px] mx-1 text-amber-500"></i> <strong>Permisos Específicos</strong> con auditoría y protección anti-bloqueo.
+                        </p>
                     </div>
-                    <div class="relative w-64">
-                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="permisosSearch" placeholder="Buscar usuario o email..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" onkeyup="filterPermisos()">
+
+                    <!-- Pestañas principales -->
+                    <div class="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-[#16161c] p-1.5 rounded-xl border border-slate-200 dark:border-white/10">
+                        <button type="button" id="tabBtnUsers" onclick="switchMainTab('users')"
+                            class="px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-[#FFC107] text-black shadow-sm">
+                            <i class="fa-solid fa-users-gear"></i>
+                            <span>Usuarios y Permisos</span>
+                        </button>
+                        <button type="button" id="tabBtnRoles" onclick="switchMainTab('roles')"
+                            class="px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span>Plantillas de Roles</span>
+                        </button>
+                        <button type="button" id="tabBtnCatalog" onclick="switchMainTab('catalog')"
+                            class="px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5">
+                            <i class="fa-solid fa-cubes-stacked"></i>
+                            <span>+ Módulos y Ventanas</span>
+                        </button>
+                        <button type="button" id="tabBtnAudit" onclick="switchMainTab('audit')"
+                            class="px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <span>Bitácora de Auditoría</span>
+                        </button>
                     </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <div class="overflow-x-auto w-full">
-<table class="w-full text-left text-sm text-slate-600">
-                        <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold">
-                            <tr>
-                                <th class="px-4 py-4 whitespace-nowrap border-b border-slate-200">Usuario</th>
-                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-blue-50/50" colspan="3">RRHH & Admin</th>
-                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-purple-50/50" colspan="4">Reportes / Dashboard</th>
-                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-orange-50/50" colspan="2">Técnicos & Afectaciones</th>
-                                <th class="px-4 py-4 text-center border-b border-slate-200 bg-green-50/50" colspan="3">Config & Logs</th>
-                                <th class="px-4 py-4 text-center border-b border-slate-200">Acción</th>
-                            </tr>
-                            <tr class="text-[10px] tracking-wider text-slate-500 bg-slate-50 border-b border-slate-200">
-                                <th class="px-4 py-2"></th>
-                                <!-- RRHH -->
-                                <th class="px-2 py-2 text-center" title="Cargar Datos Usuarios"><i class="fa-solid fa-upload"></i> Carga Usr</th>
-                                <th class="px-2 py-2 text-center" title="Ver Integración"><i class="fa-solid fa-network-wired"></i> Integ.</th>
-                                <th class="px-2 py-2 text-center" title="Editar Directorio"><i class="fa-solid fa-address-book"></i> Dir. Edición</th>
-                                <!-- Reportes -->
-                                <th class="px-2 py-2 text-center" title="Ver Dashboards"><i class="fa-regular fa-eye"></i> Dash. Ver</th>
-                                <th class="px-2 py-2 text-center" title="Editar/Crear Dashboards"><i class="fa-solid fa-pen"></i> Dash. Editar</th>
-                                <th class="px-2 py-2 text-center" title="Acceso a Reporte"><i class="fa-solid fa-chart-bar"></i> Reporte</th>
-                                <th class="px-2 py-2 text-center" title="Flasheo y Aprovisionamiento"><i class="fa-solid fa-microchip"></i> Flashe / Apróv.</th>
-                                <!-- Techs & Afect. -->
-                                <th class="px-2 py-2 text-center" title="Ver Afectaciones y Técnicos"><i class="fa-regular fa-eye"></i> Técnicos Ver</th>
-                                <th class="px-2 py-2 text-center" title="Gestionar Afectaciones"><i class="fa-solid fa-pen"></i> Técnicos Edición</th>
-                                <!-- Config & Logs -->
-                                <th class="px-2 py-2 text-center" title="Ver Histórico"><i class="fa-solid fa-history"></i> Histórico</th>
-                                <th class="px-2 py-2 text-center" title="Ver Logs y Bitácora"><i class="fa-regular fa-eye"></i> Logs Ver</th>
-                                <th class="px-2 py-2 text-center" title="Gestionar Usuarios de Reportes"><i class="fa-solid fa-users"></i> Gest. Usr</th>
-                                <th class="px-4 py-2"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="permissionsTableBody" class="divide-y divide-slate-100">
-                            {% for u in users %}
-                            <tr class="hover:bg-slate-50/80 {{ 'bg-amber-50/30' if u.role == 'admin' else '' }}">
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="font-semibold text-slate-800">{{ u.full_name }}</div>
-                                    <div class="text-[11px] text-slate-500">{{ u.email }} | <span class="{{ 'text-amber-600 font-bold' if u.role == 'admin' else '' }}">{{ u.role|upper }}</span></div>
-                                </td>
-                                
-                                <!-- RRHH -->
-                                <td class="px-2 py-3 text-center bg-blue-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_cargar_datos_usuarios_{{ u.id }}" {% if 'cargar_datos_usuarios' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-blue-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_ver_integracion_{{ u.id }}" {% if 'ver_integracion' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-blue-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_editar_directorio_{{ u.id }}" {% if 'editar_directorio' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-
-                                <!-- Reportes -->
-                                <td class="px-2 py-3 text-center bg-purple-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_dashboard_read_{{ u.id }}" {% if 'perm_dashboard_read' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-purple-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_dashboard_write_{{ u.id }}" {% if 'perm_dashboard_write' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-purple-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_reporte_{{ u.id }}" {% if 'perm_reporte' in (u.permissions or '') or 'ver_reportes' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-purple-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_aprov_{{ u.id }}" {% if 'perm_aprov' in (u.permissions or '') or 'ver_flasheo' in (u.permissions or '') or 'ver_aprovisionamiento' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-
-                                <!-- Techs & Afect -->
-                                <td class="px-2 py-3 text-center bg-orange-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_techs_read_{{ u.id }}" {% if 'perm_techs_read' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-orange-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_techs_write_{{ u.id }}" {% if 'perm_techs_write' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-
-                                <!-- Config & Logs -->
-                                <td class="px-2 py-3 text-center bg-green-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_ver_historico_{{ u.id }}" {% if 'ver_historico' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-green-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_logs_read_{{ u.id }}" {% if 'perm_logs_read' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-                                <td class="px-2 py-3 text-center bg-green-50/10">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="perm_perm_users_write_{{ u.id }}" {% if 'perm_users_write' in (u.permissions or '') %}checked{% endif %} {% if u.role == 'admin' %}disabled{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </td>
-
-                                <td class="px-4 py-3 text-center">
-                                    {% if u.role != 'admin' %}
-                                    <button type="button" onclick="savePermissions('{{ u.id }}')" class="bg-[#1A1A1A] hover:bg-[#333] text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors">
-                                        Guardar
-                                    </button>
-                                    {% else %}
-                                    <span class="text-[11px] text-slate-400 font-medium">Admin Full Access</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-</div>
                 </div>
             </div>
-            
+
+            <!-- ================================================================== -->
+            <!-- PESTAÑA 1: GESTIÓN DE USUARIOS Y PERMISOS JERÁRQUICOS              -->
+            <!-- ================================================================== -->
+            <section id="tabSectionUsers" class="space-y-4">
+                <!-- Barra de filtros + Acciones Masivas en Lote (Todo en una sola fila) -->
+                <div class="card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 px-4 py-3 shadow-sm">
+                    <div class="flex flex-wrap lg:flex-nowrap items-center justify-between gap-3">
+                        <div class="flex flex-1 items-center gap-2.5 min-w-0">
+                            <div class="relative flex-1 min-w-[220px]">
+                                <i class="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="permisosSearch" oninput="renderUsersTable()"
+                                    placeholder="Buscar trabajador por nombre, usuario, correo o cargo..."
+                                    class="w-full pl-9 pr-4 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#FFC107]">
+                            </div>
+                            <select id="filterDeptSelect" onchange="renderUsersTable()"
+                                class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-[#FFC107]">
+                                <option value="ALL">Todos los Departamentos</option>
+                            </select>
+                        </div>
+
+                        <!-- Barra de Asignación Masiva en Lote -->
+                        <div class="flex items-center gap-2 bg-amber-500/5 border border-amber-500/20 px-3 py-1.5 rounded-xl whitespace-nowrap">
+                            <span id="bulkSelectedCount" class="text-xs font-extrabold text-amber-600 dark:text-[#D4AF37]">
+                                0 seleccionados
+                            </span>
+                            <select id="bulkRoleSelect"
+                                class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-[#16161c] border border-slate-200 dark:border-white/10">
+                            </select>
+                            <button type="button" onclick="applyBulkRole()"
+                                class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-[#FFC107] hover:bg-[#F5C71D] text-black shadow-sm transition-all">
+                                Aplicar en Lote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Usuarios -->
+                <div class="card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 dark:bg-[#16161c] text-slate-600 dark:text-slate-300 uppercase text-[11px] font-bold border-b border-slate-200 dark:border-white/10">
+                                <tr class="whitespace-nowrap">
+                                    <th class="px-3 py-3.5 text-center w-10">
+                                        <input type="checkbox" id="selectAllUsersChk" onchange="toggleSelectAllUsers(this.checked)"
+                                            class="w-4 h-4 rounded text-[#FFC107] focus:ring-[#FFC107]">
+                                    </th>
+                                    <th class="px-4 py-3.5 min-w-[230px]">Trabajador / Departamento</th>
+                                    <th class="px-4 py-3.5 min-w-[280px] border-l border-slate-200/60 dark:border-white/5">
+                                        <div class="flex items-center gap-2.5">
+                                            <span class="font-extrabold tracking-wider text-slate-700 dark:text-slate-200">ROL</span>
+                                            <button type="button" id="headerRoleFilterBtn" onclick="openHeaderRoleDropdown(event, this)"
+                                                class="px-3 py-1.5 rounded-xl text-[11px] font-bold normal-case bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-[#FFC107] transition-all flex items-center justify-between gap-2 min-w-[185px]">
+                                                <span id="headerRoleFilterLabel" class="truncate">Todos los Roles</span>
+                                                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="px-4 py-3.5 bg-amber-500/5 border-x border-slate-200/60 dark:border-white/5 min-w-[320px]">
+                                        <div class="flex items-center gap-2.5">
+                                            <span class="font-extrabold tracking-wider text-amber-600 dark:text-[#D4AF37]">MÓDULO</span>
+                                            <button type="button" id="headerModuleFilterBtn" onclick="openHeaderModuleDropdown(event, this)"
+                                                class="px-3 py-1.5 rounded-xl text-[11px] font-bold normal-case bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-[#FFC107] transition-all flex items-center justify-between gap-2 min-w-[210px]">
+                                                <span id="headerModuleFilterLabel" class="truncate">Todos los Módulos</span>
+                                                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                                            </button>
+                                        </div>
+                                    </th>
+                                    <th class="px-5 py-3.5 text-right w-28">Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersPermissionsTableBody" class="divide-y divide-slate-200/70 dark:divide-white/5">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================================== -->
+            <!-- PESTAÑA 2: PLANTILLAS DE ROLES (ESTILO POWER TRACK)                -->
+            <!-- ================================================================== -->
+            <section id="tabSectionRoles" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">
+                            Plantillas de Roles del Sistema
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Configura qué módulos, desplegables y permisos específicos incluye cada Rol. Al actualizar un rol, puedes sincronizar automáticamente a todos los usuarios que lo tengan.
+                        </p>
+                    </div>
+                    <button type="button" onclick="openRoleModal()"
+                        class="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-[#FFC107] hover:bg-[#F5C71D] text-black shadow-sm flex items-center gap-2 self-start">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Crear Nuevo Rol</span>
+                    </button>
+                </div>
+
+                <div id="rolesCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                </div>
+            </section>
+
+            <!-- ================================================================== -->
+            <!-- PESTAÑA 3: REGISTRO DINÁMICO DE NUEVOS MÓDULOS Y VENTANAS          -->
+            <!-- ================================================================== -->
+            <section id="tabSectionCatalog" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Formulario para agregar nueva ventana / módulo / permiso -->
+                    <div class="lg:col-span-5 card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 p-6 shadow-sm space-y-4 self-start">
+                        <div class="flex items-center gap-3 border-b border-slate-200 dark:border-white/10 pb-4">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-[#FFC107]">
+                                <i class="fa-solid fa-cubes-stacked text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-extrabold text-slate-900 dark:text-white">
+                                    Registrar Nueva Ventana, Módulo o Permiso
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    Se integrará inmediatamente a los Roles, a la Matriz de Usuarios y al Menú Lateral.
+                                </p>
+                            </div>
+                        </div>
+
+                        <form id="newCatalogItemForm" onsubmit="submitNewCatalogItem(event)" class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                    ¿Qué deseas agregar al sistema?
+                                </label>
+                                <select id="cat_target_type" onchange="toggleCatalogFormFields()"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 font-semibold">
+                                    <option value="dropdown">📂 Nuevo Desplegable / Ventana dentro de un Módulo (Ej. en Soporte u Operaciones)</option>
+                                    <option value="action">⚡ Nuevo Permiso Específico dentro de un Desplegable existente</option>
+                                    <option value="module">🏛️ Nuevo Módulo Principal en la Barra Lateral</option>
+                                </select>
+                            </div>
+
+                            <div id="cat_parent_module_wrap">
+                                <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                    Módulo Principal donde se ubicará
+                                </label>
+                                <select id="cat_module_id" onchange="populateCatalogDropdownSelect()"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 font-semibold">
+                                </select>
+                            </div>
+
+                            <div id="cat_parent_dropdown_wrap" class="hidden">
+                                <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                    Desplegable donde se agregará el permiso específico
+                                </label>
+                                <select id="cat_dropdown_id"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 font-semibold">
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                        Nombre Visible <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="cat_name" required oninput="autoGenerateCatalogSlug()"
+                                        placeholder="Ej: Cajas NAP / Monitoreo"
+                                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10">
+                                </div>
+                                <div>
+                                    <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                        Código / Identificador <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="cat_id" required
+                                        placeholder="Ej: sub_soporte_cajas_nap"
+                                        class="w-full px-3.5 py-2.5 rounded-xl font-mono bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10">
+                                </div>
+                            </div>
+
+                            <div id="cat_route_icon_wrap" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                        Ruta URL de la Ventana
+                                    </label>
+                                    <input type="text" id="cat_route" placeholder="Ej: /soporte/cajas-nap"
+                                        class="w-full px-3.5 py-2.5 rounded-xl font-mono bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10">
+                                </div>
+                                <div>
+                                    <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                        Ícono FontAwesome
+                                    </label>
+                                    <input type="text" id="cat_icon" value="fa-solid fa-cube"
+                                        class="w-full px-3.5 py-2.5 rounded-xl font-mono bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10">
+                                </div>
+                            </div>
+
+                            <div id="cat_first_dropdown_wrap" class="hidden">
+                                <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                    Nombre del Primer Desplegable del Módulo
+                                </label>
+                                <input type="text" id="cat_first_dropdown_name" placeholder="Ej: Panel Principal"
+                                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                                    Asignar automáticamente a los siguientes Roles:
+                                </label>
+                                <div id="cat_assign_roles_box" class="grid grid-cols-2 gap-2 p-3 rounded-xl bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10">
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider bg-[#FFC107] hover:bg-[#F5C71D] text-black shadow-md transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-plus-circle"></i>
+                                <span>Registrar e Integrar a Roles</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Vista del Árbol Actual del Catálogo -->
+                    <div class="lg:col-span-7 card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 p-6 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4">
+                            <div>
+                                <h3 class="text-base font-extrabold text-slate-900 dark:text-white">
+                                    Mapa Jerárquico Actual (Módulos <i class="fa-solid fa-angle-right mx-1 text-amber-500"></i> Desplegables <i class="fa-solid fa-angle-right mx-1 text-amber-500"></i> Permisos Específicos)
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    Estructura activa en el menú lateral y en las plantillas de roles.
+                                </p>
+                            </div>
+                        </div>
+                        <div id="catalogOverviewTree" class="space-y-4 max-h-[680px] overflow-y-auto pr-1">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================================================== -->
+            <!-- PESTAÑA 4: BITÁCORA DE AUDITORÍA DE SEGURIDAD                      -->
+            <!-- ================================================================== -->
+            <section id="tabSectionAudit" class="hidden space-y-4">
+                <div class="card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 p-6 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-white/10 pb-4">
+                        <div>
+                            <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">
+                                <i class="fa-solid fa-fingerprint text-[#FFC107] mr-2"></i>Bitácora de Auditoría de Roles y Permisos
+                            </h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                Trazabilidad completa de quién modificó roles, permisos individuales, asignaciones en lote o nuevas ventanas.
+                            </p>
+                        </div>
+                        <button type="button" onclick="loadAuditLogs()"
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-white/10 hover:bg-[#FFC107] hover:text-black transition-all flex items-center gap-1.5 self-start">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Actualizar Bitácora</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 dark:bg-[#16161c] text-slate-600 dark:text-slate-300 uppercase text-[11px] font-bold">
+                                <tr>
+                                    <th class="px-4 py-3">Fecha / Hora</th>
+                                    <th class="px-4 py-3">Administrador</th>
+                                    <th class="px-4 py-3">Acción</th>
+                                    <th class="px-4 py-3">Objetivo</th>
+                                    <th class="px-4 py-3">Detalle del Cambio</th>
+                                    <th class="px-4 py-3">Origen IP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody" class="divide-y divide-slate-200/70 dark:divide-white/5">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
         </main>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- MODAL JERÁRQUICO: DETALLAR MÓDULOS, DESPLEGABLES Y PERMISOS ESPECÍFICOS -->
+    <!-- ====================================================================== -->
+    <div id="userGranularModal" class="fixed inset-0 z-[500] hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-surface bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/15 rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50 dark:bg-[#14141a]">
+                <div class="flex items-center gap-3.5">
+                    <div id="modalUserAvatar" class="w-12 h-12 rounded-2xl bg-[#FFC107] text-black font-extrabold text-lg flex items-center justify-center shadow-sm">
+                        U
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 id="modalUserTitle" class="text-lg font-extrabold text-slate-900 dark:text-white">Nombre del Trabajador</h3>
+                            <span id="modalUserEmail" class="text-xs text-slate-400 font-medium"></span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            Selecciona el Rol base o despliega cada módulo para activar/desactivar sus desplegables y permisos específicos.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeGranularModal()" class="self-end sm:self-center w-9 h-9 rounded-xl bg-slate-200/70 dark:bg-white/10 hover:bg-red-500 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Barra Superior del Modal: Selector de Rol + Clonar de otro usuario + Buscador interno -->
+            <div class="px-6 py-3.5 bg-amber-500/5 border-b border-slate-200 dark:border-white/10 space-y-3">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <label class="text-xs font-extrabold uppercase tracking-wider text-amber-600 dark:text-[#D4AF37] flex items-center gap-1.5">
+                            <i class="fa-solid fa-id-badge"></i>
+                            <span>Rol Base:</span>
+                        </label>
+                        <select id="modalRoleSelector" onchange="onModalRoleChange(this.value)"
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-[#181820] border border-amber-500/40 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#FFC107]">
+                        </select>
+                        <button type="button" onclick="resetModalToRoleDefaults()"
+                            class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-[#D4AF37] border border-amber-500/30 hover:bg-amber-500/25"
+                            title="Restaurar exactamente a los permisos por defecto del Rol seleccionado">
+                            <i class="fa-solid fa-arrows-rotate mr-1"></i>Restaurar al Rol
+                        </button>
+                    </div>
+
+                    <!-- Clonar permisos desde otro usuario -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="modalCloneUserSelect" onchange="clonePermissionsFromUser(this.value)"
+                            class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-[#181820] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300">
+                            <option value="">📋 Copiar permisos de otro trabajador...</option>
+                        </select>
+                        <button type="button" onclick="modalToggleAll(true)" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25">
+                            Marcar Todo
+                        </button>
+                        <button type="button" onclick="modalToggleAll(false)" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500/25">
+                            Limpiar Todo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Buscador rápido dentro del árbol del modal -->
+                <div class="flex items-center justify-between gap-3">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="modalTreeSearch" oninput="filterModalTree(this.value)"
+                            placeholder="Filtrar desplegable o permiso específico (ej. Reporte, Flasheo, OZmap, VGT, Logs, VLAN)..."
+                            class="w-full pl-8 pr-4 py-1.5 rounded-xl text-xs bg-white dark:bg-[#181820] border border-slate-200 dark:border-white/10 focus:outline-none focus:border-[#FFC107]">
+                    </div>
+                    <span id="modalRoleDesc" class="text-[11px] text-slate-500 dark:text-slate-400 italic hidden md:inline"></span>
+                </div>
+            </div>
+
+            <!-- Cuerpo Scrollable: Acordeones por Módulo -> Desplegable -> Acciones específicas -->
+            <div id="modalHierarchyContainer" class="p-6 overflow-y-auto space-y-5 flex-1">
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-5 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#14141a] flex items-center justify-between gap-4">
+                <div id="modalPermCounter" class="text-xs font-semibold text-slate-500 dark:text-slate-400"></div>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="closeGranularModal()"
+                        class="px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-300 dark:border-white/15 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="saveModalUserPermissions()"
+                        class="px-6 py-2.5 rounded-xl text-xs font-extrabold bg-[#FFC107] hover:bg-[#F5C71D] text-black shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Guardar Rol y Permisos</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- MODAL CREAR / EDITAR PLANTILLA DE ROL                                  -->
+    <!-- ====================================================================== -->
+    <div id="roleEditorModal" class="fixed inset-0 z-[510] hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="card-surface bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/15 rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-[#14141a]">
+                <div>
+                    <h3 id="roleEditorTitle" class="text-lg font-extrabold text-slate-900 dark:text-white">Configurar Plantilla de Rol</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Define qué módulos, desplegables y permisos específicos tendrá este rol por defecto.</p>
+                </div>
+                <button type="button" onclick="closeRoleModal()" class="w-9 h-9 rounded-xl bg-slate-200/70 dark:bg-white/10 hover:bg-red-500 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 border-b border-slate-200 dark:border-white/10 grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs bg-slate-50/50 dark:bg-[#16161c]">
+                <div class="sm:col-span-5">
+                    <label class="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Nombre / Etiqueta del Rol *</label>
+                    <div class="flex items-center gap-1.5">
+                        <select id="role_edit_icon" onchange="autoFillRoleId()"
+                            class="px-2.5 py-2 rounded-xl bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 text-sm cursor-pointer focus:outline-none focus:border-[#FFC107]"
+                            title="Ícono de la etiqueta del rol">
+                            <option value="🛡️">🛡️</option>
+                            <option value="🎧">🎧</option>
+                            <option value="⚡">⚡</option>
+                            <option value="🛠️">🛠️</option>
+                            <option value="🏢">🏢</option>
+                            <option value="👑">👑</option>
+                            <option value="👤">👤</option>
+                            <option value="⚙️">⚙️</option>
+                            <option value="📡">📡</option>
+                        </select>
+                        <input type="text" id="role_edit_name" oninput="autoFillRoleId()" placeholder="Ej: Coordinador de Fibra"
+                            class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 font-bold focus:outline-none focus:border-[#FFC107]">
+                    </div>
+                </div>
+                <div class="sm:col-span-3">
+                    <label class="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1" title="Identificador interno único en Base de Datos (se genera automáticamente)">
+                        Código ID <span class="text-[10px] font-normal lowercase text-slate-400">(auto-generado)</span>
+                    </label>
+                    <input type="text" id="role_edit_id" placeholder="Ej: coordinador_de_fibra"
+                        class="w-full px-3 py-2 rounded-xl font-mono bg-slate-100 dark:bg-[#101014] border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400">
+                </div>
+                <div class="sm:col-span-4">
+                    <label class="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">Descripción</label>
+                    <input type="text" id="role_edit_desc" placeholder="Alcance del rol..."
+                        class="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 focus:outline-none focus:border-[#FFC107]">
+                </div>
+            </div>
+
+            <div id="roleHierarchyContainer" class="p-6 overflow-y-auto space-y-5 flex-1">
+            </div>
+
+            <div class="p-5 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#14141a] flex flex-col sm:flex-row items-center justify-between gap-3">
+                <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <input type="checkbox" id="role_sync_users" checked class="rounded border-slate-300 text-[#FFC107] focus:ring-[#FFC107]">
+                    <span>Actualizar automáticamente a los usuarios que tengan asignado este rol</span>
+                </label>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="closeRoleModal()" class="px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-300 dark:border-white/15">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="saveRoleTemplate()"
+                        class="px-6 py-2.5 rounded-xl text-xs font-extrabold bg-[#FFC107] hover:bg-[#F5C71D] text-black shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Guardar Plantilla de Rol</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================== -->
+    <!-- MENÚ DESPLEGABLE FLOTANTE MULTI-SELECCIÓN / ÚNICA / PERSONALIZAR       -->
+    <!-- ====================================================================== -->
+    <div id="smartSelectPopover" onclick="event.stopPropagation()" class="fixed z-[550] hidden bg-white dark:bg-[#14141c] border border-slate-200 dark:border-white/15 rounded-2xl shadow-2xl w-[360px] max-w-[94vw] overflow-hidden text-xs">
     </div>
 
     <div id="toast" class="toast"></div>
 
     <script>
-        function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
-            document.getElementById('mainContent').classList.toggle('expanded');
-        }
+        // =========================================================================
+        // ESTADO GLOBAL CARGADO DESDE EL BACKEND
+        // =========================================================================
+        let REGISTRY = {{ registry_json | safe }};
+        let USERS_LIST = {{ users_json | safe }};
 
+        let activeModalUserId = null;
+        let activeModalPerms = new Set();
+        let activeRoleEditPerms = new Set();
+        let selectedBulkUserIds = new Set();
+
+        // Estado para filtros de cabecera (permiten elegir uno solo, múltiples o todos)
+        let headerSelectedRoles = new Set();   // vacío = Todos los roles
+        let headerSelectedModules = new Set(); // vacío = Todos los módulos
+        let headerFilterOnlyCustom = false;
+
+        // Estado de roles múltiples por usuario en memoria y acordeón abierto dentro del desplegable
+        let userMultiRolesMap = {};
+        let openPopoverState = null; // { type: 'header-role'|'header-mod'|'row-role'|'row-mod', userId: null, expandedModId: null, anchorEl: null }
+
+        // =========================================================================
+        // UTILIDADES DE INTERFAZ
+        // =========================================================================
         function toggleDropdown() {
             document.getElementById('dropdownMenu').classList.toggle('active');
         }
 
-        window.onclick = function (e) {
+        window.addEventListener('click', function (e) {
             if (!e.target.matches('.user-profile img')) {
                 const dropdown = document.getElementById('dropdownMenu');
                 if (dropdown && dropdown.classList.contains('active')) {
                     dropdown.classList.remove('active');
                 }
             }
+            const pop = document.getElementById('smartSelectPopover');
+            if (pop && !pop.classList.contains('hidden')) {
+                if (!pop.contains(e.target) && !e.target.closest('[data-smart-dropdown-btn]')) {
+                    closeSmartPopover();
+                }
+            }
+        });
+
+        function closeSmartPopover() {
+            const pop = document.getElementById('smartSelectPopover');
+            if (pop) pop.classList.add('hidden');
+            openPopoverState = null;
+        }
+
+        function positionSmartPopover(anchorEl) {
+            const pop = document.getElementById('smartSelectPopover');
+            if (!pop || !anchorEl) return;
+            const isActionsMenu = openPopoverState && openPopoverState.type === 'row-actions';
+            const popWidth = isActionsMenu ? 210 : 360;
+            pop.style.width = `${popWidth}px`;
+            pop.classList.remove('hidden');
+            const rect = anchorEl.getBoundingClientRect();
+            let left = isActionsMenu ? (rect.right - popWidth) : rect.left;
+            if (left + popWidth > window.innerWidth - 16) {
+                left = Math.max(12, window.innerWidth - popWidth - 16);
+            }
+            if (left < 12) left = 12;
+            let top = rect.bottom + 6;
+            const popHeight = Math.min(pop.offsetHeight || 380, 440);
+            if (top + popHeight > window.innerHeight - 16 && rect.top > popHeight + 20) {
+                top = rect.top - popHeight - 6;
+            }
+            pop.style.left = `${left}px`;
+            pop.style.top = `${top}px`;
         }
 
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
-            t.textContent = msg;
+            t.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> <span>${msg}</span>`;
             t.className = `toast ${type} show`;
             setTimeout(() => { t.classList.remove('show'); }, 3500);
         }
 
-        async function savePermissions(userId) {
-            // Lista de los IDs de los checkboxes para este usuario
-            const keys = [
-                'cargar_datos_usuarios', 'ver_integracion', 'editar_directorio',
-                'perm_dashboard_read', 'perm_dashboard_write', 'perm_reporte', 'perm_aprov',
-                'perm_techs_read', 'perm_techs_write',
-                'ver_historico', 'perm_logs_read', 'perm_users_write'
-            ];
-            
-            let perms = [];
-            
-            keys.forEach(key => {
-                const cb = document.getElementById(`perm_${key}_${userId}`);
-                if (cb && cb.checked) {
-                    perms.push(key);
-                    if (key === 'perm_reporte') perms.push('ver_reportes');
-                    if (key === 'perm_aprov') perms.push('ver_flasheo', 'ver_aprovisionamiento');
+        function switchMainTab(tab) {
+            closeSmartPopover();
+            const tabs = ['users', 'roles', 'catalog', 'audit'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tabSection${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === tab) {
+                    sec.classList.remove('hidden');
+                    btn.className = "px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-[#FFC107] text-black shadow-sm";
+                } else {
+                    sec.classList.add('hidden');
+                    btn.className = "px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5";
                 }
             });
-            
-            const formData = new FormData();
-            formData.append('permissions', perms.join(','));
-            
-            try {
-                // Asumiendo que el mismo endpoint sigue disponible
-                const res = await fetch(`/api/rrhh/users/${userId}/permissions`, {
-                    method: 'POST',
-                    body: formData
-                });
-                if (res.ok) {
-                    showToast('Permisos guardados con éxito', 'success');
+            if (tab === 'roles') renderRolesGrid();
+            if (tab === 'catalog') renderCatalogTab();
+            if (tab === 'audit') loadAuditLogs();
+        }
+
+        function getRoleMeta(roleId) {
+            const clean = (roleId || 'user').toLowerCase();
+            return REGISTRY.roles.find(r => r.id === clean) || {
+                id: clean,
+                name: clean.toUpperCase(),
+                badge: `👤 ${clean.toUpperCase()}`,
+                color: 'slate',
+                permissions: []
+            };
+        }
+
+        function getRoleIcon(r) {
+            const b = (r && r.badge ? r.badge : '').trim();
+            const firstToken = b.split(' ')[0] || '🛡️';
+            return /^[^\w\s]/.test(firstToken) ? firstToken : '🛡️';
+        }
+
+        function getRoleUnifiedTitle(r) {
+            if (!r) return '👤 Usuario';
+            return `${getRoleIcon(r)} ${r.name || r.id}`;
+        }
+
+        function getUserSelectedRolesSet(u) {
+            if (!userMultiRolesMap[u.id] || userMultiRolesMap[u.id].size === 0) {
+                userMultiRolesMap[u.id] = new Set([(u.role || 'user').toLowerCase()]);
+            }
+            return userMultiRolesMap[u.id];
+        }
+
+        // Compara si los permisos actuales del usuario difieren de la plantilla estándar de su(s) Rol(es)
+        function hasCustomOverridesOverRole(userObj) {
+            const rId = (userObj.role || 'user').toLowerCase();
+            if (rId === 'admin') return false;
+            if (rId === 'personalizado') return true;
+            const selectedRoles = getUserSelectedRolesSet(userObj);
+            const expectedSet = new Set();
+            selectedRoles.forEach(rid => {
+                const rm = getRoleMeta(rid);
+                (rm.permissions || []).forEach(p => expectedSet.add(p));
+            });
+            const userSet = new Set(userObj.effective_permissions || []);
+            if (expectedSet.size !== userSet.size) return true;
+            for (let k of expectedSet) {
+                if (!userSet.has(k)) return true;
+            }
+            return false;
+        }
+
+        function updateHeaderFilterButtonsText() {
+            const roleLbl = document.getElementById('headerRoleFilterLabel');
+            if (roleLbl) {
+                if (headerFilterOnlyCustom) {
+                    roleLbl.textContent = '⚙️ Con ajustes a medida';
+                } else if (headerSelectedRoles.size === 0) {
+                    roleLbl.textContent = `Todos los Roles (${USERS_LIST.length})`;
+                } else if (headerSelectedRoles.size === 1) {
+                    const onlyId = Array.from(headerSelectedRoles)[0];
+                    roleLbl.textContent = getRoleMeta(onlyId).name;
                 } else {
-                    showToast('Error al guardar permisos', 'error');
+                    roleLbl.textContent = `${headerSelectedRoles.size} Roles seleccionados`;
+                }
+            }
+
+            const modLbl = document.getElementById('headerModuleFilterLabel');
+            if (modLbl) {
+                if (headerSelectedModules.size === 0) {
+                    modLbl.textContent = `Todos los Módulos (${REGISTRY.catalog.length})`;
+                } else if (headerSelectedModules.size === 1) {
+                    const onlyModId = Array.from(headerSelectedModules)[0];
+                    const m = REGISTRY.catalog.find(x => x.id === onlyModId);
+                    modLbl.textContent = m ? m.name : onlyModId;
+                } else {
+                    modLbl.textContent = `${headerSelectedModules.size} Módulos seleccionados`;
+                }
+            }
+        }
+
+        function updateHeaderStats() {
+            const totalMods = REGISTRY.catalog.length;
+            let totalSubs = 0;
+            let totalActs = 0;
+            REGISTRY.catalog.forEach(m => {
+                (m.dropdowns || []).forEach(s => {
+                    totalSubs++;
+                    totalActs += (s.actions || []).length;
+                });
+            });
+            const badge = document.getElementById('statsSummaryBadge');
+            if (badge) {
+                badge.textContent = `${REGISTRY.roles.length} Roles · ${totalMods} Módulos · ${totalSubs} Desplegables · ${totalActs} Permisos Específicos`;
+            }
+
+            // Poblar filtro de departamentos
+            const deptSel = document.getElementById('filterDeptSelect');
+            if (deptSel) {
+                const currentD = deptSel.value || 'ALL';
+                const depts = Array.from(new Set(USERS_LIST.map(u => u.department || 'General'))).sort();
+                let htmlD = `<option value="ALL">Todos los Departamentos</option>`;
+                depts.forEach(d => {
+                    htmlD += `<option value="${d}">${d}</option>`;
+                });
+                deptSel.innerHTML = htmlD;
+                deptSel.value = currentD;
+            }
+
+            // Poblar selector de rol en lote
+            const bulkSel = document.getElementById('bulkRoleSelect');
+            if (bulkSel) {
+                bulkSel.innerHTML = `<option value="">Asignar Rol en lote...</option>` + REGISTRY.roles.filter(r => r.id !== 'personalizado').map(r =>
+                    `<option value="${r.id}">${getRoleUnifiedTitle(r)}</option>`
+                ).join('');
+            }
+
+            updateHeaderFilterButtonsText();
+        }
+
+        // =========================================================================
+        // DESPLEGABLES DE CABECERA: ROL Y MÓDULO (UNO SOLO / MÚLTIPLES / PERSONALIZAR)
+        // =========================================================================
+        function openHeaderRoleDropdown(e, btnEl) {
+            e.stopPropagation();
+            if (openPopoverState && openPopoverState.type === 'header-role') {
+                closeSmartPopover();
+                return;
+            }
+            openPopoverState = { type: 'header-role', anchorEl: btnEl };
+            renderHeaderRolePopover();
+            positionSmartPopover(btnEl);
+        }
+
+        function renderHeaderRolePopover() {
+            const pop = document.getElementById('smartSelectPopover');
+            if (!pop) return;
+
+            const rolesHtml = REGISTRY.roles.map(r => {
+                const checked = headerSelectedRoles.has(r.id);
+                const count = USERS_LIST.filter(u => (u.role || 'user').toLowerCase() === r.id || getUserSelectedRolesSet(u).has(r.id)).length;
+                return `
+                    <div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                        <label class="flex items-center gap-2.5 flex-1 cursor-pointer min-w-0">
+                            <input type="checkbox" ${checked ? 'checked' : ''}
+                                onchange="toggleHeaderRoleMulti('${r.id}', this.checked)"
+                                class="w-4 h-4 rounded text-[#FFC107] focus:ring-[#FFC107]">
+                            <span class="font-bold text-slate-800 dark:text-slate-100 truncate">${getRoleUnifiedTitle(r)}</span>
+                        </label>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-500">${count}</span>
+                            <button type="button" onclick="selectHeaderSingleRole('${r.id}')"
+                                class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-[#D4AF37] hover:bg-[#FFC107] hover:text-black transition-colors"
+                                title="Filtrar únicamente por este rol">
+                                Solo
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            pop.innerHTML = `
+                <div class="p-3 bg-slate-50 dark:bg-[#181822] border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+                    <span class="font-extrabold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
+                        <i class="fa-solid fa-user-shield text-[#FFC107] mr-1"></i>Filtrar por Rol (Uno o Múltiples)
+                    </span>
+                    <button type="button" onclick="clearHeaderRoleFilter()" class="text-[11px] font-bold text-amber-600 dark:text-[#D4AF37] hover:underline">
+                        Ver Todos
+                    </button>
+                </div>
+                <div class="p-2 max-h-[270px] overflow-y-auto space-y-0.5">
+                    ${rolesHtml}
+                </div>
+                <div class="p-2.5 bg-slate-50 dark:bg-[#181822] border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+                    <button type="button" onclick="toggleHeaderCustomFilter()"
+                        class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold border ${headerFilterOnlyCustom ? 'bg-[#FFC107] text-black border-[#FFC107]' : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300'}">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Con ajustes a medida
+                    </button>
+                    <button type="button" onclick="switchMainTab('roles')"
+                        class="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-900 dark:bg-[#D4AF37] text-white dark:text-black hover:opacity-90">
+                        <i class="fa-solid fa-sliders mr-1"></i>Personalizar Roles
+                    </button>
+                </div>
+            `;
+        }
+
+        function toggleHeaderRoleMulti(roleId, checked) {
+            headerFilterOnlyCustom = false;
+            if (checked) headerSelectedRoles.add(roleId);
+            else headerSelectedRoles.delete(roleId);
+            updateHeaderFilterButtonsText();
+            renderHeaderRolePopover();
+            renderUsersTable();
+        }
+
+        function selectHeaderSingleRole(roleId) {
+            headerFilterOnlyCustom = false;
+            headerSelectedRoles = new Set([roleId]);
+            updateHeaderFilterButtonsText();
+            closeSmartPopover();
+            renderUsersTable();
+        }
+
+        function clearHeaderRoleFilter() {
+            headerFilterOnlyCustom = false;
+            headerSelectedRoles.clear();
+            updateHeaderFilterButtonsText();
+            closeSmartPopover();
+            renderUsersTable();
+        }
+
+        function toggleHeaderCustomFilter() {
+            headerSelectedRoles.clear();
+            headerFilterOnlyCustom = !headerFilterOnlyCustom;
+            updateHeaderFilterButtonsText();
+            closeSmartPopover();
+            renderUsersTable();
+        }
+
+        function openHeaderModuleDropdown(e, btnEl) {
+            e.stopPropagation();
+            if (openPopoverState && openPopoverState.type === 'header-mod') {
+                closeSmartPopover();
+                return;
+            }
+            openPopoverState = { type: 'header-mod', anchorEl: btnEl };
+            renderHeaderModulePopover();
+            positionSmartPopover(btnEl);
+        }
+
+        function renderHeaderModulePopover() {
+            const pop = document.getElementById('smartSelectPopover');
+            if (!pop) return;
+
+            const modsHtml = REGISTRY.catalog.map(m => {
+                const checked = headerSelectedModules.has(m.id);
+                const subCount = (m.dropdowns || []).length;
+                return `
+                    <div class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                        <label class="flex items-center gap-2.5 flex-1 cursor-pointer min-w-0">
+                            <input type="checkbox" ${checked ? 'checked' : ''}
+                                onchange="toggleHeaderModuleMulti('${m.id}', this.checked)"
+                                class="w-4 h-4 rounded text-[#FFC107] focus:ring-[#FFC107]">
+                            <i class="${m.icon || 'fa-solid fa-folder'} text-amber-500 w-4 text-center"></i>
+                            <span class="font-bold text-slate-800 dark:text-slate-100 truncate">${m.name}</span>
+                            <span class="text-[10px] text-slate-400">(${subCount} desp.)</span>
+                        </label>
+                        <button type="button" onclick="selectHeaderSingleModule('${m.id}')"
+                            class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-[#D4AF37] hover:bg-[#FFC107] hover:text-black transition-colors">
+                            Solo
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            pop.innerHTML = `
+                <div class="p-3 bg-slate-50 dark:bg-[#181822] border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+                    <span class="font-extrabold text-slate-800 dark:text-white uppercase tracking-wider text-[11px]">
+                        <i class="fa-solid fa-layer-group text-[#FFC107] mr-1"></i>Seleccionar Módulo (Uno o Múltiples)
+                    </span>
+                    <button type="button" onclick="clearHeaderModuleFilter()" class="text-[11px] font-bold text-amber-600 dark:text-[#D4AF37] hover:underline">
+                        Todos los Módulos
+                    </button>
+                </div>
+                <div class="p-2 max-h-[270px] overflow-y-auto space-y-0.5">
+                    ${modsHtml}
+                </div>
+                <div class="p-2.5 bg-slate-50 dark:bg-[#181822] border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+                    <span class="text-[10px] text-slate-400">Filtra o enfoca la columna Módulo</span>
+                    <button type="button" onclick="switchMainTab('catalog')"
+                        class="px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold bg-slate-900 dark:bg-[#D4AF37] text-white dark:text-black hover:opacity-90">
+                        <i class="fa-solid fa-plus mr-1"></i>Personalizar Módulos
+                    </button>
+                </div>
+            `;
+        }
+
+        function toggleHeaderModuleMulti(modId, checked) {
+            if (checked) headerSelectedModules.add(modId);
+            else headerSelectedModules.delete(modId);
+            updateHeaderFilterButtonsText();
+            renderHeaderModulePopover();
+            renderUsersTable();
+        }
+
+        function selectHeaderSingleModule(modId) {
+            headerSelectedModules = new Set([modId]);
+            updateHeaderFilterButtonsText();
+            closeSmartPopover();
+            renderUsersTable();
+        }
+
+        function clearHeaderModuleFilter() {
+            headerSelectedModules.clear();
+            updateHeaderFilterButtonsText();
+            closeSmartPopover();
+            renderUsersTable();
+        }
+
+        // =========================================================================
+        // DESPLEGABLES POR FILA DE TRABAJADOR (ROL Y MÓDULO)
+        // Permiten elegir: Uno solo, Múltiples o Personalizar las selecciones
+        // =========================================================================
+        function openRowRoleDropdown(e, userId, btnEl) {
+            e.stopPropagation();
+            if (openPopoverState && openPopoverState.type === 'row-role' && openPopoverState.userId === userId) {
+                closeSmartPopover();
+                return;
+            }
+            openPopoverState = { type: 'row-role', userId: userId, anchorEl: btnEl };
+            renderRowRolePopover(userId);
+            positionSmartPopover(btnEl);
+        }
+
+        function renderRowRolePopover(userId) {
+            const pop = document.getElementById('smartSelectPopover');
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!pop || !u) return;
+
+            const selectedRoles = getUserSelectedRolesSet(u);
+            const hasOverrides = hasCustomOverridesOverRole(u);
+
+            const rolesListHtml = REGISTRY.roles.filter(r => r.id !== 'personalizado').map(r => {
+                const isChecked = selectedRoles.has(r.id);
+                return `
+                    <div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                        <label class="flex items-center gap-2.5 flex-1 cursor-pointer min-w-0" title="Marcar para combinar múltiples roles">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''}
+                                onchange="toggleUserMultiRole(${u.id}, '${r.id}', this.checked)"
+                                class="w-4 h-4 rounded text-[#FFC107] focus:ring-[#FFC107]">
+                            <span class="font-bold text-slate-800 dark:text-slate-100 truncate">${getRoleUnifiedTitle(r)}</span>
+                        </label>
+                        <button type="button" onclick="selectUserSingleRole(${u.id}, '${r.id}')"
+                            class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-[#D4AF37] hover:bg-[#FFC107] hover:text-black transition-colors shrink-0"
+                            title="Elegir únicamente este rol">
+                            Elegir 1
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            pop.innerHTML = `
+                <div class="p-3 bg-slate-50 dark:bg-[#181822] border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+                    <div class="truncate">
+                        <span class="font-extrabold text-slate-900 dark:text-white block text-[11px] uppercase tracking-wider">
+                            Rol de ${u.full_name}
+                        </span>
+                        <span class="text-[10px] text-slate-400">Elige uno solo o marca múltiples</span>
+                    </div>
+                    ${hasOverrides ? `
+                        <button type="button" onclick="restoreRowToRoleDefault(${u.id}); closeSmartPopover();"
+                            class="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-[#D4AF37] hover:bg-amber-500/25 shrink-0">
+                            <i class="fa-solid fa-rotate-left mr-1"></i>Restaurar
+                        </button>
+                    ` : ''}
+                </div>
+                <div class="p-2 max-h-[280px] overflow-y-auto space-y-0.5">
+                    ${rolesListHtml}
+                </div>
+            `;
+        }
+
+        function applyUserRolesSetToPerms(u) {
+            const rolesSet = getUserSelectedRolesSet(u);
+            if (rolesSet.has('admin')) {
+                u.role = 'admin';
+                u.effective_permissions = [...REGISTRY.all_keys];
+                return;
+            }
+            const arr = Array.from(rolesSet);
+            u.role = arr[0] || 'user';
+            const mergedPerms = new Set();
+            arr.forEach(rid => {
+                const rm = getRoleMeta(rid);
+                (rm.permissions || []).forEach(p => mergedPerms.add(p));
+            });
+            u.effective_permissions = Array.from(mergedPerms);
+        }
+
+        function selectUserSingleRole(userId, roleId) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            userMultiRolesMap[userId] = new Set([roleId]);
+            applyUserRolesSetToPerms(u);
+            closeSmartPopover();
+            renderUsersTable();
+        }
+
+        function toggleUserMultiRole(userId, roleId, checked) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            const rolesSet = getUserSelectedRolesSet(u);
+            if (checked) {
+                rolesSet.add(roleId);
+            } else {
+                rolesSet.delete(roleId);
+                if (rolesSet.size === 0) rolesSet.add('user');
+            }
+            applyUserRolesSetToPerms(u);
+            renderRowRolePopover(userId);
+            renderUsersTable();
+        }
+
+        function openRowModuleDropdown(e, userId, btnEl) {
+            e.stopPropagation();
+            if (openPopoverState && openPopoverState.type === 'row-mod' && openPopoverState.userId === userId) {
+                closeSmartPopover();
+                return;
+            }
+            const defaultExpanded = headerSelectedModules.size === 1
+                ? Array.from(headerSelectedModules)[0]
+                : (REGISTRY.catalog[0] ? REGISTRY.catalog[0].id : null);
+            openPopoverState = {
+                type: 'row-mod',
+                userId: userId,
+                expandedModId: defaultExpanded,
+                anchorEl: btnEl
+            };
+            const pop = document.getElementById('smartSelectPopover');
+            if (pop) pop.style.width = '360px';
+            renderRowModulePopover(userId);
+            positionSmartPopover(btnEl);
+        }
+
+        function togglePopoverExpandedModule(e, userId, modId) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            if (!openPopoverState) return;
+            openPopoverState.expandedModId = (openPopoverState.expandedModId === modId) ? null : modId;
+            renderRowModulePopover(userId);
+        }
+
+        function renderRowModulePopover(userId) {
+            const pop = document.getElementById('smartSelectPopover');
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!pop || !u) return;
+
+            const isAdmin = (u.role || '').toLowerCase() === 'admin';
+            const effSet = new Set(u.effective_permissions || []);
+            const expandedModId = openPopoverState ? openPopoverState.expandedModId : null;
+
+            const modulesHtml = REGISTRY.catalog.map(m => {
+                const subs = m.dropdowns || [];
+                const activeSubCount = isAdmin ? subs.length : subs.filter(s => effSet.has(s.id)).length;
+                const modChecked = activeSubCount > 0;
+                const isExpanded = expandedModId === m.id;
+
+                const subsHtml = subs.map(s => {
+                    const subActive = isAdmin || effSet.has(s.id);
+                    const totalActs = (s.actions || []).length;
+                    const activeActs = isAdmin ? totalActs : (s.actions || []).filter(a => effSet.has(a.id)).length;
+                    return `
+                        <div class="flex items-center justify-between gap-2 pl-6 pr-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5">
+                            <label class="flex items-center gap-2 flex-1 cursor-pointer min-w-0">
+                                <input type="checkbox" ${subActive ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}
+                                    onchange="quickToggleDropdown(${u.id}, '${s.id}', this.checked); renderRowModulePopover(${u.id});"
+                                    class="w-3.5 h-3.5 rounded text-[#FFC107] focus:ring-[#FFC107]">
+                                <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate">${s.name.replace(' (Power Track)', '')}</span>
+                            </label>
+                            <button type="button" onclick="closeSmartPopover(); openGranularModal(${u.id}, '${s.id}');"
+                                class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-amber-600 dark:text-[#D4AF37] hover:bg-[#FFC107] hover:text-black shrink-0"
+                                title="Personalizar permisos específicos de ${s.name}">
+                                ${activeActs}/${totalActs} ⚙️
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="rounded-xl border ${modChecked ? 'border-amber-500/30 bg-amber-500/[0.03]' : 'border-slate-200/70 dark:border-white/10'} overflow-hidden">
+                        <div class="flex items-center justify-between gap-1.5 px-2.5 py-2">
+                            <div class="flex items-center gap-2 min-w-0 flex-1">
+                                <input type="checkbox" ${modChecked ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}
+                                    onchange="quickToggleModule(${u.id}, '${m.id}', this.checked); renderRowModulePopover(${u.id});"
+                                    class="w-4 h-4 rounded text-[#FFC107] focus:ring-[#FFC107] cursor-pointer">
+                                <button type="button" onclick="togglePopoverExpandedModule(event, ${u.id}, '${m.id}')"
+                                    class="flex items-center gap-2 min-w-0 flex-1 text-left cursor-pointer">
+                                    <i class="${m.icon || 'fa-solid fa-folder'} text-amber-500 w-4 text-center"></i>
+                                    <span class="font-extrabold text-slate-800 dark:text-slate-100 truncate">${m.name}</span>
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-500">${activeSubCount}/${subs.length}</span>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0">
+                                ${!isAdmin ? `
+                                    <button type="button" onclick="selectOnlySingleUserModule(${u.id}, '${m.id}')"
+                                        class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-[#D4AF37] hover:bg-[#FFC107] hover:text-black"
+                                        title="Dejar activo únicamente el módulo ${m.name}">
+                                        Solo 1
+                                    </button>
+                                ` : ''}
+                                <button type="button" onclick="togglePopoverExpandedModule(event, ${u.id}, '${m.id}')"
+                                    class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                                    title="Desplegar ventanas de ${m.name}">
+                                    <i class="fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${isExpanded ? `<div class="px-2 pb-2 pt-1 border-t border-slate-200/60 dark:border-white/5 space-y-0.5 bg-white/60 dark:bg-black/20">${subsHtml}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            pop.innerHTML = `
+                <div class="p-3 bg-slate-50 dark:bg-[#181822] border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+                    <div class="truncate">
+                        <span class="font-extrabold text-slate-900 dark:text-white block text-[11px] uppercase tracking-wider">
+                            Módulos y Desplegables · ${u.full_name}
+                        </span>
+                        <span class="text-[10px] text-slate-400">Elige uno solo, marca múltiples o pulsa ⚙️</span>
+                    </div>
+                </div>
+                <div class="p-2.5 max-h-[320px] overflow-y-auto space-y-1.5">
+                    ${modulesHtml}
+                </div>
+            `;
+        }
+
+        function openRowActionsDropdown(e, userId, btnEl) {
+            e.stopPropagation();
+            if (openPopoverState && openPopoverState.type === 'row-actions' && openPopoverState.userId === userId) {
+                closeSmartPopover();
+                return;
+            }
+            openPopoverState = {
+                type: 'row-actions',
+                userId: userId,
+                anchorEl: btnEl
+            };
+            const pop = document.getElementById('smartSelectPopover');
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!pop || !u) return;
+
+            pop.style.width = '220px';
+            const hasOverrides = hasCustomOverridesOverRole(u);
+
+            pop.innerHTML = `
+                <div class="p-1.5 space-y-1">
+                    <button type="button" onclick="closeSmartPopover(); openGranularModal(${u.id});"
+                        class="w-full px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 flex items-center gap-2.5 transition-colors text-left">
+                        <i class="fa-solid fa-sliders text-[#FFC107] w-4 text-center"></i>
+                        <span>Personalizar</span>
+                    </button>
+                    ${hasOverrides ? `
+                    <button type="button" onclick="closeSmartPopover(); restoreRowToRoleDefault(${u.id});"
+                        class="w-full px-3 py-2 rounded-xl text-xs font-bold text-amber-600 dark:text-[#D4AF37] hover:bg-amber-500/10 flex items-center gap-2.5 transition-colors text-left">
+                        <i class="fa-solid fa-rotate-left w-4 text-center"></i>
+                        <span>Restaurar plantilla</span>
+                    </button>
+                    ` : ''}
+                    <div class="border-t border-slate-200/70 dark:border-white/10 my-1"></div>
+                    <button type="button" onclick="closeSmartPopover(); saveQuickUserRow(${u.id});"
+                        class="w-full px-3 py-2 rounded-xl text-xs font-extrabold bg-[#1A1A1A] dark:bg-[#D4AF37] text-white dark:text-black hover:opacity-90 flex items-center gap-2.5 transition-all text-left shadow-xs">
+                        <i class="fa-solid fa-check w-4 text-center"></i>
+                        <span>Guardar</span>
+                    </button>
+                </div>
+            `;
+            positionSmartPopover(btnEl);
+        }
+
+        function selectOnlySingleUserModule(userId, modId) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            const mod = REGISTRY.catalog.find(m => m.id === modId);
+            if (!mod) return;
+            const newEff = new Set([mod.id]);
+            (mod.dropdowns || []).forEach(s => {
+                newEff.add(s.id);
+                (s.legacy_keys || []).forEach(k => newEff.add(k));
+                (s.actions || []).forEach(a => newEff.add(a.id));
+            });
+            u.effective_permissions = Array.from(newEff);
+            openPopoverState.expandedModId = modId;
+            renderRowModulePopover(userId);
+            renderUsersTable();
+        }
+
+        // =========================================================================
+        // 1. TABLA DE USUARIOS: TODO ALINEADO EN UNA SOLA FILA
+        // =========================================================================
+        function getFilteredUsers() {
+            const search = (document.getElementById('permisosSearch')?.value || '').toLowerCase().trim();
+            const deptFilter = document.getElementById('filterDeptSelect')?.value || 'ALL';
+
+            return USERS_LIST.filter(u => {
+                const text = `${u.full_name} ${u.username} ${u.email} ${u.department} ${u.cargo}`.toLowerCase();
+                if (search && !text.includes(search)) return false;
+                if (deptFilter !== 'ALL' && (u.department || 'General') !== deptFilter) return false;
+
+                if (headerFilterOnlyCustom) {
+                    if (!hasCustomOverridesOverRole(u)) return false;
+                } else if (headerSelectedRoles.size > 0) {
+                    const userRoles = getUserSelectedRolesSet(u);
+                    const baseMatch = headerSelectedRoles.has((u.role || 'user').toLowerCase());
+                    const multiMatch = Array.from(userRoles).some(r => headerSelectedRoles.has(r));
+                    if (!baseMatch && !multiMatch) return false;
+                }
+
+                return true;
+            });
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersPermissionsTableBody');
+            if (!tbody) return;
+
+            const filtered = getFilteredUsers();
+            const scopedModules = headerSelectedModules.size > 0
+                ? REGISTRY.catalog.filter(m => headerSelectedModules.has(m.id))
+                : REGISTRY.catalog;
+
+            tbody.innerHTML = filtered.map(u => {
+                const isAdmin = (u.role || '').toLowerCase() === 'admin';
+                const effSet = new Set(u.effective_permissions || []);
+                const hasOverrides = hasCustomOverridesOverRole(u);
+                const isSelected = selectedBulkUserIds.has(u.id);
+                const userRoles = getUserSelectedRolesSet(u);
+
+                // Resumen en 1 sola línea para el desplegable de ROL (Nombre + Etiqueta integrados)
+                let roleBtnText = '';
+                if (isAdmin) {
+                    roleBtnText = getRoleUnifiedTitle(getRoleMeta('admin'));
+                } else if (userRoles.size > 1) {
+                    const names = Array.from(userRoles).map(rid => getRoleUnifiedTitle(getRoleMeta(rid)));
+                    roleBtnText = `🔗 ${userRoles.size} Roles (${names.join(' + ')})`;
+                } else {
+                    roleBtnText = getRoleUnifiedTitle(getRoleMeta(u.role));
+                }
+
+                // Resumen en 1 sola línea para el desplegable de MÓDULO
+                const activeMods = [];
+                let totalScopedSubs = 0;
+                let activeScopedSubs = 0;
+                scopedModules.forEach(m => {
+                    const subs = m.dropdowns || [];
+                    totalScopedSubs += subs.length;
+                    const actCount = isAdmin ? subs.length : subs.filter(s => effSet.has(s.id)).length;
+                    activeScopedSubs += actCount;
+                    if (actCount > 0) {
+                        activeMods.push(`${m.name} (${actCount}/${subs.length})`);
+                    }
+                });
+
+                let moduleBtnSummary = '';
+                if (isAdmin) {
+                    moduleBtnSummary = `👑 Todos los Módulos (${scopedModules.length}/${scopedModules.length} · ${totalScopedSubs} desp.)`;
+                } else if (activeMods.length === 0) {
+                    moduleBtnSummary = `Sin módulos activos (0/${totalScopedSubs} desplegables)`;
+                } else if (activeMods.length === 1) {
+                    moduleBtnSummary = `📂 ${activeMods[0]}`;
+                } else {
+                    moduleBtnSummary = `📂 ${activeMods.length} Módulos: ${activeMods.join(' · ')}`;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50/90 dark:hover:bg-white/[0.02] transition-colors whitespace-nowrap ${isAdmin ? 'bg-amber-500/[0.03]' : ''}">
+                        <td class="px-3 py-2.5 text-center">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleBulkUser(${u.id}, this.checked)"
+                                class="w-4 h-4 rounded text-[#FFC107] focus:ring-[#FFC107]">
+                        </td>
+
+                        <!-- TRABAJADOR (En una sola fila) -->
+                        <td class="px-4 py-2.5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FFC107] to-amber-600 text-black font-extrabold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                                    ${(u.full_name || u.username || 'U').trim().charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="font-bold text-slate-900 dark:text-white text-xs truncate">${u.full_name}</span>
+                                    <span class="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 text-slate-500 font-semibold">${u.department || 'General'}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- COLUMNA ROL: Solo el desplegable selector en una sola fila -->
+                        <td class="px-4 py-2.5 border-l border-slate-100 dark:border-white/5">
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" data-smart-dropdown-btn="1" onclick="openRowRoleDropdown(event, ${u.id}, this)"
+                                    class="flex-1 max-w-[270px] px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-50 dark:bg-[#16161c] border ${hasOverrides ? 'border-amber-500/50 text-amber-700 dark:text-[#D4AF37]' : 'border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100'} hover:border-[#FFC107] transition-all flex items-center justify-between gap-2">
+                                    <span class="truncate">${roleBtnText}</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0"></i>
+                                </button>
+                                ${hasOverrides ? `
+                                    <button type="button" onclick="restoreRowToRoleDefault(${u.id})"
+                                        class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-[#D4AF37] hover:bg-[#FFC107] hover:text-black flex items-center justify-center shrink-0"
+                                        title="Tiene ajustes personalizados. Clic para restaurar a la plantilla del rol">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-[11px]"></i>
+                                    </button>
+                                ` : `
+                                    <span class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0" title="Sincronizado con plantilla">
+                                        <i class="fa-solid fa-check text-[11px]"></i>
+                                    </span>
+                                `}
+                            </div>
+                        </td>
+
+                        <!-- COLUMNA MÓDULO: Solo el desplegable selector en una sola fila -->
+                        <td class="px-4 py-2.5 border-x border-slate-100 dark:border-white/5">
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" data-smart-dropdown-btn="1" onclick="openRowModuleDropdown(event, ${u.id}, this)"
+                                    class="flex-1 max-w-[380px] px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-50 dark:bg-[#16161c] border ${activeScopedSubs > 0 ? 'border-amber-500/35 text-slate-900 dark:text-white' : 'border-slate-200 dark:border-white/10 text-slate-400'} hover:border-[#FFC107] transition-all flex items-center justify-between gap-2">
+                                    <span class="truncate">${moduleBtnSummary}</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- MENÚ DE 3 PUNTOS (Personalizar / Guardar) -->
+                        <td class="px-5 py-2.5 text-right">
+                            <button type="button" data-smart-dropdown-btn="1" onclick="openRowActionsDropdown(event, ${u.id}, this)"
+                                class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#1c1c24] hover:bg-[#FFC107] hover:text-black text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10 transition-all inline-flex items-center justify-center"
+                                title="Opciones de fila (Personalizar / Guardar)">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Selección en Lote
+        function toggleBulkUser(userId, checked) {
+            if (checked) selectedBulkUserIds.add(userId);
+            else selectedBulkUserIds.delete(userId);
+            document.getElementById('bulkSelectedCount').textContent = `${selectedBulkUserIds.size} seleccionados`;
+        }
+
+        function toggleSelectAllUsers(checked) {
+            const filtered = getFilteredUsers();
+            filtered.forEach(u => {
+                if (checked) selectedBulkUserIds.add(u.id);
+                else selectedBulkUserIds.delete(u.id);
+            });
+            document.getElementById('bulkSelectedCount').textContent = `${selectedBulkUserIds.size} seleccionados`;
+            renderUsersTable();
+        }
+
+        async function applyBulkRole() {
+            const roleId = document.getElementById('bulkRoleSelect').value;
+            if (selectedBulkUserIds.size === 0) {
+                showToast('Selecciona al menos un trabajador en la tabla', 'error');
+                return;
+            }
+            if (!roleId) {
+                showToast('Selecciona el Rol que deseas aplicar en lote', 'error');
+                return;
+            }
+            try {
+                const res = await fetch('/api/permisos/bulk-assign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_ids: Array.from(selectedBulkUserIds),
+                        role: roleId
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    (data.updated_users || []).forEach(upd => {
+                        const localU = USERS_LIST.find(x => x.id === upd.id);
+                        if (localU) {
+                            localU.role = upd.role;
+                            localU.effective_permissions = upd.effective_permissions;
+                        }
+                    });
+                    selectedBulkUserIds.clear();
+                    document.getElementById('selectAllUsersChk').checked = false;
+                    document.getElementById('bulkSelectedCount').textContent = '0 seleccionados';
+                    renderUsersTable();
+                    updateHeaderStats();
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.detail || 'Error en asignación masiva', 'error');
+                }
+            } catch (e) {
+                showToast('Error de red al aplicar en lote', 'error');
+            }
+        }
+
+        function restoreRowToRoleDefault(userId) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            const roleMeta = getRoleMeta(u.role);
+            u.effective_permissions = [...(roleMeta.permissions || [])];
+            renderUsersTable();
+            showToast(`Permisos de ${u.full_name} restaurados a la plantilla de ${roleMeta.name}. Pulsa Guardar para confirmar.`);
+        }
+
+        function onRowRoleQuickChange(userId, newRoleId) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            u.role = newRoleId;
+            if (newRoleId === 'admin') {
+                u.effective_permissions = [...REGISTRY.all_keys];
+            } else if (newRoleId !== 'personalizado') {
+                const roleObj = getRoleMeta(newRoleId);
+                u.effective_permissions = [...(roleObj.permissions || [])];
+            }
+            renderUsersTable();
+        }
+
+        // Mejor Práctica: Mantener el Rol Base del trabajador y marcar que tiene ajustes personalizados
+        function quickToggleDropdown(userId, subId, checked) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            const eff = new Set(u.effective_permissions || []);
+
+            let targetMod = null;
+            let targetSub = null;
+            REGISTRY.catalog.forEach(m => {
+                (m.dropdowns || []).forEach(s => {
+                    if (s.id === subId) {
+                        targetMod = m;
+                        targetSub = s;
+                    }
+                });
+            });
+            if (!targetSub) return;
+
+            if (checked) {
+                eff.add(targetMod.id);
+                eff.add(targetSub.id);
+                (targetSub.legacy_keys || []).forEach(k => eff.add(k));
+                (targetSub.actions || []).forEach(a => eff.add(a.id));
+            } else {
+                eff.delete(targetSub.id);
+                (targetSub.legacy_keys || []).forEach(k => eff.delete(k));
+                (targetSub.actions || []).forEach(a => eff.delete(a.id));
+            }
+
+            u.effective_permissions = Array.from(eff);
+            renderUsersTable();
+        }
+
+        function quickToggleModule(userId, modId, checked) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            const eff = new Set(u.effective_permissions || []);
+            const mod = REGISTRY.catalog.find(m => m.id === modId);
+            if (!mod) return;
+
+            if (checked) {
+                eff.add(mod.id);
+                (mod.dropdowns || []).forEach(s => {
+                    eff.add(s.id);
+                    (s.legacy_keys || []).forEach(k => eff.add(k));
+                    (s.actions || []).forEach(a => eff.add(a.id));
+                });
+            } else {
+                eff.delete(mod.id);
+                (mod.dropdowns || []).forEach(s => {
+                    eff.delete(s.id);
+                    (s.legacy_keys || []).forEach(k => eff.delete(k));
+                    (s.actions || []).forEach(a => eff.delete(a.id));
+                });
+            }
+
+            u.effective_permissions = Array.from(eff);
+            renderUsersTable();
+        }
+
+        async function saveQuickUserRow(userId) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            try {
+                const res = await fetch(`/api/permisos/users/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        role: u.role,
+                        permissions: u.effective_permissions
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    u.effective_permissions = data.user.effective_permissions;
+                    u.role = data.user.role;
+                    renderUsersTable();
+                    updateHeaderStats();
+                    showToast(data.message || 'Permisos actualizados con éxito', 'success');
+                } else {
+                    showToast(data.detail || 'Error al guardar permisos', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión con el servidor', 'error');
+            }
+        }
+
+        // =========================================================================
+        // 2. MODAL JERÁRQUICO POR MÓDULO -> DESPLEGABLE -> PERMISOS ESPECÍFICOS
+        // =========================================================================
+        function openGranularModal(userId, focusTargetId = null) {
+            const u = USERS_LIST.find(x => x.id === userId);
+            if (!u) return;
+            activeModalUserId = userId;
+            activeModalPerms = new Set(u.effective_permissions || []);
+
+            document.getElementById('modalUserTitle').textContent = u.full_name;
+            document.getElementById('modalUserEmail').textContent = `(${u.username} · ${u.email})`;
+            document.getElementById('modalUserAvatar').textContent = (u.full_name || u.username || 'U').charAt(0).toUpperCase();
+            document.getElementById('modalTreeSearch').value = '';
+
+            const roleSel = document.getElementById('modalRoleSelector');
+            roleSel.innerHTML = REGISTRY.roles.map(r =>
+                `<option value="${r.id}">${getRoleUnifiedTitle(r)}</option>`
+            ).join('');
+            roleSel.value = (u.role || 'user').toLowerCase();
+
+            // Selector para clonar permisos de otro trabajador
+            const cloneSel = document.getElementById('modalCloneUserSelect');
+            cloneSel.innerHTML = `<option value="">📋 Copiar permisos de otro trabajador...</option>` +
+                USERS_LIST.filter(other => other.id !== userId).map(other =>
+                    `<option value="${other.id}">${other.full_name} (${getRoleUnifiedTitle(getRoleMeta(other.role))})</option>`
+                ).join('');
+
+            const roleMeta = getRoleMeta(roleSel.value);
+            document.getElementById('modalRoleDesc').textContent = roleMeta.description || '';
+
+            renderHierarchyTree('modalHierarchyContainer', activeModalPerms, 'user', roleSel.value === 'admin');
+            updateModalCounter();
+
+            document.getElementById('userGranularModal').classList.remove('hidden');
+
+            if (focusTargetId) {
+                setTimeout(() => {
+                    const el = document.getElementById(`tree_target_${focusTargetId}`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+
+        function closeGranularModal() {
+            document.getElementById('userGranularModal').classList.add('hidden');
+            activeModalUserId = null;
+        }
+
+        function onModalRoleChange(newRoleId) {
+            const roleMeta = getRoleMeta(newRoleId);
+            document.getElementById('modalRoleDesc').textContent = roleMeta.description || '';
+
+            if (newRoleId === 'admin') {
+                activeModalPerms = new Set(REGISTRY.all_keys);
+            } else if (newRoleId !== 'personalizado') {
+                activeModalPerms = new Set(roleMeta.permissions || []);
+            }
+            renderHierarchyTree('modalHierarchyContainer', activeModalPerms, 'user', newRoleId === 'admin');
+            updateModalCounter();
+        }
+
+        function resetModalToRoleDefaults() {
+            const roleId = document.getElementById('modalRoleSelector').value;
+            onModalRoleChange(roleId);
+            showToast('Permisos restaurados a la plantilla base del rol seleccionado');
+        }
+
+        function clonePermissionsFromUser(sourceUserId) {
+            if (!sourceUserId) return;
+            const src = USERS_LIST.find(x => String(x.id) === String(sourceUserId));
+            if (!src) return;
+            document.getElementById('modalRoleSelector').value = (src.role || 'user').toLowerCase();
+            activeModalPerms = new Set(src.effective_permissions || []);
+            renderHierarchyTree('modalHierarchyContainer', activeModalPerms, 'user', (src.role || '').toLowerCase() === 'admin');
+            updateModalCounter();
+            showToast(`Permisos copiados desde ${src.full_name}`);
+        }
+
+        function filterModalTree(query) {
+            const q = (query || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('#modalHierarchyContainer [data-searchable-sub]');
+            cards.forEach(card => {
+                const txt = (card.getAttribute('data-searchable-sub') || '').toLowerCase();
+                card.style.display = (!q || txt.includes(q)) ? '' : 'none';
+            });
+        }
+
+        function modalToggleAll(enable) {
+            const roleSel = document.getElementById('modalRoleSelector');
+            if (roleSel.value === 'admin') return;
+            activeModalPerms = enable ? new Set(REGISTRY.all_keys) : new Set();
+            renderHierarchyTree('modalHierarchyContainer', activeModalPerms, 'user', false);
+            updateModalCounter();
+        }
+
+        function updateModalCounter() {
+            const el = document.getElementById('modalPermCounter');
+            if (!el) return;
+            let activeSubs = 0;
+            let activeActs = 0;
+            REGISTRY.catalog.forEach(m => {
+                (m.dropdowns || []).forEach(s => {
+                    if (activeModalPerms.has(s.id)) activeSubs++;
+                    (s.actions || []).forEach(a => {
+                        if (activeModalPerms.has(a.id)) activeActs++;
+                    });
+                });
+            });
+            el.innerHTML = `<i class="fa-solid fa-check-double text-[#FFC107] mr-1"></i> <strong>${activeSubs}</strong> desplegables habilitados y <strong>${activeActs}</strong> permisos específicos activos`;
+        }
+
+        // Renderizador reutilizable del árbol de 3 niveles (Módulo -> Desplegable -> Acciones Específicas)
+        function renderHierarchyTree(containerId, permSet, contextMode = 'user', isLockedAdmin = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const typeBadgeMap = {
+                read: { label: 'LECTURA / VER', cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' },
+                create: { label: 'CREAR / REGISTRAR', cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' },
+                write: { label: 'OPERACIÓN / EDITAR', cls: 'bg-amber-500/15 text-amber-600 dark:text-[#D4AF37] border-amber-500/30' },
+                delete: { label: 'ELIMINAR / ANULAR', cls: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' },
+                export: { label: 'EXPORTAR / DESCARGA', cls: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20' },
+                admin: { label: 'ADMIN / CRÍTICO', cls: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30' }
+            };
+
+            container.innerHTML = REGISTRY.catalog.map(mod => {
+                const dropdowns = mod.dropdowns || [];
+                const activeSubCount = dropdowns.filter(s => permSet.has(s.id)).length;
+                const modChecked = activeSubCount > 0 || permSet.has(mod.id);
+
+                const dropdownsHtml = dropdowns.map(sub => {
+                    const actions = sub.actions || [];
+                    const activeActCount = actions.filter(a => permSet.has(a.id)).length;
+                    const subChecked = permSet.has(sub.id) || activeActCount > 0;
+                    const searchableText = `${mod.name} ${sub.name} ${sub.route} ${actions.map(a => a.name).join(' ')}`;
+
+                    const actionsHtml = actions.map(act => {
+                        const actChecked = permSet.has(act.id);
+                        const badge = typeBadgeMap[act.type || 'read'] || typeBadgeMap.read;
+                        return `
+                            <label class="flex items-center justify-between gap-2 p-2.5 rounded-xl border transition-all cursor-pointer ${actChecked ? 'bg-amber-500/[0.07] border-amber-500/40 text-slate-900 dark:text-white' : 'bg-white dark:bg-[#121218] border-slate-200/80 dark:border-white/5 text-slate-500 dark:text-slate-400'}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <input type="checkbox" ${actChecked ? 'checked' : ''} ${isLockedAdmin ? 'disabled' : ''}
+                                        onchange="onTreeActionToggle('${contextMode}', '${mod.id}', '${sub.id}', '${act.id}', this.checked)"
+                                        class="w-4 h-4 rounded text-[#FFC107] focus:ring-[#FFC107] border-slate-300">
+                                    <span class="text-xs font-semibold truncate" title="${act.name}">${act.name}</span>
+                                </div>
+                                <span class="px-2 py-0.5 rounded text-[9px] font-extrabold border shrink-0 ${badge.cls}">
+                                    ${badge.label}
+                                </span>
+                            </label>
+                        `;
+                    }).join('');
+
+                    return `
+                        <div id="tree_target_${sub.id}" data-searchable-sub="${searchableText}" class="sub-surface bg-slate-50/80 dark:bg-[#16161c] rounded-xl border ${subChecked ? 'border-slate-300 dark:border-white/15' : 'border-slate-200/60 dark:border-white/5 opacity-75'} p-4 transition-all">
+                            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-200/70 dark:border-white/10">
+                                <div class="flex items-center gap-2.5">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" ${subChecked ? 'checked' : ''} ${isLockedAdmin ? 'disabled' : ''}
+                                            onchange="onTreeDropdownToggle('${contextMode}', '${mod.id}', '${sub.id}', this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="${sub.icon || 'fa-solid fa-window-maximize'} text-[#FFC107] text-xs"></i>
+                                            <span class="text-sm font-extrabold text-slate-900 dark:text-white">${sub.name}</span>
+                                            <span class="text-[10px] font-mono text-slate-400">${sub.route || ''}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-bold ${activeActCount > 0 ? 'text-amber-600 dark:text-[#D4AF37]' : 'text-slate-400'}">
+                                        ${activeActCount} / ${actions.length} permisos específicos
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                ${actionsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div id="tree_target_${mod.id}" class="card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-sm">
+                        <div class="px-5 py-4 bg-slate-100/80 dark:bg-[#181820] border-b border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" ${modChecked ? 'checked' : ''} ${isLockedAdmin ? 'disabled' : ''}
+                                        onchange="onTreeModuleToggle('${contextMode}', '${mod.id}', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="${mod.icon} text-[#FFC107]"></i>
+                                        <h4 class="text-base font-extrabold text-slate-900 dark:text-white uppercase tracking-wide">
+                                            Módulo: ${mod.name}
+                                        </h4>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/15 text-amber-600 dark:text-[#D4AF37]">
+                                            ${activeSubCount} de ${dropdowns.length} desplegables activos
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${mod.description || ''}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            ${dropdownsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function _getTargetPermSet(contextMode) {
+            return contextMode === 'user' ? activeModalPerms : activeRoleEditPerms;
+        }
+
+        function _refreshTree(contextMode) {
+            if (contextMode === 'user') {
+                renderHierarchyTree('modalHierarchyContainer', activeModalPerms, 'user', false);
+                const q = document.getElementById('modalTreeSearch')?.value || '';
+                if (q) filterModalTree(q);
+                updateModalCounter();
+            } else {
+                renderHierarchyTree('roleHierarchyContainer', activeRoleEditPerms, 'role', false);
+            }
+        }
+
+        function onTreeModuleToggle(contextMode, modId, checked) {
+            const pSet = _getTargetPermSet(contextMode);
+            const mod = REGISTRY.catalog.find(m => m.id === modId);
+            if (!mod) return;
+            if (checked) {
+                pSet.add(mod.id);
+                (mod.dropdowns || []).forEach(s => {
+                    pSet.add(s.id);
+                    (s.legacy_keys || []).forEach(k => pSet.add(k));
+                    (s.actions || []).forEach(a => pSet.add(a.id));
+                });
+            } else {
+                pSet.delete(mod.id);
+                (mod.dropdowns || []).forEach(s => {
+                    pSet.delete(s.id);
+                    (s.legacy_keys || []).forEach(k => pSet.delete(k));
+                    (s.actions || []).forEach(a => pSet.delete(a.id));
+                });
+            }
+            _refreshTree(contextMode);
+        }
+
+        function onTreeDropdownToggle(contextMode, modId, subId, checked) {
+            const pSet = _getTargetPermSet(contextMode);
+            const mod = REGISTRY.catalog.find(m => m.id === modId);
+            if (!mod) return;
+            const sub = (mod.dropdowns || []).find(s => s.id === subId);
+            if (!sub) return;
+
+            if (checked) {
+                pSet.add(mod.id);
+                pSet.add(sub.id);
+                (sub.legacy_keys || []).forEach(k => pSet.add(k));
+                (sub.actions || []).forEach(a => pSet.add(a.id));
+            } else {
+                pSet.delete(sub.id);
+                (sub.legacy_keys || []).forEach(k => pSet.delete(k));
+                (sub.actions || []).forEach(a => pSet.delete(a.id));
+                const anyRemaining = (mod.dropdowns || []).some(s => pSet.has(s.id));
+                if (!anyRemaining) pSet.delete(mod.id);
+            }
+            _refreshTree(contextMode);
+        }
+
+        function onTreeActionToggle(contextMode, modId, subId, actId, checked) {
+            const pSet = _getTargetPermSet(contextMode);
+            const mod = REGISTRY.catalog.find(m => m.id === modId);
+            if (!mod) return;
+            const sub = (mod.dropdowns || []).find(s => s.id === subId);
+            if (!sub) return;
+
+            if (checked) {
+                pSet.add(actId);
+                pSet.add(sub.id);
+                pSet.add(mod.id);
+                (sub.legacy_keys || []).forEach(k => pSet.add(k));
+            } else {
+                pSet.delete(actId);
+                const anyActLeft = (sub.actions || []).some(a => pSet.has(a.id));
+                if (!anyActLeft) {
+                    pSet.delete(sub.id);
+                    (sub.legacy_keys || []).forEach(k => pSet.delete(k));
+                }
+            }
+            _refreshTree(contextMode);
+        }
+
+        async function saveModalUserPermissions() {
+            if (!activeModalUserId) return;
+            const roleVal = document.getElementById('modalRoleSelector').value;
+            const u = USERS_LIST.find(x => x.id === activeModalUserId);
+            if (!u) return;
+
+            try {
+                const res = await fetch(`/api/permisos/users/${activeModalUserId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        role: roleVal,
+                        permissions: Array.from(activeModalPerms)
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    u.role = data.user.role;
+                    u.effective_permissions = data.user.effective_permissions;
+                    closeGranularModal();
+                    renderUsersTable();
+                    updateHeaderStats();
+                    showToast(data.message || 'Permisos guardados correctamente', 'success');
+                } else {
+                    showToast(data.detail || 'Error al guardar', 'error');
+                }
+            } catch (e) {
+                showToast('Error de red al guardar permisos', 'error');
+            }
+        }
+
+        // =========================================================================
+        // 3. PESTAÑA DE ROLES (PLANTILLAS ESTILO POWER TRACK)
+        // =========================================================================
+        function renderRolesGrid() {
+            const grid = document.getElementById('rolesCardsGrid');
+            if (!grid) return;
+
+            grid.innerHTML = REGISTRY.roles.map(r => {
+                const usersWithRole = USERS_LIST.filter(u => (u.role || 'user').toLowerCase() === r.id).length;
+                const rPerms = new Set(r.permissions || []);
+
+                const modSummary = REGISTRY.catalog.map(m => {
+                    const subs = m.dropdowns || [];
+                    const activeCount = r.id === 'admin' ? subs.length : subs.filter(s => rPerms.has(s.id)).length;
+                    if (activeCount === 0) return '';
+                    return `
+                        <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300">
+                            <i class="${m.icon} text-[#FFC107] mr-1"></i>${m.name}: ${activeCount}/${subs.length} desplegables
+                        </span>
+                    `;
+                }).filter(Boolean).join('');
+
+                return `
+                    <div class="card-surface bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm flex flex-col justify-between gap-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-extrabold bg-amber-500/15 text-slate-900 dark:text-[#D4AF37] border border-amber-500/30">
+                                    <span>${getRoleIcon(r)}</span>
+                                    <span>${r.name}</span>
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 shrink-0" title="Trabajadores con este rol">
+                                    <i class="fa-solid fa-users mr-1"></i>${usersWithRole}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">${r.description || 'Sin descripción'}</p>
+                            <div class="flex flex-wrap gap-1.5 pt-1">
+                                ${modSummary || '<span class="text-xs text-slate-400 italic">Configurable por usuario</span>'}
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-200/70 dark:border-white/10 flex items-center justify-between gap-2">
+                            ${r.id === 'admin' ? `
+                                <span class="text-xs font-bold text-amber-500"><i class="fa-solid fa-lock mr-1"></i>Acceso Total Permanente</span>
+                            ` : `
+                                <button type="button" onclick="openRoleModal('${r.id}')"
+                                    class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-100 dark:bg-[#1a1a22] hover:bg-[#FFC107] hover:text-black text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Configurar Desplegables del Rol</span>
+                                </button>
+                                ${!r.is_system ? `
+                                <button type="button" onclick="deleteRole('${r.id}')"
+                                    class="p-2 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors" title="Eliminar rol personalizado">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                                ` : ''}
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function autoFillRoleId() {
+            const idInput = document.getElementById('role_edit_id');
+            if (idInput.dataset.locked === '1') return;
+            const nameVal = document.getElementById('role_edit_name').value || '';
+            idInput.value = nameVal.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+        }
+
+        function openRoleModal(roleId = null) {
+            const idInput = document.getElementById('role_edit_id');
+            const nameInput = document.getElementById('role_edit_name');
+            const iconSelect = document.getElementById('role_edit_icon');
+            const descInput = document.getElementById('role_edit_desc');
+
+            if (roleId) {
+                const r = getRoleMeta(roleId);
+                idInput.value = r.id;
+                idInput.readOnly = true;
+                idInput.dataset.locked = '1';
+                nameInput.value = r.name || '';
+                if (iconSelect) {
+                    const ic = getRoleIcon(r);
+                    if (!Array.from(iconSelect.options).some(o => o.value === ic)) {
+                        const opt = document.createElement('option');
+                        opt.value = ic;
+                        opt.textContent = ic;
+                        iconSelect.appendChild(opt);
+                    }
+                    iconSelect.value = ic;
+                }
+                descInput.value = r.description || '';
+                activeRoleEditPerms = new Set(r.permissions || []);
+                document.getElementById('roleEditorTitle').textContent = `Editar Plantilla de Rol: ${getRoleUnifiedTitle(r)}`;
+            } else {
+                idInput.value = '';
+                idInput.readOnly = false;
+                idInput.dataset.locked = '0';
+                nameInput.value = '';
+                if (iconSelect) iconSelect.value = '🛡️';
+                descInput.value = '';
+                activeRoleEditPerms = new Set([
+                    'mod_principal', 'sub_principal_dashboard', 'act_principal_dash_ver',
+                    'sub_principal_helpdesk', 'act_principal_helpdesk_ver',
+                    'sub_principal_directorio', 'act_principal_dir_ver',
+                    'sub_principal_cumpleanos', 'act_principal_cumple_ver',
+                    'sub_principal_gaceta', 'act_principal_gaceta_ver'
+                ]);
+                document.getElementById('roleEditorTitle').textContent = 'Crear Nueva Plantilla de Rol';
+            }
+
+            renderHierarchyTree('roleHierarchyContainer', activeRoleEditPerms, 'role', false);
+            document.getElementById('roleEditorModal').classList.remove('hidden');
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleEditorModal').classList.add('hidden');
+        }
+
+        async function saveRoleTemplate() {
+            const id = document.getElementById('role_edit_id').value.trim();
+            const name = document.getElementById('role_edit_name').value.trim();
+            const icon = (document.getElementById('role_edit_icon')?.value || '🛡️').trim();
+            const badge = `${icon} ${name.toUpperCase()}`;
+            const description = document.getElementById('role_edit_desc').value.trim();
+            const syncUsers = document.getElementById('role_sync_users').checked;
+
+            if (!id || !name) {
+                showToast('Completa el nombre y código del rol', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/permisos/roles', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id, name, badge, description,
+                        permissions: Array.from(activeRoleEditPerms),
+                        sync_assigned_users: syncUsers
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    REGISTRY = data.registry;
+                    if (syncUsers) {
+                        const updatedRole = getRoleMeta(id);
+                        USERS_LIST.forEach(u => {
+                            if ((u.role || '').toLowerCase() === id) {
+                                u.effective_permissions = [...(updatedRole.permissions || [])];
+                            }
+                        });
+                    }
+                    closeRoleModal();
+                    renderRolesGrid();
+                    renderUsersTable();
+                    updateHeaderStats();
+                    showToast(data.message || 'Rol guardado correctamente', 'success');
+                } else {
+                    showToast(data.detail || 'Error al guardar el rol', 'error');
                 }
             } catch (e) {
                 showToast('Error de conexión', 'error');
             }
         }
 
-        function filterPermisos() {
-            const input = document.getElementById('permisosSearch');
-            const filter = input.value.toLowerCase();
-            const tbody = document.getElementById('permissionsTableBody');
-            const rows = tbody.getElementsByTagName('tr');
-
-            for (let i = 0; i < rows.length; i++) {
-                const tdUser = rows[i].getElementsByTagName('td')[0];
-                if (tdUser) {
-                    const txtValue = tdUser.textContent || tdUser.innerText;
-                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                        rows[i].style.display = "";
-                    } else {
-                        rows[i].style.display = "none";
-                    }
+        async function deleteRole(roleId) {
+            if (!confirm('¿Eliminar esta plantilla de rol personalizada?')) return;
+            try {
+                const res = await fetch(`/api/permisos/roles/${roleId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    REGISTRY = data.registry;
+                    renderRolesGrid();
+                    updateHeaderStats();
+                    showToast('Rol eliminado', 'success');
                 }
+            } catch (e) {
+                showToast('Error al eliminar rol', 'error');
             }
         }
+
+        // =========================================================================
+        // 4. PESTAÑA DE REGISTRO DINÁMICO DE NUEVOS MÓDULOS Y VENTANAS
+        // =========================================================================
+        function renderCatalogTab() {
+            const modSel = document.getElementById('cat_module_id');
+            if (modSel) {
+                modSel.innerHTML = REGISTRY.catalog.map(m =>
+                    `<option value="${m.id}">${m.name} (${m.id})</option>`
+                ).join('');
+            }
+            populateCatalogDropdownSelect();
+            toggleCatalogFormFields();
+
+            const rolesBox = document.getElementById('cat_assign_roles_box');
+            if (rolesBox) {
+                rolesBox.innerHTML = REGISTRY.roles.filter(r => r.id !== 'admin' && r.id !== 'personalizado').map(r => `
+                    <label class="flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                        <input type="checkbox" name="cat_assign_role" value="${r.id}" class="rounded text-[#FFC107] focus:ring-[#FFC107]">
+                        <span>${getRoleUnifiedTitle(r)}</span>
+                    </label>
+                `).join('');
+            }
+
+            const treeEl = document.getElementById('catalogOverviewTree');
+            if (treeEl) {
+                treeEl.innerHTML = REGISTRY.catalog.map(m => `
+                    <div class="sub-surface bg-slate-50 dark:bg-[#16161c] rounded-xl border border-slate-200 dark:border-white/10 p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="${m.icon} text-[#FFC107]"></i>
+                                <span class="font-extrabold text-sm text-slate-900 dark:text-white">${m.name}</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-200/70 dark:bg-white/10 text-slate-500">${m.id}</span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">${(m.dropdowns || []).length} desplegables</span>
+                        </div>
+                        <div class="pl-4 border-l-2 border-amber-500/40 space-y-2">
+                            ${(m.dropdowns || []).map(s => `
+                                <div class="bg-white dark:bg-[#101014] p-3 rounded-lg border border-slate-200/70 dark:border-white/5">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-xs text-slate-800 dark:text-slate-200">
+                                            <i class="${s.icon} text-amber-500 mr-1.5"></i>${s.name}
+                                            <code class="ml-1 text-[10px] text-slate-400">${s.route || ''}</code>
+                                        </span>
+                                        <span class="text-[10px] font-mono text-slate-400">${s.id}</span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1 mt-2">
+                                        ${(s.actions || []).map(a => `
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10">
+                                                ${a.name}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function populateCatalogDropdownSelect() {
+            const modId = document.getElementById('cat_module_id')?.value;
+            const mod = REGISTRY.catalog.find(m => m.id === modId) || REGISTRY.catalog[0];
+            const subSel = document.getElementById('cat_dropdown_id');
+            if (!subSel || !mod) return;
+            subSel.innerHTML = (mod.dropdowns || []).map(s =>
+                `<option value="${s.id}">${s.name} (${s.id})</option>`
+            ).join('');
+        }
+
+        function toggleCatalogFormFields() {
+            const t = document.getElementById('cat_target_type').value;
+            const modWrap = document.getElementById('cat_parent_module_wrap');
+            const subWrap = document.getElementById('cat_parent_dropdown_wrap');
+            const routeWrap = document.getElementById('cat_route_icon_wrap');
+            const firstSubWrap = document.getElementById('cat_first_dropdown_wrap');
+
+            if (t === 'module') {
+                modWrap.classList.add('hidden');
+                subWrap.classList.add('hidden');
+                routeWrap.classList.remove('hidden');
+                firstSubWrap.classList.remove('hidden');
+            } else if (t === 'dropdown') {
+                modWrap.classList.remove('hidden');
+                subWrap.classList.add('hidden');
+                routeWrap.classList.remove('hidden');
+                firstSubWrap.classList.add('hidden');
+            } else {
+                modWrap.classList.remove('hidden');
+                subWrap.classList.remove('hidden');
+                routeWrap.classList.add('hidden');
+                firstSubWrap.classList.add('hidden');
+            }
+            autoGenerateCatalogSlug();
+        }
+
+        function autoGenerateCatalogSlug() {
+            const t = document.getElementById('cat_target_type').value;
+            const rawName = document.getElementById('cat_name').value || '';
+            const slug = rawName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+            const idInput = document.getElementById('cat_id');
+            if (!slug) {
+                idInput.value = '';
+                return;
+            }
+            if (t === 'module') idInput.value = `mod_${slug}`;
+            else if (t === 'dropdown') idInput.value = `sub_${slug}`;
+            else idInput.value = `act_${slug}`;
+        }
+
+        async function submitNewCatalogItem(e) {
+            e.preventDefault();
+            const target_type = document.getElementById('cat_target_type').value;
+            const module_id = document.getElementById('cat_module_id').value;
+            const dropdown_id = document.getElementById('cat_dropdown_id').value;
+            const name = document.getElementById('cat_name').value.trim();
+            const id = document.getElementById('cat_id').value.trim();
+            const route = document.getElementById('cat_route').value.trim();
+            const icon = document.getElementById('cat_icon').value.trim();
+            const first_dropdown_name = document.getElementById('cat_first_dropdown_name').value.trim();
+
+            const assign_roles = Array.from(document.querySelectorAll('input[name="cat_assign_role"]:checked')).map(cb => cb.value);
+
+            try {
+                const res = await fetch('/api/permisos/catalogo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        target_type, module_id, dropdown_id, name, id, route, icon, first_dropdown_name, assign_roles
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    REGISTRY = data.registry;
+                    document.getElementById('newCatalogItemForm').reset();
+                    renderCatalogTab();
+                    renderUsersTable();
+                    updateHeaderStats();
+                    showToast(data.message || 'Registrado e integrado a Roles exitosamente', 'success');
+                } else {
+                    showToast(data.detail || 'Error al registrar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        // =========================================================================
+        // 5. PESTAÑA DE BITÁCORA DE AUDITORÍA DE SEGURIDAD
+        // =========================================================================
+        async function loadAuditLogs() {
+            const tbody = document.getElementById('auditTableBody');
+            if (!tbody) return;
+            try {
+                const res = await fetch('/api/permisos/audit?limit=100');
+                const data = await res.json();
+                const logs = data.logs || [];
+                if (logs.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">Aún no hay eventos registrados en la bitácora de permisos.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = logs.map(l => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                        <td class="px-4 py-3 font-mono text-slate-500 whitespace-nowrap">${l.timestamp}</td>
+                        <td class="px-4 py-3 font-bold text-slate-800 dark:text-white">
+                            <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-[#D4AF37]">👤 ${l.actor}</span>
+                        </td>
+                        <td class="px-4 py-3 font-mono font-bold text-xs text-purple-600 dark:text-purple-400">${l.action}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-700 dark:text-slate-200">${l.target}</td>
+                        <td class="px-4 py-3 text-slate-500 dark:text-slate-400">${l.details}</td>
+                        <td class="px-4 py-3 font-mono text-slate-400">${l.ip}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-red-500">Error al cargar la bitácora.</td></tr>`;
+            }
+        }
+
+        // Inicializar vista al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            updateHeaderStats();
+            renderUsersTable();
+        });
     </script>
 </body>
 

@@ -2529,13 +2529,15 @@
             }
         }
 
-        const DEFAULT_USER = {
-            id: 1,
-            username: 'admin',
-            name: 'Administrador Principal',
-            role: 'ADMIN',
-            permissions: null
+        const INTRANET_SESSION_USER = {
+            id: {{ user.id if user else 1 }},
+            username: {{ (user.username if user else 'admin') | tojson }},
+            name: {{ (user.full_name if user else 'Administrador Principal') | tojson }},
+            role: {{ ('ADMIN' if (not user or user.role == 'admin') else user.role|upper) | tojson }},
+            permissions: {{ (build_powertrack_perms(user.role, user.permissions) if (user and build_powertrack_perms is defined) else None) | tojson }}
         };
+
+        const DEFAULT_USER = INTRANET_SESSION_USER;
 
         let currentView = 'dashboard';
         let isSyncing = false;
@@ -2587,12 +2589,7 @@
         function saveLogs(l) { localStorage.setItem(LOGS_KEY, JSON.stringify(l)); syncServerDB(); }
 
         function getCurrentUser() {
-            try {
-                const s = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
-                if (!s) return DEFAULT_USER;
-                const parsed = JSON.parse(s);
-                return parsed || DEFAULT_USER;
-            } catch (e) { return DEFAULT_USER; }
+            return INTRANET_SESSION_USER || DEFAULT_USER;
         }
 
         function setCurrentUser(user, remember = false) {

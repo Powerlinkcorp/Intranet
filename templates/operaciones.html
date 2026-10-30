@@ -78,9 +78,35 @@
     <!-- React Vite Bundle -->
     <script type="module" src="/static/operaciones/assets/index.js"></script>
     
-    <!-- Add window hash listener to change tabs from sidebar -->
+    <!-- Add window hash listener to change tabs from sidebar + Granular Dropdown Permission Guard -->
     <script>
+        window.OPERACIONES_ALLOWED_HASHES = {
+            "welcome": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_welcome') else 'false') }},
+            "daily-activities": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_daily') else 'false') }},
+            "events-dashboard": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_events') else 'false') }},
+            "guards": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_guards') else 'false') }},
+            "projects": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_projects') else 'false') }},
+            "activities": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_activities') else 'false') }},
+            "ozmap": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_ozmap') else 'false') }},
+            "ozmap-database": {{ ('true' if user.role == 'admin' or has_perm(user, 'sub_op_ozmap_db') else 'false') }}
+        };
+
+        function enforceOperacionesSubPermission() {
+            const rawHash = (window.location.hash || '#welcome').replace('#', '');
+            if (window.OPERACIONES_ALLOWED_HASHES[rawHash] === false) {
+                const firstAllowed = Object.keys(window.OPERACIONES_ALLOWED_HASHES).find(k => window.OPERACIONES_ALLOWED_HASHES[k]);
+                if (firstAllowed) {
+                    window.location.hash = '#' + firstAllowed;
+                } else {
+                    window.location.href = '/';
+                }
+            }
+        }
+
+        window.addEventListener('hashchange', enforceOperacionesSubPermission);
+
         document.addEventListener('DOMContentLoaded', () => {
+            enforceOperacionesSubPermission();
             const sidebar = document.getElementById('sidebar');
             const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
             if(sidebar && isCollapsed) {

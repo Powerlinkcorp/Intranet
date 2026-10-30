@@ -97,6 +97,13 @@ async def add_security_headers(request: Request, call_next):
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+import permissions_manager
+templates.env.globals["has_perm"] = permissions_manager.user_has_perm
+templates.env.globals["has_any_perm"] = permissions_manager.user_has_any_perm
+templates.env.globals["get_perm_registry"] = permissions_manager.load_registry
+templates.env.globals["build_powertrack_perms"] = permissions_manager.build_powertrack_permissions_dict
+templates.env.globals["get_user_perms_list"] = permissions_manager.get_user_effective_perms_list
+
 # Import new routers
 from routers.flasheo_router import router as flasheo_app_router
 from routers.aprovisionamiento_router import router as aprov_app_router
@@ -388,7 +395,7 @@ async def reportes_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
+        if not permissions_manager.user_has_any_perm(user, ['sub_admin_reportes', 'ver_reportes', 'perm_reporte']):
             return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "reportes.html", {"request": request, "user": user})
     except (HTTPException, Exception):
@@ -767,15 +774,238 @@ async def list_users_permissions(
 async def update_user_permissions(
     user_id: int,
     permissions: str = Form(""),
+    role: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     admin_user: models.User = Depends(security.require_admin)
 ):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    user.permissions = permissions
+    if role is not None and role.strip():
+        user.role = role.strip().lower()
+    raw_list = [p.strip() for p in (permissions or "").split(",") if p.strip()]
+    normalized = permissions_manager.normalize_permissions_list(raw_list)
+    user.permissions = ",".join(normalized)
     db.commit()
-    return {"message": "Permisos actualizados correctamente"}
+    return {
+        "message": "Rol y permisos actualizados correctamente",
+        "role": user.role,
+        "permissions": user.permissions
+    }
+
+@app.get("/api/permisos/registry")
+async def api_get_permisos_registry(
+    current_user: models.User = Depends(security.get_current_user)
+):
+    return permissions_manager.load_registry()
+
+@app.get("/api/permisos/audit")
+async def api_get_permisos_audit(
+    limit: int = Query(100),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    return {"logs": permissions_manager.get_permission_audit_logs(limit=limit)}
+
+@app.post("/api/permisos/users/{user_id}")
+async def api_update_user_role_and_permissions(
+    user_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    payload = await request.json()
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    old_role = (user.role or "user").lower()
+    new_role = str(payload.get("role", old_role)).strip().lower()
+    raw_perms = payload.get("permissions", [])
+    if isinstance(raw_perms, str):
+        raw_perms = [p.strip() for p in raw_perms.split(",") if p.strip()]
+
+    # Protección Anti-Bloqueo (Self-Lockout Guard)
+    if user.id == admin_user.id and old_role == "admin" and new_role != "admin":
+        raise HTTPException(
+            status_code=400,
+            detail="Protección Anti-Bloqueo: No puedes quitarte tu propio rol de Administrador activo."
+        )
+    if old_role == "admin" and new_role != "admin":
+        other_admins = db.query(models.User).filter(
+            models.User.role == "admin",
+            models.User.is_active == True,
+            models.User.id != user.id
+        ).count()
+        if other_admins == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Protección Anti-Bloqueo: Debe existir al menos un Administrador activo en el sistema."
+            )
+
+    user.role = new_role
+    if new_role == "admin":
+        reg = permissions_manager.load_registry()
+        user.permissions = ",".join(reg["all_keys"])
+    else:
+        normalized = permissions_manager.normalize_permissions_list(raw_perms)
+        user.permissions = ",".join(normalized)
+    db.commit()
+
+    client_ip = request.client.host if request.client else "local"
+    eff_list = list(permissions_manager.expand_effective_permissions(user.role, user.permissions))
+    permissions_manager.log_permission_audit(
+        actor_username=admin_user.username,
+        action="ACTUALIZAR_USUARIO",
+        target=f"{user.full_name} ({user.username})",
+        details=f"Rol: {old_role.upper()} -> {new_role.upper()} | Total llaves activas: {len(eff_list)}",
+        ip=client_ip
+    )
+
+    return {
+        "status": "ok",
+        "message": f"Permisos de {user.full_name} guardados exitosamente",
+        "user": {
+            "id": user.id,
+            "role": user.role,
+            "permissions": user.permissions,
+            "effective_permissions": eff_list
+        }
+    }
+
+@app.post("/api/permisos/bulk-assign")
+async def api_bulk_assign_role_or_permissions(
+    request: Request,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    payload = await request.json()
+    user_ids = payload.get("user_ids", [])
+    target_role = str(payload.get("role", "")).strip().lower()
+    if not user_ids or not target_role:
+        raise HTTPException(status_code=400, detail="Selecciona al menos un usuario y un rol válido.")
+
+    reg = permissions_manager.load_registry()
+    role_obj = next((r for r in reg["roles"] if r["id"] == target_role), None)
+    if not role_obj:
+        raise HTTPException(status_code=404, detail="Rol no encontrado en el catálogo.")
+
+    perm_str = ",".join(reg["all_keys"] if target_role == "admin" else role_obj.get("permissions", []))
+    updated_users = []
+
+    for uid in user_ids:
+        u = db.query(models.User).filter(models.User.id == int(uid)).first()
+        if not u:
+            continue
+        # No degradar al propio admin en lote
+        if u.id == admin_user.id and (u.role or "").lower() == "admin" and target_role != "admin":
+            continue
+        u.role = target_role
+        u.permissions = perm_str
+        updated_users.append({
+            "id": u.id,
+            "role": u.role,
+            "effective_permissions": list(permissions_manager.expand_effective_permissions(u.role, u.permissions))
+        })
+
+    db.commit()
+    client_ip = request.client.host if request.client else "local"
+    permissions_manager.log_permission_audit(
+        actor_username=admin_user.username,
+        action="ASIGNACION_MASIVA_ROL",
+        target=f"{len(updated_users)} usuarios",
+        details=f"Asignó el rol '{role_obj['name']}' ({target_role}) en lote",
+        ip=client_ip
+    )
+    return {
+        "status": "ok",
+        "message": f"Rol '{role_obj['name']}' aplicado a {len(updated_users)} usuario(s)",
+        "updated_users": updated_users
+    }
+
+@app.post("/api/permisos/roles")
+async def api_save_or_update_role(
+    request: Request,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    payload = await request.json()
+    registry = permissions_manager.save_or_update_role(payload)
+    role_id = str(payload.get("id", "")).strip().lower().replace(" ", "_")
+    sync_users = bool(payload.get("sync_assigned_users", True))
+    updated_count = 0
+    if sync_users and role_id and role_id not in ("admin", "personalizado"):
+        role_obj = next((r for r in registry["roles"] if r["id"] == role_id), None)
+        if role_obj:
+            perm_str = ",".join(role_obj.get("permissions", []))
+            assigned_users = db.query(models.User).filter(models.User.role == role_id).all()
+            for u in assigned_users:
+                u.permissions = perm_str
+                updated_count += 1
+            if updated_count > 0:
+                db.commit()
+
+    client_ip = request.client.host if request.client else "local"
+    permissions_manager.log_permission_audit(
+        actor_username=admin_user.username,
+        action="GUARDAR_PLANTILLA_ROL",
+        target=f"Rol: {payload.get('name', role_id)} ({role_id})",
+        details=f"Plantilla actualizada ({updated_count} usuarios sincronizados)",
+        ip=client_ip
+    )
+    return {
+        "status": "ok",
+        "message": f"Rol guardado correctamente ({updated_count} usuarios sincronizados)",
+        "registry": registry
+    }
+
+@app.delete("/api/permisos/roles/{role_id}")
+async def api_delete_custom_role(
+    role_id: str,
+    request: Request,
+    admin_user: models.User = Depends(security.require_admin)
+):
+    registry = permissions_manager.delete_custom_role(role_id)
+    client_ip = request.client.host if request.client else "local"
+    permissions_manager.log_permission_audit(
+        actor_username=admin_user.username,
+        action="ELIMINAR_ROL",
+        target=f"Rol ID: {role_id}",
+        details="Plantilla de rol personalizada eliminada",
+        ip=client_ip
+    )
+    return {"status": "ok", "message": "Rol eliminado", "registry": registry}
+
+@app.post("/api/permisos/catalogo")
+async def api_register_new_window_or_permission(
+    request: Request,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    payload = await request.json()
+    registry = permissions_manager.add_custom_window_or_permission(payload)
+    assign_roles = payload.get("assign_roles", [])
+    if assign_roles:
+        for rid in assign_roles:
+            role_obj = next((r for r in registry["roles"] if r["id"] == rid), None)
+            if role_obj and rid != "admin":
+                perm_str = ",".join(role_obj.get("permissions", []))
+                for u in db.query(models.User).filter(models.User.role == rid).all():
+                    u.permissions = perm_str
+        db.commit()
+
+    client_ip = request.client.host if request.client else "local"
+    permissions_manager.log_permission_audit(
+        actor_username=admin_user.username,
+        action="REGISTRAR_VENTANA_O_PERMISO",
+        target=f"{payload.get('name', '')} ({payload.get('id', '')})",
+        details=f"Tipo: {payload.get('target_type')} | Roles asignados: {', '.join(assign_roles) if assign_roles else 'Solo Admin'}",
+        ip=client_ip
+    )
+    return {
+        "status": "ok",
+        "message": "Nueva ventana / permiso registrado e integrado al sistema de roles",
+        "registry": registry
+    }
 
 @app.put("/api/rrhh/users/{user_id}/edit-worker")
 async def edit_worker_info(
@@ -938,7 +1168,7 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role not in ["admin", "rrhh"] and "cargar_datos_usuarios" not in (user.permissions or ""):
+        if not permissions_manager.user_has_any_perm(user, ["sub_admin_panel", "sub_admin_trabajadores", "cargar_datos_usuarios", "editar_usuarios", "act_trabajadores_ver"]):
             return RedirectResponse(url="/")
         
         employees = db.query(models.Employee).all()
@@ -959,10 +1189,32 @@ async def admin_permisos_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role != "admin":
+        if user.role != "admin" and not permissions_manager.user_has_any_perm(user, ["sub_admin_permisos", "gestionar_permisos", "act_permisos_ver"]):
             return RedirectResponse(url="/")
-        users = db.query(models.User).all()
-        return templates.TemplateResponse(request, "permisos.html", {"user": user, "users": users})
+        users = db.query(models.User).order_by(models.User.full_name).all()
+        registry = permissions_manager.load_registry()
+        users_serialized = []
+        for u in users:
+            eff = list(permissions_manager.expand_effective_permissions(u.role, u.permissions or "", registry["catalog"]))
+            users_serialized.append({
+                "id": u.id,
+                "username": u.username,
+                "full_name": u.full_name,
+                "email": u.email,
+                "role": (u.role or "user").lower(),
+                "department": u.department or "General",
+                "cargo": u.cargo or "",
+                "is_active": u.is_active,
+                "avatar_url": u.avatar_url or "",
+                "permissions_raw": u.permissions or "",
+                "effective_permissions": eff
+            })
+        return templates.TemplateResponse(request, "permisos.html", {
+            "user": user,
+            "users": users,
+            "users_json": json.dumps(users_serialized, ensure_ascii=False),
+            "registry_json": json.dumps(registry, ensure_ascii=False)
+        })
     except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
@@ -973,7 +1225,7 @@ async def integracion_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role not in ["admin", "integracion", "rrhh"] and "ver_integracion" not in (user.permissions or ""):
+        if not permissions_manager.user_has_any_perm(user, ["sub_admin_integracion", "ver_integracion"]):
             return RedirectResponse(url="/")
         embed = request.query_params.get("embed") == "1"
         return templates.TemplateResponse(request, "integracion.html", {"user": user, "embed": embed})
@@ -2389,7 +2641,7 @@ async def view_historico(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role not in ["admin"] and "ver_historico" not in (user.permissions or ""):
+        if not permissions_manager.user_has_any_perm(user, ["sub_admin_historico", "ver_historico"]):
             return RedirectResponse(url="/")
         embed = request.query_params.get("embed") == "1"
         
@@ -2754,7 +3006,7 @@ async def view_reporte(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role != 'admin' and 'ver_reportes' not in (user.permissions or '') and 'perm_reporte' not in (user.permissions or ''):
+        if not permissions_manager.user_has_any_perm(user, ['sub_soporte_reporte', 'ver_reportes', 'perm_reporte']):
             return RedirectResponse(url="/")
         embed = request.query_params.get("embed") == "1"
         return templates.TemplateResponse(request, "reporte.html", {"request": request, "user": user, "embed": embed})

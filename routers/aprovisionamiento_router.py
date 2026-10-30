@@ -22,7 +22,14 @@ import security
 from database import get_db
 import models
 
+import permissions_manager
+
 templates = Jinja2Templates(directory="templates")
+templates.env.globals["has_perm"] = permissions_manager.user_has_perm
+templates.env.globals["has_any_perm"] = permissions_manager.user_has_any_perm
+templates.env.globals["get_perm_registry"] = permissions_manager.load_registry
+templates.env.globals["build_powertrack_perms"] = permissions_manager.build_powertrack_permissions_dict
+templates.env.globals["get_user_perms_list"] = permissions_manager.get_user_effective_perms_list
 
 router = APIRouter()
 api_router = APIRouter()
@@ -180,7 +187,7 @@ async def aprovisionamiento_page(request: Request, db: Session = Depends(get_db)
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        if user.role not in ["admin"] and "ver_aprovisionamiento" not in (user.permissions or "") and "perm_aprov" not in (user.permissions or ""):
+        if not permissions_manager.user_has_any_perm(user, ["sub_soporte_aprov", "ver_aprovisionamiento", "perm_aprov"]):
             return RedirectResponse(url="/")
         return templates.TemplateResponse(request, "aprovisionamiento.html", {"request": request, "user": user})
     except (HTTPException, Exception):
