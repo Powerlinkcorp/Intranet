@@ -302,7 +302,8 @@
                     <span style="font-weight: 600; font-size: 14px; display: block;">{{ user.full_name }}</span>
                     <span style="font-size: 11px; color: #FFC107; font-weight: 700;">{{ user.role|upper }}</span>
                 </div>
-                <img src="https://ui-avatars.com/api/?name={{ user.full_name }}&background=FFC107&color=000"
+                <img src="{{ user.avatar_url or '/static/img/default-avatar.png' }}"
+                    onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ user.full_name }}&background=FFC107&color=000';"
                     alt="Perfil" onclick="toggleDropdown()">
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="/"><i class="fa-solid fa-house"></i> Ir al Inicio</a>
@@ -355,6 +356,7 @@
                         </button>
                     </div>
                 </div>
+
             </div>
 
             <!-- ================================================================== -->
@@ -2482,6 +2484,7 @@
             renderUsersTable();
         });
     </script>
+    {% include 'global_chat.html' %}
 </body>
 
 </html>
