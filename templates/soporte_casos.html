@@ -1042,6 +1042,90 @@
 
                 <!-- MATRIZ DE TABLAS DINÁMICAS (HOJA RESUMEN DE SOPORTE REMOTO) -->
                 <div class="form-grid" style="gap: 18px;">
+                    <!-- REPORTE DE ATENCIONES REMOTAS POR SUB-SECTOR (ZONA -> SUB-SECTOR) -->
+                    <div class="panel-card col-12" id="panelSubsectores" style="border-color: rgba(56, 189, 248, 0.35);">
+                        <div class="panel-header">
+                            <h2>
+                                <i class="fa-solid fa-location-crosshairs" style="color:#38bdf8;"></i>
+                                Reporte por Sub-sector
+                                <span style="font-size:11.5px; font-weight:500; color:var(--text-muted); margin-left:6px;">Zona → Sub-sector (ej. Tejerías → Curiepe)</span>
+                            </h2>
+                            <span class="badge" id="subBadgeIdentificado" style="font-size:11px;"></span>
+                        </div>
+
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px;">
+                            <div style="flex:1; min-width:230px;">
+                                <label class="field-label">Sub-sector (vacío = ranking de todos)</label>
+                                <input type="text" id="subBuscar" class="form-input" list="subListaNombres" placeholder="Ej. Trapiche del Medio, Curiepe, Retamal..." onkeydown="if(event.key==='Enter'){cargarReporteSubsectores();}">
+                                <datalist id="subListaNombres"></datalist>
+                            </div>
+                            <div style="min-width:170px;">
+                                <label class="field-label">Zona</label>
+                                <select id="subZona" class="form-select" onchange="cargarReporteSubsectores()">
+                                    <option value="TODAS">Todas las zonas</option>
+                                    <option>LOS TEQUES</option>
+                                    <option>EL VALLE</option>
+                                    <option>TEJERIAS</option>
+                                    <option>SAN DIEGO</option>
+                                    <option>SAN ANTONIO</option>
+                                    <option>CARRIZAL</option>
+                                    <option>PROPATRIA</option>
+                                    <option>COCHE</option>
+                                    <option>LA VEGA</option>
+                                </select>
+                            </div>
+                            <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); padding-bottom:9px; cursor:pointer;">
+                                <input type="checkbox" id="subExcluirAfect" onchange="cargarReporteSubsectores()">
+                                Excluir afectaciones (filas sin cédula/RIF)
+                            </label>
+                            <button type="button" class="btn btn-gold" style="padding:8px 16px; font-size:12.5px;" onclick="cargarReporteSubsectores()">
+                                <i class="fa-solid fa-magnifying-glass"></i> Consultar
+                            </button>
+                        </div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
+                            Usa el rango de fechas de arriba. El sub-sector se toma del padrón (por cliente) y, si el cliente no cruza, del texto de la ubicación.
+                        </div>
+
+                        <div id="subDetalleWrap" style="display:none; margin-bottom:14px; background: var(--bg-muted); border: 1px solid var(--border-col); border-radius: 11px; padding: 14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                                <div style="font-size:15px; font-weight:800; color:var(--text-main);" id="subDetalleTitulo"></div>
+                                <button type="button" class="btn btn-ghost" style="padding:6px 12px; font-size:12px;" onclick="copiarResumenSubsector()">
+                                    <i class="fa-regular fa-copy"></i> Copiar resumen
+                                </button>
+                            </div>
+                            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px;" id="subDetalleKpis"></div>
+                            <div class="form-grid" style="gap:14px;">
+                                <div class="col-4">
+                                    <div class="field-label">Por mes</div>
+                                    <table class="cases-table"><tbody id="subTablaMes"></tbody></table>
+                                </div>
+                                <div class="col-4">
+                                    <div class="field-label">Por motivo</div>
+                                    <table class="cases-table"><tbody id="subTablaReporte"></tbody></table>
+                                </div>
+                                <div class="col-4">
+                                    <div class="field-label">Por analista</div>
+                                    <table class="cases-table"><tbody id="subTablaAnalista"></tbody></table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                            <table class="cases-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sub-sector</th>
+                                        <th>Zona</th>
+                                        <th style="text-align:right;">Casos</th>
+                                        <th style="text-align:right;">Clientes</th>
+                                        <th style="text-align:right;">Visitas técnicas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subTablaRanking"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- GENERADOR DE REPORTE DE CORTE WHATSAPP (6:00 PM / 10:00 PM) -->
                     <div class="panel-card col-12" style="border-color: rgba(37, 211, 102, 0.35);">
                         <div class="panel-header">
@@ -2113,6 +2197,7 @@
                 renderizarSugerenciasZonasAfectacion(data.zonas_afectacion || []);
                 regenerarTextoWhatsApp();
                 cargarReincidenciasClientes();
+                cargarReporteSubsectores();
             } catch (err) {
                 console.error(err);
                 mostrarToast("Error cargando estadísticas de soporte remoto", true);
@@ -2290,6 +2375,124 @@
                 preview.select();
                 document.execCommand("copy");
                 mostrarToast("¡Reporte copiado al portapapeles!");
+            }
+        }
+
+        // ====================================================================
+        // REPORTE POR SUB-SECTOR (ZONA -> SUB-SECTOR)
+        // ====================================================================
+        let ultimoDetalleSubsector = null;
+
+        function poblarListaSubsectores() {
+            const dl = document.getElementById("subListaNombres");
+            if (!dl || dl.childElementCount > 0) return;
+            const nombres = [...new Set((catalogoSubsectores || []).map(s => (s.subsector || "").trim()).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+            dl.innerHTML = nombres.map(n => `<option value="${n.replace(/"/g, "&quot;")}"></option>`).join("");
+        }
+
+        function escHtmlSub(t) {
+            return String(t ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+        }
+
+        function filasSimples(items) {
+            if (!items || items.length === 0) {
+                return `<tr><td style="color:var(--text-muted); padding:8px;">Sin datos</td></tr>`;
+            }
+            return items.map(i => `
+                <tr>
+                    <td style="font-weight:600;">${escHtmlSub(i.nombre)}</td>
+                    <td style="text-align:right; font-weight:800;">${i.cantidad}</td>
+                    <td style="text-align:right; color:var(--text-muted); font-size:11.5px;">${i.porcentaje}%</td>
+                </tr>`).join("");
+        }
+
+        async function cargarReporteSubsectores() {
+            poblarListaSubsectores();
+            const params = new URLSearchParams({
+                desde: document.getElementById("statDesde").value || "",
+                hasta: document.getElementById("statHasta").value || "",
+                q: (document.getElementById("subBuscar").value || "").trim(),
+                zona: document.getElementById("subZona").value || "TODAS",
+                excluir_afectaciones: document.getElementById("subExcluirAfect").checked ? "true" : "false"
+            });
+            try {
+                const res = await fetch(`/api/soporte/estadisticas/subsectores?${params.toString()}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                const badge = document.getElementById("subBadgeIdentificado");
+                if (badge) {
+                    badge.textContent = `${data.con_subsector} de ${data.total_casos} casos con sub-sector (${data.porcentaje_identificado}%)`;
+                    badge.title = `Padrón: ${data.origen.padron} · Texto de ubicación: ${data.origen.texto} · Sin sub-sector específico (solo zona): ${data.origen.general} · Sin identificar: ${data.sin_subsector}`;
+                }
+
+                const tbody = document.getElementById("subTablaRanking");
+                const rk = data.ranking || [];
+                tbody.innerHTML = rk.length === 0
+                    ? `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Sin registros para este filtro</td></tr>`
+                    : rk.map(r => `
+                        <tr style="cursor:pointer;" onclick="document.getElementById('subBuscar').value='${escHtmlSub(r.subsector).replace(/'/g, "\\'")}'; cargarReporteSubsectores();">
+                            <td style="font-weight:700;">${escHtmlSub(r.subsector)}</td>
+                            <td>${escHtmlSub(r.zona)}</td>
+                            <td style="text-align:right; font-weight:800; color:var(--text-main);">${r.casos}</td>
+                            <td style="text-align:right;">${r.clientes}</td>
+                            <td style="text-align:right;">${r.visitas}</td>
+                        </tr>`).join("");
+
+                const wrap = document.getElementById("subDetalleWrap");
+                const det = data.detalle;
+                ultimoDetalleSubsector = det;
+                if (!det) {
+                    wrap.style.display = "none";
+                    return;
+                }
+                wrap.style.display = "block";
+                const desde = document.getElementById("statDesde").value || "inicio";
+                const hasta = document.getElementById("statHasta").value || "hoy";
+                document.getElementById("subDetalleTitulo").textContent =
+                    `${det.consulta} — ${desde} a ${hasta}`;
+                const kpi = (label, val) => `
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-col); border-radius:10px; padding:8px 14px; min-width:130px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">${label}</div>
+                        <div style="font-size:20px; font-weight:800; color:var(--text-main);">${val}</div>
+                    </div>`;
+                document.getElementById("subDetalleKpis").innerHTML =
+                    kpi("Atenciones remotas", det.total_casos) +
+                    kpi("Clientes distintos", det.clientes_distintos) +
+                    kpi("Escalados a visita", det.escalados_visita);
+                document.getElementById("subTablaMes").innerHTML = filasSimples(det.por_mes);
+                document.getElementById("subTablaReporte").innerHTML = filasSimples(det.por_reporte);
+                document.getElementById("subTablaAnalista").innerHTML = filasSimples(det.por_analista);
+            } catch (err) {
+                console.error(err);
+                mostrarToast("Error cargando el reporte por sub-sector", true);
+            }
+        }
+
+        async function copiarResumenSubsector() {
+            const d = ultimoDetalleSubsector;
+            if (!d) return;
+            const desde = document.getElementById("statDesde").value || "inicio";
+            const hasta = document.getElementById("statHasta").value || "hoy";
+            const lineas = [
+                `*ATENCIONES REMOTAS — ${String(d.consulta).toUpperCase()}*`,
+                `*Periodo:* ${desde} a ${hasta}`,
+                `*Total atenciones:* ${d.total_casos}`,
+                `*Clientes distintos:* ${d.clientes_distintos}`,
+                `*Escalados a visita técnica:* ${d.escalados_visita}`,
+                "",
+                "*Por mes:*",
+                ...(d.por_mes || []).map(m => `• ${m.nombre}: ${m.cantidad}`),
+                "",
+                "*Motivos:*",
+                ...(d.por_reporte || []).map(m => `• ${m.nombre}: ${m.cantidad}`)
+            ].join("\n");
+            try {
+                await navigator.clipboard.writeText(lineas);
+                mostrarToast("¡Resumen copiado!");
+            } catch (e) {
+                mostrarToast("No se pudo copiar el resumen", true);
             }
         }
 

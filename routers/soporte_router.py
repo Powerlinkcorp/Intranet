@@ -15,6 +15,7 @@ import json
 import os
 import re
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 from collections import Counter, defaultdict
@@ -211,7 +212,9 @@ def _sincronizar_desde_google_sheets(db: Session, force: bool = False) -> dict:
             valid_csv = []
             for r in csv_rows:
                 parsed = _parse_fecha_sheet(r[0] if len(r) > 0 else "")
-                has_data = any((r[i] if i < len(r) else "").strip() for i in range(1, 10))
+                # Se ignoran filas "plantilla" (solo FECHA + N CASO pre-numerados, sin cédula/analista/reporte...)
+                # Solo se registran filas con Cédula/RIF real (col 2); una celda vacía no es un caso.
+                has_data = bool((r[2] if len(r) > 2 else "").strip())
                 if not parsed or not has_data:
                     continue
                 valid_csv.append((parsed[0], parsed[1], r))
@@ -1724,6 +1727,205 @@ async def soporte_estadisticas_page(request: Request, db: Session = Depends(get_
             "subsectores": CATALOGO_SUBSECTORES,
         },
     )
+
+
+def _norm_subsector(t) -> str:
+    """Normaliza un nombre de sub-sector: mayúsculas, sin tildes ni signos, espacios simples."""
+    t = unicodedata.normalize("NFD", str(t or "")).encode("ascii", "ignore").decode().upper()
+    return re.sub(r"\s+", " ", re.sub(r"[^A-Z0-9 ]", " ", t)).strip()
+
+
+_SUBSECTOR_VACIOS = {"", "NONE", "N A", "SIN SECTOR", "SIN URBANIZACION", "NULL"}
+# Nombres de zona: si el `sector` del padrón es uno de estos, no es un sub-sector real (es genérico).
+_SUBSECTOR_NOMBRES_ZONA = {
+    "LOS TEQUES", "EL VALLE", "TEJERIAS", "SAN DIEGO", "SAN ANTONIO",
+    "CARRIZAL", "PROPATRIA", "COCHE", "LA VEGA", "SAN PEDRO", "CUMBRE ROJA",
+}
+SUBSECTOR_GENERAL = "(Sin sub-sector específico)"
+_subsector_cache = {"mtimes": None, "regex": None, "nombres": {}}
+
+
+def _get_indice_subsectores():
+    """
+    Construye (y cachea) el listado de sub-sectores conocidos a partir del padrón de Rubpi
+    (campo `sector`) y del catálogo. Devuelve (regex_alternado, {nombre_norm: nombre_visible}).
+    La regex busca el nombre más largo primero, con límites de palabra, para identificar
+    el sub-sector en el texto libre de UBICACION cuando el cliente no cruza con el padrón.
+    """
+    idx, by_srv = _get_multi_clients_index()
+    mt = (len(by_srv), len(CATALOGO_SUBSECTORES))
+    if _subsector_cache["mtimes"] == mt and _subsector_cache["regex"] is not None:
+        return _subsector_cache["regex"], _subsector_cache["nombres"]
+
+    zonas_oficiales = _SUBSECTOR_NOMBRES_ZONA
+    nombres = {}
+    for item in by_srv.values():
+        sec = str(item.get("sector") or "").strip()
+        k = _norm_subsector(sec)
+        if k not in _SUBSECTOR_VACIOS and k not in zonas_oficiales and k not in nombres:
+            nombres[k] = sec.title() if sec.isupper() else sec
+    for item in CATALOGO_SUBSECTORES:
+        sec = str(item.get("subsector") or "").strip()
+        k = _norm_subsector(sec)
+        if k not in _SUBSECTOR_VACIOS and k not in zonas_oficiales and k not in nombres:
+            nombres[k] = sec
+
+    # Para texto libre solo se usan nombres de 5+ caracteres (evita falsos positivos: "Palmas", "Veras"...)
+    candidatos = sorted((k for k in nombres if len(k) >= 5), key=len, reverse=True)
+    rx = re.compile(r"\b(" + "|".join(re.escape(k) for k in candidatos) + r")\b") if candidatos else None
+    _subsector_cache.update({"mtimes": mt, "regex": rx, "nombres": nombres})
+    return rx, nombres
+
+
+def _subsector_de_caso(c, by_srv: dict, idx: dict, rx, nombres: dict):
+    """
+    Determina el sub-sector de un caso. Prioridad: 1) padrón por id_servicio, 2) padrón por cédula,
+    3) texto libre de UBICACION. Devuelve (nombre_visible, origen) u (None, None).
+    """
+    srv = by_srv.get(str(c.id_servicio or "").strip())
+    if not srv:
+        ced = (c.cedula or "").strip().upper()
+        alnum = re.sub(r"[^0-9A-Z]", "", ced)
+        digits = re.sub(r"[^0-9]", "", ced)
+        lst = idx.get(ced) or idx.get(alnum) or idx.get(digits)
+        srv = lst[0] if lst else None
+    generico_padron = False
+    if srv:
+        k = _norm_subsector(srv.get("sector"))
+        if k in _SUBSECTOR_NOMBRES_ZONA:
+            # El sector del padrón es solo el nombre de la zona (ej. "El Valle"): no es un sub-sector real.
+            generico_padron = True
+        elif k not in _SUBSECTOR_VACIOS:
+            return nombres.get(k) or str(srv.get("sector")).strip(), "padron"
+    if rx is not None:
+        m = rx.search(_norm_subsector(f"{c.zona or ''} {c.ubicacion or ''}"))
+        if m:
+            return nombres.get(m.group(1)) or m.group(1).title(), "texto"
+    if generico_padron:
+        return SUBSECTOR_GENERAL, "general"
+    return None, None
+
+
+@router.get("/api/soporte/estadisticas/subsectores")
+def obtener_estadisticas_subsectores(
+    request: Request,
+    desde: Optional[str] = Query(None, description="Fecha inicio YYYY-MM-DD"),
+    hasta: Optional[str] = Query(None, description="Fecha fin YYYY-MM-DD"),
+    q: Optional[str] = Query(None, description="Sub-sector a consultar (coincidencia por nombre)"),
+    zona: Optional[str] = Query(None, description="Zona oficial (opcional)"),
+    excluir_afectaciones: bool = Query(False, description="Excluir filas sin cédula/RIF numérica (afectaciones masivas)"),
+    db: Session = Depends(get_db),
+):
+    """
+    Reporte de atenciones remotas por Sub-sector (nivel bajo la Zona). Solo lectura.
+    Devuelve el ranking de sub-sectores y, si se envía `q`, el detalle de ese sub-sector
+    (por mes, motivo, analista, clientes distintos y escalados a visita técnica).
+    """
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    _sincronizar_desde_google_sheets(db)
+    query = db.query(models.SupportCase)
+    if desde:
+        query = query.filter(models.SupportCase.fecha_iso >= desde)
+    if hasta:
+        query = query.filter(models.SupportCase.fecha_iso <= hasta)
+    casos = query.all()
+
+    idx, by_srv = _get_multi_clients_index()
+    rx, nombres = _get_indice_subsectores()
+    zona_f = (zona or "").strip().upper()
+    q_norm = _norm_subsector(q) if q else ""
+
+    total = 0
+    masivas = 0
+    sin_sub = 0
+    por_origen = Counter()
+    ranking = {}
+    detalle_casos = []
+
+    for c in casos:
+        sin_cedula_numerica = not re.search(r"\d", c.cedula or "")
+        if sin_cedula_numerica:
+            masivas += 1
+            if excluir_afectaciones:
+                continue
+        zn = _normalizar_zona_oficial(f"{c.zona or ''} {c.ubicacion or ''}", (c.hub or "").strip().upper()) or "SIN ZONA"
+        if zona_f and zona_f != "TODAS" and zn != zona_f:
+            continue
+        total += 1
+        sub, origen = _subsector_de_caso(c, by_srv, idx, rx, nombres)
+        if not sub:
+            sin_sub += 1
+            continue
+        por_origen[origen] += 1
+        key = (sub, zn)
+        r = ranking.setdefault(key, {"subsector": sub, "zona": zn, "casos": 0, "clientes": set(), "visitas": 0})
+        r["casos"] += 1
+        if not sin_cedula_numerica:
+            r["clientes"].add(re.sub(r"[^0-9A-Za-z]", "", c.cedula or ""))
+        if "visita" in (c.solucion or "").lower():
+            r["visitas"] += 1
+        if q_norm and q_norm in _norm_subsector(sub):
+            detalle_casos.append(c)
+
+    lista = [
+        {"subsector": r["subsector"], "zona": r["zona"], "casos": r["casos"],
+         "clientes": len(r["clientes"]), "visitas": r["visitas"]}
+        for r in ranking.values()
+    ]
+    if q_norm:
+        lista = [x for x in lista if q_norm in _norm_subsector(x["subsector"])]
+    lista.sort(key=lambda x: (-x["casos"], x["subsector"]))
+
+    detalle = None
+    if q_norm:
+        cm, cr, ca, cs = Counter(), Counter(), Counter(), Counter()
+        clientes = set()
+        for c in detalle_casos:
+            cm[(c.fecha_iso or "")[:7]] += 1
+            cr[(c.reporte or "Sin especificar").strip()] += 1
+            ca[(c.analista or "Sin asignar").strip()] += 1
+            cs[(c.solucion or "Sin especificar").strip()] += 1
+            if re.search(r"\d", c.cedula or ""):
+                clientes.add(re.sub(r"[^0-9A-Za-z]", "", c.cedula))
+        n_det = len(detalle_casos)
+
+        def _fmt(cnt, limit=15):
+            return [
+                {"nombre": k, "cantidad": v, "porcentaje": round(v * 100.0 / n_det, 1) if n_det else 0.0}
+                for k, v in cnt.most_common(limit)
+            ]
+
+        detalle = {
+            "consulta": q,
+            "total_casos": n_det,
+            "clientes_distintos": len(clientes),
+            "escalados_visita": sum(1 for c in detalle_casos if "visita" in (c.solucion or "").lower()),
+            "por_mes": [
+                {"nombre": k, "cantidad": cm[k], "porcentaje": round(cm[k] * 100.0 / n_det, 1) if n_det else 0.0}
+                for k in sorted(cm)
+            ],
+            "por_reporte": _fmt(cr),
+            "por_analista": _fmt(ca),
+            "por_solucion": _fmt(cs),
+        }
+
+    return {
+        "total_casos": total,
+        "con_subsector": total - sin_sub,
+        "sin_subsector": sin_sub,
+        "porcentaje_identificado": round((total - sin_sub) * 100.0 / total, 1) if total else 0.0,
+        "afectaciones_sin_cedula": masivas,
+        "origen": {
+            "padron": por_origen.get("padron", 0),
+            "texto": por_origen.get("texto", 0),
+            "general": por_origen.get("general", 0),
+        },
+        "ranking": lista[:100],
+        "detalle": detalle,
+    }
 
 
 @router.get("/api/soporte/estadisticas")
