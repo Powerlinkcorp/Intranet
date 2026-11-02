@@ -1,0 +1,2349 @@
+# -*- coding: utf-8 -*-
+"""
+routers.soporte_router — Módulo de Documentación de Casos de Soporte Remoto.
+Reemplaza y optimiza el flujo de Google Sheets ("Incidencias de soporte remoto"):
+  1. Búsqueda instantánea por Cédula/RIF en la base de clientes (Rubpi Snapshots / DB local),
+     retornando TODOS los servicios y direcciones asociados para selección en modal.
+  2. Registro ultrarrápido con selección manual de HUB por botones, fallas (Reporte),
+     resolución (Solución), canal (Observación) y estado de router.
+  3. Numeración consecutiva automática por día (N° Caso), métricas en vivo e historial.
+  4. Exportación compatible 1:1 con la estructura del Google Sheets del equipo.
+"""
+import csv
+import io
+import json
+import os
+import re
+import time
+import unicodedata
+import urllib.error
+import urllib.request
+from collections import Counter, defaultdict
+from datetime import datetime, timedelta
+try:
+    import zoneinfo
+    CARACAS_TZ = zoneinfo.ZoneInfo("America/Caracas")
+except Exception:
+    from datetime import timezone
+    CARACAS_TZ = timezone(timedelta(hours=-4))
+
+
+def _now_caracas() -> datetime:
+    """Retorna datetime actual garantizado en zona horaria Venezuela (GMT-4 / America/Caracas)."""
+    return datetime.now(CARACAS_TZ)
+
+import threading
+from typing import List, Optional
+
+import requests
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from sqlalchemy import desc, func, or_
+from sqlalchemy.orm import Session
+
+from database import Base, engine, get_db
+import models
+import security
+
+# Asegurar que la tabla support_cases exista en la base de datos activa
+try:
+    models.Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[SOPORTE] Advertencia verificando tablas: {e}")
+
+templates = Jinja2Templates(directory="templates")
+router = APIRouter()
+
+
+def _cedula_sql_normalizada():
+    """
+    Expresión SQL de la cédula sin puntos, guiones, comas ni espacios.
+    Permite encontrar casos guardados como "16.472.781" o "V-16472781" al buscar "16472781".
+    (REPLACE existe tanto en SQLite como en PostgreSQL).
+    """
+    expr = models.SupportCase.cedula
+    for ch in (".", "-", ",", " "):
+        expr = func.replace(expr, ch, "")
+    return expr
+
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "static/uploads")
+GOOGLE_SHEETS_WEBHOOK_URL = os.getenv(
+    "GOOGLE_SHEETS_WEBHOOK_URL",
+    "https://script.google.com/macros/s/AKfycbwqpPJoqAdWqz7u9gxw6uOq0LSwaHvbcq14c8VoXX2FnpQUzKmhj0BQGkBcSMiHead_ZA/exec",
+)
+GOOGLE_SHEETS_CSV_URL = os.getenv(
+    "GOOGLE_SHEETS_CSV_URL",
+    "https://docs.google.com/spreadsheets/d/1EKUDXbf_1jjUi-68RYw_TMoh3Sbc6BqTBdeA0E4Usdc/export?format=csv&gid=246682208",
+)
+
+_sheets_sync_lock = threading.Lock()
+_last_sheets_sync_ts = 0.0
+
+
+def _parse_fecha_sheet(f_str: str):
+    f_str = (f_str or "").strip()
+    m = re.match(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$", f_str)
+    if m:
+        d, mo, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if y < 100:
+            y += 2000
+        if y in (206, 2025):
+            y = 2026
+        if 1 <= mo <= 12 and 1 <= d <= 31:
+            return f"{y:04d}-{mo:02d}-{d:02d}", f"{d}/{mo:02d}/{y:04d}"
+    m2 = re.match(r"^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$", f_str)
+    if m2:
+        y, mo, d = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
+        if y in (206, 2025):
+            y = 2026
+        if 1 <= mo <= 12 and 1 <= d <= 31:
+            return f"{y:04d}-{mo:02d}-{d:02d}", f"{d}/{mo:02d}/{y:04d}"
+    return None
+
+
+def _enriquecer_fila_sheet(
+    r: list,
+    f_iso: str,
+    f_disp: str,
+    idx_map: dict,
+    hub_dominante_por_cedula: dict,
+    clientes_multidireccion: set,
+) -> dict:
+    num_raw = re.sub(r"[^0-9]", "", r[1] if len(r) > 1 else "")
+    numero_caso = int(num_raw) if num_raw else 1
+    ced_raw = (r[2] if len(r) > 2 else "").strip() or "S/C"
+    analista = (r[3] if len(r) > 3 else "").strip() or "Soporte"
+    reporte = (r[4] if len(r) > 4 else "").strip() or "Sin especificar"
+    solucion = (r[5] if len(r) > 5 else "").strip() or "Sin especificar"
+    observacion = (r[6] if len(r) > 6 else "").strip() or "Rubpi"
+    hub_raw = (r[7] if len(r) > 7 else "").strip().upper() or "N/A"
+    if hub_raw == "VAL":
+        hub_raw = "VALL"
+    zona_sheet = (r[8] if len(r) > 8 else "").strip()
+    ubic_sheet = (r[9] if len(r) > 9 else "").strip()
+    r_lim_str = (r[10] if len(r) > 10 else "").strip().upper()
+    router_limitado = r_lim_str in ("TRUE", "SI", "SÍ", "1", "VERDADERO")
+    router_modelo = (r[11] if len(r) > 11 else "").strip()
+
+    ced_upper = ced_raw.upper()
+    digits = re.sub(r"[^0-9]", "", ced_upper)
+    alnum = re.sub(r"[^0-9A-Z]", "", ced_upper)
+
+    nombre_final = ""
+    id_srv_final = ""
+    tel_final = ""
+    plan_final = ""
+    ubic_final = ubic_sheet
+    hub_final = hub_raw
+
+    if digits and len(digits) >= 5:
+        if digits not in clientes_multidireccion and digits in hub_dominante_por_cedula:
+            hub_final = hub_dominante_por_cedula[digits]
+            if hub_final == "VAL":
+                hub_final = "VALL"
+
+        srvs = idx_map.get(ced_upper) or idx_map.get(alnum) or idx_map.get(digits)
+        if srvs:
+            elegido = srvs[0]
+            nombre_final = elegido.get("nombre") or ""
+            id_srv_final = elegido.get("id_servicio") or ""
+            tel_final = elegido.get("telefono1") or ""
+            plan_final = elegido.get("plan") or ""
+            ubic_final = elegido.get("ubicacion") or ubic_final
+            zona_api = _normalizar_zona_oficial(
+                f"{elegido.get('zona_completa') or ''} {ubic_final}", hub_final
+            )
+            zona_final = (
+                zona_api
+                or elegido.get("zona")
+                or _normalizar_zona_oficial(f"{zona_sheet} {ubic_sheet}", hub_final)
+                or zona_sheet
+            )
+        else:
+            zona_final = _normalizar_zona_oficial(f"{zona_sheet} {ubic_sheet}", hub_final) or zona_sheet
+    else:
+        zona_final = _normalizar_zona_oficial(f"{zona_sheet} {ubic_sheet}", hub_final) or zona_sheet
+
+    return {
+        "fecha": f_disp,
+        "fecha_iso": f_iso,
+        "numero_caso": numero_caso,
+        "cedula": ced_raw,
+        "nombre_cliente": nombre_final,
+        "id_servicio": id_srv_final,
+        "telefono": tel_final,
+        "plan": plan_final,
+        "analista": analista,
+        "reporte": reporte,
+        "solucion": solucion,
+        "observacion": observacion,
+        "hub": hub_final,
+        "zona": zona_final,
+        "ubicacion": ubic_final,
+        "router_limitado": router_limitado,
+        "router_modelo": router_modelo,
+    }
+
+
+def _sincronizar_desde_google_sheets(db: Session, force: bool = False) -> dict:
+    """
+    Descarga el CSV en vivo de Google Sheets y sincroniza incrementalmente cualquier fila nueva
+    o editada en la hoja hacia la base de datos local/activa al refrescar con F5.
+    Usa un lock y ventana de 5s para evitar descargas duplicadas en llamadas simultáneas del mismo F5.
+    """
+    global _last_sheets_sync_ts
+    now_ts = time.time()
+    if not force and (now_ts - _last_sheets_sync_ts < 5.0):
+        return {"status": "cached"}
+
+    with _sheets_sync_lock:
+        now_ts = time.time()
+        if not force and (now_ts - _last_sheets_sync_ts < 5.0):
+            return {"status": "cached"}
+        try:
+            resp = requests.get(GOOGLE_SHEETS_CSV_URL, timeout=12)
+            if resp.status_code != 200:
+                return {"status": "error", "code": resp.status_code}
+            resp.encoding = "utf-8"
+            csv_rows = list(csv.reader(io.StringIO(resp.text)))[1:]
+
+            valid_csv = []
+            for r in csv_rows:
+                parsed = _parse_fecha_sheet(r[0] if len(r) > 0 else "")
+                # Se ignoran filas "plantilla" (solo FECHA + N CASO pre-numerados, sin cédula/analista/reporte...)
+                # Solo se registran filas con Cédula/RIF real (col 2); una celda vacía no es un caso.
+                has_data = bool((r[2] if len(r) > 2 else "").strip())
+                if not parsed or not has_data:
+                    continue
+                valid_csv.append((parsed[0], parsed[1], r))
+
+            db_rows = (
+                db.query(models.SupportCase)
+                .order_by(models.SupportCase.id.asc())
+                .all()
+            )
+
+            # Verificar si hay diferencias o filas nuevas
+            n_csv = len(valid_csv)
+            n_db = len(db_rows)
+            changed_indices = []
+            min_len = min(n_csv, n_db)
+
+            for i in range(min_len):
+                f_iso, f_disp, r = valid_csv[i]
+                c_db = db_rows[i]
+                num_csv = int(re.sub(r"[^0-9]", "", r[1] if len(r) > 1 else "") or 0)
+                ced_csv = (r[2] if len(r) > 2 else "").strip() or "S/C"
+                ana_csv = (r[3] if len(r) > 3 else "").strip() or "Soporte"
+                rep_csv = (r[4] if len(r) > 4 else "").strip() or "Sin especificar"
+                sol_csv = (r[5] if len(r) > 5 else "").strip() or "Sin especificar"
+                obs_csv = (r[6] if len(r) > 6 else "").strip() or "Rubpi"
+                if (
+                    c_db.fecha_iso != f_iso
+                    or c_db.numero_caso != num_csv
+                    or c_db.cedula != ced_csv
+                    or c_db.analista != ana_csv
+                    or c_db.reporte != rep_csv
+                    or c_db.solucion != sol_csv
+                    or (c_db.observacion or "Rubpi") != obs_csv
+                ):
+                    changed_indices.append(i)
+
+            if not changed_indices and n_csv == n_db:
+                _last_sheets_sync_ts = time.time()
+                return {"status": "up_to_date", "total": n_db}
+
+            idx_map, _ = _get_multi_clients_index()
+
+            # Precalcular clientes multi-dirección y HUB dominante histórico
+            clientes_multidireccion = set()
+            for k, srvs in idx_map.items():
+                if k.isdigit() and len(srvs) > 1:
+                    dirs = {
+                        re.sub(r"[^A-Z0-9]", "", str(s.get("ubicacion") or "").upper())
+                        for s in srvs
+                        if re.sub(r"[^A-Z0-9]", "", str(s.get("ubicacion") or "").upper())
+                        not in ("", "SINDIRECCIONREGISTRADA", "NA", "NONE")
+                    }
+                    if len(dirs) > 1:
+                        clientes_multidireccion.add(k)
+
+            hub_counts_by_ced = defaultdict(Counter)
+            for _, _, r in valid_csv:
+                digs = re.sub(r"[^0-9]", "", (r[2] if len(r) > 2 else ""))
+                h_val = (r[7] if len(r) > 7 else "").strip().upper()
+                if len(digs) >= 5 and h_val not in ("", "N/A", "SIN HUB", "NONE"):
+                    hub_counts_by_ced[digs][h_val] += 1
+            hub_dominante_por_cedula = {
+                d: cnt.most_common(1)[0][0] for d, cnt in hub_counts_by_ced.items() if cnt
+            }
+
+            # 1. Actualizar filas modificadas
+            for i in changed_indices:
+                f_iso, f_disp, r = valid_csv[i]
+                enriq = _enriquecer_fila_sheet(
+                    r, f_iso, f_disp, idx_map, hub_dominante_por_cedula, clientes_multidireccion
+                )
+                c_db = db_rows[i]
+                for k, v in enriq.items():
+                    setattr(c_db, k, v)
+
+            # 2. Insertar filas nuevas al final
+            insertados = 0
+            if n_csv > n_db:
+                now_car = _now_caracas()
+                nuevos_objs = []
+                for i in range(n_db, n_csv):
+                    f_iso, f_disp, r = valid_csv[i]
+                    enriq = _enriquecer_fila_sheet(
+                        r, f_iso, f_disp, idx_map, hub_dominante_por_cedula, clientes_multidireccion
+                    )
+                    nuevos_objs.append(models.SupportCase(**enriq, created_at=now_car))
+                db.add_all(nuevos_objs)
+                insertados = len(nuevos_objs)
+
+            db.commit()
+            _last_sheets_sync_ts = time.time()
+            print(
+                f"[SOPORTE <- SHEETS] Sincronizado: +{insertados} nuevos, {len(changed_indices)} actualizados (Total: {n_csv})",
+                flush=True,
+            )
+            return {
+                "status": "synced",
+                "insertados": insertados,
+                "actualizados": len(changed_indices),
+                "total": n_csv,
+            }
+        except Exception as e:
+            print(f"[SOPORTE <- SHEETS] Advertencia en sync automático: {e}", flush=True)
+            return {"status": "error", "detalle": str(e)}
+
+
+def _enviar_casos_a_google_sheets(casos_dicts: list) -> dict:
+    """Envía uno o múltiples casos recién creados hacia Google Sheets mediante el Webhook de Apps Script."""
+    if not GOOGLE_SHEETS_WEBHOOK_URL or not casos_dicts:
+        return {"ok": False, "detalle": "Webhook no configurado"}
+    try:
+        resp = requests.post(
+            GOOGLE_SHEETS_WEBHOOK_URL,
+            json={"casos": casos_dicts},
+            timeout=20,
+        )
+        data = resp.json()
+        if data.get("status") == "ok":
+            return {
+                "ok": True,
+                "insertados": data.get("insertados", len(casos_dicts)),
+                "desde_fila": data.get("desde_fila"),
+                "hasta_fila": data.get("hasta_fila"),
+            }
+        return {"ok": False, "detalle": data.get("message", "Respuesta no exitosa de Google Sheets")}
+    except Exception as e:
+        print(f"[SOPORTE -> SHEETS] Error enviando a Google Sheets: {e}")
+        return {"ok": False, "detalle": str(e)}
+
+# ============================================================================
+# CATÁLOGOS OFICIALES EXTRAÍDOS DEL HISTÓRICO DE SOPORTE REMOTO (52,000+ CASOS)
+# ============================================================================
+CATALOGO_HUBS = [
+    {"code": "CMDP", "label": "CMDP"},
+    {"code": "MAC", "label": "MAC"},
+    {"code": "VALL", "label": "VALL"},
+    {"code": "TEJ", "label": "TEJ"},
+    {"code": "SJ", "label": "SJ"},
+    {"code": "RET", "label": "RET"},
+    {"code": "CUM", "label": "CUM"},
+    {"code": "PRIN", "label": "PRIN"},
+    {"code": "PROP", "label": "PROP"},
+    {"code": "TIB", "label": "TIB"},
+    {"code": "PAR", "label": "PAR"},
+    {"code": "N/A", "label": "N/A"},
+]
+
+CATALOGO_REPORTES = [
+    "Sin servicio",
+    "Lentitud",
+    "Intermitencia",
+    "Afectación",
+    "Asesoría",
+    "Cambio de clave",
+    "Adecuaciones",
+    "Suspendido administrativamente",
+    "PowerLink GO",
+    "Falla de acceso web / Streaming",
+    "Fibra caída / holgada",
+]
+
+CATALOGO_SOLUCIONES = [
+    "Reinicio / Resincronización de ONU",
+    "Visita técnica",
+    "Cambio de VLAN",
+    "Red interna / Router cliente",
+    "Caso de afectación",
+    "Asesoría facilitada",
+    "Cambio de clave realizado",
+    "Remitido a otro departamento",
+    "Adecuación de red",
+    "Falla de proveedor",
+    "Sin respuesta del cliente",
+]
+
+# Mapeo inteligente Falla -> Resolución automática (elimina doble clic en casos redundantes)
+MAPEO_FALLA_SOLUCION_DIRECTA = {
+    "Afectación": "Caso de afectación",
+    "Cambio de clave": "Cambio de clave realizado",
+    "Adecuaciones": "Adecuación de red",
+    "Suspendido administrativamente": "Remitido a otro departamento",
+    "Asesoría": "Asesoría facilitada",
+    "Fibra caída / holgada": "Visita técnica",
+}
+
+CATALOGO_OBSERVACIONES = [
+    "Rubpi",
+    "Llamada",
+    "Requerimientos",
+]
+
+
+# ============================================================================
+# ÍNDICE MULTISERVICIO EN MEMORIA (UN CLIENTE -> MÚLTIPLES DIRECCIONES/CONTRATOS)
+# ============================================================================
+_multi_clients_index = {}
+_multi_services_by_id = {}
+_multi_clients_mtimes = (0, 0)
+
+
+def _format_phone(p: Optional[str]) -> str:
+    p = str(p or "").strip()
+    if not p:
+        return ""
+    digits = re.sub(r"[^0-9]", "", p)
+    if digits.startswith("58") and len(digits) == 12:
+        return "0" + digits[2:5] + "-" + digits[5:]
+    if digits.startswith("0") and len(digits) == 11:
+        return digits[:4] + "-" + digits[4:]
+    return p
+
+
+def _build_zona_str(u: dict) -> str:
+    parts = []
+    for k in ("state", "city", "urban", "sector"):
+        val = str(u.get(k) or "").strip()
+        if val and val.lower() not in [p.lower() for p in parts]:
+            parts.append(val)
+    return ", ".join(parts)
+
+
+def _build_ubicacion_con_subsector(u: dict) -> str:
+    """
+    Construye la dirección (ubicación) garantizando que siempre incluya el sub-sector / urbanización
+    de la base de datos cuando el campo address es genérico (ej. 'Calle principal, Casa s/n').
+    """
+    address = str(u.get("address") or "").strip().rstrip(",").strip()
+    sector = str(u.get("sector") or "").strip()
+    urban = str(u.get("urban") or "").strip()
+    city = str(u.get("city") or "").strip()
+
+    sec_valid = sector if sector.upper() not in ("", "NONE", "N/A", "SIN SECTOR") else ""
+    urb_valid = urban if urban.upper() not in ("", "NONE", "N/A", "SIN URBANIZACION") else ""
+    if "CECILIO ACOSTA" in urb_valid.upper():
+        urb_valid = "San Diego de los Altos"
+
+    if not address:
+        parts = [p for p in (urb_valid, sec_valid) if p]
+        return ", ".join(dict.fromkeys(parts)) or city or "Sin dirección registrada"
+
+    addr_up = address.upper()
+    has_sec = bool(sec_valid and sec_valid.upper() in addr_up)
+    has_urb = bool(urb_valid and urb_valid.upper() in addr_up)
+    has_locality = any(
+        loc in addr_up
+        for loc in (
+            "LOS TEQUES", "SAN PEDRO", "SAN ANTONIO", "SAN DIEGO", "CARRIZAL",
+            "TEJERIA", "TEJERÍA", "EL VALLE", "PROPATRIA", "CATIA", "SILSA",
+            "COCHE", "LAS MAYAS", "LA VEGA", "CUMBRE ROJA",
+        )
+    )
+
+    # Si la dirección no menciona ni el sub-sector ni la urbanización ni la localidad
+    # (ej. "Calle principal, Casa s/n"), anteponer el sub-sector de la BD.
+    if not has_sec and not has_urb and not has_locality:
+        prefix_parts = []
+        if urb_valid:
+            prefix_parts.append(urb_valid)
+        if sec_valid and sec_valid.upper() != urb_valid.upper():
+            if sec_valid.upper().startswith(("SECTOR", "URB", "RES", "BARRIO", "C.C")):
+                prefix_parts.append(sec_valid)
+            else:
+                prefix_parts.append(f"Sector {sec_valid}")
+        if prefix_parts:
+            return f"{', '.join(prefix_parts)} — {address}"
+
+    return address
+
+
+def _normalizar_zona_oficial(texto: str, hub: str = "") -> str:
+    """
+    Normaliza cualquier dirección/sector de la API o del Sheets a las 10 macro-zonas oficiales:
+      LOS TEQUES, TEJERIAS, EL VALLE, SAN DIEGO, SAN ANTONIO, CARRIZAL,
+      CUMBRE ROJA, PROPATRIA, COCHE, LA VEGA.
+    Usa el contexto de la dirección, sub-sectores de la BD y el HUB para desambiguar
+    sub-sectores homónimos (ej. 'San Pedro de los Altos, Sector Finca Minerva Los Helechos' -> LOS TEQUES,
+    'Carretera Vieja Caracas-Los Teques' / 'Residencias Caracas' -> LOS TEQUES,
+    'Edif. Araguaney, Los Teques' -> LOS TEQUES, 'Carrizalito' -> LOS TEQUES).
+    """
+    u = str(texto or "").upper().strip()
+    h = str(hub or "").upper().strip()
+    if h == "VAL":
+        h = "VALL"
+    u_clean = re.sub(r"\b(N/A|SIN ZONA|NONE|SIN DIRECCION REGISTRADA)\b", "", u).strip()
+    if not u_clean and h in ("", "N/A", "NONE", "SIN HUB", "AF"):
+        return ""
+
+    # Limpiar falsos positivos de subcadenas antes de evaluar palabras clave:
+    # - "ARAGUANEY" contiene "ARAGUA" (Edif. Araguaney en Los Teques no es el estado Aragua)
+    # - "CARRIZALITO" contiene "CARRIZAL" (Carrizalito en Carretera Vieja / Los Teques no es el municipio Carrizal)
+    u_eval = (
+        u_clean
+        .replace("ARAGUANEY", " ")
+        .replace("CARRIZALITO", "LOS TEQUES")
+    )
+
+    tiene_ltq_explicito = any(k in u_eval for k in (
+        "LOS TEQUES", "SAN PEDRO", "POZO DE ROSAS", "LAS LOMITAS",
+        "CARRETERA VIEJA CARACAS", "LA MATICA", "LA MACARENA",
+        "MACARENA", "EL PASO", "MAL PASO", "EL NACIONAL", "LAGUNETICA", "EL VIGIA",
+        "SOLAR DE LA QUINTA", "URB LA QUINTA", "SECTOR LA QUINTA", "GUAREMAL",
+        "RAMO VERDE", "SANTA EULALIA", "PALO ALTO", "LOS LAGOS",
+        "RETAMAL", "EL BARBECHO", "BARBECHO", "EL TRIGO", "CABOTAJE", "ROMULO GALLEGO",
+        "ALBERTO RAVELL", "PUNTA BRAVA", "JOSE GREGORIO", "BERMUDEZ",
+        "ALTO VERDE", "RESIDENCIAS CARACAS", "RES CARACAS", "RES. CARACAS", "BARRIO AYACUCHO",
+        "CUMBRE ROJA", "CUMBRE ROJAS", "CAÑA LARGA", "CANA LARGA", "TRABUCO",
+        "EL AYACUCHO", "QUEBRADA DE LA VIRGEN", "QUEBRADA LA VIRGEN", "ALTOS DE CORO",
+        "EL LLANO", "CALLE GUAICAIPURO", "FINCA MINERVA", "EL ENCANTO",
+        "AV BICENTENARIO", "AVENIDA BICENTENARIA", "LA GONZALERA", "LOS AMARILLOS",
+        "BARRIO MIRANDA", "AQUILES NAZOA", "COLINAS DEL ANGEL", "EL RETEN", "RIO ARRIBA",
+        "EL BEISBOL", "RES. TIUNA", "SANTA EDUVIGES", "BARRIO LA CRUZ", "LOS BARRIALES",
+        "LAS CADENAS", "RES. MIRAFLORES", "VICTORINO SANTAELLA", "MANUELA SAENZ",
+        "EL RINCON", "LOS CERRITOS", "RES. LA CIMA", "EL TAMBOR", "TINANTONIA",
+        "EL PUINKY", "EL PANADERO"
+    ))
+
+    # 1. TEJERIAS / SANTOS MICHELENA / ARAGUA
+    if any(k in u_eval for k in (
+        "TEJERIA", "TEJERÍA", "SANTOS MICHELENA", "SANTO MICHELENA", "LOS LIMITES",
+        "LOS LÍMITES", "LOS PANAMERICANOS", "CURIEPE", "JABILLAL", "CAÑAOTE", "CANAOTE",
+        "CAAOTE", "TRAPICHE DEL MEDIO", "TINAPUEY", "LA GRUTA", "LA CONCEPCION",
+        "SANTO DOMINGO", "CIUDAD GUAYAS", "CIUDAD GUAYA", "JERUSALEN"
+    )) or re.search(r"\bARAGUA\b", u_eval):
+        return "TEJERIAS"
+    if "BUCARAL" in u_eval and not tiene_ltq_explicito and h not in ("CMDP", "MAC"):
+        return "TEJERIAS"
+
+    # 3. LA VEGA
+    if "LA VEGA" in u_eval or ("LAS TORRES" in u_eval and h in ("VALL", "PRIN", "TIB")):
+        return "LA VEGA"
+
+    # 4. COCHE (incluye Las Mayas, Veredas de Coche y Fundapol)
+    if any(k in u_eval for k in ("COCHE", "VEREDAS DE COCHE", "LAS MAYAS", "FUNDAPOL")):
+        return "COCHE"
+
+    # 5. PROPATRIA / CATIA (Sucre, Dtto Capital)
+    if any(k in u_eval for k in (
+        "PROPATRIA", "CATIA", "LA SILSA", "PEREZ BONALDE", "PÉREZ BONALDE",
+        "MAGALLANES DE CATIA", "CALLE ECUADOR", "CALLE COLOMBIA", "CERRO NEGRO",
+        "CASALTA", "ALTA VISTA", "GRAMOVEN", "RUPERTO LUGO", "LOS FRAILES"
+    )):
+        return "PROPATRIA"
+    if "MAGALLANES" in u_eval and not tiene_ltq_explicito:
+        return "PROPATRIA"
+
+    # 6. SAN PEDRO DE LOS ALTOS -> siempre se agrupa en LOS TEQUES
+    if "SAN PEDRO" in u_eval and "EL VALLE" not in u_eval:
+        return "LOS TEQUES"
+
+    # 7. CARRIZAL
+    if any(k in u_eval for k in (
+        "LLANO ALTO", "BRISAS DE ORIENTE", "CORRALITO", "BAROLA", "YERBA BUENA",
+        "YERBABUENA", "JOSE MANUEL ALVAREZ", "JOSÉ MANUEL ALVAREZ", "MONTAÑA ALTA",
+        "MONTANA ALTA", "MONATAA ALTA", "POTRERITO", "POTRERO DEL MEDIO", "POTRERO MEDIO",
+        "COLISEO", "LOMAS DE URQUIA", "AMIGOS REUNIDOS"
+    )):
+        return "CARRIZAL"
+    if "CARRIZAL" in u_eval and "SAN DIEGO" not in u_eval:
+        return "CARRIZAL"
+
+    # 8. SAN DIEGO DE LOS ALTOS (Parroquia Cecilio Acosta)
+    if any(k in u_eval for k in (
+        "SAN DIEGO", "CECILIO ACOSTA", "CANTARANA", "CANTARRANA", "GUAREGUARE",
+        "EL NARANJAL", "CORTADA EL GUAYABO", "CORTADA DEL GUAYABO", "EL PEÑON",
+        "EL PENON", "LA CRUCECITA", "CRUZECITA", "LA OCI", "LAS YEGUAS",
+        "COCOROTE", "CACHAPAL", "LOS AMISTOSOS"
+    )):
+        return "SAN DIEGO"
+    if any(k in u_eval for k in ("SAN JOSE", "SAN JOSÉ", "AGUA FRIA", "EL PRADO", "VISTA HERMOSA")) and not tiene_ltq_explicito and "SAN ANTONIO" not in u_eval and "LOS SALIAS" not in u_eval and h not in ("CMDP", "MAC", "RET", "PAR"):
+        return "SAN DIEGO"
+
+    # 9. SAN ANTONIO DE LOS ALTOS (Municipio Los Salias)
+    if any(k in u_eval for k in (
+        "LA ROSALEDA", "ROSALEDA", "LOS CASTORES", "LAS MINAS", "LAS POLONIAS",
+        "EL RETIRO", "LA MORITA", "EL PARAMO", "EL PÁRAMO", "RES. OPS", "SIERRA BRAVA",
+        "LA POMOROSA", "C.C LA CASONA", "LA CASONA", "C.C COLINAS", "C.C LA COLINA",
+        "LAS CHURUATAS", "CLUB DE CAMPO", "LA GUADALUPE", "AGUA LINDA"
+    )):
+        return "SAN ANTONIO"
+    if "LOS HELECHOS" in u_eval:
+        # Si pertenece a San Pedro ("Sector Finca Minerva Los Helechos"), Guaremal, Los Teques o HUB CMDP/MAC/CUM -> LOS TEQUES
+        if tiene_ltq_explicito or h in ("CMDP", "MAC", "CUM"):
+            return "LOS TEQUES"
+        return "SAN ANTONIO"
+    if any(k in u_eval for k in ("LOS SALIAS", "SAN ANTONIO DE LOS ALTOS", "SAN ANTORIO")):
+        if tiene_ltq_explicito and ("LA GONZALERA" in u_eval or "LA MATICA" in u_eval or "EL PUEBLO, LOS TEQUES" in u_eval):
+            return "LOS TEQUES"
+        return "SAN ANTONIO"
+    if "SAN ANTONIO" in u_eval and not tiene_ltq_explicito and "EL VALLE" not in u_eval and "CARACAS" not in u_eval and h not in ("CMDP", "MAC", "VALL", "VAL", "PRIN", "TIB"):
+        return "SAN ANTONIO"
+
+    # 10. EL VALLE
+    if any(k in u_eval for k in (
+        "EL VALLE", "BRUZUAL", "LOS JARDINES", "JARDINES DEL VALLE", "CALLE 18",
+        "EL 70", "EL CEIBO", "LOS CARDONES", "EL TAMARINDO", "CALLE 5 DE JULIO",
+        "SANTA ROSALIA", "TURMERITO", "FONVICA", "SAN ANDRES", "LA PEDRERA"
+    )) and "VIRGEN DEL VALLE, LOS TEQUES" not in u_eval:
+        return "EL VALLE"
+
+    # 11. Señal explícita de LOS TEQUES / GUAICAIPURO (Res. Caracas, Carretera Vieja Caracas-Los Teques, Macarena Calle Libertador, El Nacional Los Eucaliptos)
+    if tiene_ltq_explicito:
+        return "LOS TEQUES"
+
+    # 12. Palabras compartidas entre El Valle/Caracas y Los Teques (LOS EUCALIPTOS, LIBERTADOR, CARACAS)
+    if any(k in u_eval for k in ("LOS EUCALIPTOS", "LIBERTADOR", "CARACAS")):
+        if h in ("CMDP", "MAC", "CUM"):
+            return "LOS TEQUES"
+        if h == "PROP":
+            return "PROPATRIA"
+        return "EL VALLE"
+
+    # 13. Otros sectores de LOS TEQUES / GUAICAIPURO
+    if any(k in u_eval for k in ("GUAICAIPURO", "LA QUINTA", "LOS ALPES", "SANTA ROSA", "EL CHORRITO", "23 DE ENERO", "LA ESTRELLA", "VALLE ALTO", "ENCANTO")):
+        if h == "PROP":
+            return "PROPATRIA"
+        if h in ("VALL", "VAL", "PRIN", "TIB"):
+            return "EL VALLE"
+        return "LOS TEQUES"
+
+    # 14. Fallback por HUB cuando la dirección es genérica (ej. "Calle principal, Casa s/n")
+    if h in ("CMDP", "MAC", "CUM"):
+        return "LOS TEQUES"
+    if h == "TEJ":
+        return "TEJERIAS"
+    if h == "SJ":
+        return "SAN DIEGO"
+    if h in ("RET", "PAR"):
+        return "SAN ANTONIO"
+    if h == "PROP":
+        return "PROPATRIA"
+    if h in ("VALL", "VAL", "PRIN", "TIB"):
+        return "EL VALLE"
+
+    return u_clean
+
+
+def _cargar_catalogo_subsectores() -> list:
+    """
+    Carga el catálogo de sub-sectores para autocompletado y afectaciones masivas.
+    Si el archivo JSON no existe en static/uploads/, lo genera automáticamente a partir
+    de los snapshots de clientes (last_snapshot.json / last_snapshot_corporativo.json).
+    """
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    path_sub = os.path.join(UPLOAD_DIR, "catalogo_subsectores.json")
+    try:
+        if os.path.exists(path_sub):
+            with open(path_sub, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list) and len(data) > 0:
+                    return data
+    except Exception as e:
+        print(f"[SOPORTE] Error leyendo catalogo_subsectores.json: {e}")
+
+    # Construir automáticamente desde los snapshots de clientes
+    try:
+        conteo = Counter()
+        meta_por_clave = {}
+        for fn in ("last_snapshot.json", "last_snapshot_corporativo.json"):
+            p = os.path.join(UPLOAD_DIR, fn)
+            if not os.path.exists(p):
+                continue
+            with open(p, "r", encoding="utf-8") as f:
+                rows = json.load(f).get("data", [])
+            for u in rows:
+                st = str(u.get("state") or "").strip()
+                ci = str(u.get("city") or "").strip()
+                ur = str(u.get("urban") or "").strip()
+                se = str(u.get("sector") or "").strip()
+                if not se or se.upper() in ("NONE", "N/A", "SIN SECTOR"):
+                    se = ur
+                if not se:
+                    continue
+                zc = _build_zona_str(u)
+                zn = _normalizar_zona_oficial(zc)
+                if zn not in (
+                    "LOS TEQUES", "EL VALLE", "TEJERIAS", "SAN DIEGO", "SAN ANTONIO",
+                    "CARRIZAL", "PROPATRIA", "COCHE", "LA VEGA"
+                ):
+                    continue
+                sub_label = se.strip()
+                if sub_label.upper() in ("CASCO CENTRAL", "EL PUEBLO") and ur:
+                    sub_label = f"{ur} ({se})"
+                key = (zn, sub_label.upper())
+                conteo[key] += 1
+                if key not in meta_por_clave:
+                    meta_por_clave[key] = {
+                        "subsector": sub_label,
+                        "direccion": zc,
+                        "zona": zn,
+                    }
+
+        # Asegurar que sub-sectores emblemáticos como Finca Minerva Los Helechos estén siempre presentes
+        especiales = [
+            {
+                "subsector": "San Pedro — Sector Finca Minerva Los Helechos",
+                "direccion": "Miranda, Guaicaipuro, San Pedro de los Altos, Sector Finca Minerva Los Helechos",
+                "zona": "LOS TEQUES",
+            },
+            {
+                "subsector": "Urb. Los Helechos (San Antonio)",
+                "direccion": "Miranda, Los Salias, San Antonio de los Altos, Urb. Los Helechos",
+                "zona": "SAN ANTONIO",
+            },
+        ]
+        generados = [meta_por_clave[k] for k, _ in conteo.most_common(260)]
+        for esp in especiales:
+            if not any(x["subsector"].upper() == esp["subsector"].upper() for x in generados):
+                generados.insert(0, esp)
+
+        if generados:
+            with open(path_sub, "w", encoding="utf-8") as f:
+                json.dump(generados, f, ensure_ascii=False, indent=2)
+            return generados
+    except Exception as e:
+        print(f"[SOPORTE] Error generando catalogo_subsectores.json: {e}")
+    return []
+
+
+CATALOGO_SUBSECTORES = _cargar_catalogo_subsectores()
+
+
+def _ejecutar_sincronizacion_rubpi() -> dict:
+    """
+    Descarga directamente desde la API oficial de Rubpi los padrones residencial y corporativo
+    y los guarda en static/uploads/last_snapshot.json y last_snapshot_corporativo.json.
+    """
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    login_url = "https://powerlink.rubpi.com/api/login"
+    creds = {"username": "api_exp", "password": "-?J+\\FcmKT2zWl5A28=~"}
+
+    try:
+        req = urllib.request.Request(
+            login_url,
+            data=json.dumps(creds).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            login_data = json.loads(resp.read().decode())
+            api_token = login_data.get("token") or login_data.get("access_token")
+        if not api_token:
+            raise Exception("No se recibió token de Rubpi API")
+
+        def _export_and_wait(url_export: str):
+            r = urllib.request.Request(
+                url_export,
+                headers={"Authorization": f"Bearer {api_token}", "Accept": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(r, timeout=15) as resp2:
+                tid = json.loads(resp2.read().decode()).get("task_id")
+            if not tid:
+                raise Exception("No se recibió task_id de exportación")
+            for _ in range(25):
+                time.sleep(2)
+                r2 = urllib.request.Request(
+                    f"https://powerlink.rubpi.com/api/exports/users/{tid}",
+                    headers={"Authorization": f"Bearer {api_token}"},
+                    method="GET",
+                )
+                try:
+                    with urllib.request.urlopen(r2, timeout=30) as resp3:
+                        return json.loads(resp3.read().decode())
+                except urllib.error.HTTPError as he:
+                    if he.code == 400:
+                        continue
+                    raise
+            raise Exception("Tiempo de espera agotado descargando clientes de Rubpi")
+
+        print("[SOPORTE] Descargando padrón residencial desde Rubpi API...", flush=True)
+        data_gen = _export_and_wait("https://powerlink.rubpi.com/api/exports/users")
+        path_res = os.path.join(UPLOAD_DIR, "last_snapshot.json")
+        with open(path_res, "w", encoding="utf-8") as f:
+            json.dump(data_gen, f)
+
+        print("[SOPORTE] Descargando padrón corporativo desde Rubpi API...", flush=True)
+        data_corp = _export_and_wait("https://powerlink.rubpi.com/api/exports/users?is_natural=0")
+        path_corp = os.path.join(UPLOAD_DIR, "last_snapshot_corporativo.json")
+        with open(path_corp, "w", encoding="utf-8") as f:
+            json.dump(data_corp, f)
+
+        # Forzar recarga del índice en memoria
+        global _multi_clients_mtimes
+        _multi_clients_mtimes = (0, 0)
+        idx, by_srv = _get_multi_clients_index()
+
+        print(f"[SOPORTE] Sincronización exitosa: {len(by_srv)} servicios indexados", flush=True)
+        return {
+            "status": "ok",
+            "total_contratos": len(by_srv),
+            "mensaje": f"Padrón de clientes sincronizado automáticamente ({len(by_srv)} servicios indexados).",
+        }
+    except Exception as e:
+        print(f"[SOPORTE] Error en sincronización con Rubpi API: {e}", flush=True)
+        return {"status": "error", "mensaje": str(e)}
+
+
+def _get_multi_clients_index():
+    """
+    Indexa todos los contratos de last_snapshot.json y last_snapshot_corporativo.json
+    agrupando en una LISTA todos los servicios que pertenecen a una misma Cédula o RIF.
+    Si los archivos no existen (ej. primera ejecución tras clonar), los descarga automáticamente.
+    """
+    global _multi_clients_index, _multi_services_by_id, _multi_clients_mtimes
+
+    path_res = os.path.join(UPLOAD_DIR, "last_snapshot.json")
+    path_corp = os.path.join(UPLOAD_DIR, "last_snapshot_corporativo.json")
+
+    # Si no existen los snapshots, descargarlos automáticamente de la API de Rubpi
+    if not os.path.exists(path_res):
+        print("[SOPORTE] No existe snapshot local de clientes. Descargando automáticamente de Rubpi...", flush=True)
+        _ejecutar_sincronizacion_rubpi()
+    elif os.path.exists(path_res) and (time.time() - os.path.getmtime(path_res) > 86400 * 2):
+        # Si tiene más de 48 horas de antigüedad, actualizar en segundo plano sin congelar
+        if not getattr(_ejecutar_sincronizacion_rubpi, "_is_syncing", False):
+            _ejecutar_sincronizacion_rubpi._is_syncing = True
+            def _bg_sync():
+                try:
+                    _ejecutar_sincronizacion_rubpi()
+                finally:
+                    _ejecutar_sincronizacion_rubpi._is_syncing = False
+            threading.Thread(target=_bg_sync, daemon=True).start()
+
+    mtime_res = os.path.getmtime(path_res) if os.path.exists(path_res) else 0
+    mtime_corp = os.path.getmtime(path_corp) if os.path.exists(path_corp) else 0
+    current_mtimes = (mtime_res, mtime_corp)
+
+    if _multi_clients_index and _multi_clients_mtimes == current_mtimes:
+        return _multi_clients_index, _multi_services_by_id
+
+    new_index = {}
+    by_service_id = {}
+
+    def _add_record(u: dict, default_tipo: str):
+        doc_raw = str(u.get("doc") or "").strip().upper()
+        if not doc_raw:
+            return
+        doc_digits = re.sub(r"[^0-9A-Z]", "", doc_raw)
+        only_nums = re.sub(r"[^0-9]", "", doc_raw)
+        dt = str(u.get("doc_type") or "").strip().upper()
+
+        id_srv = str(u.get("id_servicio") or "").strip()
+        service_type = str(u.get("service_type") or default_tipo).strip().upper()
+
+        # Soporte remoto solo atiende servicios de Internet (Fibra / Radiofrecuencia):
+        # se excluyen los contratos IPTV y los planes exclusivos de TV (sin Internet).
+        plan_upper = str(u.get("plan") or "").strip().upper()
+        if "IPTV" in service_type or plan_upper == "TV":
+            return
+
+        onu_val = u.get("onu_sn") or u.get("onu") or u.get("onu_mac") or ""
+        if " / " in str(onu_val):
+            onu_val = str(onu_val).split(" / ")[0].strip()
+
+        address = str(u.get("address") or "").strip()
+        urban = str(u.get("urban") or "").strip()
+        city = str(u.get("city") or "").strip()
+        sector = str(u.get("sector") or "").strip()
+        state = str(u.get("state") or "").strip()
+        zona_compuesta = _build_zona_str(u)
+        zona_oficial = _normalizar_zona_oficial(f"{zona_compuesta} {address}")
+
+        item = {
+            "id_servicio": id_srv,
+            "id_usuario": str(u.get("id_usuario") or ""),
+            "cedula": f"{dt}-{doc_raw}" if dt and not doc_raw.startswith(dt) else doc_raw,
+            "doc": only_nums or doc_digits,
+            "doc_type": dt,
+            "nombre": str(u.get("name") or "").strip(),
+            "telefono1": _format_phone(u.get("phone")),
+            "telefono2": _format_phone(u.get("phone_2")),
+            "email": str(u.get("email") or "").strip(),
+            "ubicacion": _build_ubicacion_con_subsector(u),
+            "zona": zona_oficial or urban or city or zona_compuesta or "",
+            "zona_completa": zona_compuesta,
+            "state": state,
+            "city": city,
+            "urban": urban,
+            "sector": sector,
+            "plan": str(u.get("plan") or "Sin plan").strip(),
+            "estado_servicio": str(u.get("service_status") or "DESCONOCIDO").strip().upper(),
+            "tipo_servicio": service_type,
+            "onu": str(onu_val),
+            "vlan": str(u.get("vlan") or ""),
+        }
+
+        keys_to_register = set()
+        if doc_digits:
+            keys_to_register.add(doc_digits)
+        if only_nums:
+            keys_to_register.add(only_nums)
+        if dt and only_nums:
+            keys_to_register.add(f"{dt}-{only_nums}")
+            keys_to_register.add(f"{dt}{only_nums}")
+        if dt and doc_digits:
+            keys_to_register.add(f"{dt}-{doc_digits}")
+            keys_to_register.add(f"{dt}{doc_digits}")
+
+        for k in keys_to_register:
+            lst = new_index.setdefault(k, [])
+            # Evitar duplicar el mismo id_servicio dentro de la misma cédula
+            if id_srv and any(existing.get("id_servicio") == id_srv for existing in lst):
+                continue
+            lst.append(item)
+
+        if id_srv:
+            by_service_id[id_srv] = item
+
+    if os.path.exists(path_res):
+        try:
+            with open(path_res, "r", encoding="utf-8") as f:
+                for u in json.load(f).get("data", []):
+                    _add_record(u, "RESIDENCIAL")
+        except Exception as e:
+            print(f"[SOPORTE] Error indexando last_snapshot.json: {e}")
+
+    if os.path.exists(path_corp):
+        try:
+            with open(path_corp, "r", encoding="utf-8") as f:
+                for u in json.load(f).get("data", []):
+                    _add_record(u, "CORPORATIVO")
+        except Exception as e:
+            print(f"[SOPORTE] Error indexando last_snapshot_corporativo.json: {e}")
+
+    _multi_clients_index = new_index
+    _multi_services_by_id = by_service_id
+    _multi_clients_mtimes = current_mtimes
+    return _multi_clients_index, _multi_services_by_id
+
+
+# ============================================================================
+# ESQUEMAS PYDANTIC
+# ============================================================================
+class SupportCaseCreate(BaseModel):
+    cedula: str
+    nombre_cliente: Optional[str] = ""
+    id_servicio: Optional[str] = ""
+    telefono: Optional[str] = ""
+    plan: Optional[str] = ""
+    analista: Optional[str] = ""
+    reporte: str
+    solucion: str
+    observacion: Optional[str] = "Rubpi"
+    notas_adicionales: Optional[str] = ""
+    hub: str
+    zona: Optional[str] = ""
+    ubicacion: Optional[str] = ""
+    router_limitado: Optional[bool] = False
+    router_modelo: Optional[str] = ""
+    fecha_iso: Optional[str] = ""  # Opcional (por defecto hoy)
+
+
+class SupportCaseUpdate(BaseModel):
+    cedula: Optional[str] = None
+    nombre_cliente: Optional[str] = None
+    id_servicio: Optional[str] = None
+    telefono: Optional[str] = None
+    plan: Optional[str] = None
+    reporte: Optional[str] = None
+    solucion: Optional[str] = None
+    observacion: Optional[str] = None
+    notas_adicionales: Optional[str] = None
+    hub: Optional[str] = None
+    zona: Optional[str] = None
+    ubicacion: Optional[str] = None
+    router_limitado: Optional[bool] = None
+    router_modelo: Optional[str] = None
+
+
+class SupportBulkAfectacionCreate(BaseModel):
+    cantidad: int
+    hub: str
+    ubicacion: str
+    zona: Optional[str] = ""
+    observacion: Optional[str] = "Rubpi"
+    fecha_iso: Optional[str] = ""
+
+
+# ============================================================================
+# VISTA PRINCIPAL HTML
+# ============================================================================
+@router.get("/soporte/casos", response_class=HTMLResponse)
+async def soporte_casos_page(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+    except Exception:
+        return RedirectResponse(url="/login")
+
+    embed = request.query_params.get("embed") == "1"
+    return templates.TemplateResponse(
+        request,
+        "soporte_casos.html",
+        {
+            "user": user,
+            "embed": embed,
+            "hubs": CATALOGO_HUBS,
+            "reportes": CATALOGO_REPORTES,
+            "soluciones": CATALOGO_SOLUCIONES,
+            "observaciones": CATALOGO_OBSERVACIONES,
+            "subsectores": CATALOGO_SUBSECTORES,
+        },
+    )
+
+
+# ============================================================================
+# ENDPOINTS API: BÚSQUEDA DE CLIENTE CON MÚLTIPLES SERVICIOS / DIRECCIONES
+# ============================================================================
+@router.get("/api/soporte/buscar_cliente")
+def buscar_cliente_por_cedula(
+    request: Request,
+    q: str = Query(..., description="Cédula, RIF o ID de servicio del cliente"),
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    raw_q = q.strip().upper()
+    if not raw_q:
+        return {"encontrado": False, "servicios": [], "mensaje": "Ingrese una cédula o RIF"}
+
+    clean_alnum = re.sub(r"[^0-9A-Z]", "", raw_q)
+    clean_digits = re.sub(r"[^0-9]", "", raw_q)
+
+    index, by_service_id = _get_multi_clients_index()
+
+    servicios_encontrados = []
+    seen_ids = set()
+
+    # 1. Búsqueda por clave exacta, alfanumérica o solo dígitos
+    for candidate_key in (raw_q, clean_alnum, clean_digits):
+        if candidate_key and candidate_key in index:
+            for srv in index[candidate_key]:
+                sid = srv.get("id_servicio") or f"{srv.get('ubicacion')}-{srv.get('plan')}"
+                if sid not in seen_ids:
+                    seen_ids.add(sid)
+                    servicios_encontrados.append(srv)
+
+    # 2. Si no se halló por cédula, probar si ingresó directamente un ID de servicio
+    if not servicios_encontrados and clean_digits and clean_digits in by_service_id:
+        srv = by_service_id[clean_digits]
+        # Si encontramos el servicio por ID, traer todos los servicios del titular para que pueda verlos
+        doc_titular = srv.get("doc")
+        if doc_titular and doc_titular in index:
+            servicios_encontrados = list(index[doc_titular])
+        else:
+            servicios_encontrados = [srv]
+
+    # 3. Fallback a la tabla SQL models.Client si no está en el snapshot JSON
+    if not servicios_encontrados and clean_digits:
+        try:
+            sql_clients = (
+                db.query(models.Client)
+                .filter(
+                    or_(
+                        models.Client.cedula.ilike(f"%{clean_digits}%"),
+                        models.Client.service_id == clean_digits,
+                    )
+                )
+                .limit(20)
+                .all()
+            )
+            for c in sql_clients:
+                servicios_encontrados.append(
+                    {
+                        "id_servicio": str(c.service_id or ""),
+                        "id_usuario": "",
+                        "cedula": str(c.cedula or clean_digits),
+                        "doc": clean_digits,
+                        "doc_type": "",
+                        "nombre": str(c.name or ""),
+                        "telefono1": "",
+                        "telefono2": "",
+                        "email": "",
+                        "ubicacion": "Dirección no especificada en DB local",
+                        "zona": "",
+                        "zona_completa": "",
+                        "plan": str(c.current_plan or ""),
+                        "estado_servicio": str(c.status or "ACTIVO").upper(),
+                        "tipo_servicio": str(c.client_type or "RESIDENCIAL").upper(),
+                        "onu": "",
+                        "vlan": "",
+                    }
+                )
+        except Exception as e:
+            print(f"[SOPORTE] Error fallback SQL Client: {e}")
+
+    # Ordenar servicios: primero los que tienen dirección física e Internet (RESIDENCIAL/CORPORATIVO) y estado ACTIVO
+    def _sort_priority(s: dict):
+        is_iptv = 1 if "IPTV" in str(s.get("tipo_servicio", "")).upper() else 0
+        is_active = 0 if s.get("estado_servicio") == "ACTIVO" else 1
+        return (is_iptv, is_active, str(s.get("id_servicio") or ""))
+
+    servicios_encontrados.sort(key=_sort_priority)
+
+    # 4. Consultar historial previo en SupportCase para esta cédula (últimos 5 casos, HUB dominante y alarmas de reincidencia)
+    historial_casos = []
+    ultimo_hub_sugerido = ""
+    ultima_zona_sugerida = ""
+    ultima_ubicacion_sugerida = ""
+    total_historial_casos = 0
+    casos_ultima_semana = 0
+    casos_ultimo_mes = 0
+    nivel_alarma = "NORMAL"
+
+    if clean_digits:
+        try:
+            all_prev = (
+                db.query(models.SupportCase)
+                .filter(_cedula_sql_normalizada().ilike(f"%{clean_digits}%"))
+                .order_by(desc(models.SupportCase.id))
+                .all()
+            )
+            # El ILIKE es solo un prefiltro rápido; se exige coincidencia EXACTA de dígitos
+            # para no mezclar cédulas que contienen la buscada (ej. 2111942 vs 21119429).
+            all_prev = [
+                pc for pc in all_prev
+                if re.sub(r"[^0-9]", "", pc.cedula or "") == clean_digits
+            ]
+            total_historial_casos = len(all_prev)
+            for pc in all_prev[:5]:
+                historial_casos.append(pc.to_dict())
+            if all_prev:
+                hub_counts = Counter(
+                    (pc.hub or "").strip().upper()
+                    for pc in all_prev
+                    if (pc.hub or "").strip().upper() not in ("", "N/A", "SIN HUB", "NONE")
+                )
+                if hub_counts:
+                    ultimo_hub_sugerido = hub_counts.most_common(1)[0][0]
+                else:
+                    ultimo_hub_sugerido = all_prev[0].hub or ""
+                ultima_zona_sugerida = all_prev[0].zona or ""
+                ultima_ubicacion_sugerida = all_prev[0].ubicacion or ""
+
+                # Calcular reincidencia en los últimos 7 días y en el mes actual (según la fecha más reciente o hoy)
+                hoy_dt = _now_caracas()
+                # 7 días calendario reales: hoy + los 6 días anteriores (igual criterio que la sección 6)
+                hace_7d = (hoy_dt - timedelta(days=6)).strftime("%Y-%m-%d")
+                mes_actual = hoy_dt.strftime("%Y-%m")
+                for pc in all_prev:
+                    f_iso = (pc.fecha_iso or "").strip()
+                    if hace_7d <= f_iso <= hoy_dt.strftime("%Y-%m-%d"):
+                        casos_ultima_semana += 1
+                    if f_iso.startswith(mes_actual):
+                        casos_ultimo_mes += 1
+
+                if casos_ultima_semana >= 3 or casos_ultimo_mes >= 5:
+                    nivel_alarma = "CRITICA"
+                elif casos_ultima_semana == 2 or casos_ultimo_mes >= 3:
+                    nivel_alarma = "ALTA"
+                elif casos_ultimo_mes == 2:
+                    nivel_alarma = "OBSERVACION"
+        except Exception as e:
+            print(f"[SOPORTE] Error consultando historial de casos: {e}")
+
+    if not servicios_encontrados:
+        return {
+            "encontrado": False,
+            "cedula_buscada": raw_q,
+            "total_servicios": 0,
+            "multiple": False,
+            "servicios": [],
+            "historial_casos": historial_casos,
+            "total_historial_casos": total_historial_casos,
+            "casos_ultima_semana": casos_ultima_semana,
+            "casos_ultimo_mes": casos_ultimo_mes,
+            "nivel_alarma": nivel_alarma,
+            "ultimo_hub_sugerido": ultimo_hub_sugerido,
+            "ultima_zona_sugerida": ultima_zona_sugerida,
+            "ultima_ubicacion_sugerida": ultima_ubicacion_sugerida,
+            "mensaje": f"No se encontró cliente en base de datos para '{raw_q}'. Puedes completar los datos manualmente.",
+        }
+
+    titular = servicios_encontrados[0]
+    return {
+        "encontrado": True,
+        "cedula": titular.get("cedula") or raw_q,
+        "doc": titular.get("doc") or clean_digits,
+        "nombre": titular.get("nombre") or "",
+        "telefono": titular.get("telefono1") or "",
+        "total_servicios": len(servicios_encontrados),
+        "multiple": len(servicios_encontrados) > 1,
+        "servicios": servicios_encontrados,
+        "historial_casos": historial_casos,
+        "total_historial_casos": total_historial_casos,
+        "casos_ultima_semana": casos_ultima_semana,
+        "casos_ultimo_mes": casos_ultimo_mes,
+        "nivel_alarma": nivel_alarma,
+        "ultimo_hub_sugerido": ultimo_hub_sugerido,
+        "ultima_zona_sugerida": ultima_zona_sugerida,
+        "ultima_ubicacion_sugerida": ultima_ubicacion_sugerida,
+    }
+
+
+# ============================================================================
+# ENDPOINT PARA ACTUALIZAR SNAPSHOT DE CLIENTES RUBPI BAJO DEMANDA
+# ============================================================================
+@router.post("/api/soporte/sincronizar_clientes")
+def sincronizar_base_clientes(request: Request):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    res = _ejecutar_sincronizacion_rubpi()
+    if res.get("status") == "error":
+        raise HTTPException(status_code=500, detail=res.get("mensaje", "Error sincronizando clientes"))
+    return res
+
+
+# ============================================================================
+# ENDPOINTS CRUD DE CASOS DE SOPORTE REMOTO
+# ============================================================================
+@router.get("/api/soporte/casos")
+def listar_casos_soporte(
+    request: Request,
+    fecha_iso: Optional[str] = Query(None, description="YYYY-MM-DD o 'todas'"),
+    desde: Optional[str] = Query(None, description="Fecha inicio YYYY-MM-DD"),
+    hasta: Optional[str] = Query(None, description="Fecha fin YYYY-MM-DD"),
+    q: Optional[str] = Query(None, description="Búsqueda por cédula, cliente, dirección o servicio"),
+    hub: Optional[str] = Query(None),
+    analista: Optional[str] = Query(None),
+    reporte: Optional[str] = Query(None),
+    solucion: Optional[str] = Query(None),
+    limit: int = Query(300, ge=1, le=2000),
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    user = security.get_current_user(request, db)
+    _sincronizar_desde_google_sheets(db)
+    hoy_iso = _now_caracas().strftime("%Y-%m-%d")
+    target_fecha = fecha_iso if fecha_iso else hoy_iso
+
+    query = db.query(models.SupportCase)
+    tiene_busqueda = bool(q and q.strip())
+
+    # Si el analista escribe una cédula o término en el buscador, buscar en TODO el historial de fechas
+    if desde and hasta:
+        query = query.filter(models.SupportCase.fecha_iso >= desde, models.SupportCase.fecha_iso <= hasta)
+    elif not tiene_busqueda and target_fecha != "todas":
+        query = query.filter(models.SupportCase.fecha_iso == target_fecha)
+
+    if hub and hub != "TODOS":
+        query = query.filter(models.SupportCase.hub == hub)
+    if analista and analista != "TODOS":
+        query = query.filter(models.SupportCase.analista.ilike(f"%{analista}%"))
+    if reporte and reporte != "TODOS":
+        query = query.filter(models.SupportCase.reporte == reporte)
+    if solucion and solucion != "TODOS":
+        query = query.filter(models.SupportCase.solucion == solucion)
+
+    if tiene_busqueda:
+        term = f"%{q.strip()}%"
+        query = query.filter(
+            or_(
+                models.SupportCase.cedula.ilike(term),
+                models.SupportCase.nombre_cliente.ilike(term),
+                models.SupportCase.ubicacion.ilike(term),
+                models.SupportCase.zona.ilike(term),
+                models.SupportCase.id_servicio.ilike(term),
+                models.SupportCase.notas_adicionales.ilike(term),
+            )
+        )
+
+    casos = (
+        query.order_by(
+            desc(models.SupportCase.fecha_iso),
+            desc(models.SupportCase.numero_caso),
+            desc(models.SupportCase.id),
+        )
+        .limit(limit)
+        .all()
+    )
+
+    # Calcular métricas del día actual (o de la fecha seleccionada)
+    metric_date = target_fecha if target_fecha != "todas" else hoy_iso
+    casos_dia = (
+        db.query(models.SupportCase)
+        .filter(models.SupportCase.fecha_iso == metric_date)
+        .all()
+    )
+
+    nombre_usuario_actual = (user.full_name or user.username or "").strip()
+    total_dia = len(casos_dia)
+    mis_casos_dia = sum(
+        1 for c in casos_dia if (c.analista or "").strip().lower() == nombre_usuario_actual.lower()
+    )
+    max_num_dia = max((c.numero_caso or 0 for c in casos_dia), default=0)
+
+    hub_counts = Counter(c.hub for c in casos_dia if c.hub)
+    reporte_counts = Counter(c.reporte for c in casos_dia if c.reporte)
+    analista_counts = Counter(c.analista for c in casos_dia if c.analista)
+
+    # Verificar cuántos contratos hay indexados en memoria
+    _, by_srv = _get_multi_clients_index()
+
+    return {
+        "fecha_activa": metric_date,
+        "usuario_actual": nombre_usuario_actual,
+        "total_indexados_api": len(by_srv),
+        "resumen": {
+            "total_dia": total_dia,
+            "mis_casos_dia": mis_casos_dia,
+            "proximo_numero_caso": max_num_dia + 1,
+            "por_hub": dict(hub_counts.most_common(12)),
+            "por_reporte": dict(reporte_counts.most_common(8)),
+            "por_analista": dict(analista_counts.most_common(10)),
+        },
+        "casos": [c.to_dict() for c in casos],
+    }
+
+
+@router.post("/api/soporte/casos")
+def crear_caso_soporte(
+    payload: SupportCaseCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    user = security.get_current_user(request, db)
+
+    cedula_clean = (payload.cedula or "").strip().upper()
+    if not cedula_clean:
+        raise HTTPException(status_code=400, detail="La cédula o RIF del cliente es obligatoria.")
+    if not (payload.reporte or "").strip():
+        raise HTTPException(status_code=400, detail="Debe seleccionar o indicar la falla reportada.")
+    if not (payload.solucion or "").strip():
+        raise HTTPException(status_code=400, detail="Debe seleccionar o indicar la resolución aplicada.")
+    if not (payload.hub or "").strip():
+        raise HTTPException(status_code=400, detail="Debe elegir el HUB mediante los botones de selección.")
+
+    now = _now_caracas()
+    if payload.fecha_iso and re.match(r"^\d{4}-\d{2}-\d{2}$", payload.fecha_iso.strip()):
+        fecha_iso = payload.fecha_iso.strip()
+        dt_obj = datetime.strptime(fecha_iso, "%Y-%m-%d")
+        fecha_display = f"{dt_obj.day}/{dt_obj.strftime('%m/%Y')}"
+    else:
+        fecha_iso = now.strftime("%Y-%m-%d")
+        fecha_display = f"{now.day}/{now.strftime('%m/%Y')}"
+
+    # Sincronizar primero con Google Sheets para no colisionar el consecutivo N° CASO del día
+    _sincronizar_desde_google_sheets(db)
+
+    # Calcular el consecutivo N° CASO del día (igual que en la hoja de Google Sheets)
+    max_num = (
+        db.query(func.max(models.SupportCase.numero_caso))
+        .filter(models.SupportCase.fecha_iso == fecha_iso)
+        .scalar()
+    )
+    siguiente_numero = (max_num or 0) + 1
+
+    analista_nombre = (payload.analista or "").strip() or (user.full_name or user.username or "Soporte")
+
+    # Siempre priorizar la dirección, zona y datos del titular desde la API si la cédula existe
+    nombre_final = (payload.nombre_cliente or "").strip()
+    id_srv_final = (payload.id_servicio or "").strip()
+    tel_final = (payload.telefono or "").strip()
+    plan_final = (payload.plan or "").strip()
+    ubicacion_final = (payload.ubicacion or "").strip()
+    zona_final = (payload.zona or "").strip()
+
+    digits_ced = re.sub(r"[^0-9]", "", cedula_clean)
+    alnum_ced = re.sub(r"[^0-9A-Z]", "", cedula_clean)
+    hub_final = payload.hub.strip().upper()
+    tiene_direcciones_distintas = False
+
+    if digits_ced:
+        idx_map, _ = _get_multi_clients_index()
+        srvs_api = idx_map.get(cedula_clean) or idx_map.get(alnum_ced) or idx_map.get(digits_ced)
+        if srvs_api:
+            dirs_fibra = {
+                re.sub(r"[^A-Z0-9]", "", str(s.get("ubicacion") or "").upper())
+                for s in srvs_api
+                if "IPTV" not in str(s.get("tipo_servicio") or "").upper()
+                and re.sub(r"[^A-Z0-9]", "", str(s.get("ubicacion") or "").upper()) not in ("", "SINDIRECCIONREGISTRADA", "NA", "NONE")
+            }
+            tiene_direcciones_distintas = len(dirs_fibra) > 1
+
+            elegido_api = srvs_api[0]
+            if id_srv_final:
+                for s in srvs_api:
+                    if str(s.get("id_servicio")) == id_srv_final:
+                        elegido_api = s
+                        break
+            nombre_final = elegido_api.get("nombre") or nombre_final
+            id_srv_final = elegido_api.get("id_servicio") or id_srv_final
+            tel_final = elegido_api.get("telefono1") or tel_final
+            plan_final = elegido_api.get("plan") or plan_final
+            ubicacion_final = elegido_api.get("ubicacion") or ubicacion_final
+            zona_final = elegido_api.get("zona") or zona_final
+
+        # Si el cliente NO tiene múltiples direcciones físicas distintas, normalizar su HUB al dominante histórico
+        if not tiene_direcciones_distintas and len(digits_ced) >= 5:
+            prev_hubs = (
+                db.query(models.SupportCase.hub, models.SupportCase.cedula)
+                .filter(_cedula_sql_normalizada().ilike(f"%{digits_ced}%"))
+                .all()
+            )
+            # Solo casos cuya cédula coincide EXACTAMENTE (evita contar HUBs de otros clientes)
+            prev_hubs = [ph for ph in prev_hubs if re.sub(r"[^0-9]", "", ph[1] or "") == digits_ced]
+            conteo_hub = Counter(
+                (ph[0] or "").strip().upper()
+                for ph in prev_hubs
+                if (ph[0] or "").strip().upper() not in ("", "N/A", "SIN HUB", "NONE")
+            )
+            if conteo_hub:
+                hub_final = conteo_hub.most_common(1)[0][0]
+
+    nuevo_caso = models.SupportCase(
+        fecha=fecha_display,
+        fecha_iso=fecha_iso,
+        numero_caso=siguiente_numero,
+        cedula=cedula_clean,
+        nombre_cliente=nombre_final,
+        id_servicio=id_srv_final,
+        telefono=tel_final,
+        plan=plan_final,
+        analista=analista_nombre,
+        reporte=payload.reporte.strip(),
+        solucion=payload.solucion.strip(),
+        observacion=(payload.observacion or "Rubpi").strip(),
+        notas_adicionales=(payload.notas_adicionales or "").strip(),
+        hub=hub_final,
+        zona=_normalizar_zona_oficial(f"{zona_final} {ubicacion_final}", hub_final),
+        ubicacion=ubicacion_final,
+        router_limitado=bool(payload.router_limitado),
+        router_modelo=(payload.router_modelo or "").strip(),
+        created_at=now,
+    )
+
+    db.add(nuevo_caso)
+    db.commit()
+    db.refresh(nuevo_caso)
+
+    # Enviar hacia Google Sheets en vivo y actualizar timestamp de caché local
+    global _last_sheets_sync_ts
+    _enviar_casos_a_google_sheets([nuevo_caso.to_dict()])
+    _last_sheets_sync_ts = time.time()
+
+    return {
+        "status": "ok",
+        "mensaje": f"Caso #{siguiente_numero} registrado exitosamente",
+        "caso": nuevo_caso.to_dict(),
+    }
+
+
+@router.post("/api/soporte/casos/masivos")
+def crear_casos_afectacion_masivos(
+    payload: SupportBulkAfectacionCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    user = security.get_current_user(request, db)
+
+    cantidad = int(payload.cantidad or 0)
+    if cantidad < 1 or cantidad > 500:
+        raise HTTPException(status_code=400, detail="La cantidad de tickets debe estar entre 1 y 500.")
+
+    hub_clean = (payload.hub or "").strip().upper()
+    if not hub_clean:
+        raise HTTPException(status_code=400, detail="Debe seleccionar el HUB para la afectación.")
+
+    ubicacion_clean = (payload.ubicacion or "").strip()
+    if not ubicacion_clean:
+        raise HTTPException(status_code=400, detail="Debe seleccionar o indicar el sub-sector / dirección.")
+
+    zona_clean = _normalizar_zona_oficial(f"{payload.zona or ''} {ubicacion_clean}", hub_clean) or "LOS TEQUES"
+
+    now = _now_caracas()
+    if payload.fecha_iso and re.match(r"^\d{4}-\d{2}-\d{2}$", payload.fecha_iso.strip()):
+        fecha_iso = payload.fecha_iso.strip()
+        dt_obj = datetime.strptime(fecha_iso, "%Y-%m-%d")
+        fecha_display = f"{dt_obj.day}/{dt_obj.strftime('%m/%Y')}"
+    else:
+        fecha_iso = now.strftime("%Y-%m-%d")
+        fecha_display = f"{now.day}/{now.strftime('%m/%Y')}"
+
+    _sincronizar_desde_google_sheets(db)
+
+    max_num = (
+        db.query(func.max(models.SupportCase.numero_caso))
+        .filter(models.SupportCase.fecha_iso == fecha_iso)
+        .scalar()
+    )
+    base_numero = (max_num or 0) + 1
+    analista_nombre = (user.full_name or user.username or "Soporte").strip()
+    obs_clean = (payload.observacion or "Rubpi").strip()
+
+    nuevos_objetos = []
+    for i in range(cantidad):
+        num_actual = base_numero + i
+        nuevos_objetos.append(
+            models.SupportCase(
+                fecha=fecha_display,
+                fecha_iso=fecha_iso,
+                numero_caso=num_actual,
+                cedula="S/C - AFECTACIÓN",
+                nombre_cliente=f"Afectación Masiva ({ubicacion_clean})",
+                id_servicio="",
+                telefono="",
+                plan="",
+                analista=analista_nombre,
+                reporte="Afectación",
+                solucion="Caso de afectación",
+                observacion=obs_clean,
+                notas_adicionales="Generado por lote de afectación masiva",
+                hub=hub_clean,
+                zona=zona_clean,
+                ubicacion=ubicacion_clean,
+                router_limitado=False,
+                router_modelo="",
+                created_at=now,
+            )
+        )
+
+    db.add_all(nuevos_objetos)
+    db.commit()
+
+    global _last_sheets_sync_ts
+    _enviar_casos_a_google_sheets([obj.to_dict() for obj in nuevos_objetos])
+    _last_sheets_sync_ts = time.time()
+
+    ultimo_num = base_numero + cantidad - 1
+    return {
+        "status": "ok",
+        "cantidad_creada": cantidad,
+        "desde_caso": base_numero,
+        "hasta_caso": ultimo_num,
+        "zona": zona_clean,
+        "ubicacion": ubicacion_clean,
+        "mensaje": f"Se crearon {cantidad} tickets de Afectación (#{base_numero} al #{ultimo_num}) en {zona_clean}.",
+    }
+
+
+@router.put("/api/soporte/casos/{case_id}")
+def actualizar_caso_soporte(
+    case_id: int,
+    payload: SupportCaseUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    caso = db.query(models.SupportCase).filter(models.SupportCase.id == case_id).first()
+    if not caso:
+        raise HTTPException(status_code=404, detail="Caso no encontrado")
+
+    updates = payload.model_dump(exclude_unset=True)
+    for field, val in updates.items():
+        if val is not None:
+            setattr(caso, field, val.strip() if isinstance(val, str) else val)
+
+    if any(k in updates for k in ("zona", "ubicacion", "hub")):
+        caso.zona = _normalizar_zona_oficial(f"{caso.zona or ''} {caso.ubicacion or ''}", caso.hub or "") or caso.zona
+
+    db.commit()
+    db.refresh(caso)
+    return {"status": "ok", "caso": caso.to_dict()}
+
+
+@router.delete("/api/soporte/casos/{case_id}")
+def eliminar_caso_soporte(
+    case_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    caso = db.query(models.SupportCase).filter(models.SupportCase.id == case_id).first()
+    if not caso:
+        raise HTTPException(status_code=404, detail="Caso no encontrado")
+
+    db.delete(caso)
+    db.commit()
+    return {"status": "ok", "mensaje": "Caso eliminado correctamente"}
+
+
+# ============================================================================
+# EXPORTACIÓN A CSV / EXCEL IDÉNTICA AL GOOGLE SHEETS
+# ============================================================================
+@router.get("/api/soporte/exportar")
+def exportar_casos_csv(
+    request: Request,
+    fecha_iso: Optional[str] = Query(None),
+    desde: Optional[str] = Query(None),
+    hasta: Optional[str] = Query(None),
+    hub: Optional[str] = Query(None),
+    analista: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    _sincronizar_desde_google_sheets(db)
+    query = db.query(models.SupportCase)
+    if desde and hasta:
+        query = query.filter(models.SupportCase.fecha_iso >= desde, models.SupportCase.fecha_iso <= hasta)
+    elif fecha_iso and fecha_iso != "todas":
+        query = query.filter(models.SupportCase.fecha_iso == fecha_iso)
+
+    if hub and hub != "TODOS":
+        query = query.filter(models.SupportCase.hub == hub)
+    if analista and analista != "TODOS":
+        query = query.filter(models.SupportCase.analista.ilike(f"%{analista}%"))
+
+    casos = query.order_by(models.SupportCase.fecha_iso.asc(), models.SupportCase.numero_caso.asc()).all()
+
+    output = io.StringIO()
+    # BOM UTF-8 para que Microsoft Excel abra acentos y eñes perfectamente
+    output.write("\ufeff")
+    writer = csv.writer(output)
+
+    # Encabezados idénticos al Google Sheets + columnas extra útiles al final
+    writer.writerow(
+        [
+            "FECHA",
+            "N CASO",
+            "Cedula",
+            "Analista",
+            "Reporte",
+            "Solucion",
+            "Observacion",
+            "HUB",
+            "ZONA",
+            "UBICACION",
+            "ROUTER LIMITADO",
+            "ROUTER",
+            "CLIENTE",
+            "ID SERVICIO",
+            "HORA",
+        ]
+    )
+
+    for c in casos:
+        writer.writerow(
+            [
+                c.fecha,
+                c.numero_caso,
+                c.cedula,
+                c.analista,
+                c.reporte,
+                c.solucion,
+                c.observacion or "Rubpi",
+                c.hub,
+                c.zona or "",
+                c.ubicacion or "",
+                "TRUE" if c.router_limitado else "FALSE",
+                c.router_modelo or "",
+                c.nombre_cliente or "",
+                c.id_servicio or "",
+                c.created_at.strftime("%H:%M:%S") if c.created_at else "",
+            ]
+        )
+
+    output.seek(0)
+    filename_date = fecha_iso or _now_caracas().strftime("%Y-%m-%d")
+    headers = {
+        "Content-Disposition": f'attachment; filename="Incidencias_Soporte_Remoto_{filename_date}.csv"'
+    }
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv; charset=utf-8",
+        headers=headers,
+    )
+
+
+# ============================================================================
+# NODO DE ESTADÍSTICAS PURO — SOPORTE REMOTO
+# ============================================================================
+@router.get("/soporte/estadisticas", response_class=HTMLResponse)
+async def soporte_estadisticas_page(request: Request, db: Session = Depends(get_db)):
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+    except Exception:
+        return RedirectResponse(url="/login")
+
+    embed = request.query_params.get("embed") == "1"
+    return templates.TemplateResponse(
+        request,
+        "soporte_casos.html",
+        {
+            "user": user,
+            "embed": embed,
+            "vista_inicial": "estadisticas",
+            "hubs": CATALOGO_HUBS,
+            "reportes": CATALOGO_REPORTES,
+            "soluciones": CATALOGO_SOLUCIONES,
+            "observaciones": CATALOGO_OBSERVACIONES,
+            "subsectores": CATALOGO_SUBSECTORES,
+        },
+    )
+
+
+def _norm_subsector(t) -> str:
+    """Normaliza un nombre de sub-sector: mayúsculas, sin tildes ni signos, espacios simples."""
+    t = unicodedata.normalize("NFD", str(t or "")).encode("ascii", "ignore").decode().upper()
+    return re.sub(r"\s+", " ", re.sub(r"[^A-Z0-9 ]", " ", t)).strip()
+
+
+_SUBSECTOR_VACIOS = {"", "NONE", "N A", "SIN SECTOR", "SIN URBANIZACION", "NULL"}
+# Nombres de zona: si el `sector` del padrón es uno de estos, no es un sub-sector real (es genérico).
+_SUBSECTOR_NOMBRES_ZONA = {
+    "LOS TEQUES", "EL VALLE", "TEJERIAS", "SAN DIEGO", "SAN ANTONIO",
+    "CARRIZAL", "PROPATRIA", "COCHE", "LA VEGA", "SAN PEDRO", "CUMBRE ROJA",
+}
+SUBSECTOR_GENERAL = "(Sin sub-sector específico)"
+_subsector_cache = {"mtimes": None, "regex": None, "nombres": {}}
+
+
+def _get_indice_subsectores():
+    """
+    Construye (y cachea) el listado de sub-sectores conocidos a partir del padrón de Rubpi
+    (campo `sector`) y del catálogo. Devuelve (regex_alternado, {nombre_norm: nombre_visible}).
+    La regex busca el nombre más largo primero, con límites de palabra, para identificar
+    el sub-sector en el texto libre de UBICACION cuando el cliente no cruza con el padrón.
+    """
+    idx, by_srv = _get_multi_clients_index()
+    mt = (len(by_srv), len(CATALOGO_SUBSECTORES))
+    if _subsector_cache["mtimes"] == mt and _subsector_cache["regex"] is not None:
+        return _subsector_cache["regex"], _subsector_cache["nombres"]
+
+    zonas_oficiales = _SUBSECTOR_NOMBRES_ZONA
+    nombres = {}
+    for item in by_srv.values():
+        sec = str(item.get("sector") or "").strip()
+        k = _norm_subsector(sec)
+        if k not in _SUBSECTOR_VACIOS and k not in zonas_oficiales and k not in nombres:
+            nombres[k] = sec.title() if sec.isupper() else sec
+    for item in CATALOGO_SUBSECTORES:
+        sec = str(item.get("subsector") or "").strip()
+        k = _norm_subsector(sec)
+        if k not in _SUBSECTOR_VACIOS and k not in zonas_oficiales and k not in nombres:
+            nombres[k] = sec
+
+    # Para texto libre solo se usan nombres de 5+ caracteres (evita falsos positivos: "Palmas", "Veras"...)
+    candidatos = sorted((k for k in nombres if len(k) >= 5), key=len, reverse=True)
+    rx = re.compile(r"\b(" + "|".join(re.escape(k) for k in candidatos) + r")\b") if candidatos else None
+    _subsector_cache.update({"mtimes": mt, "regex": rx, "nombres": nombres})
+    return rx, nombres
+
+
+def _subsector_de_caso(c, by_srv: dict, idx: dict, rx, nombres: dict):
+    """
+    Determina el sub-sector de un caso. Prioridad: 1) padrón por id_servicio, 2) padrón por cédula,
+    3) texto libre de UBICACION. Devuelve (nombre_visible, origen) u (None, None).
+    """
+    srv = by_srv.get(str(c.id_servicio or "").strip())
+    if not srv:
+        ced = (c.cedula or "").strip().upper()
+        alnum = re.sub(r"[^0-9A-Z]", "", ced)
+        digits = re.sub(r"[^0-9]", "", ced)
+        lst = idx.get(ced) or idx.get(alnum) or idx.get(digits)
+        srv = lst[0] if lst else None
+    generico_padron = False
+    if srv:
+        k = _norm_subsector(srv.get("sector"))
+        if k in _SUBSECTOR_NOMBRES_ZONA:
+            # El sector del padrón es solo el nombre de la zona (ej. "El Valle"): no es un sub-sector real.
+            generico_padron = True
+        elif k not in _SUBSECTOR_VACIOS:
+            return nombres.get(k) or str(srv.get("sector")).strip(), "padron"
+    if rx is not None:
+        m = rx.search(_norm_subsector(f"{c.zona or ''} {c.ubicacion or ''}"))
+        if m:
+            return nombres.get(m.group(1)) or m.group(1).title(), "texto"
+    if generico_padron:
+        return SUBSECTOR_GENERAL, "general"
+    return None, None
+
+
+@router.get("/api/soporte/estadisticas/subsectores")
+def obtener_estadisticas_subsectores(
+    request: Request,
+    desde: Optional[str] = Query(None, description="Fecha inicio YYYY-MM-DD"),
+    hasta: Optional[str] = Query(None, description="Fecha fin YYYY-MM-DD"),
+    q: Optional[str] = Query(None, description="Sub-sector a consultar (coincidencia por nombre)"),
+    zona: Optional[str] = Query(None, description="Zona oficial (opcional)"),
+    excluir_afectaciones: bool = Query(False, description="Excluir filas sin cédula/RIF numérica (afectaciones masivas)"),
+    db: Session = Depends(get_db),
+):
+    """
+    Reporte de atenciones remotas por Sub-sector (nivel bajo la Zona). Solo lectura.
+    Devuelve el ranking de sub-sectores y, si se envía `q`, el detalle de ese sub-sector
+    (por mes, motivo, analista, clientes distintos y escalados a visita técnica).
+    """
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    _sincronizar_desde_google_sheets(db)
+    query = db.query(models.SupportCase)
+    if desde:
+        query = query.filter(models.SupportCase.fecha_iso >= desde)
+    if hasta:
+        query = query.filter(models.SupportCase.fecha_iso <= hasta)
+    casos = query.all()
+
+    idx, by_srv = _get_multi_clients_index()
+    rx, nombres = _get_indice_subsectores()
+    zona_f = (zona or "").strip().upper()
+    q_norm = _norm_subsector(q) if q else ""
+
+    total = 0
+    masivas = 0
+    sin_sub = 0
+    por_origen = Counter()
+    ranking = {}
+    detalle_casos = []
+
+    for c in casos:
+        sin_cedula_numerica = not re.search(r"\d", c.cedula or "")
+        if sin_cedula_numerica:
+            masivas += 1
+            if excluir_afectaciones:
+                continue
+        zn = _normalizar_zona_oficial(f"{c.zona or ''} {c.ubicacion or ''}", (c.hub or "").strip().upper()) or "SIN ZONA"
+        if zona_f and zona_f != "TODAS" and zn != zona_f:
+            continue
+        total += 1
+        sub, origen = _subsector_de_caso(c, by_srv, idx, rx, nombres)
+        if not sub:
+            sin_sub += 1
+            continue
+        por_origen[origen] += 1
+        key = (sub, zn)
+        r = ranking.setdefault(key, {"subsector": sub, "zona": zn, "casos": 0, "clientes": set(), "visitas": 0})
+        r["casos"] += 1
+        if not sin_cedula_numerica:
+            r["clientes"].add(re.sub(r"[^0-9A-Za-z]", "", c.cedula or ""))
+        if "visita" in (c.solucion or "").lower():
+            r["visitas"] += 1
+        if q_norm and q_norm in _norm_subsector(sub):
+            detalle_casos.append(c)
+
+    lista = [
+        {"subsector": r["subsector"], "zona": r["zona"], "casos": r["casos"],
+         "clientes": len(r["clientes"]), "visitas": r["visitas"]}
+        for r in ranking.values()
+    ]
+    if q_norm:
+        lista = [x for x in lista if q_norm in _norm_subsector(x["subsector"])]
+    lista.sort(key=lambda x: (-x["casos"], x["subsector"]))
+
+    detalle = None
+    if q_norm:
+        cm, cr, ca, cs = Counter(), Counter(), Counter(), Counter()
+        clientes = set()
+        for c in detalle_casos:
+            cm[(c.fecha_iso or "")[:7]] += 1
+            cr[(c.reporte or "Sin especificar").strip()] += 1
+            ca[(c.analista or "Sin asignar").strip()] += 1
+            cs[(c.solucion or "Sin especificar").strip()] += 1
+            if re.search(r"\d", c.cedula or ""):
+                clientes.add(re.sub(r"[^0-9A-Za-z]", "", c.cedula))
+        n_det = len(detalle_casos)
+
+        def _fmt(cnt, limit=15):
+            return [
+                {"nombre": k, "cantidad": v, "porcentaje": round(v * 100.0 / n_det, 1) if n_det else 0.0}
+                for k, v in cnt.most_common(limit)
+            ]
+
+        detalle = {
+            "consulta": q,
+            "total_casos": n_det,
+            "clientes_distintos": len(clientes),
+            "escalados_visita": sum(1 for c in detalle_casos if "visita" in (c.solucion or "").lower()),
+            "por_mes": [
+                {"nombre": k, "cantidad": cm[k], "porcentaje": round(cm[k] * 100.0 / n_det, 1) if n_det else 0.0}
+                for k in sorted(cm)
+            ],
+            "por_reporte": _fmt(cr),
+            "por_analista": _fmt(ca),
+            "por_solucion": _fmt(cs),
+        }
+
+    return {
+        "total_casos": total,
+        "con_subsector": total - sin_sub,
+        "sin_subsector": sin_sub,
+        "porcentaje_identificado": round((total - sin_sub) * 100.0 / total, 1) if total else 0.0,
+        "afectaciones_sin_cedula": masivas,
+        "origen": {
+            "padron": por_origen.get("padron", 0),
+            "texto": por_origen.get("texto", 0),
+            "general": por_origen.get("general", 0),
+        },
+        "ranking": lista[:100],
+        "detalle": detalle,
+    }
+
+
+@router.get("/api/soporte/estadisticas")
+def obtener_estadisticas_soporte(
+    request: Request,
+    desde: Optional[str] = Query(None, description="Fecha inicio YYYY-MM-DD"),
+    hasta: Optional[str] = Query(None, description="Fecha fin YYYY-MM-DD"),
+    analista: Optional[str] = Query(None),
+    canal: Optional[str] = Query(None),
+    hub: Optional[str] = Query(None),
+    reporte: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    _sincronizar_desde_google_sheets(db)
+    query = db.query(models.SupportCase)
+
+    if desde:
+        query = query.filter(models.SupportCase.fecha_iso >= desde)
+    if hasta:
+        query = query.filter(models.SupportCase.fecha_iso <= hasta)
+    if analista and analista != "TODOS":
+        query = query.filter(models.SupportCase.analista == analista)
+    if canal and canal != "TODOS":
+        query = query.filter(models.SupportCase.observacion == canal)
+    if hub and hub != "TODOS":
+        query = query.filter(models.SupportCase.hub == hub)
+    if reporte and reporte != "TODOS":
+        query = query.filter(models.SupportCase.reporte == reporte)
+
+    casos = query.all()
+    total = len(casos)
+
+    cnt_reporte = Counter()
+    cnt_solucion = Counter()
+    cnt_canal = Counter()
+    cnt_analista = Counter()
+    cnt_hub = Counter()
+    cnt_zona = Counter()
+    cnt_dia = Counter()
+    cnt_zonas_afectacion = Counter()
+    escalados_visita = 0
+    routers_limitados = 0
+
+    for c in casos:
+        rep = (c.reporte or "Sin especificar").strip()
+        sol = (c.solucion or "Sin especificar").strip()
+        can = (c.observacion or "Rubpi").strip()
+        ana = (c.analista or "Sin asignar").strip()
+        hb = (c.hub or "N/A").strip().upper()
+        zn = _normalizar_zona_oficial(f"{c.zona or ''} {c.ubicacion or ''}", hb) or "SIN ZONA"
+        f_iso = (c.fecha_iso or "").strip()
+
+        cnt_reporte[rep] += 1
+        cnt_solucion[sol] += 1
+        cnt_canal[can] += 1
+        cnt_analista[ana] += 1
+        cnt_hub[hb] += 1
+        cnt_zona[zn] += 1
+        if f_iso:
+            cnt_dia[f_iso] += 1
+
+        if "afectaci" in rep.lower() and zn != "SIN ZONA":
+            cnt_zonas_afectacion[zn] += 1
+
+        if "visita" in sol.lower():
+            escalados_visita += 1
+        if c.router_limitado:
+            routers_limitados += 1
+
+    resueltos_remoto = max(0, total - escalados_visita)
+    pct_remoto = round((resueltos_remoto * 100.0 / total), 1) if total > 0 else 0.0
+    pct_visita = round((escalados_visita * 100.0 / total), 1) if total > 0 else 0.0
+
+    def _format_counter(counter_obj: Counter, limit_n: int = 25):
+        items = []
+        for k, v in counter_obj.most_common(limit_n):
+            pct = round((v * 100.0 / total), 1) if total > 0 else 0.0
+            items.append({"nombre": k, "cantidad": v, "porcentaje": pct})
+        return items
+
+    # Lista global de analistas registrados para poblar el selector de filtro
+    analistas_db = [
+        r[0]
+        for r in db.query(models.SupportCase.analista)
+        .distinct()
+        .order_by(models.SupportCase.analista.asc())
+        .all()
+        if r[0]
+    ]
+
+    serie_diaria = [
+        {"fecha_iso": k, "cantidad": cnt_dia[k]}
+        for k in sorted(cnt_dia.keys())
+    ]
+
+    return {
+        "total_casos": total,
+        "resueltos_remoto": resueltos_remoto,
+        "porcentaje_remoto": pct_remoto,
+        "escalados_visita": escalados_visita,
+        "porcentaje_visita": pct_visita,
+        "routers_limitados": routers_limitados,
+        "por_reporte": _format_counter(cnt_reporte, 50),
+        "por_solucion": _format_counter(cnt_solucion, 25),
+        "por_canal": _format_counter(cnt_canal, 10),
+        "por_analista": _format_counter(cnt_analista, 30),
+        "por_hub": _format_counter(cnt_hub, 15),
+        "por_zona": _format_counter(cnt_zona, 20),
+        "zonas_afectacion": [k for k, _ in cnt_zonas_afectacion.most_common(15)],
+        "por_dia": serie_diaria,
+        "analistas_disponibles": analistas_db,
+    }
+
+
+# ============================================================================
+# REPORTE DE COINCIDENCIA / REINCIDENCIA Y ALARMAS POR CLIENTE (SEMANAL Y MENSUAL)
+# ============================================================================
+@router.get("/api/soporte/reincidencias")
+def obtener_reincidencias_clientes(
+    request: Request,
+    modo: str = Query("mes", description="semana | mes | todo"),
+    mes: Optional[str] = Query(None, description="YYYY-MM para vista mensual"),
+    fecha_ref: Optional[str] = Query(None, description="YYYY-MM-DD para vista semanal (últimos 7 días)"),
+    min_casos: int = Query(2, ge=1, le=50),
+    hub: Optional[str] = Query(None),
+    q: Optional[str] = Query(None, description="Buscar cliente por Cédula o Nombre"),
+    limit: int = Query(150, ge=10, le=1000),
+    db: Session = Depends(get_db),
+):
+    token = security.get_token_from_request(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    _sincronizar_desde_google_sheets(db)
+    # Determinar la fecha más reciente en la BD para usar como referencia por defecto
+    max_fecha_db = (
+        db.query(func.max(models.SupportCase.fecha_iso))
+        .filter(models.SupportCase.fecha_iso.like("2026-%"))
+        .scalar()
+    ) or _now_caracas().strftime("%Y-%m-%d")
+
+    ref_date_str = (fecha_ref or "").strip() or max_fecha_db
+    try:
+        ref_dt = datetime.strptime(ref_date_str, "%Y-%m-%d")
+    except ValueError:
+        ref_dt = _now_caracas()
+        ref_date_str = ref_dt.strftime("%Y-%m-%d")
+
+    semana_inicio_str = (ref_dt - timedelta(days=6)).strftime("%Y-%m-%d")
+    mes_eval = (mes or "").strip() or ref_date_str[:7]
+
+    # Consultar todos los casos con cédula válida
+    query = db.query(models.SupportCase)
+    if hub and hub != "TODOS":
+        query = query.filter(models.SupportCase.hub == hub.strip().upper())
+
+    q_clean = (q or "").strip()
+    q_digits = re.sub(r"[^0-9]", "", q_clean)
+    if q_clean:
+        if q_digits and len(q_digits) >= 4:
+            query = query.filter(
+                or_(
+                    _cedula_sql_normalizada().ilike(f"%{q_digits}%"),
+                    models.SupportCase.nombre_cliente.ilike(f"%{q_clean}%"),
+                )
+            )
+        else:
+            query = query.filter(
+                or_(
+                    models.SupportCase.cedula.ilike(f"%{q_clean}%"),
+                    models.SupportCase.nombre_cliente.ilike(f"%{q_clean}%"),
+                    models.SupportCase.ubicacion.ilike(f"%{q_clean}%"),
+                )
+            )
+
+    todos_casos = query.order_by(models.SupportCase.fecha_iso.asc(), models.SupportCase.id.asc()).all()
+
+    clientes_map = {}
+    meses_disponibles = set()
+
+    for c in todos_casos:
+        ced_raw = (c.cedula or "").strip().upper()
+        digits = re.sub(r"[^0-9]", "", ced_raw)
+        if not digits or len(digits) < 5:
+            continue
+
+        f_iso = (c.fecha_iso or "").strip()
+        if len(f_iso) >= 7:
+            meses_disponibles.add(f_iso[:7])
+
+        entry = clientes_map.get(digits)
+        if not entry:
+            entry = {
+                "cedula": digits,
+                "nombre_cliente": c.nombre_cliente or "Cliente Registrado",
+                "id_servicio": c.id_servicio or "",
+                "telefono": c.telefono or "",
+                "hub": c.hub or "N/A",
+                "zona": c.zona or "SIN ZONA",
+                "ubicacion": c.ubicacion or "",
+                "casos_semana": 0,
+                "casos_mes": 0,
+                "casos_periodo": 0,
+                "casos_historial": 0,
+                "visitas_periodo": 0,
+                "router_limitado": False,
+                "fallas_counter": Counter(),
+                "soluciones_counter": Counter(),
+                "fallas_globales": Counter(),
+                "soluciones_globales": Counter(),
+                "fechas_periodo": [],
+                "por_mes": Counter(),
+                "por_semana": Counter(),
+                "ultimos_casos": [],
+                "todos_casos_cliente": [],
+            }
+            clientes_map[digits] = entry
+
+        # Actualizar metadatos más completos
+        if c.nombre_cliente:
+            entry["nombre_cliente"] = c.nombre_cliente
+        if c.id_servicio:
+            entry["id_servicio"] = c.id_servicio
+        if c.telefono:
+            entry["telefono"] = c.telefono
+        if c.hub and c.hub != "N/A":
+            entry["hub"] = c.hub
+        if c.zona and c.zona != "SIN ZONA":
+            entry["zona"] = c.zona
+        if c.ubicacion and c.ubicacion != "N/A":
+            entry["ubicacion"] = c.ubicacion
+        if c.router_limitado:
+            entry["router_limitado"] = True
+
+        entry["casos_historial"] += 1
+        rep_all = (c.reporte or "Sin especificar").strip()
+        sol_all = (c.solucion or "Sin especificar").strip()
+        entry["fallas_globales"][rep_all] += 1
+        entry["soluciones_globales"][sol_all] += 1
+        entry["todos_casos_cliente"].append(
+            {
+                "fecha": c.fecha,
+                "fecha_iso": c.fecha_iso,
+                "numero_caso": c.numero_caso,
+                "reporte": rep_all,
+                "solucion": sol_all,
+                "analista": c.analista,
+                "observacion": c.observacion or "Rubpi",
+                "hub": c.hub,
+                "router_limitado": bool(c.router_limitado),
+            }
+        )
+
+        if len(f_iso) == 10:
+            ym = f_iso[:7]
+            entry["por_mes"][ym] += 1
+            try:
+                dt_c = datetime.strptime(f_iso, "%Y-%m-%d")
+                iso_yr, iso_wk, _ = dt_c.isocalendar()
+                lunes_sem = dt_c - timedelta(days=dt_c.weekday())
+                dom_sem = lunes_sem + timedelta(days=6)
+                wk_label = f"Sem {iso_wk:02d} ({lunes_sem.strftime('%d/%m')} - {dom_sem.strftime('%d/%m')})"
+                entry["por_semana"][wk_label] += 1
+            except ValueError:
+                pass
+
+        en_semana = semana_inicio_str <= f_iso <= ref_date_str
+        en_mes = f_iso.startswith(mes_eval)
+
+        if en_semana:
+            entry["casos_semana"] += 1
+        if en_mes:
+            entry["casos_mes"] += 1
+
+        incluir_en_periodo = (
+            (modo == "semana" and en_semana)
+            or (modo == "mes" and en_mes)
+            or (modo == "todo")
+        )
+        if incluir_en_periodo:
+            entry["casos_periodo"] += 1
+            rep_clean = (c.reporte or "Sin especificar").strip()
+            sol_clean = (c.solucion or "Sin especificar").strip()
+            entry["fallas_counter"][rep_clean] += 1
+            entry["soluciones_counter"][sol_clean] += 1
+            if "visita" in sol_clean.lower():
+                entry["visitas_periodo"] += 1
+            if c.fecha:
+                entry["fechas_periodo"].append(c.fecha)
+            entry["ultimos_casos"].append(
+                {
+                    "fecha": c.fecha,
+                    "fecha_iso": c.fecha_iso,
+                    "numero_caso": c.numero_caso,
+                    "reporte": rep_clean,
+                    "solucion": sol_clean,
+                    "analista": c.analista,
+                    "observacion": c.observacion or "Rubpi",
+                    "hub": c.hub,
+                    "router_limitado": bool(c.router_limitado),
+                }
+            )
+
+    resultados = []
+    kpi_criticas = 0
+    kpi_altas = 0
+    kpi_observacion = 0
+
+    # Si el usuario buscó una cédula numérica y existe coincidencia exacta de dígitos,
+    # filtrar exclusivamente esa cédula para no mezclar clientes con subcadenas similares.
+    tiene_match_exacto_cedula = bool(q_digits and len(q_digits) >= 5 and q_digits in clientes_map)
+
+    for digits, item in clientes_map.items():
+        if tiene_match_exacto_cedula and digits != q_digits:
+            continue
+        # Si hay búsqueda específica por cliente (`q`), mostrar aunque tenga 1 caso; si no, exigir `min_casos`
+        umbral_efectivo = 1 if q_clean else min_casos
+        if item["casos_periodo"] < umbral_efectivo:
+            continue
+
+        c_sem = item["casos_semana"]
+        c_mes = item["casos_mes"]
+        c_per = item["casos_periodo"]
+
+        # Clasificación de Alarma Semanal y Mensual
+        if c_sem >= 3 or c_mes >= 5 or (modo == "semana" and c_per >= 3) or (modo == "mes" and c_per >= 5):
+            nivel = "CRITICA"
+            motivo_alarma = f"{c_sem} rep. en 7 días / {c_mes} en el mes"
+            kpi_criticas += 1
+        elif c_sem == 2 or c_mes >= 3 or (modo == "semana" and c_per == 2) or (modo == "mes" and c_per >= 3):
+            nivel = "ALTA"
+            motivo_alarma = f"{c_sem} rep. en 7 días / {c_mes} en el mes"
+            kpi_altas += 1
+        else:
+            nivel = "OBSERVACION"
+            motivo_alarma = f"{c_per} reportes en el periodo"
+            kpi_observacion += 1
+
+        falla_top = "—"
+        if item["fallas_counter"]:
+            top_k, top_v = item["fallas_counter"].most_common(1)[0]
+            falla_top = f"{top_k} ({top_v})"
+
+        desglose_meses = [
+            {"mes": k, "cantidad": item["por_mes"][k]}
+            for k in sorted(item["por_mes"].keys(), reverse=True)[:12]
+        ]
+        desglose_semanas = [
+            {"semana": k, "cantidad": v}
+            for k, v in item["por_semana"].most_common(8)
+        ]
+
+        resumen_fallas = [
+            {"nombre": k, "cantidad": v}
+            for k, v in item["fallas_counter"].most_common(12)
+        ]
+        resumen_soluciones = [
+            {"nombre": k, "cantidad": v}
+            for k, v in item["soluciones_counter"].most_common(12)
+        ]
+
+        resultados.append(
+            {
+                "cedula": item["cedula"],
+                "nombre_cliente": item["nombre_cliente"],
+                "id_servicio": item["id_servicio"],
+                "telefono": item["telefono"],
+                "hub": item["hub"],
+                "zona": item["zona"],
+                "ubicacion": item["ubicacion"],
+                "casos_semana": c_sem,
+                "casos_mes": c_mes,
+                "casos_periodo": c_per,
+                "casos_historial": item["casos_historial"],
+                "visitas_periodo": item["visitas_periodo"],
+                "router_limitado": item["router_limitado"],
+                "falla_frecuente": falla_top,
+                "fechas_periodo": item["fechas_periodo"][-8:],
+                "ultima_fecha": item["fechas_periodo"][-1] if item["fechas_periodo"] else "—",
+                "nivel_alarma": nivel,
+                "motivo_alarma": motivo_alarma,
+                "desglose_meses": desglose_meses,
+                "desglose_semanas": desglose_semanas,
+                "resumen_fallas": resumen_fallas,
+                "resumen_soluciones": resumen_soluciones,
+                "ultimos_casos": list(reversed(item["ultimos_casos"])),
+            }
+        )
+
+    # Ordenar por prioridad de alarma y mayor cantidad de coincidencias en el periodo
+    orden_prioridad = {"CRITICA": 3, "ALTA": 2, "OBSERVACION": 1}
+    resultados.sort(
+        key=lambda x: (
+            orden_prioridad.get(x["nivel_alarma"], 0),
+            x["casos_periodo"],
+            x["casos_semana"],
+            x["casos_mes"],
+            x["casos_historial"],
+        ),
+        reverse=True,
+    )
+
+    return {
+        "modo": modo,
+        "mes_evaluado": mes_eval,
+        "fecha_ref": ref_date_str,
+        "semana_inicio": semana_inicio_str,
+        "min_casos": min_casos,
+        "total_clientes_alarma": len(resultados),
+        "kpi_criticas": kpi_criticas,
+        "kpi_altas": kpi_altas,
+        "kpi_observacion": kpi_observacion,
+        "meses_disponibles": sorted(list(meses_disponibles), reverse=True),
+        "clientes": resultados[:limit],
+    }
+
+
