@@ -167,7 +167,7 @@ def send_credentials_update_email(to_email: str, full_name: str, new_email: str,
     return send_email_message(to_email=to_email, subject=subject, html_content=html_content, text_content=text_content)
 
 
-def send_password_reset_email(to_email: str, name: str, new_password: str, login_url: str = "http://10.0.1.179/login") -> bool:
+def send_password_reset_email(to_email: str, name: str, new_password: str, login_url: str = "http://10.0.1.179/login?logout=1") -> bool:
     """
     Envía correo de recuperación/restablecimiento de contraseña con la plantilla institucional dorada.
     """

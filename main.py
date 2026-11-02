@@ -949,17 +949,17 @@ async def resend_password(
     db.commit()
     logger.warning(f"AUDIT_SECURITY: Admin '{admin_user.username}' restablecio la contrasena del usuario '{user.username}' (ID: {user.id})")
 
-    # Determinar URL de login según el entorno (QA en puerto 8080 o Prod en puerto 80)
+    # Determinar URL de login según el entorno (QA en puerto 8080 o Prod en puerto 80) forzando pantalla limpia (?logout=1)
     host = request.headers.get("host", "")
     scheme = request.headers.get("x-forwarded-proto", request.url.scheme or "http")
     if ":8080" in host or (request.url.port in [8080, 8001]):
-        login_url = "http://10.0.1.179:8080/login"
+        login_url = "http://10.0.1.179:8080/login?logout=1"
     elif "10.0.1.179" in host:
-        login_url = "http://10.0.1.179/login"
+        login_url = "http://10.0.1.179/login?logout=1"
     else:
         clean_host = host.split(":")[0] if host else "10.0.1.179"
         port_suffix = ":8080" if ":8080" in host else ""
-        login_url = f"{scheme}://{clean_host}{port_suffix}/login"
+        login_url = f"{scheme}://{clean_host}{port_suffix}/login?logout=1"
 
     email_sent = False
     if user.email and "@" in user.email:
