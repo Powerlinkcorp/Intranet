@@ -130,7 +130,8 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> models.
 
 
 def require_admin(current_user: models.User = Depends(get_current_user)) -> models.User:
-    if current_user.role not in ["admin", "rrhh"]:
+    perms = current_user.permissions or ""
+    if current_user.role not in ["admin", "rrhh"] and "cargar_datos_usuarios" not in perms and "gestionar_permisos" not in perms and "editar_usuarios" not in perms:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Acceso denegado. Se requieren permisos de Gestor/Administrador.",

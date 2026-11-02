@@ -31,3 +31,5 @@ init_remote_db.py
 *.docx
 test.py
 test2.py
+
+static/data/permissions_audit.json

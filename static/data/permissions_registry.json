@@ -1,0 +1,46 @@
+{
+  "custom_modules": [],
+  "custom_dropdowns": {},
+  "custom_actions": {},
+  "roles": [
+    {
+      "id": "operador_soporte",
+      "name": "Operador de Soporte",
+      "badge": "🎧 OP. SOPORTE",
+      "color": "blue",
+      "description": "Modalidad Operador Estándar de Power Track: Gestión de reportes, coordinación, afectaciones, técnicos y motivos en Soporte.",
+      "is_system": true,
+      "all_access": false,
+      "permissions": [
+        "act_principal_chat_usar",
+        "act_principal_dash_ver",
+        "act_principal_dir_ver",
+        "act_principal_feedback",
+        "act_principal_helpdesk_ver",
+        "act_principal_recursos",
+        "editar_directorio",
+        "mod_admin",
+        "mod_principal",
+        "mod_soporte",
+        "perm_afectaciones_read",
+        "perm_afectaciones_write",
+        "perm_coordinacion_assign",
+        "perm_coordinacion_read",
+        "perm_dashboard_read",
+        "perm_dashboard_write",
+        "perm_motivos_read",
+        "perm_motivos_write",
+        "perm_reporte",
+        "perm_techs_read",
+        "perm_techs_write",
+        "perm_vgt_write",
+        "sub_admin_reportes",
+        "sub_principal_dashboard",
+        "sub_principal_directorio",
+        "sub_principal_helpdesk",
+        "sub_soporte_reporte",
+        "ver_reportes"
+      ]
+    }
+  ]
+}
