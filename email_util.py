@@ -165,3 +165,61 @@ def send_credentials_update_email(to_email: str, full_name: str, new_email: str,
     </html>
     """
     return send_email_message(to_email=to_email, subject=subject, html_content=html_content, text_content=text_content)
+
+
+def send_password_reset_email(to_email: str, name: str, new_password: str, login_url: str = "http://10.0.1.179/login") -> bool:
+    """
+    Envía correo de recuperación/restablecimiento de contraseña con la plantilla institucional dorada.
+    """
+    subject = "Restablecimiento de Contraseña - Power Link Corp"
+    
+    # Intentar cargar la plantilla templates/email_reset_password.html
+    template_path = os.path.join(os.path.dirname(__file__), "templates", "email_reset_password.html")
+    html_content = ""
+    if os.path.exists(template_path):
+        try:
+            with open(template_path, "r", encoding="utf-8") as f:
+                html_content = f.read()
+            html_content = (
+                html_content
+                .replace("{{ nombre }}", name or "Colaborador")
+                .replace("{{ password }}", new_password)
+                .replace("{{ login_url }}", login_url)
+            )
+        except Exception as e:
+            print(f"[EMAIL ERROR] Error leyendo email_reset_password.html: {e}")
+
+    # Fallback HTML por seguridad si no existe el archivo en disco
+    if not html_content:
+        html_content = f"""
+        <html>
+            <body style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color:#f3f4f6; padding:20px; color:#334155;">
+                <div style="max-width:600px; margin:auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+                    <div style="background-color:#D4AF37; padding:25px; text-align:center; border-bottom:4px solid #001a33;">
+                        <h1 style="color:#001a33; margin:0; font-size:22px;">POWER LINK CORP.</h1>
+                    </div>
+                    <div style="padding:30px; text-align:center;">
+                        <h2>¡Hola, {name}!</h2>
+                        <p>Se ha generado una nueva contraseña para tu cuenta de la Intranet:</p>
+                        <div style="background:#f8fafc; border:2px dashed #cbd5e1; border-radius:8px; padding:15px; margin:20px auto; display:inline-block; min-width:220px;">
+                            <span style="font-size:12px; color:#64748b; font-weight:bold; display:block;">Tu nueva contraseña</span>
+                            <strong style="font-size:24px; color:#D4AF37; letter-spacing:2px;">{new_password}</strong>
+                        </div>
+                        <p><a href="{login_url}" style="background-color:#0f172a; color:#ffffff; padding:12px 28px; border-radius:50px; text-decoration:none; font-weight:bold; display:inline-block; margin-top:15px;">Acceder a la Intranet</a></p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+
+    text_content = (
+        f"¡Hola, {name}!\n\n"
+        f"Hemos recibido una solicitud administrativa para restablecer tu contraseña en la Intranet Power Link Corp.\n\n"
+        f"Tu nueva contraseña temporal: {new_password}\n\n"
+        f"Accede a la Intranet en: {login_url}\n\n"
+        f"Por seguridad, te recomendamos cambiarla al ingresar.\n\n"
+        f"Atentamente,\nDepartamento de Integración - Power Link Corp."
+    )
+
+    return send_email_message(to_email=to_email, subject=subject, html_content=html_content, text_content=text_content)
+

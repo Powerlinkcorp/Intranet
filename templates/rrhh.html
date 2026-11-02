@@ -1652,12 +1652,19 @@
         async function resendPassword(id) {
             if(!confirm("ADVERTENCIA DE SEGURIDAD:\n\nEsta acción generará una NUEVA contraseña e invalidará de inmediato la clave actual del trabajador.\n\n¿Está seguro de proceder?")) return;
             try {
+                showToast("Generando y enviando contraseña...", "info");
                 const res = await fetch(`/api/rrhh/users/${id}/resend-password`, { method: 'POST' });
                 if(res.ok) {
                     const data = await res.json();
+                    if(data.email_sent) {
+                        showToast("¡Correo enviado exitosamente al trabajador!", "success");
+                    } else {
+                        showToast("Contraseña restablecida (no se pudo enviar correo)", "warning");
+                    }
                     alert(data.message);
                 } else {
-                    showToast("Error al restablecer contraseña", "error");
+                    const data = await res.json().catch(() => ({}));
+                    showToast(data.detail || "Error al restablecer contraseña", "error");
                 }
             } catch(e) { showToast("Error de red", "error"); }
         }

@@ -932,6 +932,7 @@ async def suspend_worker(
 @app.post("/api/rrhh/users/{user_id}/resend-password")
 async def resend_password(
     user_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     admin_user: models.User = Depends(security.require_admin)
 ):
@@ -947,9 +948,39 @@ async def resend_password(
     user.hashed_password = security.get_password_hash(new_password)
     db.commit()
     logger.warning(f"AUDIT_SECURITY: Admin '{admin_user.username}' restablecio la contrasena del usuario '{user.username}' (ID: {user.id})")
+
+    # Determinar URL de login según el entorno (QA en puerto 8080 o Prod en puerto 80)
+    host = request.headers.get("host", "")
+    scheme = request.headers.get("x-forwarded-proto", request.url.scheme or "http")
+    if ":8080" in host or (request.url.port in [8080, 8001]):
+        login_url = "http://10.0.1.179:8080/login"
+    elif "10.0.1.179" in host:
+        login_url = "http://10.0.1.179/login"
+    else:
+        clean_host = host.split(":")[0] if host else "10.0.1.179"
+        port_suffix = ":8080" if ":8080" in host else ""
+        login_url = f"{scheme}://{clean_host}{port_suffix}/login"
+
+    email_sent = False
+    if user.email and "@" in user.email:
+        email_sent = email_util.send_password_reset_email(
+            to_email=user.email,
+            name=user.full_name or user.username,
+            new_password=new_password,
+            login_url=login_url
+        )
+
+    if email_sent:
+        msg = f"Contraseña restablecida exitosamente y enviada al correo del trabajador:\n\n📧 {user.email}\n🔑 Clave temporal: {new_password}"
+    elif user.email:
+        msg = f"Contraseña restablecida en el sistema, pero no se pudo enviar el correo a '{user.email}'.\n\nPor favor entregue la clave temporal manualmente:\n\n🔑 {new_password}"
+    else:
+        msg = f"Contraseña restablecida para '{user.username}'.\n\nEl trabajador no tiene correo registrado. Debe entregarle la clave temporal manualmente:\n\n🔑 {new_password}"
+
     return {
-        "message": f"Contraseña restablecida para el usuario '{user.username}'.\n\nATENCIÓN: Debe entregar manualmente esta clave temporal al trabajador para que pueda ingresar:\n\n{new_password}",
-        "temporary_password": new_password
+        "message": msg,
+        "temporary_password": new_password,
+        "email_sent": email_sent
     }
 
 @app.delete("/api/rrhh/users/{user_id}")
