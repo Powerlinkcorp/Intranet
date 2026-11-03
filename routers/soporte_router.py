@@ -69,10 +69,8 @@ def _cedula_sql_normalizada():
     return expr
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "static/uploads")
-GOOGLE_SHEETS_WEBHOOK_URL = os.getenv(
-    "GOOGLE_SHEETS_WEBHOOK_URL",
-    "https://script.google.com/macros/s/AKfycbwqpPJoqAdWqz7u9gxw6uOq0LSwaHvbcq14c8VoXX2FnpQUzKmhj0BQGkBcSMiHead_ZA/exec",
-)
+# Escritura hacia Google Sheets eliminada definitivamente (modo consulta / analitica pura)
+GOOGLE_SHEETS_WEBHOOK_URL = None
 GOOGLE_SHEETS_CSV_URL = os.getenv(
     "GOOGLE_SHEETS_CSV_URL",
     "https://docs.google.com/spreadsheets/d/1EKUDXbf_1jjUi-68RYw_TMoh3Sbc6BqTBdeA0E4Usdc/export?format=csv&gid=246682208",
@@ -322,27 +320,11 @@ def _sincronizar_desde_google_sheets(db: Session, force: bool = False) -> dict:
 
 
 def _enviar_casos_a_google_sheets(casos_dicts: list) -> dict:
-    """Envía uno o múltiples casos recién creados hacia Google Sheets mediante el Webhook de Apps Script."""
-    if not GOOGLE_SHEETS_WEBHOOK_URL or not casos_dicts:
-        return {"ok": False, "detalle": "Webhook no configurado"}
-    try:
-        resp = requests.post(
-            GOOGLE_SHEETS_WEBHOOK_URL,
-            json={"casos": casos_dicts},
-            timeout=20,
-        )
-        data = resp.json()
-        if data.get("status") == "ok":
-            return {
-                "ok": True,
-                "insertados": data.get("insertados", len(casos_dicts)),
-                "desde_fila": data.get("desde_fila"),
-                "hasta_fila": data.get("hasta_fila"),
-            }
-        return {"ok": False, "detalle": data.get("message", "Respuesta no exitosa de Google Sheets")}
-    except Exception as e:
-        print(f"[SOPORTE -> SHEETS] Error enviando a Google Sheets: {e}")
-        return {"ok": False, "detalle": str(e)}
+    """
+    Escritura en Google Sheets eliminada. El módulo opera 100% como herramienta
+    exclusiva de consulta y analítica sobre los datos cargados por el equipo.
+    """
+    return {"ok": False, "detalle": "Escritura en Google Sheets deshabilitada (modo solo lectura / consulta)"}
 
 # ============================================================================
 # CATÁLOGOS OFICIALES EXTRAÍDOS DEL HISTÓRICO DE SOPORTE REMOTO (52,000+ CASOS)
@@ -1460,7 +1442,7 @@ def crear_caso_soporte(
 
     # Enviar hacia Google Sheets en vivo y actualizar timestamp de caché local
     global _last_sheets_sync_ts
-    _enviar_casos_a_google_sheets([nuevo_caso.to_dict()])
+    # _enviar_casos_a_google_sheets deshabilitado (modo solo lectura / consulta)
     _last_sheets_sync_ts = time.time()
 
     return {
@@ -1547,7 +1529,7 @@ def crear_casos_afectacion_masivos(
     db.commit()
 
     global _last_sheets_sync_ts
-    _enviar_casos_a_google_sheets([obj.to_dict() for obj in nuevos_objetos])
+    # _enviar_casos_a_google_sheets deshabilitado (modo solo lectura / consulta)
     _last_sheets_sync_ts = time.time()
 
     ultimo_num = base_numero + cantidad - 1
