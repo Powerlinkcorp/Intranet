@@ -88,13 +88,32 @@ def get_engine():
         "birthday_date VARCHAR DEFAULT ''",
         "suspension_reason VARCHAR DEFAULT ''",
         "cedula VARCHAR DEFAULT ''",
-        "avatar_url VARCHAR DEFAULT '/static/img/default-avatar.png'"
+        "avatar_url VARCHAR DEFAULT '/static/img/default-avatar.png'",
+        "status VARCHAR DEFAULT 'Activo'"
     ]:
         try:
             with engine.begin() as conn:
                 conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_def}"))
         except Exception:
             pass
+
+    # Auto-migrate: add employee columns if they don't exist
+    for col_def in [
+        "status VARCHAR DEFAULT 'Activo'"
+    ]:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE employees ADD COLUMN {col_def}"))
+        except Exception:
+            pass
+
+    # Normalizar cumpleaños defectuosos históricos (ej: '02/03//1969' -> '2 de Marzo')
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("UPDATE users SET birthday_date = '2 de Marzo' WHERE birthday_date LIKE '%02/03//1969%' OR birthday_date LIKE '%02/03/1969%'"))
+            conn.execute(text("UPDATE employees SET birthday_date = '2 de Marzo' WHERE birthday_date LIKE '%02/03//1969%' OR birthday_date LIKE '%02/03/1969%'"))
+    except Exception:
+        pass
 
     # Auto-migrate flasheo tables and columns
     for col_def in [

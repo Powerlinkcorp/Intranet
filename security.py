@@ -121,10 +121,10 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> models.
     username = _decode_token(token)
 
     user = db.query(models.User).filter(models.User.username == username).first()
-    if user is None or not user.is_active:
+    if user is None or not user.is_active or getattr(user, "status", None) == "Retirado":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario inactivo o no encontrado.",
+            detail="Usuario inactivo, retirado o no encontrado.",
         )
     return user
 

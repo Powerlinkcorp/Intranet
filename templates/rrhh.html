@@ -1532,43 +1532,126 @@
                     users.forEach(u => {
                         const tr = document.createElement('tr');
                         tr.style.borderBottom = "1px solid #e2e8f0";
-                        const estadoHtml = u.is_active 
-                            ? `<span style="color:#10b981; font-weight:600;"><i class="fa-solid fa-check-circle"></i> Activo</span>`
-                            : `<span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-ban"></i> Suspendido</span>`;
-                        tr.innerHTML = `
-                            <td style="padding: 12px;">${u.cedula || '-'}</td>
-                            <td style="padding: 12px;">${u.full_name}</td>
-                            <td style="padding: 12px;">${u.username}</td>
-                            <td style="padding: 12px;">${u.email}</td>
-                            <td style="padding: 12px;">${u.department || '-'}</td>
-                            <td style="padding: 12px;">${u.cargo || '-'}</td>
-                            <td style="padding: 12px;">${u.birthday_date || '-'}</td>
-                            <td style="padding: 12px; text-align: center;">${estadoHtml}</td>
-                            <td style="padding: 12px; text-align: center; display:flex; gap:8px; justify-content:center;">
+                        
+                        const isRetired = (u.status === 'Retirado');
+                        let estadoHtml = '';
+                        let actionButtonsHtml = '';
+
+                        if (isRetired) {
+                            tr.style.backgroundColor = "#f1f5f9";
+                            tr.style.color = "#94a3b8";
+                            estadoHtml = `<span style="color:#64748b; font-weight:600;"><i class="fa-solid fa-user-slash"></i> Retirado</span>`;
+                            actionButtonsHtml = `
+                                <button class="btn-action" style="background:#cbd5e1; color:#94a3b8; cursor:not-allowed; pointer-events:none; opacity:0.45;" disabled title="Trabajador Retirado (Inhabilitado)"><i class="fa-solid fa-key"></i></button>
+                                <button class="btn-action" style="background:#cbd5e1; color:#94a3b8; cursor:not-allowed; pointer-events:none; opacity:0.45;" disabled title="Trabajador Retirado (Inhabilitado)"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn-action" style="background:#cbd5e1; color:#94a3b8; cursor:not-allowed; pointer-events:none; opacity:0.45;" disabled title="Trabajador Retirado (Inhabilitado)"><i class="fa-solid fa-ban"></i></button>
+                                <button class="btn-action" style="background:#cbd5e1; color:#94a3b8; cursor:not-allowed; pointer-events:none; opacity:0.45;" disabled title="Trabajador Retirado (Inhabilitado)"><i class="fa-solid fa-trash"></i></button>
+                            `;
+                        } else {
+                            estadoHtml = u.is_active 
+                                ? `<span style="color:#10b981; font-weight:600;"><i class="fa-solid fa-check-circle"></i> Activo</span>`
+                                : `<span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-ban"></i> Suspendido</span>`;
+                            actionButtonsHtml = `
                                 <button class="btn-action" style="background:#eab308; color:#fff;" onclick="resendPassword(${u.id})" title="Reenviar Contraseña"><i class="fa-solid fa-key"></i></button>
                                 <button class="btn-action" style="background:#3b82f6; color:#fff;" onclick="openEditWorkerModal(${u.id})" title="Editar Trabajador"><i class="fa-solid fa-pen"></i></button>
                                 ${u.is_active ? `<button class="btn-action" style="background:#ef4444; color:#fff;" onclick="openSuspendWorkerModal(${u.id})" title="Suspender Usuario"><i class="fa-solid fa-ban"></i></button>` : `<button class="btn-action" style="background:#10b981; color:#fff;" onclick="activateWorker(${u.id})" title="Activar Usuario"><i class="fa-solid fa-check"></i></button>`}
-                                <button class="btn-action" style="background:#dc2626; color:#fff;" onclick="deleteWorker(${u.id}, ${JSON.stringify(u.full_name)})" title="Eliminar Trabajador"><i class="fa-solid fa-trash"></i></button>
+                                <button class="btn-action" style="background:#dc2626; color:#fff;" onclick="deleteWorker(${u.id})" title="Eliminar Trabajador"><i class="fa-solid fa-trash"></i></button>
+                            `;
+                        }
+
+                        tr.innerHTML = `
+                            <td style="padding: 12px; ${isRetired ? 'color:#94a3b8;' : ''}">${u.cedula || '-'}</td>
+                            <td style="padding: 12px; ${isRetired ? 'color:#94a3b8; font-style:italic;' : 'font-weight:600;'}">${u.full_name}</td>
+                            <td style="padding: 12px; ${isRetired ? 'color:#94a3b8;' : ''}">${u.username}</td>
+                            <td style="padding: 12px; ${isRetired ? 'color:#94a3b8;' : ''}">${u.email}</td>
+                            <td style="padding: 12px; ${isRetired ? 'color:#94a3b8;' : ''}">${u.department || '-'}</td>
+                            <td style="padding: 12px; ${isRetired ? 'color:#94a3b8;' : ''}">${u.cargo || '-'}</td>
+                            <td style="padding: 12px; ${isRetired ? 'color:#94a3b8;' : ''}">${u.birthday_date || '-'}</td>
+                            <td style="padding: 12px; text-align: center;">${estadoHtml}</td>
+                            <td style="padding: 12px; text-align: center; display:flex; gap:8px; justify-content:center;">
+                                ${actionButtonsHtml}
                             </td>
                         `;
                         tbody.appendChild(tr);
                     });
+                    if (typeof filterTrabajadoresList === 'function') {
+                        filterTrabajadoresList();
+                    }
                 }
             } catch (e) { console.error(e); }
         }
 
-        function openEditWorkerModal(id) {
-            const u = window.rrhhUsers.find(user => user.id === id);
-            if (!u) return;
+        function birthdayToIso(str) {
+            if (!str) return '';
+            str = str.replace(/\/+/g, '/').trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+            const months = {
+                'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
+                'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
+                'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+            };
+            const match = str.match(/^(\d{1,2})\s+de\s+([a-zA-ZáéíóúÁÉÍÓÚ]+)/i);
+            if (match) {
+                const d = match[1].padStart(2, '0');
+                const mName = match[2].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const m = months[mName];
+                if (m) return `2000-${m}-${d}`;
+            }
+            const matchSlash = str.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+            if (matchSlash) {
+                const d = matchSlash[1].padStart(2, '0');
+                const m = matchSlash[2].padStart(2, '0');
+                const y = matchSlash[3] ? (matchSlash[3].length === 2 ? '19' + matchSlash[3] : matchSlash[3]) : '2000';
+                return `${y}-${m}-${d}`;
+            }
+            return '';
+        }
+
+        async function openEditWorkerModal(id) {
+            const u = window.rrhhUsers ? window.rrhhUsers.find(user => user.id === id) : null;
+            if (u && u.status === 'Retirado') {
+                showToast("No se puede editar a un trabajador en estado Retirado", "warning");
+                return;
+            }
+            // Precarga inmediata desde memoria local
             document.getElementById('editWorkerId').value = id;
-            document.getElementById('editWorkerCedula').value = u.cedula || '';
-            document.getElementById('editWorkerName').value = u.full_name || '';
-            document.getElementById('editWorkerEmail').value = u.email || '';
-            document.getElementById('editWorkerDept').value = u.department || '';
-            document.getElementById('editWorkerCargo').value = u.cargo || '';
-            document.getElementById('editWorkerBday').value = u.birthday_date || '';
+            document.getElementById('editWorkerCedula').value = u ? (u.cedula || '') : '';
+            document.getElementById('editWorkerName').value = u ? (u.full_name || '') : '';
+            document.getElementById('editWorkerEmail').value = u ? (u.email || '') : '';
+            document.getElementById('editWorkerDept').value = u ? (u.department || '') : '';
+            document.getElementById('editWorkerCargo').value = u ? (u.cargo || '') : '';
+            document.getElementById('editWorkerBday').value = u ? (u.birthday_date_iso || birthdayToIso(u.birthday_date)) : '';
+            
             document.getElementById('editWorkerModal').style.display = '';
             document.getElementById('editWorkerModal').classList.add('active');
+
+            // Consulta en vivo directa desde la Base de Datos para asegurar datos actualizados
+            try {
+                const res = await fetch(`/api/rrhh/users/${id}`);
+                if (res.ok) {
+                    const fresh = await res.json();
+                    if (fresh.status === 'Retirado') {
+                        closeEditWorkerModal();
+                        showToast("El trabajador se encuentra en estado Retirado", "warning");
+                        return;
+                    }
+                    document.getElementById('editWorkerCedula').value = fresh.cedula || '';
+                    document.getElementById('editWorkerName').value = fresh.full_name || '';
+                    document.getElementById('editWorkerEmail').value = fresh.email || '';
+                    document.getElementById('editWorkerDept').value = fresh.department || '';
+                    document.getElementById('editWorkerCargo').value = fresh.cargo || '';
+                    document.getElementById('editWorkerBday').value = fresh.birthday_date_iso || birthdayToIso(fresh.birthday_date);
+
+                    if (window.rrhhUsers) {
+                        const idx = window.rrhhUsers.findIndex(user => user.id === id);
+                        if (idx !== -1) {
+                            window.rrhhUsers[idx] = Object.assign(window.rrhhUsers[idx], fresh);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("No se pudo obtener datos en vivo de la BD:", err);
+            }
         }
         function closeEditWorkerModal() {
             document.getElementById('editWorkerModal').classList.remove('active');
@@ -1601,12 +1684,18 @@
                     closeEditWorkerModal();
                     loadTrabajadores();
                 } else {
-                    showToast("Error al editar", "error");
+                    const data = await res.json().catch(() => ({}));
+                    showToast(data.detail || "Error al editar", "error");
                 }
             } catch(e) { showToast("Error de red", "error"); }
         }
 
         function openSuspendWorkerModal(id) {
+            const u = window.rrhhUsers ? window.rrhhUsers.find(user => user.id === id) : null;
+            if (u && u.status === 'Retirado') {
+                showToast("El trabajador ya se encuentra inhabilitado como Retirado", "warning");
+                return;
+            }
             document.getElementById('suspendWorkerId').value = id;
             document.getElementById('suspendWorkerReason').value = '';
             document.getElementById('suspendWorkerModal').style.display = '';
@@ -1637,6 +1726,11 @@
         }
 
         async function activateWorker(id) {
+            const u = window.rrhhUsers ? window.rrhhUsers.find(user => user.id === id) : null;
+            if (u && u.status === 'Retirado') {
+                showToast("El trabajador se encuentra en estado Retirado y no puede activarse", "warning");
+                return;
+            }
             if(!confirm("¿Está seguro de reactivar el acceso de este trabajador?")) return;
             try {
                 const res = await fetch(`/api/rrhh/users/${id}/activate`, { method: 'POST' });
@@ -1650,6 +1744,11 @@
         }
 
         async function resendPassword(id) {
+            const u = window.rrhhUsers ? window.rrhhUsers.find(user => user.id === id) : null;
+            if (u && u.status === 'Retirado') {
+                showToast("No se puede restablecer la contraseña a un trabajador Retirado", "warning");
+                return;
+            }
             if(!confirm("ADVERTENCIA DE SEGURIDAD:\n\nEsta acción generará una NUEVA contraseña e invalidará de inmediato la clave actual del trabajador.\n\n¿Está seguro de proceder?")) return;
             try {
                 showToast("Generando y enviando contraseña...", "info");
@@ -1669,18 +1768,21 @@
             } catch(e) { showToast("Error de red", "error"); }
         }
 
-        async function deleteWorker(id, name) {
-            if(!confirm(`ADVERTENCIA: ¿Estás seguro de eliminar permanentemente a "${name}"?\n\nEsta acción borrará al trabajador y su usuario de la base de datos.`)) return;
+        async function deleteWorker(id) {
+            const u = window.rrhhUsers ? window.rrhhUsers.find(user => user.id === id) : null;
+            const name = u ? (u.full_name || u.username) : `ID ${id}`;
+            if(!confirm(`ADVERTENCIA: ¿Estás seguro de inhabilitar y retirar al trabajador "${name}"?\n\nEsta acción revocará su acceso a la intranet, cambiará su estado a "Retirado", lo colocará en gris y deshabilitará todas las acciones sobre su perfil.`)) return;
             try {
                 const res = await fetch(`/api/rrhh/users/${id}`, { method: 'DELETE', credentials: 'include' });
                 if(res.ok) {
-                    showToast("Trabajador eliminado con éxito", "success");
-                    loadTrabajadores();
+                    showToast("Trabajador inhabilitado y marcado como Retirado con éxito", "success");
+                    await loadTrabajadores();
                 } else {
-                    const data = await res.json();
-                    showToast(data.detail || "Error al eliminar trabajador", "error");
+                    const data = await res.json().catch(() => ({}));
+                    showToast(data.detail || "Error al retirar trabajador", "error");
                 }
             } catch(e) {
+                console.error("Error al retirar trabajador:", e);
                 showToast("Error de red", "error");
             }
         }

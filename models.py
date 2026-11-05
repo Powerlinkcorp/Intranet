@@ -15,6 +15,7 @@ class User(Base):
     permissions = Column(String, default="") # e.g. "cargar_datos_usuarios,ver_integracion"
     avatar_url = Column(String, default="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png")
     is_active = Column(Boolean, default=True)
+    status = Column(String, default="Activo") # "Activo", "Suspendido", "Retirado"
     department = Column(String, default="")
     cargo = Column(String, default="")
     birthday_date = Column(String, default="")
@@ -54,6 +55,7 @@ class Employee(Base):
     department = Column(String, default="General")
     photo_url = Column(String, nullable=True)
     birthday_date = Column(String, nullable=True) # e.g. "18 de Julio"
+    status = Column(String, default="Activo") # "Activo", "Retirado"
 
 class Department(Base):
     __tablename__ = "departments"

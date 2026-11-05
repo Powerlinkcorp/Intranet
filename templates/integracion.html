@@ -9,9 +9,31 @@
         href="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png">
     <!-- Tailwind CSS para diseño limpio -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#FFC107',
+                            'gold-hover': '#F5C71D',
+                            'gold-soft': 'rgba(255, 193, 7, 0.12)',
+                            dark: '#1A1A1A',
+                            surface: '#1e293b',
+                            muted: '#64748b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Outfit"', '"Segoe UI"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body:not(.show-amounts) .cost-amount-value { display: none !important; }
@@ -19,21 +41,27 @@
         body.show-amounts .cost-amount-value { display: inline !important; }
         body.show-amounts .cost-amount-hidden { display: none !important; }
 
-        /* ESTILOS CORPORATIVOS GLOBALES (NAVBAR) */
+        /* ESTILOS CORPORATIVOS GLOBALES (POWER LINK PALETTE) */
         :root {
-            --fondo-principal: #ffffff;
+            --fondo-principal: #f8fafc;
             --blanco: #ffffff;
             --cabeceras: #1A1A1A;
+            --cabeceras-surface: #1e293b;
             --acento: #FFC107;
             --acento-hover: #F5C71D;
-            --texto-negro: #1A1A1A;
-            --texto-gris: #4A4A4A;
+            --acento-soft: rgba(255, 193, 7, 0.14);
+            --texto-negro: #0f172a;
+            --texto-gris: #64748b;
+            --borde: #e2e8f0;
+            --exito: #10b981;
+            --error: #ef4444;
+            --advertencia: #f59e0b;
         }
 
         body {
             font-family: 'Outfit', sans-serif;
-            background-color: #ffffff;
-            color: #1e293b;
+            background-color: var(--fondo-principal);
+            color: var(--texto-negro);
         }
 
         /* NAVBAR (IDÉNTICO A INTRANET.HTML) */
@@ -110,38 +138,59 @@
         }
 
         /* Ajustes Tailwind a nuestra paleta corporativa */
-        .ring-blue-500 {
-            --tw-ring-color: #D4AF37 !important;
+        .ring-blue-500,
+        .focus\:ring-blue-500:focus,
+        .focus\:ring-amber-500:focus,
+        .focus\:ring-emerald-500:focus {
+            --tw-ring-color: #FFC107 !important;
         }
 
-        .border-blue-500 {
-            border-color: #D4AF37 !important;
+        .border-blue-500,
+        .focus\:border-blue-500:focus,
+        .focus\:border-amber-500:focus,
+        .focus\:border-emerald-500:focus {
+            border-color: #FFC107 !important;
         }
 
         /* TABLA DINAMICA Y BADGES (BASE LIGHT) */
         .tab-btn {
-            background-color: #f1f5f9;
+            background-color: #ffffff;
             color: #475569;
             padding: 8px 16px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13.5px;
             transition: all 0.2s;
             border: 1px solid #e2e8f0;
         }
 
+        .tab-btn:hover {
+            background-color: #f8fafc;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
         .tab-btn.active {
-            background-color: var(--acento);
-            color: var(--texto-negro) !important;
-            border-color: var(--acento);
+            background-color: var(--acento) !important;
+            color: #000000 !important;
+            border-color: var(--acento) !important;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.28);
         }
 
         .tab-btn .badge-count {
-            background-color: rgba(0, 0, 0, 0.1);
-            padding: 2px 6px;
+            background-color: rgba(0, 0, 0, 0.07);
+            padding: 2px 7px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11.5px;
             margin-left: 6px;
+            font-weight: 700;
+        }
+
+        .tab-btn.active .badge-count {
+            background-color: rgba(0, 0, 0, 0.18) !important;
+            color: #000000 !important;
+            font-weight: 800;
         }
 
         .status-badge {
@@ -163,9 +212,9 @@
         }
 
         .status-suspendido {
-            background-color: #fef08a;
-            color: #854d0e;
-            border: 1px solid #fde047;
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
         }
 
         .status-exonerado {
@@ -204,28 +253,28 @@
             font-size: 12px;
         }
 
-        .data-table th {
-            background-color: #f8fafc;
-            color: #64748b;
-            font-size: 12px;
-            font-weight: 600;
+        .data-table th, thead th {
+            background-color: #1e293b;
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 12px 16px;
+            padding: 11px 14px;
             text-align: left;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 2px solid var(--acento);
         }
 
         .data-table td {
-            padding: 12px 16px;
+            padding: 11px 14px;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
+            font-size: 13.5px;
             color: #334155;
             vertical-align: middle;
         }
 
         .data-table tr:hover td {
-            background-color: #f8fafc;
+            background-color: rgba(255, 193, 7, 0.05);
         }
 
         /* =========================================================
@@ -295,16 +344,17 @@
         html.dark select:focus,
         html.dark input[type="text"]:focus,
         html.dark input[type="date"]:focus {
-            border-color: #D4AF37 !important;
-            box-shadow: 0 0 0 1px #D4AF37 !important;
+            border-color: #FFC107 !important;
+            box-shadow: 0 0 0 1px #FFC107 !important;
             outline: none !important;
         }
 
         /* Box 1A / 1B (Carga de Bases Residencial y Corporativa) */
         html.dark .bg-indigo-50,
-        html.dark [class*="bg-indigo-50"] {
+        html.dark [class*="bg-indigo-50"],
+        html.dark .bg-amber-50\/40 {
             background-color: #141418 !important;
-            border-color: rgba(212, 175, 55, 0.25) !important;
+            border-color: rgba(255, 193, 7, 0.25) !important;
             color: #f8fafc !important;
         }
 
@@ -314,7 +364,7 @@
         }
 
         html.dark .text-indigo-700 {
-            color: #D4AF37 !important;
+            color: #FFC107 !important;
         }
 
         html.dark .border-indigo-200 {
@@ -323,8 +373,8 @@
 
         html.dark .bg-indigo-100 {
             background-color: #27272a !important;
-            color: #D4AF37 !important;
-            border-color: rgba(212, 175, 55, 0.3) !important;
+            color: #FFC107 !important;
+            border-color: rgba(255, 193, 7, 0.3) !important;
         }
 
         html.dark input[type="file"] {
@@ -333,36 +383,37 @@
 
         html.dark input[type="file"]::file-selector-button {
             background-color: #1f1f24 !important;
-            color: #D4AF37 !important;
-            border: 1px solid rgba(212, 175, 55, 0.35) !important;
+            color: #FFC107 !important;
+            border: 1px solid rgba(255, 193, 7, 0.35) !important;
             font-weight: 700 !important;
             border-radius: 6px !important;
         }
 
         html.dark input[type="file"]::file-selector-button:hover {
-            background-color: #D4AF37 !important;
+            background-color: #FFC107 !important;
             color: #000000 !important;
         }
 
         html.dark #btnGuardarBaseMes,
         html.dark #btnGuardarBaseMesCorp {
-            background-color: #D4AF37 !important;
-            color: #000000 !important;
+            background-color: #1e293b !important;
+            color: #FFC107 !important;
             font-weight: 700 !important;
-            border: none !important;
+            border: 1px solid rgba(255, 193, 7, 0.35) !important;
         }
 
         html.dark #btnGuardarBaseMes:hover,
         html.dark #btnGuardarBaseMesCorp:hover {
-            background-color: #E5C358 !important;
-            color: #000000 !important;
+            background-color: #334155 !important;
+            color: #FFC107 !important;
         }
 
         /* Box 2 (Tipo de Comparativa) */
         html.dark .bg-blue-50,
-        html.dark [class*="bg-blue-50"] {
+        html.dark [class*="bg-blue-50"],
+        html.dark .bg-slate-50\/80 {
             background-color: #141418 !important;
-            border-color: rgba(212, 175, 55, 0.25) !important;
+            border-color: rgba(255, 193, 7, 0.25) !important;
             color: #f8fafc !important;
         }
 
@@ -372,7 +423,7 @@
         }
 
         html.dark .text-blue-700 {
-            color: #D4AF37 !important;
+            color: #FFC107 !important;
         }
 
         html.dark .border-blue-200,
@@ -381,7 +432,7 @@
         }
 
         html.dark input[type="radio"] {
-            accent-color: #D4AF37 !important;
+            accent-color: #FFC107 !important;
         }
 
         html.dark label span.text-gray-800 {
@@ -401,8 +452,8 @@
         html.dark #lblEstadoDiarioRes,
         html.dark #lblEstadoDiarioCorp {
             background-color: #1f1f24 !important;
-            color: #D4AF37 !important;
-            border: 1px solid rgba(212, 175, 55, 0.3) !important;
+            color: #FFC107 !important;
+            border: 1px solid rgba(255, 193, 7, 0.3) !important;
         }
 
         /* Botones de Acción Principales */
@@ -414,19 +465,19 @@
 
         html.dark #btnGuardarRegistro:hover {
             background-color: #27272a !important;
-            color: #D4AF37 !important;
-            border-color: #D4AF37 !important;
+            color: #FFC107 !important;
+            border-color: #FFC107 !important;
         }
 
         html.dark #btnProcesarApi {
-            background-color: #D4AF37 !important;
+            background-color: #FFC107 !important;
             color: #000000 !important;
             font-weight: 700 !important;
             border: none !important;
         }
 
         html.dark #btnProcesarApi:hover {
-            background-color: #E5C358 !important;
+            background-color: #F5C71D !important;
             color: #000000 !important;
         }
 
@@ -497,15 +548,17 @@
 
         /* Resumen en Forma de Lista */
         html.dark tr.hover\:bg-gray-50\/30:hover {
-            background-color: rgba(212, 175, 55, 0.05) !important;
+            background-color: rgba(255, 193, 7, 0.05) !important;
         }
         html.dark tr.bg-indigo-50\/60,
-        html.dark [class*="bg-indigo-50/60"] {
+        html.dark [class*="bg-indigo-50/60"],
+        html.dark tr.bg-amber-50\/70 {
             background-color: #18181b !important;
-            border-color: rgba(212, 175, 55, 0.3) !important;
+            border-color: rgba(255, 193, 7, 0.3) !important;
         }
-        html.dark tr.bg-indigo-50\/60 td {
-            color: #D4AF37 !important;
+        html.dark tr.bg-indigo-50\/60 td,
+        html.dark tr.bg-amber-50\/70 td {
+            color: #FFC107 !important;
         }
 
         /* Pestañas de Filtro */
@@ -518,13 +571,13 @@
         html.dark .tab-btn:hover {
             background-color: #18181b !important;
             color: #f8fafc !important;
-            border-color: rgba(212, 175, 55, 0.3) !important;
+            border-color: rgba(255, 193, 7, 0.3) !important;
         }
 
         html.dark .tab-btn.active {
-            background-color: #18181b !important;
-            color: #D4AF37 !important;
-            border-color: #D4AF37 !important;
+            background-color: rgba(255, 193, 7, 0.15) !important;
+            color: #FFC107 !important;
+            border-color: #FFC107 !important;
             font-weight: 700 !important;
         }
 
@@ -534,8 +587,8 @@
         }
 
         html.dark .tab-btn.active .badge-count {
-            background-color: rgba(212, 175, 55, 0.2) !important;
-            color: #D4AF37 !important;
+            background-color: rgba(255, 193, 7, 0.25) !important;
+            color: #FFC107 !important;
         }
 
         /* Tablas Dinámicas */
@@ -551,6 +604,7 @@
             background-color: #18181b !important;
             color: #f8fafc !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
+            border-bottom: 2px solid #FFC107 !important;
         }
 
         html.dark .data-table td,
@@ -562,7 +616,7 @@
 
         html.dark .data-table tr:hover td,
         html.dark tbody tr:hover td {
-            background-color: rgba(212, 175, 55, 0.06) !important;
+            background-color: rgba(255, 193, 7, 0.08) !important;
         }
 
         html.dark tfoot,
@@ -574,16 +628,16 @@
         }
 
         /* Secciones de Clientes Activos por Plan (Residencial, Corp, Consolidado) */
-        html.dark .border-blue-200 { border-color: rgba(59, 130, 246, 0.3) !important; }
+        html.dark .border-blue-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
         html.dark .bg-blue-50\/80, html.dark [class*="bg-blue-50/80"] {
             background-color: #141418 !important;
-            border-color: rgba(59, 130, 246, 0.3) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
         }
-        html.dark .text-blue-950 { color: #60a5fa !important; }
+        html.dark .text-blue-950 { color: #f8fafc !important; }
         html.dark #badgePlanesRes {
             background-color: #1e293b !important;
-            color: #93c5fd !important;
-            border-color: rgba(59, 130, 246, 0.3) !important;
+            color: #f8fafc !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
         }
 
         html.dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.3) !important; }
@@ -630,8 +684,8 @@
         html.dark .bg-white.text-blue-800:hover,
         html.dark .bg-white.text-amber-900:hover {
             background-color: #27272a !important;
-            color: #D4AF37 !important;
-            border-color: #D4AF37 !important;
+            color: #FFC107 !important;
+            border-color: #FFC107 !important;
         }
 
         html.dark #cardDetalleClientesPlan {
@@ -644,7 +698,7 @@
         }
         html.dark #cardDetalleClientesPlan button:hover {
             background-color: #27272a !important;
-            color: #D4AF37 !important;
+            color: #FFC107 !important;
         }
 
         /* Badges de Estatus */
@@ -792,37 +846,37 @@
         <!-- CONTENIDO ESPECÍFICO DE INTEGRACIÓN (USER HTML) -->
         <div class="max-w-6xl mx-auto p-6 mt-6">
             <header class="mb-8 text-center">
-                <h1 class="text-3xl font-bold text-blue-700" style="color: var(--texto-negro) !important;">Auditor de Clientes</h1>
-                <p class="text-gray-500 mt-2">Módulo avanzado con control de fechas diferenciadas para cambios de planes
-                    y estatus.</p>
+                <h1 class="text-3xl font-extrabold tracking-tight" style="color: var(--texto-negro) !important;">
+                    <i class="fa-solid fa-network-wired text-[#FFC107] mr-2"></i>Auditor de Clientes
+                </h1>
+                <p class="text-gray-500 mt-2 font-medium">Módulo avanzado con control de fechas diferenciadas para cambios de planes y estatus.</p>
             </header>
 
             <!-- Configuración y Carga de Archivos -->
             <div class="bg-white p-6 rounded-xl shadow-xs border border-gray-200 mb-8">
-                <h2 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">1. Parámetros de Carga y
-                    Filtros de Fecha</h2>
+                <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span class="w-2 h-4 bg-[#FFC107] rounded-xs inline-block"></span> 1. Parámetros de Carga y Filtros de Fecha
+                </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Segmento de Clientes (Filtro
-                            API):</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Segmento de Clientes (Filtro API):</label>
                         <select id="tipoClienteInput"
-                            class="w-full text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 font-semibold cursor-pointer">
+                            class="w-full text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-[#FFC107] focus:border-[#FFC107] font-semibold cursor-pointer">
                             <option value="todos">🌐 Todos los Clientes</option>
                             <option value="corporativo">🏢 Corporativo</option>
                             <option value="residencial" selected>🏠 Residenciales / Naturales</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Suspendidos
-                            desde:</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Suspendidos desde:</label>
                         <input type="date" id="fechaCorteInput" value="2026-07-01"
-                            class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-[#FFC107] focus:border-[#FFC107]">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha de Instalaciones:</label>
                         <input type="date" id="fechaInstalacionesInput" value="2026-07-13"
-                            class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full text-sm text-gray-700 bg-gray-50 border border-gray-300 rounded-md p-2 focus:ring-[#FFC107] focus:border-[#FFC107]">
                     </div>
                 </div>
 
@@ -830,84 +884,74 @@
                 <div class="mt-6 border-t border-gray-200 pt-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Configurar Base Mensual -->
-                        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 shadow-sm flex flex-col gap-4">
+                        <div class="bg-amber-50/40 p-4 rounded-xl border border-amber-200/80 shadow-xs flex flex-col gap-4">
                             <div>
-                                <label
-                                    class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
-                                    <span><i class="fa-solid fa-calendar-check mr-2 text-indigo-700"></i> 1A. Cargar
-                                        Base Residencial (Día 1):</span>
+                                <label class="block text-sm font-bold text-gray-900 mb-2 flex justify-between items-center">
+                                    <span><i class="fa-solid fa-calendar-check mr-2 text-[#FFC107]"></i> 1A. Cargar Base Residencial (Día 1):</span>
                                     <span id="lblEstadoMensualBox1"
-                                        class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
+                                        class="text-[10px] bg-amber-100/80 text-amber-900 px-2.5 py-0.5 rounded-full font-mono font-bold border border-amber-300/60">Cargando...</span>
                                 </label>
                                 <input type="file" id="fileBaseMes" accept=".xlsx, .xls"
-                                    class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
+                                    class="w-full text-xs text-gray-700 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#1e293b] file:text-[#FFC107] hover:file:bg-[#334155] cursor-pointer mb-2 transition-all">
                                 <button id="btnGuardarBaseMes"
-                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
-                                    <i class="fa-solid fa-upload mr-1"></i> Guardar Base Residencial
+                                    class="w-full bg-[#1e293b] hover:bg-[#334155] text-[#FFC107] text-xs font-bold py-2.5 px-4 rounded-lg transition-all border border-amber-500/30 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-upload mr-1 text-[#FFC107]"></i> Guardar Base Residencial
                                 </button>
                             </div>
-                            <div class="border-t border-indigo-200 pt-4">
-                                <label
-                                    class="block text-sm font-bold text-indigo-900 mb-2 flex justify-between items-center">
-                                    <span><i class="fa-solid fa-building mr-2 text-indigo-700"></i> 1B. Cargar Base
-                                        Corporativa (Día 1):</span>
+                            <div class="border-t border-amber-200/60 pt-4">
+                                <label class="block text-sm font-bold text-gray-900 mb-2 flex justify-between items-center">
+                                    <span><i class="fa-solid fa-building mr-2 text-[#FFC107]"></i> 1B. Cargar Base Corporativa (Día 1):</span>
                                     <span id="lblEstadoMensualCorpBox"
-                                        class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-mono border border-indigo-200">Cargando...</span>
+                                        class="text-[10px] bg-amber-100/80 text-amber-900 px-2.5 py-0.5 rounded-full font-mono font-bold border border-amber-300/60">Cargando...</span>
                                 </label>
                                 <input type="file" id="fileBaseMesCorp" accept=".xlsx, .xls"
-                                    class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-2">
+                                    class="w-full text-xs text-gray-700 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#1e293b] file:text-[#FFC107] hover:file:bg-[#334155] cursor-pointer mb-2 transition-all">
                                 <button id="btnGuardarBaseMesCorp"
-                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded transition-all">
-                                    <i class="fa-solid fa-upload mr-1"></i> Guardar Base Corporativa
+                                    class="w-full bg-[#1e293b] hover:bg-[#334155] text-[#FFC107] text-xs font-bold py-2.5 px-4 rounded-lg transition-all border border-amber-500/30 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="fa-solid fa-upload mr-1 text-[#FFC107]"></i> Guardar Base Corporativa
                                 </button>
                             </div>
-                            <p class="text-xs text-indigo-700 mt-2 font-medium">Sube los archivos del día 1. Estos
-                                quedarán guardados permanentemente para las comparativas mensuales hasta reemplazarlos.
-                            </p>
+                            <p class="text-xs text-amber-800/80 mt-2 font-medium">Sube los archivos del día 1. Estos quedarán guardados permanentemente para las comparativas mensuales hasta reemplazarlos.</p>
                         </div>
 
                         <!-- Seleccionar Comparativa -->
-                        <div
-                            class="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm flex flex-col justify-center">
-                            <label class="block text-sm font-bold text-blue-900 mb-3">
-                                <i class="fa-solid fa-sliders mr-2 text-blue-700"></i> 2. Tipo de Comparativa a
-                                realizar:
+                        <div class="bg-slate-50/80 p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-center">
+                            <label class="block text-sm font-bold text-slate-900 mb-3">
+                                <i class="fa-solid fa-sliders mr-2 text-[#FFC107]"></i> 2. Tipo de Comparativa a realizar:
                             </label>
                             <div class="flex gap-4">
                                 <label class="flex items-center cursor-pointer">
                                     <input type="radio" name="tipoComparativa" value="diaria" checked
-                                        class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        class="w-4 h-4 text-[#FFC107] focus:ring-[#FFC107] border-gray-300 cursor-pointer">
                                     <span class="ml-2 text-sm font-semibold text-gray-800">Diaria (Hoy vs Ayer)</span>
                                 </label>
                                 <label class="flex items-center cursor-pointer">
                                     <input type="radio" name="tipoComparativa" value="mensual"
-                                        class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                        class="w-4 h-4 text-[#FFC107] focus:ring-[#FFC107] border-gray-300 cursor-pointer">
                                     <span class="ml-2 text-sm font-semibold text-gray-800">Mensual (Hoy vs Día 1)</span>
                                 </label>
                             </div>
-                            <p class="text-xs text-blue-700 mt-4 font-medium">Al procesar, el sistema usará el registro
-                                automático (Diaria) o la base guardada (Mensual) según tu selección.</p>
+                            <p class="text-xs text-slate-600 mt-4 font-medium">Al procesar, el sistema usará el registro automático (Diaria) o la base guardada (Mensual) según tu selección.</p>
 
-                            <div
-                                class="mt-4 p-3 bg-white border border-blue-100 rounded-lg text-xs font-mono text-gray-600 space-y-1.5">
+                            <div class="mt-4 p-3 bg-white border border-slate-200 rounded-lg text-xs font-mono text-gray-600 space-y-1.5">
                                 <p class="font-bold text-gray-700 mb-2 border-b border-gray-100 pb-1.5"><i
-                                        class="fa-solid fa-clock-rotate-left mr-1"></i> Fechas de Respaldos Guardados:
+                                        class="fa-solid fa-clock-rotate-left mr-1 text-[#FFC107]"></i> Fechas de Respaldos Guardados:
                                 </p>
                                 <p class="flex justify-between items-center"><span>Base Mensual (Residencial):</span>
                                     <span id="lblEstadoMensual"
-                                        class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span>
+                                        class="font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">Cargando...</span>
                                 </p>
                                 <p class="flex justify-between items-center"><span>Base Mensual (Corporativo):</span>
                                     <span id="lblEstadoMensualCorp"
-                                        class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">Cargando...</span>
+                                        class="font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">Cargando...</span>
                                 </p>
                                 <p class="flex justify-between items-center"><span>Diario (Residencial):</span> <span
                                         id="lblEstadoDiarioRes"
-                                        class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span>
+                                        class="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Cargando...</span>
                                 </p>
                                 <p class="flex justify-between items-center"><span>Diario (Corporativo):</span> <span
                                         id="lblEstadoDiarioCorp"
-                                        class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Cargando...</span>
+                                        class="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Cargando...</span>
                                 </p>
                             </div>
                         </div>
@@ -916,17 +960,17 @@
             </div>
 
             <!-- Botón de Acción -->
-            <div class="flex justify-center mb-8 gap-4">
+            <div class="flex justify-center mb-8 gap-4 flex-wrap">
                 <button id="btnGuardarRegistro"
-                    class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all cursor-pointer">
-                    <i class="fa-solid fa-save mr-2"></i> Guardar Registro Actual (Local)
+                    class="bg-[#1e293b] hover:bg-[#334155] text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all cursor-pointer border border-slate-700 flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-save text-[#FFC107]"></i> Guardar Registro Actual (Local)
                 </button>
                 <button id="btnProcesarApi"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all cursor-pointer">
-                    <i class="fa-solid fa-code-compare mr-2"></i> Comparar API (Hoy) vs Excel / Registro
+                    class="bg-[#FFC107] hover:bg-[#F5C71D] text-slate-950 font-bold py-3 px-8 rounded-lg shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-code-compare"></i> Comparar API (Hoy) vs Excel / Registro
                 </button>
                 <button id="btnToggleAmountsGlobal" onclick="toggleAllAmounts()" title="Mostrar/Ocultar Montos"
-                    class="text-gray-500 hover:text-gray-700 text-xl py-3 px-4 rounded-lg transition-all cursor-pointer flex items-center justify-center">
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white text-xl py-3 px-4 rounded-lg transition-all cursor-pointer flex items-center justify-center">
                     <i class="fa-solid fa-eye-slash"></i>
                 </button>
             </div>
@@ -956,13 +1000,13 @@
                                 <p class="text-sm font-medium text-amber-700">Suspendidos corporativos</p>
                                 <p id="resumenSuspendidosCorp" class="text-2xl font-bold text-amber-900">0</p>
                             </div>
-                            <div class="p-4 bg-indigo-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
-                                <p class="text-sm font-medium text-indigo-700">Exonerados Regulares</p>
-                                <p id="resumenExonReg" class="text-2xl font-bold text-indigo-900">0</p>
+                            <div class="p-4 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                                <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Exonerados Regulares</p>
+                                <p id="resumenExonReg" class="text-2xl font-bold text-slate-900 dark:text-slate-100">0</p>
                             </div>
-                            <div class="p-4 bg-indigo-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
-                                <p class="text-sm font-medium text-indigo-700">Exonerados corporativos</p>
-                                <p id="resumenExonRegCorp" class="text-2xl font-bold text-indigo-900">0</p>
+                            <div class="p-4 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                                <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Exonerados corporativos</p>
+                                <p id="resumenExonRegCorp" class="text-2xl font-bold text-slate-900 dark:text-slate-100">0</p>
                             </div>
                             <div class="p-4 bg-sky-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
                                 <p class="text-sm font-medium text-sky-700">Exonerados Empleados (emp)</p>
@@ -976,7 +1020,7 @@
                         class="max-w-3xl mx-auto overflow-hidden rounded-xl border border-gray-200 shadow-xs bg-white mb-6 w-full">
                         <div class="flex items-center justify-between border-b border-gray-100 p-4 bg-gray-50/50">
                             <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-list-ul text-blue-600"></i> Resumen de Clientes (Lista)
+                                <i class="fa-solid fa-list-ul text-[#FFC107]"></i> Resumen de Clientes (Lista)
                             </h3>
                         </div>
                         <div class="overflow-x-auto w-full">
@@ -1014,15 +1058,15 @@
                                         id="listaSuspendidosCorp">0</td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-purple-700">Exonerados
                                         Regulares</td>
-                                    <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonReg">0
+                                    <td class="py-2.5 px-4 text-right font-bold text-purple-900" id="listaExonReg">0
                                     </td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/30 transition-colors">
-                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700">Exonerados
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-purple-700">Exonerados
                                         corporativos</td>
-                                    <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaExonRegCorp">0
+                                    <td class="py-2.5 px-4 text-right font-bold text-purple-900" id="listaExonRegCorp">0
                                     </td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/30 transition-colors">
@@ -1030,10 +1074,10 @@
                                         Empleados (emp)</td>
                                     <td class="py-2.5 px-4 text-right font-bold text-sky-900" id="listaExonEmp">0</td>
                                 </tr>
-                                <tr class="bg-indigo-50/60 font-bold border-t-2 border-indigo-200 transition-colors">
-                                    <td class="py-3 px-4 text-left font-sans text-indigo-900 text-base uppercase">
+                                <tr class="bg-amber-50/80 dark:bg-amber-950/20 font-bold border-t-2 border-[#FFC107] transition-colors">
+                                    <td class="py-3 px-4 text-left font-sans text-slate-900 dark:text-[#FFC107] text-base uppercase">
                                         Sumatoria Total</td>
-                                    <td class="py-3 px-4 text-right font-bold text-indigo-900 text-base"
+                                    <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-[#FFC107] text-base"
                                         id="listaTotalGeneral">0</td>
                                 </tr>
                             </tbody>
@@ -1042,7 +1086,7 @@
                     </div>
 
                     <div class="flex items-center justify-center my-2">
-                        <h2 class="text-xl font-bold text-gray-700 border-b-2 border-gray-200 pb-2 px-6">💰 Resumen
+                        <h2 class="text-xl font-bold text-gray-700 dark:text-gray-200 border-b-2 border-[#FFC107] pb-2 px-6">💰 Resumen
                             Financiero de Variaciones</h2>
                     </div>
 
@@ -1086,10 +1130,10 @@
                                     </p>
                                 </div>
                                 <div style="display: none;"
-                                    class="bg-blue-50 border-l-4 border-blue-500 p-3 flex-1 rounded min-h-[70px]">
-                                    <p class="text-[11px] text-blue-700 font-semibold mb-1 leading-tight">Cambios Plan o
+                                    class="bg-slate-50 border-l-4 border-[#FFC107] p-3 flex-1 rounded min-h-[70px]">
+                                    <p class="text-[11px] text-slate-700 font-semibold mb-1 leading-tight">Cambios Plan o
                                         Estado</p>
-                                    <p id="countSeguimiento" class="text-lg font-bold text-blue-900 leading-none">0</p>
+                                    <p id="countSeguimiento" class="text-lg font-bold text-slate-900 leading-none">0</p>
                                 </div>
                             </div>
                         </div>
@@ -1122,12 +1166,12 @@
 
                 <div class="flex justify-end mb-4 gap-3 flex-wrap">
                     <button onclick="exportarExcelResumenPlanes()"
-                        class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-5 rounded-md shadow-xs flex items-center gap-2 cursor-pointer mb-6">
+                        class="bg-[#FFC107] hover:bg-[#F5C71D] text-slate-950 font-bold py-2 px-5 rounded-lg shadow-xs flex items-center gap-2 cursor-pointer mb-6 transition-all">
                         <i class="fa-solid fa-file-excel"></i> Descargar Excel de Planes
                     </button>
                     <button id="btnDescargar"
-                        class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-5 rounded-md shadow-xs flex items-center gap-2 cursor-pointer mb-6">
-                        📥 Descargar Reporte Consolidado (.xlsx)
+                        class="bg-[#10b981] hover:bg-[#059669] text-white font-bold py-2 px-5 rounded-lg shadow-xs flex items-center gap-2 cursor-pointer mb-6 transition-all">
+                        <i class="fa-solid fa-file-arrow-down"></i> Descargar Reporte Consolidado (.xlsx)
                     </button>
                 </div>
 
@@ -1162,10 +1206,10 @@
                                     class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 <input type="text" id="searchInput" oninput="filterTable()"
                                     placeholder="Buscar por Nombre, Cédula..."
-                                    class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                    class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFC107] focus:border-[#FFC107] outline-none">
                             </div>
                             <select id="planFilter" onchange="filterTable()"
-                                class="border border-gray-300 rounded-lg py-2 px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white min-w-[200px] cursor-pointer">
+                                class="border border-gray-300 rounded-lg py-2 px-4 text-sm focus:ring-2 focus:ring-[#FFC107] focus:border-[#FFC107] outline-none bg-white min-w-[200px] cursor-pointer">
                                 <option value="">Todos los Planes</option>
                             </select>
                         </div>
@@ -1277,7 +1321,7 @@
                                     <td class="px-6 py-4 text-center font-mono" id="cf_tot_hoy_qty">-</td>
                                     <td class="px-6 py-4 text-right font-mono" id="cf_tot_hoy_mnt">-</td>
                                 </tr>
-                                <tr class="bg-indigo-50 border-t border-indigo-200 text-indigo-900">
+                                <tr class="bg-amber-50/60 border-t-2 border-[#FFC107] text-slate-900 font-extrabold dark:bg-amber-950/20 dark:text-amber-300">
                                     <td class="px-6 py-4 text-lg font-black uppercase">Diferencia</td>
                                     <td class="px-6 py-4 text-center font-mono text-lg font-black" id="cf_dif_qty">-
                                     </td>
@@ -1311,15 +1355,15 @@
 
                     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
                         <!-- 1. TABLA RESIDENCIAL -->
-                        <div class="border border-blue-200 rounded-xl overflow-hidden shadow-2xs h-full flex flex-col">
+                        <div class="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xs h-full flex flex-col">
                             <div
-                                class="bg-blue-50/80 px-4 py-3 border-b border-blue-200 flex items-center justify-between flex-wrap gap-2">
+                                class="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-b border-slate-200 dark:border-white/10 flex items-center justify-between flex-wrap gap-2">
                                 <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-house-user text-blue-600 text-sm"></i>
-                                    <h4 class="font-bold text-blue-950 text-sm">1. Clientes Residenciales (Naturales)
+                                    <i class="fa-solid fa-house-user text-[#FFC107] text-sm"></i>
+                                    <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm">1. Clientes Residenciales (Naturales)
                                     </h4>
                                     <span id="badgePlanesRes"
-                                        class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full border border-blue-200">0
+                                        class="text-xs bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200 font-bold px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-600">0
                                         Planes</span>
                                 </div>
                                 <div
@@ -1327,9 +1371,9 @@
                                     <input type="text" id="buscarPlanesResInput"
                                         oninput="filtrarPlanesSeccion('residencial')"
                                         placeholder="Filtrar residencial..."
-                                        class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-32 md:w-48 focus:ring-1 focus:ring-blue-500">
+                                        class="text-xs px-3 py-1.5 border border-gray-300 rounded-lg bg-white outline-none w-32 md:w-48 focus:ring-1 focus:ring-[#FFC107] dark:bg-black/30 dark:border-white/10 dark:text-white">
                                     <button onclick="exportarExcelUnaSeccion('residencial')"
-                                        class="px-2.5 py-1.5 bg-white hover:bg-blue-100 text-blue-800 text-xs font-bold rounded-lg border border-blue-300 cursor-pointer">
+                                        class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg border border-slate-300 dark:border-white/10 cursor-pointer">
                                         <i class="fa-solid fa-file-excel text-emerald-600 mr-1"></i> Excel
                                     </button>
                                 </div>
@@ -1361,7 +1405,7 @@
                                         <tr>
                                             <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL
                                                 RESIDENCIAL</td>
-                                            <td class="py-2.5 px-3 text-center font-mono text-indigo-900 font-bold"
+                                            <td class="py-2.5 px-3 text-center font-mono text-slate-900 dark:text-slate-100 font-bold"
                                                 id="totResClientes">-</td>
                                             <td class="py-2.5 px-3 text-center">100%</td>
                                             <td class="py-2.5 px-3 text-right text-gray-500">-</td>
@@ -1492,13 +1536,13 @@
                                     <tr>
                                         <td colspan="2" class="py-2.5 px-3 text-left font-bold uppercase">TOTAL GENERAL
                                             (UNIÓN)</td>
-                                        <td class="py-2.5 px-3 text-center font-mono text-indigo-900 font-extrabold text-sm"
+                                        <td class="py-2.5 px-3 text-center font-mono text-slate-900 dark:text-slate-100 font-extrabold text-sm"
                                             id="totConsClientes">-</td>
                                         <td class="py-2.5 px-3 text-center">100%</td>
                                         <td class="py-2.5 px-3 text-right text-gray-500">-</td>
-                                        <td class="py-2.5 px-3 text-right font-mono text-emerald-900 font-extrabold text-sm"
+                                        <td class="py-2.5 px-3 text-right font-mono text-emerald-900 dark:text-emerald-400 font-extrabold text-sm"
                                             id="totConsCosto">-</td>
-                                        <td class="py-2.5 px-3 text-center text-emerald-900">100%</td>
+                                        <td class="py-2.5 px-3 text-center text-emerald-900 dark:text-emerald-400">100%</td>
                                         <td class="py-2.5 px-3 text-center text-gray-500">Consolidado</td>
                                     </tr>
                                 </tfoot>
@@ -1508,15 +1552,15 @@
                     </div>
 
                     <!-- Visor de Detalle de Clientes del Plan (Desplegable) -->
-                    <div id="cardDetalleClientesPlan" class="hidden mt-6 border-t border-gray-200 pt-6">
+                    <div id="cardDetalleClientesPlan" class="hidden mt-6 border-t border-gray-200 dark:border-white/10 pt-6">
                         <div
-                            class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4 flex-wrap gap-2">
+                            class="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-3 mb-4 flex-wrap gap-2">
                             <div>
-                                <h4 class="text-base font-bold text-gray-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-users text-amber-600"></i> Listado de Clientes Activos del
-                                    Plan: <span id="lblPlanDetalleConsolidado" class="text-amber-700 font-bold">-</span>
+                                <h4 class="text-base font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-users text-[#FFC107]"></i> Listado de Clientes Activos del
+                                    Plan: <span id="lblPlanDetalleConsolidado" class="text-amber-600 dark:text-[#FFC107] font-bold">-</span>
                                 </h4>
-                                <p class="text-xs text-gray-500 mt-0.5">Clientes específicos asociados a este plan.</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Clientes específicos asociados a este plan.</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="relative w-64">
@@ -1525,7 +1569,7 @@
                                     <input type="text" id="buscarClientesPlanInput"
                                         oninput="filtrarClientesPlanConsolidado()"
                                         placeholder="Buscar cliente, cédula o ID..."
-                                        class="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+                                        class="w-full pl-9 pr-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFC107] outline-none dark:bg-black/30 dark:border-white/10 dark:text-white">
                                 </div>
                                 <button onclick="cerrarDetalleClientesPlan()"
                                     class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg border border-gray-300 cursor-pointer">
@@ -2119,9 +2163,9 @@
             document.querySelectorAll('.pill-cf-btn').forEach(btn => {
                 const btnConcepto = btn.getAttribute('data-concepto') || '';
                 if (btnConcepto === concepto) {
-                    btn.className = "pill-cf-btn active px-3 py-1.5 text-xs font-semibold rounded-lg border bg-indigo-600 text-white border-indigo-600 cursor-pointer shadow-xs";
+                    btn.className = "pill-cf-btn active px-3 py-1.5 text-xs font-bold rounded-lg border bg-[#FFC107] text-slate-950 border-[#FFC107] cursor-pointer shadow-xs";
                 } else {
-                    btn.className = "pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer";
+                    btn.className = "pill-cf-btn px-3 py-1.5 text-xs font-semibold rounded-lg border bg-white dark:bg-[#1f1f24] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-[#27272a] cursor-pointer";
                 }
             });
 
@@ -2129,8 +2173,8 @@
         }
 
         function getConceptoBadgeClass(concepto) {
-            if (concepto === 'Nuevas Instalaciones') return 'bg-green-100 text-green-800 border-green-200';
-            if (concepto === 'Reconexiones') return 'bg-blue-100 text-blue-800 border-blue-200';
+            if (concepto === 'Nuevas Instalaciones') return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            if (concepto === 'Reconexiones') return 'bg-cyan-100 text-cyan-800 border-cyan-200';
             if (concepto === 'Upgrades de Plan') return 'bg-purple-100 text-purple-800 border-purple-200';
             if (concepto.includes('3 Meses Beneficio')) return 'bg-emerald-100 text-emerald-800 border-emerald-200';
             if (concepto === 'Downgrades de Plan') return 'bg-amber-100 text-amber-800 border-amber-200';
@@ -2329,7 +2373,7 @@
                 </tr>`;
 
                 if (groupBeneficio.length > 0) {
-                    tbodyHtml += `<tr><td colspan="7" class="bg-indigo-50 text-indigo-800 font-semibold py-2 px-4 text-center">Plan: 3 Meses Beneficio (${groupBeneficio.length})</td></tr>`;
+                    tbodyHtml += `<tr><td colspan="7" class="bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 font-bold py-2 px-4 text-center border-y border-amber-200 dark:border-amber-800/40">Plan: 3 Meses Beneficio (${groupBeneficio.length})</td></tr>`;
                     groupBeneficio.forEach(row => { tbodyHtml += renderRow(row); });
                 }
 
@@ -2456,13 +2500,13 @@
                     <td class="py-2.5 px-3 font-bold text-gray-900">
                         <i class="fa-solid fa-wifi text-amber-500 mr-1.5"></i> ${p.Plan}
                     </td>
-                    <td class="text-center font-bold text-indigo-700 font-mono text-xs py-2.5 px-3">${cant.toLocaleString('en-US')}</td>
+                    <td class="text-center font-bold text-slate-900 dark:text-slate-100 font-mono text-xs py-2.5 px-3">${cant.toLocaleString('en-US')}</td>
                     <td class="text-center py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">${p['Porcentaje Clientes'] || 0}%</span></td>
                     <td class="text-right font-mono text-gray-700 py-2.5 px-3">${formatAmountGlobal(p['Precio Unitario'] || '$0.00')}</td>
                     <td class="text-right font-mono font-bold text-emerald-700 text-xs py-2.5 px-3">${formatAmountGlobal('$' + costo.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</td>
                     <td class="text-center py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">${p['Porcentaje Ingresos'] || 0}%</span></td>
                     <td class="text-center py-2.5 px-3">
-                        <button onclick="verClientesDeSeccion('${p.Plan.replace(/'/g, "\\'")}', '${seccion}')" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold rounded shadow-2xs transition-all cursor-pointer">
+                        <button onclick="verClientesDeSeccion('${p.Plan.replace(/'/g, "\\'")}', '${seccion}')" class="px-2.5 py-1 bg-[#FFC107] hover:bg-[#F5C71D] text-slate-950 text-xs font-bold rounded shadow-2xs transition-all cursor-pointer">
                             <i class="fa-solid fa-users-viewfinder mr-1"></i> Clientes
                         </button>
                     </td>

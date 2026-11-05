@@ -20,6 +20,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 import smtplib
@@ -248,10 +249,11 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    if not user.is_active:
+    if not user.is_active or getattr(user, "status", None) == "Retirado":
+        detail_msg = "Acceso revocado: El trabajador se encuentra con estatus Retirado." if getattr(user, "status", None) == "Retirado" else "Usuario inactivo o suspendido. Contacta a Administración/RRHH."
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Usuario inactivo o suspendido. Contacta a Administración/RRHH.",
+            detail=detail_msg,
         )
 
     # Success: reset rate limit attempts for this IP
@@ -321,13 +323,19 @@ async def chat_page(request: Request, db: Session = Depends(get_db)):
     except (HTTPException, Exception):
         return RedirectResponse(url="/login")
 
-    all_users = db.query(models.User).filter(models.User.is_active == True).all()
-    employees = db.query(models.Employee).all()
+    all_users = db.query(models.User).filter(
+        models.User.is_active == True,
+        models.User.status != "Retirado"
+    ).all()
+    employees = db.query(models.Employee).filter(models.Employee.status != "Retirado").all()
     emp_map = {emp.name: emp.department for emp in employees}
     online_emails = manager.get_online_emails()
     
     departments = {}
     for u in all_users:
+        # Solo usuarios actualmente activos / con sesión iniciada (misma lógica que la burbuja)
+        if u.email not in online_emails:
+            continue
         dept = emp_map.get(u.full_name, "General")
         if dept not in departments:
             departments[dept] = []
@@ -356,10 +364,15 @@ MONTH_MAP = {
     'diciembre': 12, 'dic': 12
 }
 
+MESES_ESPANOL = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+]
+
 def parse_birthday_day_month(bday_str: str):
     if not bday_str or not isinstance(bday_str, str):
         return None
-    s = bday_str.strip().lower()
+    s = re.sub(r'/+', '/', bday_str.strip()).lower()
     
     # 1. Formato "DD de Mes" (ej: "19 de Enero", "3 de Febrero")
     m = re.match(r'^(\d{1,2})\s+de\s+([a-záéíóú]+)', s)
@@ -399,6 +412,38 @@ def parse_birthday_day_month(bday_str: str):
 
     return None
 
+def normalize_birthday_date(bday_str: str) -> str:
+    """
+    Normaliza cualquier formato de fecha de cumpleaños a 'DD de Mes' (ej: '25 de Mayo', '2 de Marzo').
+    Soporta '25 de Mayo', '02/03//1969', 'YYYY-MM-DD', 'DD/MM/YYYY', etc.
+    """
+    if not bday_str or not isinstance(bday_str, str):
+        return ""
+    s = re.sub(r'/+', '/', bday_str.strip())
+    parsed = parse_birthday_day_month(s)
+    if parsed:
+        day, month = parsed
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return f"{day} de {MESES_ESPANOL[month - 1]}"
+    return bday_str.strip()
+
+def birthday_to_iso(bday_str: str) -> str:
+    """
+    Convierte una fecha de cumpleaños ('25 de Mayo', '02/03//1969', etc.) al formato 'YYYY-MM-DD'
+    para poder ser cargada correctamente en inputs de tipo date de HTML5.
+    """
+    if not bday_str or not isinstance(bday_str, str):
+        return ""
+    s = re.sub(r'/+', '/', bday_str.strip())
+    year_match = re.search(r'\b(19\d{2}|20\d{2})\b', s)
+    year = int(year_match.group(1)) if year_match else 2000
+    parsed = parse_birthday_day_month(s)
+    if parsed:
+        day, month = parsed
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return f"{year:04d}-{month:02d}-{day:02d}"
+    return ""
+
 # ==========================================
 # RUTAS DE INTRANET GENERAL (USUARIOS)
 # ==========================================
@@ -413,12 +458,28 @@ async def get_dashboard_data(
     kpis = db.query(models.KpiMetric).all()
     calendar_events = db.query(models.CalendarEvent).all()
 
-    # Encuentra el próximo cumpleaños
-    all_emps_with_bday = db.query(models.Employee).filter(models.Employee.birthday_date != None, models.Employee.birthday_date != "").all()
+    # Usuarios retirados o inactivos a excluir de las felicitaciones
+    users_all = db.query(models.User).all()
+    retired_emails = {u.email.strip().lower() for u in users_all if u.email and (u.status == "Retirado" or not u.is_active)}
+    retired_names = {u.full_name.strip().lower() for u in users_all if u.full_name and (u.status == "Retirado" or not u.is_active)}
+
+    # Encuentra el próximo cumpleaños (excluyendo trabajadores retirados)
+    all_emps_with_bday = db.query(models.Employee).filter(
+        models.Employee.birthday_date != None,
+        models.Employee.birthday_date != "",
+        (models.Employee.status != "Retirado") | (models.Employee.status == None)
+    ).all()
+    # Filtrar aquellos que pertenezcan a usuarios retirados
+    all_emps_with_bday = [
+        e for e in all_emps_with_bday
+        if (e.email or "").strip().lower() not in retired_emails
+        and f"{e.name} {e.apellido or ''}".strip().lower() not in retired_names
+    ]
+
     closest_emp = None
     if all_emps_with_bday:
         today = datetime.now().date()
-        meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        meses = MESES_ESPANOL
         
         def get_next_bday_info(emp):
             parsed = parse_birthday_day_month(emp.birthday_date)
@@ -486,54 +547,146 @@ async def reportes_page(request: Request, db: Session = Depends(get_db)):
         return templates.TemplateResponse(request, "reportes.html", {"request": request, "user": user})
     except (HTTPException, Exception):
         return RedirectResponse(url="/login")
+class ChatMarkReadRequest(BaseModel):
+    channel: str
+
 @app.get("/api/chat")
 async def get_chat_messages(
     channel: str = "#General",
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user)
 ):
-    # Actualizar estado de lectura
+    # Actualizar estado de lectura con timestamp UTC
+    now_utc = datetime.utcnow()
     read_state = db.query(models.ChatReadState).filter(
         models.ChatReadState.user_email == current_user.email,
         models.ChatReadState.channel == channel
     ).first()
     if not read_state:
-        read_state = models.ChatReadState(user_email=current_user.email, channel=channel)
+        read_state = models.ChatReadState(
+            user_email=current_user.email,
+            channel=channel,
+            last_read_timestamp=now_utc
+        )
         db.add(read_state)
     else:
-        read_state.last_read_timestamp = datetime.now()
+        read_state.last_read_timestamp = now_utc
     db.commit()
 
     messages = db.query(models.ChatMessage).filter(models.ChatMessage.channel == channel).order_by(models.ChatMessage.id.asc()).limit(50).all()
     return messages
+
+@app.post("/api/chat/mark_read")
+async def mark_chat_read(
+    payload: ChatMarkReadRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(security.get_current_user)
+):
+    now_utc = datetime.utcnow()
+    read_state = db.query(models.ChatReadState).filter(
+        models.ChatReadState.user_email == current_user.email,
+        models.ChatReadState.channel == payload.channel
+    ).first()
+    if not read_state:
+        read_state = models.ChatReadState(
+            user_email=current_user.email,
+            channel=payload.channel,
+            last_read_timestamp=now_utc
+        )
+        db.add(read_state)
+    else:
+        read_state.last_read_timestamp = now_utc
+    db.commit()
+    return {"status": "ok", "channel": payload.channel, "timestamp": now_utc.isoformat()}
 
 @app.get("/api/chat/unread")
 async def get_unread_channels(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user)
 ):
-    # Encontrar mensajes recientes
-    # Para optimizar, se podría agrupar por canal, pero haremos un approach simple.
-    unread_channels = set()
-    
     # 1. Obtener los timestamps de lectura del usuario
-    read_states = db.query(models.ChatReadState).filter(models.ChatReadState.user_email == current_user.email).all()
+    read_states = db.query(models.ChatReadState).filter(
+        models.ChatReadState.user_email == current_user.email
+    ).all()
     read_map = {rs.channel: rs.last_read_timestamp for rs in read_states}
     
-    # 2. Buscar canales con mensajes dirigidos al usuario o generales
-    # Por simplicidad, traemos los ultimos 500 mensajes de todos los canales que le importan
-    recent_messages = db.query(models.ChatMessage).order_by(models.ChatMessage.id.desc()).limit(200).all()
+    # 2. Buscar mensajes recientes dirigidos al usuario o generales
+    recent_messages = db.query(models.ChatMessage).order_by(models.ChatMessage.id.desc()).limit(300).all()
+    
+    unread_channels = set()
+    channel_counts = {}
+    channel_last_msg = {}
+    sender_emails = set()
     
     for msg in recent_messages:
         # Solo evaluar mensajes que el usuario deba ver (general o directos)
         if msg.channel == "#General" or current_user.email in msg.channel:
+            # No considerar los mensajes que el propio usuario envió
+            if msg.user_email == current_user.email:
+                continue
+                
             last_read = read_map.get(msg.channel)
-            if not last_read or msg.created_at > last_read:
-                # No considerar los mensajes que el propio usuario envió como "no leídos"
-                if msg.user_email != current_user.email:
-                    unread_channels.add(msg.channel)
+            if not last_read or (msg.created_at and msg.created_at > last_read):
+                unread_channels.add(msg.channel)
+                channel_counts[msg.channel] = channel_counts.get(msg.channel, 0) + 1
+                if msg.channel not in channel_last_msg:
+                    channel_last_msg[msg.channel] = msg
+                if msg.user_email:
+                    sender_emails.add(msg.user_email)
                     
-    return {"unread": list(unread_channels)}
+    # Cache user info para los remitentes
+    users_info = {}
+    if sender_emails:
+        senders = db.query(models.User).filter(models.User.email.in_(sender_emails)).all()
+        for s in senders:
+            users_info[s.email] = {
+                "name": s.full_name,
+                "avatar_url": s.avatar_url or "https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png"
+            }
+            
+    details = []
+    for ch in unread_channels:
+        last_m = channel_last_msg.get(ch)
+        other_email = None
+        other_name = "#General"
+        avatar = "https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png"
+        
+        if ch != "#General":
+            if ch.startswith("private_"):
+                raw = ch[len("private_"):]
+                if raw.startswith(current_user.email + "_"):
+                    other_email = raw[len(current_user.email) + 1:]
+                elif raw.endswith("_" + current_user.email):
+                    other_email = raw[:-len(current_user.email) - 1]
+                else:
+                    parts = raw.split("_")
+                    for p in parts:
+                        if p != current_user.email:
+                            other_email = p
+                            break
+            if other_email and other_email in users_info:
+                other_name = users_info[other_email]["name"]
+                avatar = users_info[other_email]["avatar_url"]
+            elif last_m:
+                other_name = last_m.user_name
+                other_email = last_m.user_email
+                
+        details.append({
+            "channel": ch,
+            "other_email": other_email,
+            "other_name": other_name,
+            "avatar_url": avatar,
+            "count": channel_counts.get(ch, 1),
+            "last_message": last_m.message if last_m else "",
+            "last_time": last_m.created_at.strftime("%I:%M %p") if last_m and last_m.created_at else ""
+        })
+        
+    return {
+        "unread": list(unread_channels),
+        "unread_counts": channel_counts,
+        "unread_details": details,
+        "total_unread": sum(channel_counts.values())
+    }
 
 @app.websocket("/api/ws/chat")
 async def websocket_chat(websocket: WebSocket, db: Session = Depends(get_db)):
@@ -743,8 +896,10 @@ async def add_employee(
             shutil.copyfileobj(photo.file, buffer)
         photo_url = f"/{UPLOAD_DIR}/{filename}"
 
+    clean_bday = normalize_birthday_date(birthday_date) if birthday_date else ""
+
     emp = models.Employee(name=name, apellido=apellido, email=email, position=position, department=department or "General", 
-cedula=cedula, birthday_date=birthday_date, photo_url=photo_url)
+cedula=cedula, birthday_date=clean_bday, photo_url=photo_url)
     db.add(emp)
     
     hashed_pw = security.get_password_hash(password)
@@ -752,12 +907,13 @@ cedula=cedula, birthday_date=birthday_date, photo_url=photo_url)
         username=usuario,
         email=email or f"{usuario}@empresa.com",
         hashed_password=hashed_pw,
-        full_name=f"{name} {apellido}",
+        full_name=f"{name} {apellido}".strip(),
         role="user",
         avatar_url=photo_url,
         cargo=position,
+        cedula=cedula,
         department=department or "General",
-        birthday_date=birthday_date
+        birthday_date=clean_bday
     )
     db.add(new_user)
         
@@ -797,12 +953,23 @@ async def update_employee(
         if db.query(models.Employee).filter(models.Employee.email == email).first():
             raise HTTPException(status_code=400, detail="Correo ya está en uso")
 
+    clean_bday = normalize_birthday_date(birthday_date) if birthday_date else emp.birthday_date
     emp.name = name
     emp.apellido = apellido
     emp.department = department or "General"
     emp.cedula = cedula
-    emp.birthday_date = birthday_date
+    emp.birthday_date = clean_bday
     emp.email = email
+    
+    # Sincronizar en User si existe
+    if email:
+        user_match = db.query(models.User).filter(func.lower(models.User.email) == email.strip().lower()).first()
+        if user_match:
+            user_match.full_name = f"{name} {apellido}".strip()
+            user_match.cedula = cedula
+            user_match.birthday_date = clean_bday
+            user_match.department = emp.department
+            user_match.cargo = emp.position
     
     db.commit()
     db.refresh(emp)
@@ -843,20 +1010,79 @@ async def list_users_permissions(
     admin_user: models.User = Depends(security.require_admin)
 ):
     users = db.query(models.User).order_by(models.User.full_name).all()
-    employees_dict = {e.email: e.cedula for e in db.query(models.Employee).filter(models.Employee.email != None).all()}
-    return [{
-        "id": u.id,
-        "full_name": u.full_name,
-        "username": u.username,
-        "email": u.email,
-        "role": u.role,
-        "permissions": u.permissions or "",
-        "department": u.department or "",
-        "cargo": u.cargo or "",
-        "birthday_date": u.birthday_date or "",
-        "is_active": u.is_active,
-        "cedula": employees_dict.get(u.email) or ""
-    } for u in users]
+    employees = db.query(models.Employee).all()
+    emp_by_email = {e.email.strip().lower(): e for e in employees if e.email}
+    emp_by_name = {e.name.strip().lower(): e for e in employees if e.name}
+
+    results = []
+    for u in users:
+        emp = emp_by_email.get((u.email or "").strip().lower()) or emp_by_name.get((u.full_name or "").strip().lower())
+        cedula = (u.cedula or "").strip()
+        if not cedula and emp and emp.cedula:
+            cedula = emp.cedula.strip()
+
+        bday = normalize_birthday_date(u.birthday_date or (emp.birthday_date if emp else "") or "")
+        bday_iso = birthday_to_iso(bday)
+
+        results.append({
+            "id": u.id,
+            "full_name": u.full_name or "",
+            "username": u.username or "",
+            "email": u.email or "",
+            "role": u.role,
+            "permissions": u.permissions or "",
+            "department": u.department or (emp.department if emp else "") or "",
+            "cargo": u.cargo or (emp.position if emp else "") or "",
+            "birthday_date": bday,
+            "birthday_date_iso": bday_iso,
+            "is_active": u.is_active,
+            "status": getattr(u, "status", None) or ("Activo" if u.is_active else "Suspendido"),
+            "cedula": cedula
+        })
+    return results
+
+@app.get("/api/rrhh/users/{user_id}")
+async def get_worker_detail(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(security.require_admin)
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    emp = None
+    if user.email:
+        emp = db.query(models.Employee).filter(func.lower(models.Employee.email) == user.email.strip().lower()).first()
+    if not emp and user.full_name:
+        emp = db.query(models.Employee).filter(func.lower(models.Employee.name) == user.full_name.strip().lower()).first()
+
+    cedula = (user.cedula or "").strip()
+    if not cedula and emp and emp.cedula:
+        cedula = emp.cedula.strip()
+        user.cedula = cedula
+        db.commit()
+    elif cedula and emp and not emp.cedula:
+        emp.cedula = cedula
+        db.commit()
+
+    bday = normalize_birthday_date(user.birthday_date or (emp.birthday_date if emp else "") or "")
+    bday_iso = birthday_to_iso(bday)
+
+    return {
+        "id": user.id,
+        "cedula": cedula,
+        "full_name": user.full_name or "",
+        "username": user.username or "",
+        "email": user.email or "",
+        "department": user.department or (emp.department if emp else "") or "",
+        "cargo": user.cargo or (emp.position if emp else "") or "",
+        "birthday_date": bday,
+        "birthday_date_iso": bday_iso,
+        "avatar_url": user.avatar_url or "",
+        "status": getattr(user, "status", None) or ("Activo" if user.is_active else "Suspendido"),
+        "is_active": user.is_active
+    }
 
 @app.post("/api/rrhh/users/{user_id}/permissions")
 async def update_user_permissions(
@@ -1111,14 +1337,40 @@ async def edit_worker_info(
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if getattr(user, "status", None) == "Retirado":
+        raise HTTPException(status_code=400, detail="No se pueden modificar los datos de un trabajador con estatus Retirado.")
         
-    user.email = email
-    user.department = department
-    user.cargo = cargo
-    user.birthday_date = birthday_date
-    user.full_name = full_name
-    user.cedula = cedula
+    old_email = user.email
+    old_name = user.full_name
+
+    clean_bday = normalize_birthday_date(birthday_date) if birthday_date else user.birthday_date
+
+    user.email = email.strip()
+    user.department = department.strip()
+    user.cargo = cargo.strip()
+    user.birthday_date = clean_bday
+    user.full_name = full_name.strip()
+    user.cedula = cedula.strip()
     
+    # Sincronizar en tabla Employee
+    emp = None
+    if old_email:
+        emp = db.query(models.Employee).filter(func.lower(models.Employee.email) == old_email.strip().lower()).first()
+    if not emp and user.email:
+        emp = db.query(models.Employee).filter(func.lower(models.Employee.email) == user.email.strip().lower()).first()
+    if not emp and old_name:
+        emp = db.query(models.Employee).filter(func.lower(models.Employee.name) == old_name.strip().lower()).first()
+    if not emp and user.cedula:
+        emp = db.query(models.Employee).filter(models.Employee.cedula == user.cedula).first()
+
+    if emp:
+        emp.email = user.email
+        emp.name = user.full_name
+        emp.cedula = user.cedula
+        emp.department = user.department or "General"
+        emp.position = user.cargo
+        emp.birthday_date = user.birthday_date
+
     if avatar and avatar.filename:
         upload_dir = "static/uploads/avatars"
         os.makedirs(upload_dir, exist_ok=True)
@@ -1130,11 +1382,18 @@ async def edit_worker_info(
             image.thumbnail((400, 400))
             image.save(filepath, "WEBP", quality=85)
             user.avatar_url = f"/{filepath.replace(os.sep, '/')}"
+            if emp:
+                emp.photo_url = user.avatar_url
         except Exception as e:
             print("Error procesando imagen:", e)
             
     db.commit()
-    return {"message": "Datos de trabajador actualizados"}
+    return {
+        "message": "Datos de trabajador actualizados",
+        "cedula": user.cedula,
+        "birthday_date": user.birthday_date,
+        "birthday_date_iso": birthday_to_iso(user.birthday_date)
+    }
 
 @app.post("/api/rrhh/users/{user_id}/activate")
 async def activate_worker(
@@ -1145,7 +1404,10 @@ async def activate_worker(
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if getattr(user, "status", None) == "Retirado":
+        raise HTTPException(status_code=400, detail="El trabajador se encuentra en estado Retirado y no puede activarse directamente.")
     user.is_active = True
+    user.status = "Activo"
     user.suspension_reason = ""
     db.commit()
     return {"message": "Usuario activado exitosamente"}
@@ -1160,7 +1422,10 @@ async def suspend_worker(
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if getattr(user, "status", None) == "Retirado":
+        raise HTTPException(status_code=400, detail="El trabajador ya se encuentra inhabilitado con estado Retirado.")
     user.is_active = False
+    user.status = "Suspendido"
     user.suspension_reason = data.suspension_reason
     db.commit()
     return {"message": "Usuario suspendido exitosamente"}
@@ -1175,6 +1440,8 @@ async def resend_password(
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if getattr(user, "status", None) == "Retirado" or not user.is_active:
+        raise HTTPException(status_code=400, detail="No se puede restablecer la contraseña a un trabajador inhabilitado o retirado.")
     
     import random
     import string
@@ -1229,17 +1496,29 @@ async def delete_worker_user(
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     if user.id == admin_user.id:
-        raise HTTPException(status_code=400, detail="No puedes eliminar tu propia cuenta de administrador")
+        raise HTTPException(status_code=400, detail="No puedes inhabilitar tu propia cuenta de administrador")
 
-    # Si existe en Employee con el mismo email o nombre, eliminarlo también
-    if user.email:
-        emp = db.query(models.Employee).filter((models.Employee.email == user.email) | (models.Employee.name == user.full_name)).first()
-        if emp:
-            db.delete(emp)
+    # Inhabilitar y cambiar estatus a Retirado (Soft-Delete)
+    user.is_active = False
+    user.status = "Retirado"
+    user.suspension_reason = "Trabajador retirado de la empresa"
 
-    db.delete(user)
+    # Si existe en Employee con la misma cédula, email o nombre, actualizar su estatus a Retirado
+    emp = None
+    if getattr(user, "cedula", None):
+        emp = db.query(models.Employee).filter(models.Employee.cedula == user.cedula).first()
+    if not emp and user.email:
+        emp = db.query(models.Employee).filter(models.Employee.email == user.email).first()
+    if not emp and user.full_name:
+        emp = db.query(models.Employee).filter(models.Employee.name == user.full_name).first()
+    if emp:
+        emp.status = "Retirado"
+
     db.commit()
-    return {"message": f"Trabajador '{user.full_name}' eliminado correctamente de la base de datos"}
+    import logging
+    logger = logging.getLogger("security")
+    logger.warning(f"AUDIT_SECURITY: Admin '{admin_user.username}' inhabilito y marco como RETIRADO al trabajador '{user.full_name}' (ID: {user.id})")
+    return {"message": f"Trabajador '{user.full_name}' inhabilitado y colocado en estado Retirado.", "status": "Retirado"}
 
 @app.delete("/api/rrhh/employees/{emp_id}")
 async def delete_single_employee(
@@ -1251,14 +1530,16 @@ async def delete_single_employee(
     if not emp:
         raise HTTPException(status_code=404, detail="Empleado no encontrado")
     
+    emp.status = "Retirado"
     if emp.email:
         user = db.query(models.User).filter(models.User.email == emp.email).first()
-        if user and user.role != 'admin':
-            db.delete(user)
+        if user and user.id != admin_user.id:
+            user.is_active = False
+            user.status = "Retirado"
+            user.suspension_reason = "Trabajador retirado de la empresa"
 
-    db.delete(emp)
     db.commit()
-    return {"message": f"Empleado '{emp.name}' eliminado correctamente"}
+    return {"message": f"Empleado '{emp.name}' inhabilitado y colocado en estado Retirado."}
 
 @app.get("/api/popup")
 async def get_popup_notification(
@@ -1331,7 +1612,7 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
         if not permissions_manager.user_has_any_perm(user, ["sub_admin_panel", "sub_admin_trabajadores", "cargar_datos_usuarios", "editar_usuarios", "act_trabajadores_ver"]):
             return RedirectResponse(url="/")
         
-        employees = db.query(models.Employee).all()
+        employees = db.query(models.Employee).filter((models.Employee.status != "Retirado") | (models.Employee.status == None)).all()
         departments = db.query(models.Department).all()
         
         return templates.TemplateResponse(request, "rrhh.html", {
@@ -2619,22 +2900,33 @@ async def get_calendar_events(
         models.CalendarEvent.month == month
     ).all()
     
-    # Fetch birthdays for this month
-    employees = db.query(models.Employee).filter(models.Employee.birthday_date != None, models.Employee.birthday_date != "").all()
+    # Fetch birthdays for this month (excluyendo trabajadores retirados / inactivos)
+    users_all = db.query(models.User).all()
+    retired_emails = {u.email.strip().lower() for u in users_all if u.email and (u.status == "Retirado" or not u.is_active)}
+    retired_names = {u.full_name.strip().lower() for u in users_all if u.full_name and (u.status == "Retirado" or not u.is_active)}
+
+    employees = db.query(models.Employee).filter(
+        models.Employee.birthday_date != None,
+        models.Employee.birthday_date != "",
+        (models.Employee.status != "Retirado") | (models.Employee.status == None)
+    ).all()
     birthdays = []
     seen_names = set()
 
     DEFAULT_LOGO = "https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png"
-    users_all = db.query(models.User).all()
     user_avatar_map = {u.email: u.avatar_url for u in users_all if u.email and u.avatar_url and u.avatar_url != "/static/img/default-avatar.png" and u.avatar_url != DEFAULT_LOGO}
     user_name_avatar_map = {u.full_name.lower(): u.avatar_url for u in users_all if u.full_name and u.avatar_url and u.avatar_url != "/static/img/default-avatar.png" and u.avatar_url != DEFAULT_LOGO}
 
     for emp in employees:
+        emp_email = (emp.email or "").strip().lower()
+        emp_name = getattr(emp, 'full_name', None) or f"{emp.name} {emp.apellido or ''}".strip()
+        if emp_email in retired_emails or emp_name.lower() in retired_names:
+            continue
+
         parsed = parse_birthday_day_month(emp.birthday_date)
         if parsed:
             b_day, b_month = parsed
             if b_month == month:
-                emp_name = getattr(emp, 'full_name', None) or f"{emp.name} {emp.apellido or ''}".strip()
                 seen_names.add(emp_name.lower())
                 
                 # Obtener foto real o logo por defecto
@@ -2655,8 +2947,13 @@ async def get_calendar_events(
                     "department": emp.department or "General"
                 })
 
-    # Also check users with birthday recorded
-    users_with_bday = db.query(models.User).filter(models.User.birthday_date != None, models.User.birthday_date != "").all()
+    # Also check active users with birthday recorded
+    users_with_bday = db.query(models.User).filter(
+        models.User.birthday_date != None,
+        models.User.birthday_date != "",
+        models.User.is_active == True,
+        (models.User.status != "Retirado") | (models.User.status == None)
+    ).all()
     for u in users_with_bday:
         u_name = (u.full_name or u.username).strip()
         if u_name.lower() not in seen_names:
@@ -2759,7 +3056,7 @@ async def view_directorio(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
     try:
         user = security.get_current_user(request, db)
-        employees = db.query(models.Employee).all()
+        employees = db.query(models.Employee).filter((models.Employee.status != "Retirado") | (models.Employee.status == None)).all()
         return templates.TemplateResponse(request, "directorio.html", {"request": request, "user": user, "employees": employees})
     except (HTTPException, Exception):
         return RedirectResponse(url="/login")
@@ -3158,12 +3455,21 @@ if __name__ == "__main__":
 
 
 @app.get("/api/users/chat_directory")
-async def api_get_chat_directory(only_online: bool = True, db: Session = Depends(get_db)):
-    all_users = db.query(models.User).filter(models.User.is_active == True).all()
-    employees = db.query(models.Employee).all()
+async def api_get_chat_directory(
+    only_online: bool = True,
+    q: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    all_users = db.query(models.User).filter(
+        models.User.is_active == True,
+        models.User.status != "Retirado"
+    ).all()
+    employees = db.query(models.Employee).filter(models.Employee.status != "Retirado").all()
     emp_map = {emp.name: emp.department for emp in employees}
     
     online_emails = manager.get_online_emails()
+    
+    q_lower = q.strip().lower() if q else None
     
     departments = {}
     for u in all_users:
@@ -3171,6 +3477,15 @@ async def api_get_chat_directory(only_online: bool = True, db: Session = Depends
         if only_online and not is_online:
             continue
         dept = emp_map.get(u.full_name, "General")
+        
+        # Filtro de búsqueda opcional
+        if q_lower:
+            match_name = q_lower in u.full_name.lower()
+            match_dept = q_lower in dept.lower()
+            match_email = q_lower in u.email.lower()
+            if not (match_name or match_dept or match_email):
+                continue
+
         if dept not in departments:
             departments[dept] = []
         departments[dept].append({
@@ -3331,8 +3646,10 @@ async def api_reporte_login(request: Request, db: Session = Depends(get_db)):
         if not user:
             return JSONResponse(status_code=401, content={"status": "error", "success": False, "message": "Usuario o correo no registrado en el sistema de trabajadores"})
 
-        # Validar si el trabajador se encuentra activo o suspendido
-        if not user.is_active:
+        # Validar si el trabajador se encuentra activo o suspendido/retirado
+        if not user.is_active or getattr(user, "status", None) == "Retirado":
+            if getattr(user, "status", None) == "Retirado":
+                return JSONResponse(status_code=403, content={"status": "error", "success": False, "message": "Acceso revocado: El trabajador se encuentra con estatus Retirado."})
             reason = f": {user.suspension_reason}" if user.suspension_reason else ""
             return JSONResponse(status_code=403, content={"status": "error", "success": False, "message": f"Usuario inactivo o suspendido{reason}. Contacta a Administración / RRHH."})
 

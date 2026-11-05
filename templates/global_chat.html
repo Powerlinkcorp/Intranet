@@ -73,7 +73,7 @@
         font-weight: 800;
         min-width: 22px;
         height: 22px;
-        padding: 0 5px;
+        padding: 0 6px;
         border-radius: 11px;
         display: none;
         justify-content: center;
@@ -93,8 +93,8 @@
         position: fixed;
         bottom: 100px;
         right: 30px;
-        width: 380px;
-        height: 540px;
+        width: 390px;
+        height: 560px;
         background: var(--chat-fondo);
         border-radius: 16px;
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
@@ -122,7 +122,7 @@
     .global-chat-header {
         background: var(--chat-header);
         color: #ffffff;
-        padding: 14px 18px;
+        padding: 13px 16px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -131,11 +131,15 @@
 
     .global-chat-header .title {
         font-weight: 700;
-        font-size: 15px;
+        font-size: 14.5px;
         display: flex;
         align-items: center;
         gap: 10px;
         color: #f8fafc;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 220px;
     }
 
     .global-chat-header .title img {
@@ -145,19 +149,20 @@
         object-fit: cover;
         display: none;
         border: 1.5px solid var(--chat-acento);
+        flex-shrink: 0;
     }
 
     .global-chat-header .actions {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
     }
 
     .global-chat-header .actions i {
         cursor: pointer;
         opacity: 0.85;
-        font-size: 15px;
-        transition: opacity 0.2s, transform 0.2s;
+        font-size: 14px;
+        transition: opacity 0.2s, transform 0.2s, color 0.2s;
         color: #cbd5e1;
     }
 
@@ -165,6 +170,131 @@
         opacity: 1;
         transform: scale(1.15);
         color: var(--chat-acento);
+    }
+
+    /* CAJA DE BÚSQUEDA */
+    .gc-search-box {
+        padding: 8px 12px;
+        background: var(--chat-fondo);
+        border-bottom: 1px solid var(--chat-borde);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .gc-search-box i {
+        font-size: 12px;
+        color: var(--chat-texto-gris);
+    }
+
+    .gc-search-box input {
+        flex: 1;
+        background: var(--chat-input-bg);
+        border: 1px solid var(--chat-borde);
+        border-radius: 16px;
+        padding: 5px 12px;
+        font-size: 12px;
+        color: var(--chat-texto-negro);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .gc-search-box input:focus {
+        border-color: var(--chat-acento);
+    }
+
+    /* SECCIÓN DE MENSAJES PENDIENTES */
+    .gc-unread-section {
+        background: rgba(239, 68, 68, 0.05);
+        border-bottom: 2px solid rgba(239, 68, 68, 0.2);
+    }
+
+    html.dark .gc-unread-section {
+        background: rgba(239, 68, 68, 0.1);
+        border-bottom-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .gc-unread-header {
+        padding: 7px 14px;
+        font-size: 10.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .gc-unread-item {
+        display: flex;
+        align-items: center;
+        padding: 9px 14px;
+        gap: 10px;
+        cursor: pointer;
+        border-bottom: 1px dashed rgba(239, 68, 68, 0.2);
+        transition: background 0.2s;
+        border-left: 3px solid #ef4444;
+    }
+
+    .gc-unread-item:hover {
+        background: rgba(239, 68, 68, 0.12);
+    }
+
+    .gc-unread-item img {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1.5px solid #ef4444;
+        flex-shrink: 0;
+    }
+
+    .gc-unread-item .info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .gc-unread-item .info .top-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2px;
+    }
+
+    .gc-unread-item .info .sender-name {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--chat-texto-negro);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .gc-unread-item .info .time {
+        font-size: 10px;
+        color: var(--chat-texto-gris);
+        margin-left: 6px;
+        flex-shrink: 0;
+    }
+
+    .gc-unread-item .info .snippet {
+        font-size: 11.5px;
+        color: var(--chat-texto-gris);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .gc-unread-pill {
+        background: #ef4444;
+        color: #ffffff;
+        font-size: 10.5px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 10px;
+        flex-shrink: 0;
+        box-shadow: 0 1px 4px rgba(239, 68, 68, 0.4);
     }
 
     /* DIRECTORIO DE CHAT */
@@ -178,7 +308,7 @@
 
     .global-chat-dept {
         background: rgba(0, 0, 0, 0.03);
-        padding: 8px 16px;
+        padding: 7px 16px;
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -200,7 +330,7 @@
     .global-chat-list li {
         display: flex;
         align-items: center;
-        padding: 11px 16px;
+        padding: 10px 16px;
         gap: 12px;
         cursor: pointer;
         border-bottom: 1px solid var(--chat-borde);
@@ -209,6 +339,21 @@
 
     .global-chat-list li:hover {
         background: rgba(212, 175, 55, 0.1);
+    }
+
+    .global-chat-list li.has-unread {
+        background: rgba(239, 68, 68, 0.05);
+        border-left: 3px solid #ef4444;
+    }
+
+    .global-chat-list li.has-unread .name {
+        font-weight: 700 !important;
+        color: var(--chat-texto-negro);
+    }
+
+    .global-chat-list li.is-active-chat {
+        background: rgba(212, 175, 55, 0.14) !important;
+        border-left: 3px solid var(--chat-acento) !important;
     }
 
     .global-chat-list li img {
@@ -221,7 +366,7 @@
 
     .global-chat-list li .name {
         flex: 1;
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 600;
         color: var(--chat-texto-negro);
         white-space: nowrap;
@@ -230,12 +375,20 @@
     }
 
     .global-chat-list li .badge {
-        width: 10px;
-        height: 10px;
         background: #ef4444;
-        border-radius: 50%;
+        color: #ffffff;
+        font-size: 10.5px;
+        font-weight: 800;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 9px;
         display: none;
-        box-shadow: 0 0 6px #ef4444;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 4px rgba(239, 68, 68, 0.5);
+        margin-left: auto;
+        flex-shrink: 0;
     }
 
     /* ESTADO EN LÍNEA (CÍRCULO VERDE) */
@@ -291,6 +444,7 @@
         margin-bottom: 10px;
         display: block;
     }
+
     /* PANTALLA DE CHAT ACTIVO */
     .global-chat-active {
         flex: 1;
@@ -344,8 +498,111 @@
         padding: 12px 14px;
         border-top: 1px solid var(--chat-borde);
         display: flex;
-        gap: 9px;
+        gap: 8px;
         align-items: center;
+        position: relative;
+    }
+
+    .global-chat-input button.gc-emoji-btn {
+        background: transparent !important;
+        color: var(--chat-texto-gris) !important;
+        font-size: 19px !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        box-shadow: none !important;
+        transition: color 0.15s, background 0.15s, transform 0.15s !important;
+    }
+
+    .global-chat-input button.gc-emoji-btn:hover {
+        color: var(--chat-acento) !important;
+        background: rgba(212, 175, 55, 0.15) !important;
+        transform: scale(1.12) !important;
+    }
+
+    /* POPOVER DE EMOTICONES (GLOBAL CHAT) */
+    .gc-emoji-popover {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 8px;
+        right: 8px;
+        background: var(--chat-fondo);
+        border: 1px solid var(--chat-borde);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: gcEmojiPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes gcEmojiPop {
+        from { opacity: 0; transform: translateY(8px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .gc-emoji-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--chat-borde);
+        background: rgba(0, 0, 0, 0.03);
+        padding: 4px;
+        gap: 2px;
+    }
+
+    html.dark .gc-emoji-tabs {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .gc-emoji-tab-btn {
+        flex: 1;
+        padding: 5px 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+    }
+
+    .gc-emoji-tab-btn:hover {
+        background: rgba(212, 175, 55, 0.15);
+    }
+
+    .gc-emoji-tab-btn.active {
+        background: rgba(212, 175, 55, 0.28);
+    }
+
+    .gc-emoji-grid {
+        padding: 8px;
+        max-height: 180px;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 3px;
+    }
+
+    .gc-emoji-item {
+        font-size: 19px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.12s, background 0.12s;
+        line-height: 1;
+        user-select: none;
+    }
+
+    .gc-emoji-item:hover {
+        background: rgba(212, 175, 55, 0.2);
+        transform: scale(1.22);
     }
 
     .global-chat-input input {
@@ -391,7 +648,7 @@
             width: calc(100vw - 24px) !important;
             right: 12px !important;
             bottom: 85px !important;
-            height: 72vh !important;
+            height: 74vh !important;
         }
         .global-chat-fab {
             bottom: 20px !important;
@@ -421,6 +678,8 @@
         </div>
         <div class="actions">
             <i class="fa-solid fa-arrow-left" id="gcBackBtn" style="display:none;" onclick="showDirectory()" title="Volver al directorio"></i>
+            <i class="fa-solid fa-volume-high" id="gcSoundBtn" onclick="toggleGCSound()" title="Silenciar sonido de chat"></i>
+            <i class="fa-regular fa-bell" id="gcNotifBtn" onclick="requestGCNotificationPermission()" title="Activar notificaciones de escritorio"></i>
             <a href="/chat" title="Abrir pantalla completa" style="color:#cbd5e1; text-decoration:none;"><i class="fa-solid fa-up-right-from-square"></i></a>
             <i class="fa-solid fa-xmark" onclick="toggleGlobalChat()" title="Cerrar"></i>
         </div>
@@ -428,20 +687,53 @@
 
     <!-- DIRECTORIO -->
     <div class="global-chat-directory" id="gcDirectory">
+        <!-- BUSCADOR -->
+        <div class="gc-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="gcSearchInput" placeholder="Buscar compañero o área..." oninput="filterGCDirectory()">
+        </div>
+
+        <!-- SECCIÓN DE MENSAJES PENDIENTES (PINNED ARRIBA) -->
+        <div id="gcUnreadSection" style="display: none;" class="gc-unread-section">
+            <div class="gc-unread-header">
+                <span><i class="fa-solid fa-bell"></i> Mensajes Pendientes</span>
+                <span id="gcUnreadTotalPill" class="gc-unread-pill">0</span>
+            </div>
+            <div id="gcUnreadList"></div>
+        </div>
+
+        <!-- LISTA GENERAL -->
         <ul class="global-chat-list" id="gcListGeneral">
-            <li onclick="openGChat(null, '#General', 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png')">
+            <li onclick="openGChat(null, '#General', 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png')" id="gc_item_general">
                 <img src="https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png" alt="General">
                 <div class="name"># General</div>
-                <div class="badge" id="gc_badge_general"></div>
+                <div class="badge" id="gc_badge_general">0</div>
             </li>
         </ul>
+
+        <!-- USUARIOS POR DEPARTAMENTO -->
         <div id="gcDynamicUsers"></div>
     </div>
 
     <!-- CHAT ACTIVO -->
     <div class="global-chat-active" id="gcActive">
         <div class="global-chat-messages" id="gcMessages"></div>
-        <div class="global-chat-input">
+        <div class="global-chat-input" id="gcInputArea">
+            <!-- Popover de Emoticones -->
+            <div id="gcEmojiPicker" class="gc-emoji-popover" style="display: none;">
+                <div class="gc-emoji-tabs">
+                    <button type="button" class="gc-emoji-tab-btn active" data-cat="populares" title="Populares" onclick="switchGCEmojiCategory('populares', event)">⭐</button>
+                    <button type="button" class="gc-emoji-tab-btn" data-cat="caras" title="Caras y Emociones" onclick="switchGCEmojiCategory('caras', event)">😀</button>
+                    <button type="button" class="gc-emoji-tab-btn" data-cat="gestos" title="Gestos y Personas" onclick="switchGCEmojiCategory('gestos', event)">👍</button>
+                    <button type="button" class="gc-emoji-tab-btn" data-cat="trabajo" title="Trabajo y Oficina" onclick="switchGCEmojiCategory('trabajo', event)">💼</button>
+                    <button type="button" class="gc-emoji-tab-btn" data-cat="simbolos" title="Símbolos y Celebración" onclick="switchGCEmojiCategory('simbolos', event)">🎉</button>
+                </div>
+                <div class="gc-emoji-grid" id="gcEmojiGrid"></div>
+            </div>
+
+            <button type="button" class="gc-emoji-btn" id="gcEmojiBtn" onclick="toggleGCEmojiPicker(event)" title="Insertar emoticones">
+                <i class="fa-regular fa-face-smile"></i>
+            </button>
             <input type="text" id="gcInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key === 'Enter') sendGChat()">
             <button onclick="sendGChat()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
@@ -455,7 +747,6 @@
 (function() {
     // Protección contra doble inicialización
     if (window.__globalChatLoaded) {
-        // Remover elementos duplicados en el DOM si se incluyó más de una vez
         const fabs = document.querySelectorAll('.global-chat-fab');
         if (fabs.length > 1) {
             for (let i = 1; i < fabs.length; i++) fabs[i].remove();
@@ -472,12 +763,158 @@
     let gcRecipientEmail = null;
     let gcCurrentChannel = null;
     let totalUnread = 0;
+    let gcSoundEnabled = localStorage.getItem('gc_sound_enabled') !== 'false';
+    let unreadStateMap = {}; // { channel: { count, sender_name, other_email, avatar, last_message, time } }
 
+    // ==========================================
+    // SISTEMA DE AUDIO (Web Audio API)
+    // Cero dependencias externas de archivos .mp3
+    // ==========================================
+    let audioCtx = null;
+    function getAudioContext() {
+        if (!audioCtx) {
+            const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtxClass) {
+                audioCtx = new AudioCtxClass();
+            }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    // Desbloquear AudioContext en el primer clic o toque del usuario
+    ['click', 'keydown', 'touchstart'].forEach(evt => {
+        window.addEventListener(evt, () => {
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }, { once: true });
+    });
+
+    window.playChatNotificationSound = function() {
+        if (!gcSoundEnabled) return;
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(587.33, now); // Nota D5
+
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(880.00, now + 0.11); // Nota A5
+
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.28, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.08, now + 0.10);
+            gain.gain.setValueAtTime(0.30, now + 0.11);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc1.start(now);
+            osc1.stop(now + 0.11);
+            osc2.start(now + 0.11);
+            osc2.stop(now + 0.42);
+        } catch(e) {
+            console.warn("Audio chime no disponible:", e);
+        }
+    };
+
+    window.toggleGCSound = function() {
+        gcSoundEnabled = !gcSoundEnabled;
+        localStorage.setItem('gc_sound_enabled', gcSoundEnabled ? 'true' : 'false');
+        updateGCSoundBtnState();
+        if (gcSoundEnabled) {
+            playChatNotificationSound();
+        }
+    };
+
+    function updateGCSoundBtnState() {
+        const btn = document.getElementById('gcSoundBtn');
+        if (!btn) return;
+        if (gcSoundEnabled) {
+            btn.className = 'fa-solid fa-volume-high';
+            btn.style.color = '#cbd5e1';
+            btn.title = 'Sonido de chat activado (clic para silenciar)';
+        } else {
+            btn.className = 'fa-solid fa-volume-xmark';
+            btn.style.color = '#ef4444';
+            btn.title = 'Sonido de chat silenciado (clic para activar)';
+        }
+    }
+
+    // ==========================================
+    // NOTIFICACIONES DE ESCRITORIO (HTML5)
+    // ==========================================
+    window.requestGCNotificationPermission = function() {
+        if (!("Notification" in window)) {
+            alert("Este navegador no tiene soporte para notificaciones de escritorio.");
+            return;
+        }
+        if (Notification.permission === 'granted') {
+            new Notification("Comunicaciones POWER LINK", {
+                body: "¡Las notificaciones de escritorio ya están activas!",
+                icon: "https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png"
+            });
+            updateGCNotifBtnState();
+            return;
+        }
+        if (Notification.permission === 'denied') {
+            alert("Las notificaciones están bloqueadas en tu navegador para esta página.\n\nPara activarlas:\n1. Haz clic en el ícono de candado o configuración al lado izquierdo de la URL.\n2. Busca 'Notificaciones' y cámbialo a 'Permitir'.\n3. Recarga la página.");
+            return;
+        }
+
+        Notification.requestPermission().then(permission => {
+            updateGCNotifBtnState();
+            if (permission === 'granted') {
+                new Notification("Comunicaciones POWER LINK", {
+                    body: "¡Excelente! Recibirás una notificación cuando te envíen un mensaje.",
+                    icon: "https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png"
+                });
+            }
+        });
+    };
+
+    function updateGCNotifBtnState() {
+        const btn = document.getElementById('gcNotifBtn');
+        if (!btn) return;
+        if (!("Notification" in window)) {
+            btn.style.display = 'none';
+            return;
+        }
+        if (Notification.permission === 'granted') {
+            btn.className = 'fa-solid fa-bell';
+            btn.style.color = 'var(--chat-acento)';
+            btn.title = 'Notificaciones de escritorio activadas';
+        } else if (Notification.permission === 'denied') {
+            btn.className = 'fa-solid fa-bell-slash';
+            btn.style.color = '#ef4444';
+            btn.title = 'Notificaciones bloqueadas en el navegador (clic para ver instrucciones)';
+        } else {
+            btn.className = 'fa-regular fa-bell';
+            btn.style.color = '#cbd5e1';
+            btn.title = 'Haz clic para activar notificaciones de escritorio';
+        }
+    }
+
+    // ==========================================
+    // INTERFAZ Y NAVEGACIÓN
+    // ==========================================
     window.toggleGlobalChat = function() {
         const widget = document.getElementById('gcWidget');
         if (!widget) return;
         if (widget.style.display === 'flex') {
             widget.style.display = 'none';
+            window.closeGCEmojiPicker();
         } else {
             widget.style.display = 'flex';
             if(!gcCurrentChannel) {
@@ -486,10 +923,12 @@
                 scrollGCMessages();
             }
             loadGCDirectory();
+            loadGCUnread();
         }
     };
 
     window.showDirectory = function() {
+        window.closeGCEmojiPicker();
         const active = document.getElementById('gcActive');
         const dir = document.getElementById('gcDirectory');
         const backBtn = document.getElementById('gcBackBtn');
@@ -506,6 +945,7 @@
         gcRecipientEmail = null;
         gcCurrentChannel = null;
         loadGCDirectory();
+        loadGCUnread();
     };
 
     window.openGChat = async function(email, name, avatar) {
@@ -532,22 +972,39 @@
         const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
 
         let badgeId = 'gc_badge_general';
+        let itemId = 'gc_item_general';
         if (email) {
             const emails = [myEmail, email].sort();
             gcCurrentChannel = `private_${emails[0]}_${emails[1]}`;
             badgeId = 'gc_badge_' + email.replace(/[@.]/g, '_');
+            itemId = 'gc_item_' + email.replace(/[@.]/g, '_');
         } else {
             gcCurrentChannel = '#General';
         }
 
-        // Limpiar unread badge para este canal
+        // 1. Limpiar estado visual de no leído
         const b = document.getElementById(badgeId);
-        if(b && b.style.display === 'inline-block') {
+        if (b) {
             b.style.display = 'none';
-            totalUnread = Math.max(0, totalUnread - 1);
-            updateGCTotalBadge();
+            b.textContent = '0';
+        }
+        const itemEl = document.getElementById(itemId);
+        if (itemEl) {
+            itemEl.classList.remove('has-unread');
+            itemEl.classList.add('is-active-chat');
         }
 
+        // 2. Limpiar del mapa de pendientes
+        if (unreadStateMap[gcCurrentChannel]) {
+            delete unreadStateMap[gcCurrentChannel];
+        }
+        renderUnreadSection();
+        recalcTotalUnread();
+
+        // 3. Notificar al backend inmediatamente que este canal fue leído
+        markChannelAsRead(gcCurrentChannel);
+
+        // 4. Cargar mensajes
         const msgContainer = document.getElementById('gcMessages');
         if (msgContainer) {
             msgContainer.innerHTML = '<div style="text-align:center; padding: 25px; font-size:12px; color:#888;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando mensajes...</div>';
@@ -566,6 +1023,20 @@
             }
         }
     };
+
+    async function markChannelAsRead(channel) {
+        if (!channel) return;
+        try {
+            await fetch('/api/chat/mark_read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channel: channel }),
+                credentials: 'include'
+            });
+        } catch(e) {
+            console.warn("Error marcando chat como leído:", e);
+        }
+    }
 
     function appendGCMsg(msg) {
         const msgContainer = document.getElementById('gcMessages');
@@ -591,6 +1062,103 @@
         }
     }
 
+    // ==========================================
+    // GESTIÓN DE EMOTICONES (GLOBAL CHAT)
+    // ==========================================
+    const GC_EMOJIS = {
+        populares: ["⭐", "👍", "👋", "😂", "😊", "❤️", "🔥", "🎉", "👏", "🙏", "✅", "🚀", "💡", "💯", "🤝", "👀", "🙌", "🎯", "⏳", "✨", "🫡"],
+        caras: [
+            "😀", "😃", "😄", "😁", "😆", "😅", "🤣", "😂", "🙂", "🙃", "😉", "😊", "😇", "🥰", "😍", "🤩", "😘", "😗",
+            "😋", "😛", "😜", "🤪", "😝", "🤗", "🤭", "🤫", "🤔", "🫡", "🤨", "😐", "😑", "😶", "😏", "😒", "🙄", "😬",
+            "🤥", "😌", "😔", "😪", "🤤", "😴", "😷", "🤒", "🤕", "🤢", "🤮", "🥵", "🥶", "🥴", "😵", "🤯", "🤠", "🥳",
+            "😎", "🤓", "🧐", "😕", "😟", "🙁", "😮", "😯", "😲", "😳", "🥺", "😦", "😧", "😨", "😰", "😥", "😢", "😭",
+            "😱", "😖", "😣", "😞", "😓", "😩", "😫", "🥱", "😤", "😡", "😠", "🤬"
+        ],
+        gestos: [
+            "👍", "👎", "👏", "🙌", "👐", "🤲", "🤝", "🙏", "✍️", "💪", "👈", "👉", "👆", "👇", "☝️", "✋", "🤚", "🖐️",
+            "🖖", "👋", "🤙", "🤌", "🤏", "✌️", "🤞", "🫰", "🤟", "🤘", "👌", "🫵", "🫡", "🙋‍♂️", "🙋‍♀️", "🤷‍♂️", "🤷‍♀️", "🤦‍♂️", "🤦‍♀️"
+        ],
+        trabajo: [
+            "💼", "💻", "🖥️", "📱", "📊", "📈", "📉", "📋", "📌", "📎", "📅", "📆", "📁", "📂", "✉️", "📧", "📨", "📩",
+            "📦", "🏷️", "📝", "✏️", "🔍", "🔎", "🔒", "🔓", "🔑", "⚙️", "🛠️", "⏰", "⏱️", "⌛", "☕", "🏢", "🖨️", "💡", "🎯", "📞", "💬", "💭"
+        ],
+        simbolos: [
+            "🎉", "🎊", "🎈", "🎂", "🎁", "🏆", "🥇", "🥈", "🥉", "🚀", "🔥", "✨", "🌟", "⭐", "💥", "💯", "✅", "❌",
+            "⚠️", "ℹ️", "🟢", "🟡", "🔴", "🔵", "⚪", "⚫", "⏳", "🔄", "🆗", "🆙", "🆒", "🆕", "🆓", "💲", "🔔", "🔕",
+            "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💔", "💖", "💘"
+        ]
+    };
+
+    let gcCurrentEmojiCat = 'populares';
+
+    function renderGCEmojiGrid(cat) {
+        const grid = document.getElementById('gcEmojiGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        const list = GC_EMOJIS[cat] || GC_EMOJIS.populares;
+        list.forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'gc-emoji-item';
+            btn.textContent = emoji;
+            btn.title = emoji;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                window.insertGCEmoji(emoji);
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    window.switchGCEmojiCategory = function(cat, ev) {
+        if (ev) ev.stopPropagation();
+        gcCurrentEmojiCat = cat;
+        document.querySelectorAll('#gcEmojiPicker .gc-emoji-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-cat') === cat);
+        });
+        renderGCEmojiGrid(cat);
+    };
+
+    window.toggleGCEmojiPicker = function(ev) {
+        if (ev) ev.stopPropagation();
+        const picker = document.getElementById('gcEmojiPicker');
+        if (!picker) return;
+        const isVisible = picker.style.display !== 'none';
+        if (isVisible) {
+            picker.style.display = 'none';
+        } else {
+            renderGCEmojiGrid(gcCurrentEmojiCat);
+            picker.style.display = 'flex';
+        }
+    };
+
+    window.closeGCEmojiPicker = function() {
+        const picker = document.getElementById('gcEmojiPicker');
+        if (picker) picker.style.display = 'none';
+    };
+
+    window.insertGCEmoji = function(emoji) {
+        const input = document.getElementById('gcInput');
+        if (!input) return;
+        const start = input.selectionStart || input.value.length;
+        const end = input.selectionEnd || input.value.length;
+        const text = input.value;
+        input.value = text.substring(0, start) + emoji + text.substring(end);
+        input.focus();
+        const newPos = start + emoji.length;
+        input.setSelectionRange(newPos, newPos);
+    };
+
+    document.addEventListener('click', (e) => {
+        const picker = document.getElementById('gcEmojiPicker');
+        const btn = document.getElementById('gcEmojiBtn');
+        if (picker && picker.style.display !== 'none') {
+            if (!picker.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                picker.style.display = 'none';
+            }
+        }
+    });
+
     window.sendGChat = function() {
         const input = document.getElementById('gcInput');
         if (!input) return;
@@ -604,6 +1172,7 @@
             }
             gcWs.send(JSON.stringify(payload));
             input.value = '';
+            window.closeGCEmojiPicker();
         } else {
             connectGCWs();
             setTimeout(() => {
@@ -614,10 +1183,20 @@
                     }
                     gcWs.send(JSON.stringify(payload));
                     input.value = '';
+                    window.closeGCEmojiPicker();
                 }
             }, 600);
         }
     };
+
+    function recalcTotalUnread() {
+        let sum = 0;
+        for (const ch in unreadStateMap) {
+            sum += unreadStateMap[ch].count || 1;
+        }
+        totalUnread = sum;
+        updateGCTotalBadge();
+    }
 
     function updateGCTotalBadge() {
         const fab = document.getElementById('gcFabBadge');
@@ -629,6 +1208,76 @@
             fab.style.display = 'none';
         }
     }
+
+    function renderUnreadSection() {
+        const sec = document.getElementById('gcUnreadSection');
+        const list = document.getElementById('gcUnreadList');
+        const pill = document.getElementById('gcUnreadTotalPill');
+        if (!sec || !list) return;
+
+        const channels = Object.keys(unreadStateMap);
+        if (channels.length === 0) {
+            sec.style.display = 'none';
+            list.innerHTML = '';
+            return;
+        }
+
+        let totalPending = 0;
+        let html = '';
+        channels.forEach(ch => {
+            const item = unreadStateMap[ch];
+            totalPending += item.count || 1;
+            const avatar = item.avatar_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
+            const emailParam = item.other_email ? `'${item.other_email}'` : 'null';
+            const nameParam = `'${escapeHtml(item.other_name || 'Compañero')}'`;
+            const avatarParam = `'${avatar}'`;
+
+            html += `
+            <div class="gc-unread-item" onclick="openGChat(${emailParam}, ${nameParam}, ${avatarParam})">
+                <img src="${avatar}" onerror="this.onerror=null; this.src='/static/img/default-avatar.png';">
+                <div class="info">
+                    <div class="top-line">
+                        <span class="sender-name">${escapeHtml(item.other_name || 'Compañero')}</span>
+                        <span class="time">${escapeHtml(item.last_time || '')}</span>
+                    </div>
+                    <div class="snippet">${escapeHtml(item.last_message || 'Nuevo mensaje')}</div>
+                </div>
+                <span class="gc-unread-pill">${item.count}</span>
+            </div>`;
+        });
+
+        list.innerHTML = html;
+        if (pill) pill.textContent = totalPending;
+        sec.style.display = 'block';
+    }
+
+    // Filtro buscador del directorio
+    window.filterGCDirectory = function() {
+        const input = document.getElementById('gcSearchInput');
+        const query = (input?.value || '').toLowerCase().trim();
+        const depts = document.querySelectorAll('.global-chat-dept');
+        const lists = document.querySelectorAll('#gcDynamicUsers .global-chat-list');
+        const generalItem = document.getElementById('gc_item_general');
+
+        if (generalItem) {
+            generalItem.style.display = (!query || '# general'.includes(query)) ? 'flex' : 'none';
+        }
+
+        lists.forEach((list, idx) => {
+            const items = list.querySelectorAll('li');
+            let visibleInDept = 0;
+            items.forEach(li => {
+                const name = li.querySelector('.name')?.textContent?.toLowerCase() || '';
+                const match = !query || name.includes(query);
+                li.style.display = match ? 'flex' : 'none';
+                if (match) visibleInDept++;
+            });
+            const deptHeader = depts[idx];
+            if (deptHeader) {
+                deptHeader.style.display = (visibleInDept > 0) ? 'block' : 'none';
+            }
+        });
+    };
 
     function connectGCWs() {
         if (gcWs && (gcWs.readyState === WebSocket.OPEN || gcWs.readyState === WebSocket.CONNECTING)) return;
@@ -642,7 +1291,7 @@
             gcWs.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    // Eventos de presencia en tiempo real (alguien entró o salió de la intranet)
+                    // Eventos de presencia en tiempo real
                     if (data.type === 'presence') {
                         const widget = document.getElementById('gcWidget');
                         const dir = document.getElementById('gcDirectory');
@@ -653,35 +1302,51 @@
                     }
 
                     const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
-                    
                     const isPrivateMatch = gcRecipientEmail && (data.user_email === gcRecipientEmail || data.user_email === myEmail);
                     const isGeneralMatch = !gcRecipientEmail && data.channel === '#General' && gcCurrentChannel === '#General';
                     
                     const widget = document.getElementById('gcWidget');
                     const widgetVisible = widget && widget.style.display === 'flex';
+                    const activeEl = document.getElementById('gcActive');
+                    const inActiveChat = activeEl && activeEl.style.display === 'flex';
                     
-                    if (widgetVisible && (isPrivateMatch || isGeneralMatch)) {
+                    // Si el usuario está viendo activamente este chat en pantalla
+                    if (widgetVisible && inActiveChat && (isPrivateMatch || isGeneralMatch)) {
                         appendGCMsg(data);
                         scrollGCMessages();
+                        if (data.user_email !== myEmail) {
+                            playChatNotificationSound();
+                            // Marcar como leído de inmediato en BD
+                            markChannelAsRead(gcCurrentChannel);
+                        }
                     } else {
-                        let badgeId = 'gc_badge_general';
-                        if (data.channel !== '#General') {
-                            if (data.user_email && data.user_email !== myEmail) {
-                                badgeId = 'gc_badge_' + data.user_email.replace(/[@.]/g, '_');
-                            }
-                        }
-                        const b = document.getElementById(badgeId);
-                        if (b && b.style.display !== 'inline-block') {
-                            b.style.display = 'inline-block';
-                            totalUnread++;
-                            updateGCTotalBadge();
-                        }
+                        // Mensaje de otra persona para otro canal o con el widget cerrado
+                        if (data.user_email !== myEmail) {
+                            playChatNotificationSound();
 
-                        if (Notification.permission === 'granted' && data.user_email !== myEmail) {
-                            new Notification(`Mensaje de ${data.user_name || 'Compañero'}`, {
-                                body: data.message || '',
-                                icon: 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png'
-                            });
+                            // Notificación de escritorio si está autorizada
+                            if ("Notification" in window && Notification.permission === 'granted') {
+                                try {
+                                    const notif = new Notification(`Mensaje de ${data.user_name || 'Compañero'}`, {
+                                        body: data.message || '',
+                                        icon: 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png'
+                                    });
+                                    notif.onclick = () => {
+                                        window.focus();
+                                        if (widget && widget.style.display !== 'flex') {
+                                            toggleGlobalChat();
+                                        }
+                                        if (data.channel === '#General') {
+                                            openGChat(null, '#General', 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/descarga-removebg-preview.png');
+                                        } else if (data.user_email) {
+                                            openGChat(data.user_email, data.user_name || data.user_email, 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png');
+                                        }
+                                    };
+                                } catch(e) {}
+                            }
+
+                            // Actualizar contadores y directorio
+                            loadGCUnread();
                         }
                     }
                 } catch(err) {
@@ -718,10 +1383,20 @@
                 html += `<div class="global-chat-dept">${escapeHtml(dept)}</div><ul class="global-chat-list">`;
                 filteredUsers.forEach(u => {
                     totalOnline++;
-                    const bId = 'gc_badge_' + u.email.replace(/[@.]/g, '_');
+                    const safeEmail = u.email.replace(/[@.]/g, '_');
+                    const bId = 'gc_badge_' + safeEmail;
+                    const itemId = 'gc_item_' + safeEmail;
                     const avatar = u.avatar_url || 'https://ngfihmioixtfnrmlrlam.supabase.co/storage/v1/object/public/power/WhatsApp_Image_2026-03-20_at_3.44.14_PM-removebg-preview.png';
+                    
+                    // Verificar si tiene mensajes no leídos
+                    const emails = [myEmail, u.email].sort();
+                    const chName = `private_${emails[0]}_${emails[1]}`;
+                    const unreadItem = unreadStateMap[chName];
+                    const hasUnread = !!unreadItem;
+                    const unreadCount = unreadItem ? unreadItem.count : 0;
+
                     html += `
-                    <li onclick="openGChat('${u.email}', '${escapeHtml(u.full_name)}', '${avatar}')">
+                    <li onclick="openGChat('${u.email}', '${escapeHtml(u.full_name)}', '${avatar}')" id="${itemId}" class="${hasUnread ? 'has-unread' : ''}">
                         <div class="gc-avatar-wrapper">
                             <img src="${avatar}" onerror="this.onerror=null; this.src='/static/img/default-avatar.png';" alt="${escapeHtml(u.full_name)}">
                             <span class="gc-status-online" title="Sesión activa"></span>
@@ -730,7 +1405,7 @@
                             <div class="name">${escapeHtml(u.full_name)}</div>
                             <div class="gc-status-text"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> En línea</div>
                         </div>
-                        <div class="badge" id="${bId}"></div>
+                        <div class="badge" id="${bId}" style="display: ${hasUnread ? 'inline-flex' : 'none'};">${unreadCount}</div>
                     </li>`;
                 });
                 html += `</ul>`;
@@ -757,34 +1432,53 @@
             if (res.ok) {
                 const data = await res.json();
                 const myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
-                if (data && Array.isArray(data.unread)) {
-                    data.unread.forEach(channel => {
+                unreadStateMap = {};
+
+                if (data && Array.isArray(data.unread_details)) {
+                    data.unread_details.forEach(item => {
+                        unreadStateMap[item.channel] = item;
+
+                        // Actualizar o encender badges en la lista general
                         let badgeId = 'gc_badge_general';
-                        if (channel !== '#General') {
-                            let otherEmail = channel.replace('private_', '').replace(myEmail, '').replace('_', '');
-                            badgeId = 'gc_badge_' + otherEmail.replace(/[@.]/g, '_');
+                        let itemId = 'gc_item_general';
+                        if (item.channel !== '#General' && item.other_email) {
+                            const safe = item.other_email.replace(/[@.]/g, '_');
+                            badgeId = 'gc_badge_' + safe;
+                            itemId = 'gc_item_' + safe;
                         }
                         const b = document.getElementById(badgeId);
-                        if(b && b.style.display !== 'inline-block') {
-                            b.style.display = 'inline-block';
-                            totalUnread++;
+                        if (b) {
+                            b.textContent = item.count;
+                            b.style.display = 'inline-flex';
+                        }
+                        const row = document.getElementById(itemId);
+                        if (row) {
+                            row.classList.add('has-unread');
                         }
                     });
-                    updateGCTotalBadge();
+                } else if (data && Array.isArray(data.unread)) {
+                    // Fallback formato simple
+                    data.unread.forEach(channel => {
+                        unreadStateMap[channel] = { channel: channel, count: 1, other_name: channel };
+                    });
                 }
+
+                // Renderizar la sección destacada de "Mensajes Pendientes" arriba
+                renderUnreadSection();
+                recalcTotalUnread();
             }
-        } catch (e) {}
+        } catch (e) {
+            console.warn("Error cargando mensajes no leídos:", e);
+        }
     }
 
     async function initGlobalChat() {
-        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-            try { Notification.requestPermission(); } catch(e){}
-        }
+        updateGCSoundBtnState();
+        updateGCNotifBtnState();
 
         let myEmail = document.getElementById('gcMyEmail')?.textContent?.trim() || '';
         let myName = document.getElementById('gcMyName')?.textContent?.trim() || '';
 
-        // Si el usuario no fue inyectado por Jinja2, consultar /api/auth/me
         if (!myEmail) {
             try {
                 const meRes = await fetch('/api/auth/me', { credentials: 'include' });
@@ -803,8 +1497,8 @@
         }
 
         if (myEmail) {
-            await loadGCDirectory();
             await loadGCUnread();
+            await loadGCDirectory();
             connectGCWs();
         }
     }
