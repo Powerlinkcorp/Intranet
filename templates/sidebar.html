@@ -1174,6 +1174,9 @@ html.dark input[readonly] {
                 {% if user.role == 'admin' or has_perm(user, 'sub_op_ozmap_db') %}
                 <li><a href="/admin/operaciones#ozmap-database"><i class="fa-solid fa-database" style="margin-right: 8px;"></i> Base de Datos OZmap</a></li>
                 {% endif %}
+                {% if user.role == 'admin' or has_perm(user, 'sub_op_zonapower') or has_any_perm(user, ['mod_operaciones', 'sub_op_events', 'sub_op_daily']) %}
+                <li><a href="/admin/operaciones/zonapower"><i class="fa-solid fa-wifi" style="margin-right: 8px; color: #f59e0b;"></i> Zona Power</a></li>
+                {% endif %}
                 {% for mod in _reg.catalog if mod.id == 'mod_operaciones' %}
                     {% for sub in mod.dropdowns if sub.is_custom and has_perm(user, sub.id) %}
                     <li><a href="{{ sub.route }}"><i class="{{ sub.icon }}" style="margin-right: 8px;"></i> {{ sub.name }}</a></li>

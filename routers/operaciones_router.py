@@ -160,6 +160,25 @@ async def operaciones_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login")
 
 
+@router.get("/admin/operaciones/zonapower", response_class=HTMLResponse)
+async def operaciones_zonapower_page(request: Request, db: Session = Depends(get_db)):
+    """Módulo Operativo de Zona Power (Hotspot) integrado en Operaciones."""
+    token = security.get_token_from_request(request)
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        user = security.get_current_user(request, db)
+        if not (user.role == "admin" or permissions_manager.user_has_any_perm(user, [
+            "mod_operaciones", "sub_op_zonapower", "sub_op_welcome", "sub_op_daily", "sub_op_events"
+        ])):
+            return RedirectResponse(url="/")
+        from routers.zona_power_router import get_zonapower_dashboard_context
+        ctx = get_zonapower_dashboard_context(request, user, db)
+        return templates.TemplateResponse(request, "operaciones_zonapower.html", ctx)
+    except (HTTPException, Exception):
+        return RedirectResponse(url="/login")
+
+
 # ============================================
 # GET — Listar todos los eventos (público para Power BI)
 # ============================================

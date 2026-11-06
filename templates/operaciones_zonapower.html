@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Zona Power | Operaciones Power Link</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            gold: '#D4AF37',
+                            'gold-hover': '#B89324',
+                            'gold-light': '#FFC107',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        html, body, button, input, select, textarea, table, th, td, h1, h2, h3, h4, h5, h6, p, span:not([class*="fa-"]):not(.fa), a:not([class*="fa-"]):not(.fa), div:not([class*="fa-"]):not(.fa), label, li, ul, form {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        /* Preservar y proteger fuentes de Font Awesome */
+        i[class*="fa-"], span[class*="fa-"], .fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands {
+            font-family: "Font Awesome 6 Free" !important;
+            font-style: normal;
+        }
+        i.fa-brands, span.fa-brands, .fa-brands, [class*="fa-brands"] {
+            font-family: "Font Awesome 6 Brands" !important;
+            font-style: normal;
+        }
+        body {
+            background-color: #09090B;
+            color: #F8FAFC;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        html:not(.dark) body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+        }
+        .content-wrapper {
+            transition: margin-left 0.3s ease;
+            margin-left: 260px;
+            min-height: 100vh;
+            background-color: transparent;
+            padding: 24px 32px;
+        }
+        .sidebar.collapsed ~ .content-wrapper {
+            margin-left: 70px;
+        }
+        @media (max-width: 768px) {
+            .content-wrapper {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
+        /* Scrollbar estandarizado */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] dark:bg-[#09090B] text-slate-900 dark:text-slate-100 antialiased selection:bg-[#D4AF37]/30 selection:text-white">
+    <div class="flex">
+        <!-- Sidebar oficial de la Intranet -->
+        {% include 'sidebar.html' %}
+
+        <div class="content-wrapper flex-1" id="contentWrapper">
+            
+            <!-- HEADER PRINCIPAL ESTANDARIZADO (Power Link Estándar) -->
+            <header class="bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-sm mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-400/15 border border-amber-400/40 flex items-center justify-center text-amber-500 shrink-0 shadow-inner">
+                        <i class="fa-solid fa-wifi text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                                ZONA <span class="text-[#D4AF37]">POWER</span>
+                            </h1>
+                            <span class="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-full bg-amber-400/20 text-amber-700 dark:text-amber-300 border border-amber-400/30">
+                                Power Link Estándar
+                            </span>
+                        </div>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+                            Centro de Monitoreo y Gestión Operativa de Red Pública Wi-Fi 6
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="font-bold text-slate-700 dark:text-slate-300">Gateway: {{ cfg_gateway_ip }}</span>
+                    </span>
+                    <button type="button" onclick="location.reload()" 
+                            class="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-rotate text-amber-500"></i> Actualizar
+                    </button>
+                    <a href="/zonapower/portal" target="_blank"
+                       class="px-4 py-2 bg-[#D4AF37] hover:bg-[#B89324] text-black rounded-xl text-xs font-black transition flex items-center gap-2 shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver Portal Cautivo
+                    </a>
+                </div>
+            </header>
+
+            <!-- 4 TARJETAS KPI ESTANDARIZADAS -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
+                <!-- KPI 1: Prospectos -->
+                <div class="bg-white dark:bg-[#101014] rounded-2xl p-4 border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Prospectos Captados</span>
+                        <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{{ total_prospectos }}</div>
+                        <span class="text-[11px] text-blue-500 dark:text-blue-400 font-semibold block mt-0.5">Leads comerciales</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20">
+                        <i class="fa-solid fa-users text-base"></i>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Conectados Ahora -->
+                <div class="bg-white dark:bg-[#101014] rounded-2xl p-4 border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Conectados Ahora</span>
+                        <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{{ total_conectados }}</div>
+                        <span class="text-[11px] text-emerald-500 dark:text-emerald-400 font-semibold block mt-0.5">Dispositivos en línea</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20">
+                        <i class="fa-solid fa-signal text-base"></i>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Abonados Solventes -->
+                <div class="bg-white dark:bg-[#101014] rounded-2xl p-4 border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Abonados Solventes</span>
+                        <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{{ abonados_conectados }}</div>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400 font-semibold block mt-0.5">Conexión ilimitada</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20">
+                        <i class="fa-solid fa-user-check text-base"></i>
+                    </div>
+                </div>
+
+                <!-- KPI 4: Cortesías Activas -->
+                <div class="bg-white dark:bg-[#101014] rounded-2xl p-4 border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cortesías Activas</span>
+                        <div class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{{ cortesias_activas }}</div>
+                        <span class="text-[11px] text-purple-500 dark:text-purple-400 font-semibold block mt-0.5">Prueba {{ cfg_cortesia }} min</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20">
+                        <i class="fa-solid fa-clock text-base"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NAVEGACIÓN POR PESTAÑAS SEGMENTADAS (Capsule Style) -->
+            <div class="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-[#16161c] p-1.5 rounded-xl border border-slate-200 dark:border-white/10 w-fit mb-6 shadow-sm">
+                <!-- Pestaña 1 -->
+                <button type="button" onclick="cambiarPestana('prospectos')" id="tabBtnProspectos"
+                        class="tab-btn px-3.5 py-2 rounded-lg text-xs font-black transition-all flex items-center gap-2 bg-[#FFC107] dark:bg-[#D4AF37] text-black shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-address-book"></i>
+                    <span>Prospectos Captados ({{ total_prospectos }})</span>
+                </button>
+                <!-- Pestaña 2 -->
+                <button type="button" onclick="cambiarPestana('conectados')" id="tabBtnConectados"
+                        class="tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5 cursor-pointer">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>Dispositivos Conectados ({{ total_conectados }})</span>
+                </button>
+                <!-- Pestaña 3 -->
+                <button type="button" onclick="cambiarPestana('cuentas')" id="tabBtnCuentas"
+                        class="tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5 cursor-pointer">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>Cuentas y Clientes ({{ total_cuentas }})</span>
+                </button>
+                <!-- Pestaña 4 -->
+                <button type="button" onclick="cambiarPestana('config')" id="tabBtnConfig"
+                        class="tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5 cursor-pointer">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Configuración Operativa</span>
+                </button>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 1: PROSPECTOS CAPTADOS -->
+            <!-- ============================================================ -->
+            <div id="tabProspectos" class="space-y-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-[#101014] p-3 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+                    <div class="relative w-full sm:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="busquedaProspectos" onkeyup="filtrarProspectos()" placeholder="Buscar por cédula, nombre o zona..."
+                               class="w-full pl-9 pr-4 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition">
+                    </div>
+                    <a href="/admin/zonapower/prospectos/export-csv"
+                       class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i> Exportar a CSV
+                    </a>
+                </div>
+
+                <div class="bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="tablaProspectos">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-white/10 bg-slate-50/90 dark:bg-white/[0.03] text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                                    <th class="py-3 px-4 whitespace-nowrap">CÉDULA</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">NOMBRE COMPLETO</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">TELÉFONO / WHATSAPP</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">UBICACIÓN</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">ZONA / SECTOR</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">PUNTO ORIGEN</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">ESTATUS COMERCIAL</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">FECHA REGISTRO</th>
+                                    <th class="py-3 px-4 text-right whitespace-nowrap w-14">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200/70 dark:divide-white/5 text-xs">
+                                {% if prospectos %}
+                                    {% for p in prospectos %}
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition">
+                                        <td class="py-2.5 px-4 whitespace-nowrap font-mono font-bold text-slate-900 dark:text-white">{{ p.cedula }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30 font-black text-xs flex items-center justify-center shrink-0">
+                                                    {{ (p.nombre[:1] if p.nombre else 'P').upper() }}
+                                                </div>
+                                                <div class="font-bold text-slate-900 dark:text-white leading-tight">
+                                                    {{ p.nombre }} {{ p.apellido }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap">
+                                            <a href="https://wa.me/58{{ p.clean_phone or p.telefono }}" target="_blank"
+                                               class="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-1.5">
+                                               <i class="fa-brands fa-whatsapp text-sm"></i>{{ p.telefono }}
+                                            </a>
+                                        </td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-600 dark:text-slate-300">{{ p.municipio }}, {{ p.estado }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-600 dark:text-slate-300 max-w-xs truncate" title="{{ p.zona_sector }}">{{ p.zona_sector }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400">{{ p.punto_origen }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap">
+                                            <select onchange="cambiarEstatusProspecto({{ p.id }}, this.value)"
+                                                    class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold border border-slate-200 dark:border-white/15 bg-white dark:bg-[#14141c] text-slate-800 dark:text-slate-100 outline-none cursor-pointer focus:border-[#D4AF37]">
+                                                <option value="NUEVO" {% if p.estatus == 'NUEVO' %}selected{% endif %}>NUEVO</option>
+                                                <option value="CONTACTADO" {% if p.estatus == 'CONTACTADO' %}selected{% endif %}>CONTACTADO</option>
+                                                <option value="FACTIBLE" {% if p.estatus == 'FACTIBLE' %}selected{% endif %}>FACTIBLE</option>
+                                                <option value="NO FACTIBLE" {% if p.estatus == 'NO FACTIBLE' %}selected{% endif %}>NO FACTIBLE</option>
+                                                <option value="INSTALADO" {% if p.estatus == 'INSTALADO' %}selected{% endif %}>INSTALADO</option>
+                                            </select>
+                                        </td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400">{{ p.created_at.strftime('%d/%m/%Y %I:%M %p') if p.created_at else '' }}</td>
+                                        <td class="py-2.5 px-4 text-right whitespace-nowrap">
+                                            <button type="button" onclick="abrirMenuAcciones(event, 'menu-pros-{{ p.id }}')"
+                                                    class="w-8 h-8 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 inline-flex items-center justify-center transition cursor-pointer" title="Opciones">
+                                                <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+                                            </button>
+                                            <!-- Menú Flotante Popover -->
+                                            <div id="menu-pros-{{ p.id }}" class="hidden popover-menu bg-white dark:bg-[#18181B] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-1.5 w-48 text-left text-xs">
+                                                <a href="https://wa.me/58{{ p.clean_phone or p.telefono }}" target="_blank"
+                                                   class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 font-semibold transition">
+                                                    <i class="fa-brands fa-whatsapp text-emerald-500"></i> Contactar WhatsApp
+                                                </a>
+                                                <button type="button" onclick="copiarAlPortapapeles('{{ p.telefono }}')"
+                                                        class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 font-semibold transition cursor-pointer">
+                                                    <i class="fa-regular fa-copy text-amber-500"></i> Copiar Teléfono
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr><td colspan="9" class="text-center py-10 text-slate-500 text-xs italic">No hay prospectos registrados aún. Conecta dispositivos a Zona Power para captar solicitudes.</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 2: DISPOSITIVOS CONECTADOS -->
+            <!-- ============================================================ -->
+            <div id="tabConectados" class="hidden space-y-4">
+                <div class="flex items-center justify-between bg-white dark:bg-[#101014] p-3 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+                    <span class="text-xs text-slate-600 dark:text-slate-400">Total de sesiones activas concurrentes en Zona Power: <strong class="text-slate-900 dark:text-white font-extrabold">{{ total_conectados }}</strong></span>
+                    <button type="button" onclick="location.reload()" 
+                            class="px-3 py-1.5 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl flex items-center gap-1.5 transition cursor-pointer">
+                        <i class="fa-solid fa-rotate-right text-amber-500"></i> Refrescar
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-white/10 bg-slate-50/90 dark:bg-white/[0.03] text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                                    <th class="py-3 px-4 whitespace-nowrap">CÉDULA</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">IDENTIDAD / TIPO</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">MAC ADDRESS</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">DIRECCIÓN IP</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">MODALIDAD</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">HORA CONEXIÓN</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">ÚLTIMO TRÁFICO</th>
+                                    <th class="py-3 px-4 text-right whitespace-nowrap w-14">ACCIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200/70 dark:divide-white/5 text-xs">
+                                {% if sesiones_activas %}
+                                    {% for s in sesiones_activas %}
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition">
+                                        <td class="py-2.5 px-4 whitespace-nowrap font-mono font-bold text-slate-900 dark:text-white">{{ s.cedula }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30 font-black text-xs flex items-center justify-center shrink-0">
+                                                    {{ (s.nombre_cliente[:1] if s.nombre_cliente else 'D').upper() }}
+                                                </div>
+                                                <div class="font-bold text-slate-900 dark:text-white leading-tight">
+                                                    {{ s.nombre_cliente }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap font-mono text-slate-500 dark:text-slate-400">{{ s.mac_address }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap font-mono text-blue-600 dark:text-blue-400 font-semibold">{{ s.ip_address }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap">
+                                            {% if s.tipo_usuario == 'ABONADO' %}
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">ABONADO</span>
+                                            {% else %}
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">CORTESÍA</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400">{{ s.login_time.strftime('%I:%M %p') if s.login_time else '' }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-700 dark:text-slate-300 font-medium">{{ s.last_seen.strftime('%I:%M %p') if s.last_seen else '' }}</td>
+                                        <td class="py-2.5 px-4 text-right whitespace-nowrap">
+                                            <button type="button" onclick="abrirMenuAcciones(event, 'menu-disp-{{ s.id }}')"
+                                                    class="w-8 h-8 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 inline-flex items-center justify-center transition cursor-pointer" title="Opciones">
+                                                <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+                                            </button>
+                                            <!-- Menú Flotante Popover -->
+                                            <div id="menu-disp-{{ s.id }}" class="hidden popover-menu bg-white dark:bg-[#18181B] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-1.5 w-48 text-left text-xs">
+                                                <button type="button" onclick="desconectarSesion({{ s.id }}, '{{ s.mac_address }}')"
+                                                        class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 font-bold transition cursor-pointer">
+                                                    <i class="fa-solid fa-power-off"></i> Expulsar Dispositivo
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr><td colspan="8" class="text-center py-10 text-slate-500 text-xs italic">No hay dispositivos conectados en este momento.</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 3: CUENTAS Y CLIENTES DE ZONA POWER -->
+            <!-- ============================================================ -->
+            <div id="tabCuentas" class="hidden space-y-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-[#101014] p-3 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+                    <div class="relative w-full sm:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="busquedaCuentas" onkeyup="filtrarCuentas()" placeholder="Buscar por cédula, nombre o correo..."
+                               class="w-full pl-9 pr-4 py-2 rounded-xl text-xs font-medium bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition">
+                    </div>
+                    <span class="text-xs text-slate-600 dark:text-slate-400">Total de cuentas registradas: <strong class="text-slate-900 dark:text-white font-extrabold">{{ total_cuentas }}</strong></span>
+                </div>
+
+                <div class="bg-white dark:bg-[#101014] rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="tablaCuentas">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-white/10 bg-slate-50/90 dark:bg-white/[0.03] text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                                    <th class="py-3 px-4 whitespace-nowrap">CÉDULA</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">NOMBRE / TITULAR</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">CORREO REGISTRADO</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">MAC RECORDADA (AUTO-LOGIN)</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">FECHA REGISTRO</th>
+                                    <th class="py-3 px-4 whitespace-nowrap">ÚLTIMO ACCESO</th>
+                                    <th class="py-3 px-4 text-right whitespace-nowrap w-14">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200/70 dark:divide-white/5 text-xs">
+                                {% if cuentas %}
+                                    {% for c in cuentas %}
+                                    <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition">
+                                        <td class="py-2.5 px-4 whitespace-nowrap font-mono font-bold text-slate-900 dark:text-white">{{ c.cedula }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2.5">
+                                                <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30 font-black text-xs flex items-center justify-center shrink-0">
+                                                    {{ (c.nombre[:1] if c.nombre else 'A').upper() }}
+                                                </div>
+                                                <div class="font-bold text-slate-900 dark:text-white leading-tight">
+                                                    {{ c.nombre or 'Abonado Power Link' }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-blue-600 dark:text-blue-400 font-semibold">{{ c.email }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap font-mono text-[11px]">
+                                            {% if c.remember_mac %}
+                                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30" title="Vinculado el {{ c.remember_mac_date }}">
+                                                    {{ c.remember_mac }}
+                                                </span>
+                                            {% else %}
+                                                <span class="text-slate-400 italic">Sin vincular</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400">{{ c.created_at.strftime('%d/%m/%Y %I:%M %p') if c.created_at else '-' }}</td>
+                                        <td class="py-2.5 px-4 whitespace-nowrap text-slate-500 dark:text-slate-400">{{ c.last_login.strftime('%d/%m/%Y %I:%M %p') if c.last_login else '-' }}</td>
+                                        <td class="py-2.5 px-4 text-right whitespace-nowrap">
+                                            <button type="button" onclick="abrirMenuAcciones(event, 'menu-cta-{{ c.id }}')"
+                                                    class="w-8 h-8 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 inline-flex items-center justify-center transition cursor-pointer" title="Opciones">
+                                                <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+                                            </button>
+                                            <!-- Menú Flotante Popover -->
+                                            <div id="menu-cta-{{ c.id }}" class="hidden popover-menu bg-white dark:bg-[#18181B] border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-1.5 w-52 text-left text-xs">
+                                                <button type="button" onclick="abrirModalResetClave('{{ c.id }}', '{{ c.cedula }}', '{{ c.nombre or c.cedula }}')"
+                                                        class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 font-semibold transition cursor-pointer">
+                                                    <i class="fa-solid fa-key text-amber-500"></i> Restablecer Contraseña
+                                                </button>
+                                                {% if c.remember_mac %}
+                                                <button type="button" onclick="desvincularMacAdmin('{{ c.id }}', '{{ c.cedula }}')"
+                                                        class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 font-bold transition cursor-pointer">
+                                                    <i class="fa-solid fa-link-slash"></i> Desvincular Dispositivo
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr><td colspan="7" class="py-8 text-center text-slate-500 italic text-xs">No hay cuentas de abonados creadas aún en Zona Power.</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 4: CONFIGURACIÓN OPERATIVA MODULAR -->
+            <!-- ============================================================ -->
+            <div id="tabConfig" class="hidden">
+                <div class="max-w-4xl bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-white/10 pb-4">
+                        <div>
+                            <h3 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2.5">
+                                <i class="fa-solid fa-sliders text-[#D4AF37]"></i> Parámetros Operativos del Servicio
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configuración centralizada de políticas, tiempos, horarios y comunicación de Zona Power</p>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 self-start sm:self-auto">
+                            <i class="fa-solid fa-server text-cyan-500"></i> GW: {{ cfg_gateway_ip }}
+                        </span>
+                    </div>
+
+                    <form onsubmit="guardarConfiguracion(event)" class="space-y-6">
+
+                        <!-- TARJETA 1: TIEMPOS, CICLOS Y CONCURRENCIA -->
+                        <div class="p-5 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-2xl space-y-4">
+                            <div class="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                <span class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                                    <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                                </span>
+                                <span>1. Tiempos, Ciclos de Conexión y Concurrencia</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Cortesía a Prospectos (Minutos)</label>
+                                    <input type="number" id="cfgCortesia" value="{{ cfg_cortesia }}" min="5" max="1440" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Duración de la prueba inicial gratuita.</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Inactividad para Desconexión (Minutos)</label>
+                                    <input type="number" id="cfgInactividad" value="{{ cfg_inactividad }}" min="5" max="180" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Expira sesión tras inactividad en antena.</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Límite Dispositivos por Cédula</label>
+                                    <input type="number" id="cfgLimite" value="{{ cfg_limite }}" min="1" max="10" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Equipos simultáneos por abonado (ej. 2).</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-white/10">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                        <span>Días para Reintentar Cortesía (Prospectos)</span>
+                                        <span class="px-1.5 py-0.5 text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded font-mono">Cooldown</span>
+                                    </label>
+                                    <div class="relative mt-1.5">
+                                        <input type="number" id="cfgDiasCortesia" value="{{ cfg_dias_cortesia }}" min="1" max="90" required
+                                               class="w-full pl-3 pr-14 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]">
+                                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 pointer-events-none font-bold">Días</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Tiempo de espera para que un no-cliente solicite otra prueba (7 días por defecto).</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                        <span>Días de Recordar Dispositivo (Abonados)</span>
+                                        <span class="px-1.5 py-0.5 text-[9px] bg-blue-500/20 text-blue-700 dark:text-blue-300 rounded font-mono">Auto-Login</span>
+                                    </label>
+                                    <div class="relative mt-1.5">
+                                        <input type="number" id="cfgDiasAbonado" value="{{ cfg_dias_abonado }}" min="1" max="365" required
+                                               class="w-full pl-3 pr-14 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]">
+                                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 pointer-events-none font-bold">Días</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Vigencia en que el equipo del abonado navega directo sin reintroducir clave.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TARJETA 2: HORARIO DE DISPONIBILIDAD OPERATIVA -->
+                        <div class="p-5 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-2xl space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                    <span class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 shrink-0">
+                                        <i class="fa-solid fa-business-time text-xs"></i>
+                                    </span>
+                                    <span>2. Horario de Disponibilidad del Servicio</span>
+                                </div>
+                                <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                                    <input type="checkbox" id="cfgHorarioHab" {% if cfg_horario_hab %}checked{% endif %} onchange="toggleHorarioUI()"
+                                           class="w-4 h-4 rounded bg-white dark:bg-[#101014] border-slate-300 dark:border-slate-700 text-[#D4AF37] focus:ring-[#D4AF37]">
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Restringir servicio fuera de horario</span>
+                                </label>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Si está desactivado, Zona Power funciona <strong>24/7</strong> continuo. Si se activa, fuera de la ventana horaria el portal muestra un aviso nocturno y no autoriza conexiones.
+                            </p>
+                            <div id="panelHorarioUI" class="{% if not cfg_horario_hab %}hidden{% endif %} grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-white/10">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Hora de Apertura / Inicio</label>
+                                    <input type="time" id="cfgHorarioIni" value="{{ cfg_horario_ini }}"
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Hora en que se enciende el acceso público (ej. 06:00).</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Hora de Cierre / Apagado</label>
+                                    <input type="time" id="cfgHorarioFin" value="{{ cfg_horario_fin }}"
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Hora en que finaliza la jornada diaria (ej. 22:00).</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TARJETA 3: IDENTIDAD, UBICACIÓN Y REDIRECCIÓN -->
+                        <div class="p-5 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-2xl space-y-4">
+                            <div class="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                                <span class="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 shrink-0">
+                                    <i class="fa-solid fa-location-dot text-xs"></i>
+                                </span>
+                                <span>3. Identidad de Red, Estación y Redirección</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Nombre de Red Wi-Fi (SSID)</label>
+                                    <input type="text" id="cfgSsid" value="{{ cfg_ssid }}" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">SSID transmitido en las antenas.</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Nombre / Ubicación de la Estación</label>
+                                    <input type="text" id="cfgNombreEstacion" value="{{ cfg_nombre_estacion }}" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Punto de despliegue (ej. CC La Colina).</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">URL de Aterrizaje / Redirección</label>
+                                    <input type="url" id="cfgUrlDestino" value="{{ cfg_url_destino }}" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Página web de destino tras conectar.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TARJETA 4: BANNER PROMOCIONAL EN EL PORTAL CAUTIVO -->
+                        <div class="p-5 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-2xl space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                    <span class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                                        <i class="fa-solid fa-bullhorn text-xs"></i>
+                                    </span>
+                                    <span>4. Banner Destacado de Anuncios en el Portal Cautivo</span>
+                                </div>
+                                <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                                    <input type="checkbox" id="cfgBannerActivo" {% if cfg_banner_act %}checked{% endif %} onchange="toggleBannerUI()"
+                                           class="w-4 h-4 rounded bg-white dark:bg-[#101014] border-slate-300 dark:border-slate-700 text-[#D4AF37] focus:ring-[#D4AF37]">
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Mostrar Banner en el Portal</span>
+                                </label>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Permite emitir anuncios publicitarios de nuevos planes, avisos informativos o alertas de mantenimiento en el portal.
+                            </p>
+                            <div id="panelBannerUI" class="{% if not cfg_banner_act %}hidden{% endif %} space-y-4 pt-2 border-t border-slate-200 dark:border-white/10">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Tipo de Aviso</label>
+                                        <select id="cfgBannerTipo" class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                            <option value="promocion" {% if cfg_banner_tipo == 'promocion' %}selected{% endif %}>🚀 Promoción Comercial (Dorado / Oro)</option>
+                                            <option value="info" {% if cfg_banner_tipo == 'info' %}selected{% endif %}>ℹ️ Información Oficial (Azul)</option>
+                                            <option value="alerta" {% if cfg_banner_tipo == 'alerta' %}selected{% endif %}>⚠️ Aviso Operativo / Mantenimiento (Naranja)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Enlace / Botón de Acción (Opcional)</label>
+                                        <input type="url" id="cfgBannerUrl" value="{{ cfg_banner_url }}" placeholder="https://powerlink.com.ve"
+                                               class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Texto del Anuncio</label>
+                                    <textarea id="cfgBannerTexto" rows="2" required
+                                              class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs leading-relaxed focus:outline-none focus:border-[#D4AF37]">{{ cfg_banner_texto }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TARJETA 5: POLÍTICA DE TRÁFICO Y CONTROL DE ANCHO DE BANDA -->
+                        <div class="p-5 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-2xl space-y-4 shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-white/10 pb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+                                        <i class="fa-solid fa-gauge-high text-xs"></i>
+                                    </span>
+                                    <div>
+                                        <span class="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                                            5. Política de Tráfico y Control de Ancho de Banda
+                                        </span>
+                                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Gestión de velocidad simétrica por cliente o reparto dinámico por estación</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-slate-600 dark:text-slate-400 font-mono bg-slate-200/60 dark:bg-white/5 px-2.5 py-1 rounded-md border border-slate-300 dark:border-white/10 self-start sm:self-auto font-bold">
+                                    <i class="fa-solid fa-network-wired text-[#D4AF37] mr-1"></i> Ruijie Flow Control & Wi-Fi 6
+                                </span>
+                            </div>
+
+                            <!-- Selector de Modo QoS -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label class="relative flex flex-col p-3.5 rounded-xl border cursor-pointer transition select-none {% if cfg_modo_qos == 'dinamico' %}bg-[#D4AF37]/10 border-[#D4AF37] text-slate-900 dark:text-white{% else %}bg-white dark:bg-[#101014] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20{% endif %}" id="cardModoDinamico">
+                                    <div class="flex items-center gap-2.5 mb-1">
+                                        <input type="radio" name="modo_qos" id="radioModoDinamico" value="dinamico" {% if cfg_modo_qos == 'dinamico' %}checked{% endif %} onchange="toggleModoQos('dinamico')" class="text-[#D4AF37] focus:ring-[#D4AF37]">
+                                        <span class="text-xs font-black text-slate-900 dark:text-white">Reparto Equitativo Dinámico</span>
+                                        <span class="px-2 py-0.5 text-[9px] font-black uppercase bg-[#D4AF37] text-black rounded ml-auto">Recomendado</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 pl-6 leading-relaxed">
+                                        Si hay 1 cliente disfruta de toda la capacidad de la estación (hasta 1 Gbps). Con más clientes, se reparte equitativamente con un piso garantizado.
+                                    </p>
+                                </label>
+
+                                <label class="relative flex flex-col p-3.5 rounded-xl border cursor-pointer transition select-none {% if cfg_modo_qos == 'fijo' %}bg-[#D4AF37]/10 border-[#D4AF37] text-slate-900 dark:text-white{% else %}bg-white dark:bg-[#101014] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20{% endif %}" id="cardModoFijo">
+                                    <div class="flex items-center gap-2.5 mb-1">
+                                        <input type="radio" name="modo_qos" id="radioModoFijo" value="fijo" {% if cfg_modo_qos == 'fijo' %}checked{% endif %} onchange="toggleModoQos('fijo')" class="text-[#D4AF37] focus:ring-[#D4AF37]">
+                                        <span class="text-xs font-black text-slate-900 dark:text-white">Límite Fijo por Dispositivo</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 pl-6 leading-relaxed">
+                                        Asigna un techo de velocidad estricto e inamovible a cada cliente individualmente (ej. 5M bajada / 3M subida).
+                                    </p>
+                                </label>
+                            </div>
+
+                            <!-- Panel Modo Dinámico -->
+                            <div id="panelQosDinamico" class="{% if cfg_modo_qos == 'fijo' %}hidden{% endif %} p-4 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl space-y-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Capacidad Total de la Estación (Mbps)</label>
+                                        <div class="relative mt-1.5">
+                                            <input type="number" id="cfgCapacidad" value="{{ cfg_capacidad }}" min="50" max="10000" step="10" required
+                                                   class="w-full pl-3 pr-14 py-2 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-bold focus:outline-none focus:border-[#D4AF37]">
+                                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 pointer-events-none font-bold">Mbps</span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 mt-1 block">Ancho de banda total asignado a la estación (ej. 1000 Mbps = 1 Gbps).</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Piso Mínimo Garantizado por Cliente (Mbps)</label>
+                                        <div class="relative mt-1.5">
+                                            <input type="number" id="cfgPiso" value="{{ cfg_piso }}" min="1" max="100" step="1" required
+                                                   class="w-full pl-3 pr-14 py-2 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-bold focus:outline-none focus:border-[#D4AF37]">
+                                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 pointer-events-none font-bold">Mbps</span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 mt-1 block">Velocidad mínima simétrica garantizada a cada cliente en alta concurrencia.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panel Modo Fijo -->
+                            <div id="panelQosFijo" class="{% if cfg_modo_qos != 'fijo' %}hidden{% endif %} p-4 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl space-y-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Límite de Bajada por Dispositivo (Mbps)</label>
+                                        <div class="relative mt-1.5">
+                                            <input type="number" id="cfgBajada" value="{{ cfg_bajada_mbps }}" min="1" max="1000" step="0.5" required
+                                                   class="w-full pl-3 pr-14 py-2 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-bold focus:outline-none focus:border-[#D4AF37]">
+                                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 pointer-events-none font-bold">Mbps</span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 mt-1 block">Velocidad máxima de descarga fija por usuario.</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Límite de Subida por Dispositivo (Mbps)</label>
+                                        <div class="relative mt-1.5">
+                                            <input type="number" id="cfgSubida" value="{{ cfg_subida_mbps }}" min="1" max="1000" step="0.5" required
+                                                   class="w-full pl-3 pr-14 py-2 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-bold focus:outline-none focus:border-[#D4AF37]">
+                                            <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs text-slate-400 pointer-events-none font-bold">Mbps</span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 mt-1 block">Velocidad máxima de subida fija por usuario.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TARJETA 6: CANALES DE ATENCIÓN, NOTIFICACIONES E INFRAESTRUCTURA -->
+                        <div class="p-5 bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 rounded-2xl space-y-4">
+                            <div class="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
+                                <span class="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-500 shrink-0">
+                                    <i class="fa-solid fa-headset text-xs"></i>
+                                </span>
+                                <span>6. Canales de Atención, Notificaciones e Infraestructura Ruijie</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Enlace de WhatsApp (Cobranza / Soporte)</label>
+                                    <input type="url" id="cfgWa" value="{{ cfg_wa }}" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-[#D4AF37]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Teléfono de Soporte Telefónico</label>
+                                    <input type="text" id="cfgTlf" value="{{ cfg_tlf }}" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-[#D4AF37]">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-white/10">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Correo para Notificación de Prospectos</label>
+                                    <input type="email" id="cfgEmail" value="{{ cfg_email }}" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">Alerta detallada al capturar un nuevo prospecto.</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                        <span>Dirección IP del Gateway Ruijie</span>
+                                        <span class="px-1.5 py-0.5 text-[9px] bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 rounded font-mono">Router</span>
+                                    </label>
+                                    <input type="text" id="cfgGatewayIp" value="{{ cfg_gateway_ip }}" required
+                                           class="w-full mt-1.5 px-3 py-2 bg-white dark:bg-[#101014] border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-xs font-mono font-semibold focus:outline-none focus:border-[#D4AF37]">
+                                    <span class="text-[10px] text-slate-400 mt-1 block">IP para sincronización de direct_mac y flowctrl.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOTÓN GUARDAR (DORADO CON TEXTO NEGRO) -->
+                        <div class="pt-4 border-t border-slate-200 dark:border-white/10 flex justify-end">
+                            <button type="submit" id="btnGuardarCfg"
+                                    class="px-6 py-2.5 bg-[#D4AF37] hover:bg-[#B89324] text-black font-black rounded-xl text-xs transition flex items-center gap-2 shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Configuración Operativa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL RESTABLECER CLAVE OPERADOR (ESTÁNDAR POWER LINK) -->
+    <div id="modalResetClave" class="fixed inset-0 z-[500] hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#101014] rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-500">
+                        <i class="fa-solid fa-key text-base"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Restablecer Contraseña</h3>
+                        <p class="text-xs text-slate-400" id="modalResetInfo">Abonado: - | Cédula: -</p>
+                    </div>
+                </div>
+                <button type="button" onclick="cerrarModalResetClave()" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-white transition cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-4 text-xs">
+                <input type="hidden" id="resetCuentaId">
+                <div>
+                    <label class="block font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Nueva Contraseña</label>
+                    <input type="text" id="resetNuevaClaveInput" placeholder="Mínimo 6 caracteres" 
+                           class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#16161c] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]">
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 sm:p-5 border-t border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/[0.02] flex items-center justify-end gap-2.5">
+                <button type="button" onclick="cerrarModalResetClave()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer">
+                    Cancelar
+                </button>
+                <button type="button" onclick="guardarResetClave()" class="px-5 py-2 rounded-xl text-xs font-black bg-[#D4AF37] hover:bg-[#B89324] text-black shadow-sm cursor-pointer">
+                    Guardar Contraseña
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS DE OPERACIONES ZONA POWER -->
+    <script>
+        // Pestañas segmentadas
+        function cambiarPestana(p) {
+            ['prospectos', 'conectados', 'cuentas', 'config'].forEach(t => {
+                const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (el) el.classList.add('hidden');
+                const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (btn) {
+                    btn.className = "tab-btn px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/5 cursor-pointer";
+                }
+            });
+
+            const activeContent = document.getElementById('tab' + p.charAt(0).toUpperCase() + p.slice(1));
+            if (activeContent) activeContent.classList.remove('hidden');
+
+            const activeBtn = document.getElementById('tabBtn' + p.charAt(0).toUpperCase() + p.slice(1));
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-3.5 py-2 rounded-lg text-xs font-black transition-all flex items-center gap-2 bg-[#FFC107] dark:bg-[#D4AF37] text-black shadow-sm cursor-pointer";
+            }
+            cerrarMenuAcciones();
+        }
+
+        // Búsqueda en prospectos
+        function filtrarProspectos() {
+            const val = document.getElementById('busquedaProspectos').value.toLowerCase();
+            const rows = document.querySelectorAll('#tablaProspectos tbody tr');
+            rows.forEach(r => {
+                r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
+            });
+        }
+
+        // Búsqueda en cuentas
+        function filtrarCuentas() {
+            const val = document.getElementById('busquedaCuentas').value.toLowerCase();
+            const rows = document.querySelectorAll('#tablaCuentas tbody tr');
+            rows.forEach(r => {
+                r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
+            });
+        }
+
+        // Actualizar estatus comercial de un prospecto
+        async function cambiarEstatusProspecto(id, nuevoEstatus) {
+            try {
+                const resp = await fetch(`/zonapower/api/prospectos/${id}/actualizar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estatus: nuevoEstatus })
+                });
+                const res = await resp.json();
+                if (res.status === 'ok') {
+                    console.log('Estatus actualizado a', nuevoEstatus);
+                }
+            } catch (e) {
+                alert('Error al actualizar estatus: ' + e.message);
+            }
+        }
+
+        // Expulsar dispositivo activo
+        async function desconectarSesion(id, mac) {
+            cerrarMenuAcciones();
+            if (!confirm(`¿Deseas expulsar y desconectar de inmediato el dispositivo con MAC ${mac}?`)) return;
+            try {
+                const resp = await fetch(`/zonapower/api/sesiones/${id}/desconectar`, {
+                    method: 'POST'
+                });
+                const res = await resp.json();
+                if (res.status === 'ok') {
+                    alert('Dispositivo expulsado correctamente');
+                    location.reload();
+                }
+            } catch (e) {
+                alert('Error al desconectar: ' + e.message);
+            }
+        }
+
+        // Toggle horario UI
+        function toggleHorarioUI() {
+            const chk = document.getElementById('cfgHorarioHab');
+            const panel = document.getElementById('panelHorarioUI');
+            if (chk.checked) {
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        // Toggle banner UI
+        function toggleBannerUI() {
+            const chk = document.getElementById('cfgBannerActivo');
+            const panel = document.getElementById('panelBannerUI');
+            if (chk.checked) {
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        // Selector modo QoS
+        function toggleModoQos(modo) {
+            const panelDin = document.getElementById('panelQosDinamico');
+            const panelFij = document.getElementById('panelQosFijo');
+            const cardDin = document.getElementById('cardModoDinamico');
+            const cardFij = document.getElementById('cardModoFijo');
+            const radioDin = document.getElementById('radioModoDinamico');
+            const radioFij = document.getElementById('radioModoFijo');
+
+            if (modo === 'dinamico') {
+                radioDin.checked = true;
+                panelDin.classList.remove('hidden');
+                panelFij.classList.add('hidden');
+                cardDin.className = "relative flex flex-col p-3.5 rounded-xl border cursor-pointer transition select-none bg-[#D4AF37]/10 border-[#D4AF37] text-slate-900 dark:text-white";
+                cardFij.className = "relative flex flex-col p-3.5 rounded-xl border cursor-pointer transition select-none bg-white dark:bg-[#101014] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20";
+            } else {
+                radioFij.checked = true;
+                panelFij.classList.remove('hidden');
+                panelDin.classList.add('hidden');
+                cardFij.className = "relative flex flex-col p-3.5 rounded-xl border cursor-pointer transition select-none bg-[#D4AF37]/10 border-[#D4AF37] text-slate-900 dark:text-white";
+                cardDin.className = "relative flex flex-col p-3.5 rounded-xl border cursor-pointer transition select-none bg-white dark:bg-[#101014] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20";
+            }
+        }
+
+        // Guardar configuración operativa
+        async function guardarConfiguracion(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnGuardarCfg');
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Guardando...';
+            btn.disabled = true;
+
+            const modoQos = document.querySelector('input[name="modo_qos"]:checked')?.value || 'dinamico';
+
+            const payload = {
+                tiempo_cortesia_min: document.getElementById('cfgCortesia').value,
+                tiempo_inactividad_min: document.getElementById('cfgInactividad').value,
+                limite_dispositivos: document.getElementById('cfgLimite').value,
+                dias_reintento_cortesia: document.getElementById('cfgDiasCortesia').value,
+                dias_recordar_mac_abonado: document.getElementById('cfgDiasAbonado').value,
+                horario_habilitado: document.getElementById('cfgHorarioHab').checked ? "true" : "false",
+                horario_inicio: document.getElementById('cfgHorarioIni').value,
+                horario_fin: document.getElementById('cfgHorarioFin').value,
+                ssid_nombre: document.getElementById('cfgSsid').value,
+                nombre_estacion: document.getElementById('cfgNombreEstacion').value,
+                url_redireccion_destino: document.getElementById('cfgUrlDestino').value,
+                banner_activo: document.getElementById('cfgBannerActivo').checked ? "true" : "false",
+                banner_tipo: document.getElementById('cfgBannerTipo').value,
+                banner_texto: document.getElementById('cfgBannerTexto').value,
+                banner_url: document.getElementById('cfgBannerUrl').value,
+                whatsapp_url: document.getElementById('cfgWa').value,
+                telefono_soporte: document.getElementById('cfgTlf').value,
+                email_notificaciones: document.getElementById('cfgEmail').value,
+                gateway_ip: document.getElementById('cfgGatewayIp').value,
+                modo_qos: modoQos,
+                capacidad_estacion_mbps: document.getElementById('cfgCapacidad').value,
+                piso_minimo_cliente_mbps: document.getElementById('cfgPiso').value,
+                limite_bajada_mbps: document.getElementById('cfgBajada').value,
+                limite_subida_mbps: document.getElementById('cfgSubida').value
+            };
+
+            try {
+                const resp = await fetch('/zonapower/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const res = await resp.json();
+                if (res.status === 'ok') {
+                    alert('¡Configuración operativa y política de tráfico sincronizadas exitosamente!');
+                } else {
+                    alert(res.message || 'Error al guardar configuración.');
+                }
+            } catch (err) {
+                alert('Error al guardar configuración: ' + err.message);
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Configuración Operativa';
+                btn.disabled = false;
+            }
+        }
+
+        // Modal reset clave
+        function abrirModalResetClave(id, cedula, nombre) {
+            cerrarMenuAcciones();
+            document.getElementById('resetCuentaId').value = id;
+            document.getElementById('modalResetInfo').textContent = `Abonado: ${nombre} | Cédula: ${cedula}`;
+            document.getElementById('resetNuevaClaveInput').value = '';
+            document.getElementById('modalResetClave').classList.remove('hidden');
+        }
+
+        function cerrarModalResetClave() {
+            document.getElementById('modalResetClave').classList.add('hidden');
+        }
+
+        async function guardarResetClave() {
+            const id = document.getElementById('resetCuentaId').value;
+            const clave = document.getElementById('resetNuevaClaveInput').value.trim();
+            if (clave.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres.');
+                return;
+            }
+            try {
+                const resp = await fetch(`/zonapower/api/cuentas/${id}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nueva_clave: clave })
+                });
+                const res = await resp.json();
+                if (res.status === 'ok') {
+                    alert(res.message || 'Contraseña actualizada correctamente.');
+                    cerrarModalResetClave();
+                } else {
+                    alert(res.error || res.message || 'Error al actualizar.');
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+            }
+        }
+
+        // Desvincular MAC de abonado
+        async function desvincularMacAdmin(id, cedula) {
+            cerrarMenuAcciones();
+            if (!confirm(`¿Deseas desvincular los dispositivos registrados para la cédula ${cedula}? Esto revocará su acceso en el router Ruijie.`)) return;
+            try {
+                const resp = await fetch(`/zonapower/api/cuentas/${id}/desvincular-macs`, {
+                    method: 'POST'
+                });
+                const res = await resp.json();
+                if (res.status === 'ok') {
+                    alert(res.message || 'Dispositivos desvinculados correctamente.');
+                    location.reload();
+                } else {
+                    alert(res.error || res.message || 'Error al desvincular.');
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+            }
+        }
+
+        // Copiar al portapapeles
+        function copiarAlPortapapeles(texto) {
+            cerrarMenuAcciones();
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('Copiado al portapapeles: ' + texto);
+            }).catch(() => {
+                prompt('Copiar número:', texto);
+            });
+        }
+
+        // SISTEMA DE MENÚ FLOTANTE DE TRES PUNTOS (⋮)
+        let _menuAbierto = null;
+        function abrirMenuAcciones(e, menuId) {
+            e.stopPropagation();
+            if (_menuAbierto && _menuAbierto.id === menuId) {
+                cerrarMenuAcciones();
+                return;
+            }
+            cerrarMenuAcciones();
+
+            const menu = document.getElementById(menuId);
+            if (!menu) return;
+
+            const btn = e.currentTarget;
+            const rect = btn.getBoundingClientRect();
+
+            menu.classList.remove('hidden');
+            menu.style.position = 'fixed';
+            menu.style.zIndex = '550';
+
+            const menuWidth = 208; // w-52
+            let top = rect.bottom + 6;
+            let left = rect.right - menuWidth;
+
+            if (left < 10) left = 10;
+            if (top + 120 > window.innerHeight) {
+                top = rect.top - 120;
+            }
+
+            menu.style.top = top + 'px';
+            menu.style.left = left + 'px';
+            _menuAbierto = menu;
+        }
+
+        function cerrarMenuAcciones() {
+            if (_menuAbierto) {
+                _menuAbierto.classList.add('hidden');
+                _menuAbierto = null;
+            }
+        }
+
+        document.addEventListener('click', cerrarMenuAcciones);
+        window.addEventListener('resize', cerrarMenuAcciones);
+        window.addEventListener('scroll', cerrarMenuAcciones, true);
+    </script>
+    {% include 'global_chat.html' %}
+</body>
+</html>

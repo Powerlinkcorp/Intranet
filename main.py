@@ -124,6 +124,12 @@ try:
 except ImportError:
     pass
 
+try:
+    from routers.zona_power_router import router as zona_power_router
+    app.include_router(zona_power_router)
+except Exception as e:
+    pass
+
 # Pydantic Schemas
 class FeedbackCreate(BaseModel):
     content: str

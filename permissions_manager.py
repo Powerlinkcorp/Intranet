@@ -275,7 +275,20 @@ DEFAULT_CATALOG: List[Dict[str, Any]] = [
                     {"id": "act_op_ozmap_db_eliminar", "name": "Eliminar Registros de la Base OZmap", "type": "delete"},
                     {"id": "act_op_ozmap_db_exportar", "name": "Exportar Base de Datos OZmap (CSV/Excel)", "type": "export"}
                 ]
-            }
+            },
+            {
+                "id": "sub_op_zonapower",
+                "name": "Zona Power (Hotspot)",
+                "icon": "fa-solid fa-wifi",
+                "route": "/admin/operaciones/zonapower",
+                "legacy_keys": [],
+                "actions": [
+                    {"id": "act_op_zonapower_ver", "name": "Ver Panel Zona Power y Dispositivos", "type": "read"},
+                    {"id": "act_op_zonapower_gestionar", "name": "Gestionar Sesiones y Prospectos Zona Power", "type": "write"},
+                    {"id": "act_op_zonapower_config", "name": "Configurar Parámetros de Zona Power", "type": "write"},
+                    {"id": "act_op_zonapower_exportar", "name": "Exportar Datos y Prospectos Zona Power", "type": "export"}
+                ]
+            },
         ]
     },
     {

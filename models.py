@@ -490,3 +490,115 @@ class SupportCase(Base):
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
+
+
+# ==========================================
+# MODELOS DE ZONA POWER (PORTAL CAUTIVO & PROSPECTOS)
+# ==========================================
+
+class ProspectoZonaPower(Base):
+    __tablename__ = 'prospectos_zona_power'
+
+    id = Column(Integer, primary_key=True, index=True)
+    cedula = Column(String(30), index=True, nullable=False)
+    nombre = Column(String(100), nullable=False)
+    apellido = Column(String(100), nullable=False)
+    telefono = Column(String(30), nullable=False)
+    estado = Column(String(50), nullable=False, default='Miranda')
+    municipio = Column(String(50), nullable=False)
+    zona_sector = Column(String(150), nullable=False)
+    punto_origen = Column(String(100), default='CC La Colina')
+    mac_address = Column(String(50), nullable=True)
+    ip_address = Column(String(50), nullable=True)
+    estatus = Column(String(30), default='NUEVO')
+    observaciones = Column(Text, default='')
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'cedula': self.cedula,
+            'nombre': self.nombre,
+            'apellido': self.apellido,
+            'telefono': self.telefono,
+            'estado': self.estado,
+            'municipio': self.municipio,
+            'zona_sector': self.zona_sector,
+            'punto_origen': self.punto_origen,
+            'mac_address': self.mac_address or '',
+            'ip_address': self.ip_address or '',
+            'estatus': self.estatus,
+            'observaciones': self.observaciones or '',
+            'created_at': self.created_at.strftime('%Y-%m-%d %I:%M %p') if self.created_at else '',
+        }
+
+
+class SesionZonaPower(Base):
+    __tablename__ = 'sesiones_zona_power'
+
+    id = Column(Integer, primary_key=True, index=True)
+    cedula = Column(String(30), index=True, nullable=False)
+    mac_address = Column(String(50), index=True, nullable=False)
+    ip_address = Column(String(50), nullable=False)
+    tipo_usuario = Column(String(30), default='ABONADO')
+    is_active = Column(Boolean, default=True)
+    login_time = Column(DateTime, default=datetime.datetime.utcnow)
+    last_seen = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    expiry_time = Column(DateTime, nullable=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'cedula': self.cedula,
+            'mac_address': self.mac_address,
+            'ip_address': self.ip_address,
+            'tipo_usuario': self.tipo_usuario,
+            'is_active': self.is_active,
+            'login_time': self.login_time.strftime('%Y-%m-%d %I:%M %p') if self.login_time else '',
+            'last_seen': self.last_seen.strftime('%Y-%m-%d %I:%M %p') if self.last_seen else '',
+            'expiry_time': self.expiry_time.strftime('%Y-%m-%d %I:%M %p') if self.expiry_time else None,
+        }
+
+
+class ConfigZonaPower(Base):
+    __tablename__ = 'config_zona_power'
+
+    id = Column(Integer, primary_key=True)
+    clave = Column(String(50), unique=True, index=True)
+    valor = Column(String(255))
+    descripcion = Column(String(255), default='')
+
+    def to_dict(self):
+        return {
+            'clave': self.clave,
+            'valor': self.valor,
+            'descripcion': self.descripcion
+        }
+
+class UsuarioZonaPower(Base):
+    __tablename__ = 'usuarios_zona_power'
+
+    id = Column(Integer, primary_key=True, index=True)
+    cedula = Column(String(30), unique=True, index=True, nullable=False)
+    email = Column(String(120), index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    nombre = Column(String(150), nullable=True)
+    is_active = Column(Boolean, default=True)
+    remember_mac = Column(String(100), nullable=True)
+    remember_mac_date = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'cedula': self.cedula,
+            'email': self.email,
+            'nombre': self.nombre,
+            'is_active': self.is_active,
+            'remember_mac': self.remember_mac,
+            'remember_mac_date': self.remember_mac_date.isoformat() if self.remember_mac_date else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_login': self.last_login.isoformat() if self.last_login else None
+        }
+
