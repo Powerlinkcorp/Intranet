@@ -288,12 +288,12 @@ DEFAULT_CATALOG: List[Dict[str, Any]] = [
         "dropdowns": [
             {
                 "id": "sub_admin_integracion",
-                "name": "Integración",
+                "name": "Auditor",
                 "icon": "fa-solid fa-network-wired",
                 "route": "/integracion",
                 "legacy_keys": ["ver_integracion"],
                 "actions": [
-                    {"id": "ver_integracion", "name": "Ver Conciliación Financiera e Integración", "type": "read"},
+                    {"id": "ver_integracion", "name": "Ver Conciliación Financiera y Auditor", "type": "read"},
                     {"id": "act_integracion_crear", "name": "Generar Nuevo Snapshot de Integración", "type": "create"},
                     {"id": "act_integracion_sync", "name": "Editar y Sincronizar Snapshots desde API", "type": "write"},
                     {"id": "act_integracion_eliminar", "name": "Depurar o Eliminar Snapshots Antiguos", "type": "delete"},
@@ -302,12 +302,12 @@ DEFAULT_CATALOG: List[Dict[str, Any]] = [
             },
             {
                 "id": "sub_admin_reportes",
-                "name": "Reportes Admin",
+                "name": "Reporte clientes",
                 "icon": "fa-solid fa-chart-line",
                 "route": "/reportes",
                 "legacy_keys": ["ver_reportes"],
                 "actions": [
-                    {"id": "ver_reportes", "name": "Ver Reportes Gerenciales, Planes y ARPU", "type": "read"},
+                    {"id": "ver_reportes", "name": "Ver Reporte de Clientes, Planes y ARPU", "type": "read"},
                     {"id": "act_reportes_crear", "name": "Generar Nuevos Cortes de Reportes", "type": "create"},
                     {"id": "act_reportes_editar", "name": "Configurar Metas y Filtros de Reportes", "type": "write"},
                     {"id": "act_reportes_eliminar", "name": "Eliminar Histórico de Reportes Generados", "type": "delete"},
@@ -358,12 +358,12 @@ DEFAULT_CATALOG: List[Dict[str, Any]] = [
             },
             {
                 "id": "sub_admin_panel",
-                "name": "Panel Admin (RRHH)",
-                "icon": "fa-solid fa-users",
+                "name": "Gestion interna",
+                "icon": "fa-solid fa-users-gear",
                 "route": "/admin",
                 "legacy_keys": ["cargar_datos_usuarios"],
                 "actions": [
-                    {"id": "cargar_datos_usuarios", "name": "Acceder al Panel Admin y Carga de Empleados", "type": "read"},
+                    {"id": "cargar_datos_usuarios", "name": "Acceder a Gestion interna y Carga de Empleados", "type": "read"},
                     {"id": "act_rrhh_crear", "name": "Crear Nuevos Anuncios y Eventos de Calendario", "type": "create"},
                     {"id": "act_rrhh_anuncios", "name": "Editar Anuncios, KPIs, Pop-up y Calendario", "type": "write"},
                     {"id": "act_rrhh_eliminar", "name": "Eliminar Anuncios y Eventos de Calendario", "type": "delete"},

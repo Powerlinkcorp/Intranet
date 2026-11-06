@@ -1186,7 +1186,7 @@ html.dark input[readonly] {
         </li>
         {% endif %}
 
-        {% if user.role == 'admin' or has_any_perm(user, ['mod_admin', 'sub_admin_integracion', 'sub_admin_reportes', 'sub_admin_historico', 'sub_admin_permisos', 'sub_admin_trabajadores', 'sub_admin_panel', 'ver_integracion', 'ver_reportes', 'perm_reporte', 'ver_historico', 'cargar_datos_usuarios', 'gestionar_permisos', 'editar_usuarios']) %}
+        {% if user.role == 'admin' or has_any_perm(user, ['mod_admin', 'sub_admin_integracion', 'sub_admin_reportes', 'sub_admin_historico', 'sub_admin_permisos', 'ver_integracion', 'ver_reportes', 'perm_reporte', 'ver_historico', 'gestionar_permisos', 'act_permisos_ver']) %}
         <div class="menu-section">Administración</div>
         <li>
             <div class="menu-item" onclick="toggleSubmenu('submenu-admin', this)">
@@ -1198,10 +1198,10 @@ html.dark input[readonly] {
             </div>
             <ul class="submenu" id="submenu-admin">
                 {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_integracion', 'ver_integracion']) %}
-                <li><a href="/integracion"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Integración</a></li>
+                <li><a href="/integracion"><i class="fa-solid fa-network-wired" style="margin-right: 8px;"></i> Auditor</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_reportes', 'ver_reportes', 'perm_reporte']) %}
-                <li><a href="/reportes"><i class="fa-solid fa-chart-line" style="margin-right: 8px;"></i> Reportes Admin</a></li>
+                <li><a href="/reportes"><i class="fa-solid fa-chart-line" style="margin-right: 8px;"></i> Reporte clientes</a></li>
                 {% endif %}
                 {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_historico', 'ver_historico']) %}
                 <li><a href="/historico"><i class="fa-solid fa-history" style="margin-right: 8px;"></i> Histórico</a></li>
@@ -1209,17 +1209,32 @@ html.dark input[readonly] {
                 {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_permisos', 'gestionar_permisos', 'act_permisos_ver']) %}
                 <li><a href="/admin/permisos"><i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i> Permisos</a></li>
                 {% endif %}
-                {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_trabajadores', 'editar_usuarios', 'act_trabajadores_ver']) %}
-                <li><a href="/admin?tab=trabajadores"><i class="fa-solid fa-id-card-clip" style="margin-right: 8px;"></i> Trabajadores</a></li>
-                {% endif %}
-                {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_panel', 'cargar_datos_usuarios']) %}
-                <li><a href="/admin"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> Panel Admin</a></li>
-                {% endif %}
                 {% for mod in _reg.catalog if mod.id == 'mod_admin' %}
                     {% for sub in mod.dropdowns if sub.is_custom and has_perm(user, sub.id) %}
                     <li><a href="{{ sub.route }}"><i class="{{ sub.icon }}" style="margin-right: 8px;"></i> {{ sub.name }}</a></li>
                     {% endfor %}
                 {% endfor %}
+            </ul>
+        </li>
+        {% endif %}
+
+        {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_trabajadores', 'editar_usuarios', 'act_trabajadores_ver', 'sub_admin_panel', 'cargar_datos_usuarios', 'mod_rrhh']) %}
+        <div class="menu-section">R.R.H.H</div>
+        <li>
+            <div class="menu-item" onclick="toggleSubmenu('submenu-rrhh', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fa-solid fa-user-group icon-main"></i>
+                    <span>R.R.H.H</span>
+                </div>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <ul class="submenu" id="submenu-rrhh">
+                {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_trabajadores', 'editar_usuarios', 'act_trabajadores_ver']) %}
+                <li><a href="/admin?tab=trabajadores"><i class="fa-solid fa-id-card-clip" style="margin-right: 8px;"></i> Trabajadores</a></li>
+                {% endif %}
+                {% if user.role == 'admin' or has_any_perm(user, ['sub_admin_panel', 'cargar_datos_usuarios']) %}
+                <li><a href="/admin"><i class="fa-solid fa-users-gear" style="margin-right: 8px;"></i> Gestion interna</a></li>
+                {% endif %}
             </ul>
         </li>
         {% endif %}
