@@ -31,6 +31,7 @@ from database import engine, get_db, Base
 import models
 import security
 import email_util
+import client_normalizer as cn
 
 load_dotenv()
 
@@ -1923,22 +1924,16 @@ async def procesar_auditoria_api(
         for _, row in df_old.iterrows():
             sid = str(row.get('ID Servicio', '')).strip()
             if sid:
-                raw_st = str(row.get('Estado servicio', '')).strip().upper()
-                if raw_st in ('EXONERADO', 'EXO.'): mapped_st = 'Exo.'
-                elif raw_st in ('SUSPENDIDO', 'SUSP.'): mapped_st = 'Susp.'
-                elif raw_st in ('POR RETIRAR', 'POR RET.'): mapped_st = 'Por Ret.'
-                elif raw_st in ('TRANSFERIDO', 'TRANS.'): mapped_st = 'Trans.'
-                elif raw_st in ('RETIRADO', 'RET.'): mapped_st = 'Ret.'
-                elif raw_st in ('ACTIVO', 'ACT.'): mapped_st = 'Act.'
-                else: mapped_st = raw_st.title() if raw_st else ''
-                
+                mapped_st = cn.normalize_status(row.get('Estado servicio', ''))
                 old_dict[sid] = {
                     'ID Servicio': sid,
                     'Cédula': str(row.get('Cédula', '')).strip(),
                     'Nombres': str(row.get('Nombres', '')).strip(),
                     'Plan': row.get('Plan', ''),
+                    'Tipo de servicio': row.get('Tipo de servicio', ''),
                     'Estado servicio': mapped_st,
-                    'Costo del plan': row.get('Costo del plan', 0)
+                    'Costo del plan': row.get('Costo del plan', 0),
+                    'is_natural': row.get('is_natural')
                 }
     elif tipoComparativa == "mensual":
         # Modo: Comparar con Base Mensual (Excel guardado)
@@ -1959,22 +1954,16 @@ async def procesar_auditoria_api(
                     for idx, row in df_old.iterrows():
                         sid = str(row.get('ID Servicio', '')).strip()
                         if sid:
-                            raw_st = str(row.get('Estado servicio', '')).strip().upper()
-                            if raw_st in ('EXONERADO', 'EXO.'): mapped_st = 'Exo.'
-                            elif raw_st in ('SUSPENDIDO', 'SUSP.'): mapped_st = 'Susp.'
-                            elif raw_st in ('POR RETIRAR', 'POR RET.'): mapped_st = 'Por Ret.'
-                            elif raw_st in ('TRANSFERIDO', 'TRANS.'): mapped_st = 'Trans.'
-                            elif raw_st in ('RETIRADO', 'RET.'): mapped_st = 'Ret.'
-                            elif raw_st in ('ACTIVO', 'ACT.'): mapped_st = 'Act.'
-                            else: mapped_st = raw_st.title() if raw_st else ''
-                            
+                            mapped_st = cn.normalize_status(row.get('Estado servicio', ''))
                             old_dict[sid] = {
                                 'ID Servicio': sid,
                                 'Cédula': str(row.get('Cédula', '')).strip(),
                                 'Nombres': str(row.get('Nombres', '')).strip(),
                                 'Plan': row.get('Plan', ''),
+                                'Tipo de servicio': row.get('Tipo de servicio', ''),
                                 'Estado servicio': mapped_st,
-                                'Costo del plan': row.get('Costo del plan', 0)
+                                'Costo del plan': row.get('Costo del plan', 0),
+                                'is_natural': row.get('is_natural')
                             }
                 except Exception as e:
                     raise HTTPException(status_code=500, detail=f"Error leyendo la base mensual en {path}: {str(e)}")
@@ -2013,42 +2002,26 @@ async def procesar_auditoria_api(
         for item in list_old:
             sid = str(item.get('id_servicio', '')).strip()
             if sid:
-                raw_st = str(item.get('service_status', '')).strip().upper()
-                if raw_st == 'EXONERADO': mapped_st = 'Exo.'
-                elif raw_st == 'SUSPENDIDO': mapped_st = 'Susp.'
-                elif raw_st == 'POR RETIRAR': mapped_st = 'Por Ret.'
-                elif raw_st == 'TRANSFERIDO': mapped_st = 'Trans.'
-                elif raw_st == 'RETIRADO': mapped_st = 'Ret.'
-                elif raw_st == 'ACTIVO': mapped_st = 'Act.'
-                else: mapped_st = raw_st.title() if raw_st else ''
-                
+                mapped_st = cn.normalize_status(item.get('service_status', ''))
                 old_dict[sid] = {
                     'ID Servicio': sid,
                     'Cédula': f"{item.get('doc_type', '')}-{item.get('doc', '')}",
                     'Nombres': item.get('name', ''),
                     'Plan': item.get('plan', ''),
+                    'Tipo de servicio': item.get('service_type', ''),
                     'Estado servicio': mapped_st,
-                    'Costo del plan': item.get('amount', 0)
+                    'Costo del plan': item.get('amount', 0),
+                    'doc_type': item.get('doc_type', ''),
+                    'is_natural': item.get('is_natural')
                 }
 
     list_new = data_new.get("data", [])
     
     def map_to_excel_format(item):
-        raw_st = str(item.get('service_status', '')).strip().upper()
-        if raw_st == 'EXONERADO': mapped_st = 'Exo.'
-        elif raw_st == 'SUSPENDIDO': mapped_st = 'Susp.'
-        elif raw_st == 'POR RETIRAR': mapped_st = 'Por Ret.'
-        elif raw_st == 'TRANSFERIDO': mapped_st = 'Trans.'
-        elif raw_st == 'RETIRADO': mapped_st = 'Ret.'
-        elif raw_st == 'ACTIVO': mapped_st = 'Act.'
-        else: mapped_st = raw_st.title() if raw_st else ''
+        mapped_st = cn.normalize_status(item.get('service_status', ''))
+        segment = cn.classify_client_segment(item)
+        is_nat = (segment == 'Residencial')
         
-        doc_t = str(item.get('doc_type', '')).strip().upper()
-        # In Venezuela, J, G, or C are corporate (Juridico, Gubernamental, Comuna)
-        is_nat = doc_t not in ('J', 'G', 'C')
-        if 'is_natural' in item:
-            is_nat = bool(item['is_natural'])
-            
         return {
             'ID Servicio': item.get('id_servicio', ''),
             'Cédula': f"{item.get('doc_type', '')}-{item.get('doc', '')}",
@@ -2063,7 +2036,8 @@ async def procesar_auditoria_api(
             'Fecha de instalación': item.get('creation_date', ''),
             'Teléfono 1': item.get('phone', ''),
             'Urbanismo': item.get('urban', ''),
-            'is_natural': is_nat
+            'is_natural': is_nat,
+            'doc_type': item.get('doc_type', '')
         }
 
     try:
@@ -2085,9 +2059,13 @@ async def procesar_auditoria_api(
     totalActivosCorp = 0
     totalSuspendidosFecha = 0
     totalSuspendidosFechaCorp = 0
+    totalSuspendidosTotal = 0
+    totalSuspendidosTotalCorp = 0
     totalExoneradosEmp = 0
     totalExoneradosReg = 0
     totalExoneradosRegCorp = 0
+    total_iptv_activos = 0
+    total_tv_activos = 0
     
     # Variables Conciliación Residencial
     ingreso_ayer = 0.0
@@ -2115,6 +2093,8 @@ async def procesar_auditoria_api(
     downgrades_mnt = 0.0
     susp_qty = 0
     susp_mnt = 0.0
+    retiros_qty = 0
+    retiros_mnt = 0.0
     
     # Variables Conciliación Corporativa
     ingreso_ayer_corp = 0.0
@@ -2142,10 +2122,31 @@ async def procesar_auditoria_api(
     downgrades_mnt_corp = 0.0
     susp_qty_corp = 0
     susp_mnt_corp = 0.0
+    retiros_qty_corp = 0
+    retiros_mnt_corp = 0.0
     
     impacto_exclusion_tv = 0.0
     count_exclusion_tv = 0
     
+    # Identificadores de Empleados de RRHH para validación cruzada inteligente
+    employee_identifiers = set()
+    try:
+        employees_db = db.query(models.Employee).all()
+        for emp_rec in employees_db:
+            if emp_rec.cedula:
+                clean_ci = re.sub(r'[^0-9a-z]', '', emp_rec.cedula.lower())
+                digits_ci = re.sub(r'[^0-9]', '', emp_rec.cedula)
+                if clean_ci:
+                    employee_identifiers.add(clean_ci)
+                if digits_ci:
+                    employee_identifiers.add(digits_ci)
+            if emp_rec.name:
+                clean_nm = re.sub(r'\s+', ' ', emp_rec.name.lower()).strip()
+                if clean_nm:
+                    employee_identifiers.add(clean_nm)
+    except Exception as e:
+        logger.warning(f"Error cargando identificadores de empleados para conciliacion: {e}")
+
     fechaCorte = datetime.now().strftime("%Y-%m-01")
 
     processed_sids = set()
@@ -2160,18 +2161,7 @@ async def procesar_auditoria_api(
     datosClientesActivos = []
     
     def parse_amount(val):
-        if val is None: return 0.0
-        if isinstance(val, (int, float)): return float(val)
-        s = str(val).replace('$', '').replace(' ', '').strip()
-        if not s: return 0.0
-        s = s.replace(',', '.')
-        if s.count('.') > 1:
-            parts = s.rsplit('.', 1)
-            s = parts[0].replace('.', '') + '.' + parts[1]
-        try:
-            return float(s)
-        except:
-            return 0.0
+        return cn.parse_amount(val)
             
     for item in list_new:
         row = map_to_excel_format(item)
@@ -2189,11 +2179,20 @@ async def procesar_auditoria_api(
         except:
             costoDelPlanNew = 0.0
             
-        if planNew.upper() == 'TV' or tipoServicioNew == 'IPTV':
+        estadoServicioNew = cn.normalize_status(row.get('Estado servicio', ''))
+        row['Estado servicio'] = estadoServicioNew
+        is_tv, tv_kind = cn.is_tv_or_iptv(row)
+        is_this_corp = cn.is_corporate(row)
+        
+        # Segmentación y conteo separado de contratos TV / IPTV
+        if is_tv:
+            if estadoServicioNew == 'ACTIVO':
+                if tv_kind == 'IPTV':
+                    total_iptv_activos += 1
+                else:
+                    total_tv_activos += 1
             continue
             
-        estadoServicioNew = str(row['Estado servicio']).strip().upper()
-        
         try:
             saldoActual = parse_amount(row['Saldo actual'])
         except:
@@ -2234,14 +2233,15 @@ async def procesar_auditoria_api(
              except:
                  pass
                 
-        if estadoServicioNew == 'ACT.':
-            if tipoServicioNew in ['PYME', 'CORPORATIVO']:
+        if estadoServicioNew == 'ACTIVO':
+            if is_this_corp:
                 totalActivosCorp += 1
                 ingreso_hoy_corp += costoDelPlanNew
                 count_activos_hoy_corp += 1
             else:
                 totalActivos += 1
                 ingreso_hoy += costoDelPlanNew
+                count_activos_hoy += 1
             datosClientesActivos.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
@@ -2249,13 +2249,18 @@ async def procesar_auditoria_api(
                 'Plan': planNew,
                 'Tipo de servicio': row['Tipo de servicio'],
                 'Costo del plan': costoDelPlanNew,
-                'Estado servicio': row['Estado servicio'],
+                'Estado servicio': estadoServicioNew,
                 'Saldo Actual': saldoActual,
                 'Fecha de instalación': fechaInstalacionFormat,
                 'Teléfono 1': row['Teléfono 1'],
                 'Urbanismo': row['Urbanismo']
             })
-        elif estadoServicioNew == 'SUSP.':
+        elif estadoServicioNew == 'SUSPENDIDO':
+            if is_this_corp:
+                totalSuspendidosTotalCorp += 1
+            else:
+                totalSuspendidosTotal += 1
+
             try:
                 corte_res = corte_dt.replace(day=6)
             except ValueError:
@@ -2266,25 +2271,20 @@ async def procesar_auditoria_api(
             except ValueError:
                 corte_corp = corte_dt
 
-            if tipoServicioNew in ['PYME', 'CORPORATIVO']:
+            if is_this_corp:
                 if estado_dt >= corte_corp:
                     totalSuspendidosFechaCorp += 1
             else:
                 if estado_dt >= corte_res:
                     totalSuspendidosFecha += 1
-        elif estadoServicioNew == 'EXO.':
-            plan_lower = planNew.lower()
-            if 'iptv' not in plan_lower and 'tv' not in plan_lower:
-                nombre_lower = str(row.get('Nombres', '')).lower().strip()
-                if '(emp)' in nombre_lower:
-                    totalExoneradosEmp += 1
+        elif estadoServicioNew == 'EXONERADO':
+            if cn.is_employee_exonerated(row, employee_identifiers):
+                totalExoneradosEmp += 1
+            else:
+                if is_this_corp:
+                    totalExoneradosRegCorp += 1
                 else:
-                    if tipoServicioNew in ['PYME', 'CORPORATIVO']:
-                        totalExoneradosRegCorp += 1
-                    else:
-                        totalExoneradosReg += 1
-                        
-        is_this_corp = tipoServicioNew in ['PYME', 'CORPORATIVO']
+                    totalExoneradosReg += 1
                 
         is_missing_in_old = (sid not in old_dict)
         
@@ -2293,12 +2293,12 @@ async def procesar_auditoria_api(
             if corte_dt <= inst_p_current <= inst_dt:
                 is_in_range = True
         
-        if estadoServicioNew == 'ACT.' and (is_in_range or is_missing_in_old):
+        if estadoServicioNew == 'ACTIVO' and (is_in_range or is_missing_in_old):
             datosInstalaciones.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
                 'Nombres': row['Nombres'],
-                'Estado servicio': row['Estado servicio'],
+                'Estado servicio': estadoServicioNew,
                 'Plan': row['Plan'],
                 'Costo del plan': row['Costo del plan'],
                 'Fecha de instalación': fechaInstalacionFormat,
@@ -2306,12 +2306,12 @@ async def procesar_auditoria_api(
                 'Saldo Actual': saldoActual
             })
                 
-        if estadoServicioNew == 'ACT.' and fechaInstalacionFormat == today_str:
+        if estadoServicioNew == 'ACTIVO' and fechaInstalacionFormat == today_str:
             datosInstalacionesProceso.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
                 'Nombres': row['Nombres'],
-                'Estado servicio': row['Estado servicio'],
+                'Estado servicio': estadoServicioNew,
                 'Plan': row['Plan'],
                 'Costo del plan': row['Costo del plan'],
                 'Fecha de instalación': fechaInstalacionFormat,
@@ -2319,12 +2319,12 @@ async def procesar_auditoria_api(
                 'Saldo Actual': saldoActual
             })
                 
-        if estadoServicioNew == 'ACT.' and saldoActual < 0:
+        if estadoServicioNew == 'ACTIVO' and saldoActual < 0:
             datosDeudores.append({
                 'ID Servicio': sid,
                 'Cédula': row['Cédula'],
                 'Nombres': row['Nombres'],
-                'Estado servicio': row['Estado servicio'],
+                'Estado servicio': estadoServicioNew,
                 'Saldo Actual (Deuda)': saldoActual,
                 'Plan': row['Plan'],
                 'Costo del plan': row['Costo del plan'],
@@ -2347,18 +2347,18 @@ async def procesar_auditoria_api(
         row_old = old_dict.get(sid)
         if row_old is not None:
             planOld = str(row_old['Plan']).strip()
-            estatusOld = str(row_old['Estado servicio']).strip().upper()
+            estatusOld = cn.normalize_status(row_old.get('Estado servicio', ''))
             estatusNew = estadoServicioNew
             try:
                 costoOld = parse_amount(row_old['Costo del plan'])
             except:
                 costoOld = 0.0
                 
-            billingAyer = costoOld if estatusOld == 'ACT.' else 0.0
-            billingHoy = costoDelPlanNew if estatusNew == 'ACT.' else 0.0
+            billingAyer = costoOld if estatusOld == 'ACTIVO' else 0.0
+            billingHoy = costoDelPlanNew if estatusNew == 'ACTIVO' else 0.0
             variacionNeta = billingHoy - billingAyer
             
-            if estatusOld == 'ACT.':
+            if estatusOld == 'ACTIVO':
                 if is_this_corp:
                     ingreso_ayer_corp += costoOld
                     count_activos_ayer_corp += 1
@@ -2367,8 +2367,9 @@ async def procesar_auditoria_api(
                     count_activos_ayer += 1
                 
             # Finanzas - Bridge (Conciliación Financiera)
-            if estatusOld != 'EXO.' and estatusNew == 'EXO.':
-                if 'EMP' in str(row.get('Nombres', '')).upper() or 'EMP' in row.get('Cédula', '').upper():
+            if estatusOld != 'EXONERADO' and estatusNew == 'EXONERADO':
+                is_emp_exo = cn.is_employee_exonerated(row, employee_identifiers) or cn.is_employee_exonerated(row_old, employee_identifiers)
+                if is_emp_exo:
                     if is_this_corp:
                         emp_exo_qty_corp += 1
                         emp_exo_mnt_corp += variacionNeta
@@ -2382,8 +2383,22 @@ async def procesar_auditoria_api(
                     else:
                         res_exo_qty += 1
                         res_exo_mnt += variacionNeta
+                datosConciliacionDetalle.append({
+                    'ID Servicio': sid,
+                    'Cédula': row.get('Cédula', '') or '-',
+                    'Nombres': row.get('Nombres', '') or '-',
+                    'Concepto': 'Exonerado (Empleado)' if is_emp_exo else 'Exonerado (Regular)',
+                    'Plan Anterior': planOld,
+                    'Plan Actual': planNew,
+                    'Estado Anterior': estatusOld,
+                    'Estado Actual': estatusNew,
+                    'Costo Anterior': costoOld,
+                    'Costo Actual': costoDelPlanNew,
+                    'Variación': variacionNeta,
+                    'Fecha': fechaEstadoFormat
+                })
                         
-            elif estatusOld == 'ACT.' and estatusNew == 'ACT.':
+            elif estatusOld == 'ACTIVO' and estatusNew == 'ACTIVO':
                 if costoDelPlanNew > costoOld:
                     if '3 MESES BENEFICIO' in planOld.upper() and '3 MESES BENEFICIO' not in planNew.upper():
                         if is_this_corp:
@@ -2399,6 +2414,20 @@ async def procesar_auditoria_api(
                         else:
                             upgrades_qty += 1
                             upgrades_mnt += variacionNeta
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row.get('Cédula', '') or '-',
+                        'Nombres': row.get('Nombres', '') or '-',
+                        'Concepto': 'Upgrade / Fin Beneficio',
+                        'Plan Anterior': planOld,
+                        'Plan Actual': planNew,
+                        'Estado Anterior': estatusOld,
+                        'Estado Actual': estatusNew,
+                        'Costo Anterior': costoOld,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': variacionNeta,
+                        'Fecha': fechaPlanDesdeFormat
+                    })
                 elif costoDelPlanNew < costoOld:
                     if is_this_corp:
                         downgrades_qty_corp += 1
@@ -2406,15 +2435,30 @@ async def procesar_auditoria_api(
                     else:
                         downgrades_qty += 1
                         downgrades_mnt += variacionNeta
+                    datosConciliacionDetalle.append({
+                        'ID Servicio': sid,
+                        'Cédula': row.get('Cédula', '') or '-',
+                        'Nombres': row.get('Nombres', '') or '-',
+                        'Concepto': 'Downgrade',
+                        'Plan Anterior': planOld,
+                        'Plan Actual': planNew,
+                        'Estado Anterior': estatusOld,
+                        'Estado Actual': estatusNew,
+                        'Costo Anterior': costoOld,
+                        'Costo Actual': costoDelPlanNew,
+                        'Variación': variacionNeta,
+                        'Fecha': fechaPlanDesdeFormat
+                    })
                         
-            elif estatusOld in ['SUSP.', 'RET.', 'POR RET.', 'EXO.'] and estatusNew == 'ACT.':
-                if estatusOld == 'EXO.':
+            elif estatusOld in ['SUSPENDIDO', 'RETIRADO', 'POR RETIRAR', 'EXONERADO', 'TRANSFERIDO'] and estatusNew == 'ACTIVO':
+                if estatusOld == 'EXONERADO':
                     if is_this_corp:
                         reconex_exo_qty_corp += 1
                         reconex_exo_mnt_corp += variacionNeta
                     else:
                         reconex_exo_qty += 1
                         reconex_exo_mnt += variacionNeta
+                    concepto_recon = 'Fin Exoneración (Reconexión)'
                 else:
                     if is_this_corp:
                         reconex_qty_corp += 1
@@ -2422,14 +2466,65 @@ async def procesar_auditoria_api(
                     else:
                         reconex_qty += 1
                         reconex_mnt += variacionNeta
+                    concepto_recon = 'Reconexión'
+                datosConciliacionDetalle.append({
+                    'ID Servicio': sid,
+                    'Cédula': row.get('Cédula', '') or '-',
+                    'Nombres': row.get('Nombres', '') or '-',
+                    'Concepto': concepto_recon,
+                    'Plan Anterior': planOld,
+                    'Plan Actual': planNew,
+                    'Estado Anterior': estatusOld,
+                    'Estado Actual': estatusNew,
+                    'Costo Anterior': costoOld,
+                    'Costo Actual': costoDelPlanNew,
+                    'Variación': variacionNeta,
+                    'Fecha': fechaEstadoFormat
+                })
                 
-            elif estatusOld == 'ACT.' and estatusNew in ['SUSP.', 'RET.', 'POR RET.']:
+            elif estatusOld == 'ACTIVO' and estatusNew == 'SUSPENDIDO':
                 if is_this_corp:
                     susp_qty_corp += 1
                     susp_mnt_corp += variacionNeta
                 else:
                     susp_qty += 1
                     susp_mnt += variacionNeta
+                datosConciliacionDetalle.append({
+                    'ID Servicio': sid,
+                    'Cédula': row.get('Cédula', '') or '-',
+                    'Nombres': row.get('Nombres', '') or '-',
+                    'Concepto': 'Suspensión',
+                    'Plan Anterior': planOld,
+                    'Plan Actual': planNew,
+                    'Estado Anterior': estatusOld,
+                    'Estado Actual': estatusNew,
+                    'Costo Anterior': costoOld,
+                    'Costo Actual': costoDelPlanNew,
+                    'Variación': variacionNeta,
+                    'Fecha': fechaEstadoFormat
+                })
+
+            elif estatusOld == 'ACTIVO' and estatusNew in ['RETIRADO', 'POR RETIRAR']:
+                if is_this_corp:
+                    retiros_qty_corp += 1
+                    retiros_mnt_corp += variacionNeta
+                else:
+                    retiros_qty += 1
+                    retiros_mnt += variacionNeta
+                datosConciliacionDetalle.append({
+                    'ID Servicio': sid,
+                    'Cédula': row.get('Cédula', '') or '-',
+                    'Nombres': row.get('Nombres', '') or '-',
+                    'Concepto': 'Retiro Definitivo',
+                    'Plan Anterior': planOld,
+                    'Plan Actual': planNew,
+                    'Estado Anterior': estatusOld,
+                    'Estado Actual': estatusNew,
+                    'Costo Anterior': costoOld,
+                    'Costo Actual': costoDelPlanNew,
+                    'Variación': variacionNeta,
+                    'Fecha': fechaEstadoFormat
+                })
             
             if planOld != planNew and is_plan_in_range:
                 datosCambiosPlan.append({
@@ -2441,7 +2536,7 @@ async def procesar_auditoria_api(
                     'Costo Anterior': costoOld,
                     'Costo Nuevo': costoDelPlanNew,
                     'Variación de Costo': variacionNeta,
-                    'Estado Actual': row['Estado servicio'],
+                    'Estado Actual': estadoServicioNew,
                     'Estado Anterior': estatusOld,
                     'Estado Nuevo': estatusNew,
                     'Fecha Plan Actual Desde': fechaPlanDesdeFormat 
@@ -2477,7 +2572,7 @@ async def procesar_auditoria_api(
                     'Fecha Último Cambio Estado': fechaEstadoFormat
                 })
         else:
-            if estadoServicioNew == 'ACT.' and is_missing_in_old:
+            if estadoServicioNew == 'ACTIVO' and is_missing_in_old:
                 if '3 MESES BENEFICIO' in planNew.upper():
                     if is_this_corp:
                         inst_3m_qty_corp += 1
@@ -2492,43 +2587,56 @@ async def procesar_auditoria_api(
                     else:
                         inst_norm_qty += 1
                         inst_norm_mnt += costoDelPlanNew
+                datosConciliacionDetalle.append({
+                    'ID Servicio': sid,
+                    'Cédula': row.get('Cédula', '') or '-',
+                    'Nombres': row.get('Nombres', '') or '-',
+                    'Concepto': 'Instalación Nueva',
+                    'Plan Anterior': '-',
+                    'Plan Actual': planNew,
+                    'Estado Anterior': 'Nuevo',
+                    'Estado Actual': estadoServicioNew,
+                    'Costo Anterior': 0.0,
+                    'Costo Actual': costoDelPlanNew,
+                    'Variación': costoDelPlanNew,
+                    'Fecha': fechaInstalacionFormat
+                })
 
     for sid, row_old in old_dict.items():
         if sid not in processed_sids:
-            tipoServicioOld = str(row_old.get('Tipo de servicio', '')).strip().upper()
-            planOld = str(row_old.get('Plan', '')).strip().upper()
-            if planOld == 'TV' or tipoServicioOld == 'IPTV':
+            is_tv, _ = cn.is_tv_or_iptv(row_old)
+            if is_tv:
                 continue
                 
-            is_this_corp = tipoServicioOld in ['PYME', 'CORPORATIVO']
+            is_this_corp = cn.is_corporate(row_old)
                 
-            estatusOld = str(row_old['Estado servicio']).strip().upper()
+            estatusOld = cn.normalize_status(row_old.get('Estado servicio', ''))
             try:
-                costoOld = parse_amount(row_old['Costo del plan'])
+                costoOld = parse_amount(row_old.get('Costo del plan', 0))
             except:
                 costoOld = 0.0
                 
-            if estatusOld == 'ACT.':
+            if estatusOld == 'ACTIVO':
                 if is_this_corp:
                     ingreso_ayer_corp += costoOld
                     count_activos_ayer_corp += 1
-                    susp_qty_corp += 1
-                    susp_mnt_corp -= costoOld
+                    retiros_qty_corp += 1
+                    retiros_mnt_corp -= costoOld
                 else:
                     ingreso_ayer += costoOld
                     count_activos_ayer += 1
-                    susp_qty += 1
-                    susp_mnt -= costoOld
+                    retiros_qty += 1
+                    retiros_mnt -= costoOld
                     
                 datosConciliacionDetalle.append({
                     'ID Servicio': sid,
                     'Cédula': row_old.get('Cédula', '') or '-',
                     'Nombres': row_old.get('Nombres', '') or '-',
-                    'Concepto': 'Retiros',
+                    'Concepto': 'Retiro Definitivo',
                     'Plan Anterior': str(row_old.get('Plan', '')),
                     'Plan Actual': '-',
                     'Estado Anterior': estatusOld,
-                    'Estado Actual': 'No encontrado',
+                    'Estado Actual': 'Desincorporado / No Encontrado',
                     'Costo Anterior': costoOld,
                     'Costo Actual': 0.0,
                     'Variación': -costoOld,
@@ -2549,7 +2657,7 @@ async def procesar_auditoria_api(
     # Generar cuadro resumen agrupado de Clientes Activos por Plan
     plan_aggregates = {}
     for c in datosClientesActivos:
-        is_this_corp = c.get('Tipo de servicio', '').strip().upper() in ['PYME', 'CORPORATIVO']
+        is_this_corp = cn.is_corporate(c)
         p_name = c['Plan'] or 'Sin Plan'
         if is_this_corp:
             p_name += " (Corp)"
@@ -2585,10 +2693,17 @@ async def procesar_auditoria_api(
     datosPlanesActivos.sort(key=lambda x: x['Cantidad'], reverse=True)
 
     resumen_list = [
-        {"Indicador": "Activos Totales", "Valor": totalActivos},
-        {"Indicador": f"Suspendidos (desde {fechaCorte})", "Valor": totalSuspendidosFecha},
+        {"Indicador": "Activos Totales (Residencial)", "Valor": totalActivos},
+        {"Indicador": "Activos Totales (Corporativo)", "Valor": totalActivosCorp},
+        {"Indicador": f"Suspendidos Cobranza (desde día 6)", "Valor": totalSuspendidosFecha},
+        {"Indicador": f"Suspendidos Cobranza Corp (desde día 10)", "Valor": totalSuspendidosFechaCorp},
+        {"Indicador": "Suspendidos Cartera Total (Residencial)", "Valor": totalSuspendidosTotal},
+        {"Indicador": "Suspendidos Cartera Total (Corporativo)", "Valor": totalSuspendidosTotalCorp},
         {"Indicador": "Exonerados (Empleados)", "Valor": totalExoneradosEmp},
-        {"Indicador": "Exonerados (Regulares)", "Valor": totalExoneradosReg}
+        {"Indicador": "Exonerados (Regulares)", "Valor": totalExoneradosReg},
+        {"Indicador": "Exonerados (Corporativos)", "Valor": totalExoneradosRegCorp},
+        {"Indicador": "Contratos IPTV Activos", "Valor": total_iptv_activos},
+        {"Indicador": "Contratos TV Activos", "Valor": total_tv_activos}
     ]
 
     return {
@@ -2597,9 +2712,13 @@ async def procesar_auditoria_api(
             "activos_corp": totalActivosCorp,
             "suspendidos": totalSuspendidosFecha,
             "suspendidos_corp": totalSuspendidosFechaCorp,
+            "suspendidos_total": totalSuspendidosTotal,
+            "suspendidos_total_corp": totalSuspendidosTotalCorp,
             "exonEmp": totalExoneradosEmp,
             "exonReg": totalExoneradosReg,
-            "exonRegCorp": totalExoneradosRegCorp
+            "exonRegCorp": totalExoneradosRegCorp,
+            "activos_iptv": total_iptv_activos,
+            "activos_tv": total_tv_activos
         },
         "conciliacion_financiera_res": {
             "has_excel": True,
@@ -2627,6 +2746,8 @@ async def procesar_auditoria_api(
             "downgrades_mnt": downgrades_mnt,
             "susp_qty": susp_qty,
             "susp_mnt": susp_mnt,
+            "retiros_qty": retiros_qty,
+            "retiros_mnt": retiros_mnt,
             "cant_diferencia_neta": totalActivos - count_activos_ayer
         },
         "conciliacion_financiera_corp": {
@@ -2655,6 +2776,8 @@ async def procesar_auditoria_api(
             "downgrades_mnt": downgrades_mnt_corp,
             "susp_qty": susp_qty_corp,
             "susp_mnt": susp_mnt_corp,
+            "retiros_qty": retiros_qty_corp,
+            "retiros_mnt": retiros_mnt_corp,
             "cant_diferencia_neta": count_activos_hoy_corp - count_activos_ayer_corp
         },
         "conciliacion_detalle": datosConciliacionDetalle,
@@ -2676,21 +2799,20 @@ def build_plan_aggregates(users, is_corp=False, is_cons=False):
     plan_aggregates = {}
 
     for item in users:
-        status = str(item.get('service_status', '')).strip().upper()
-        if status in ('ACTIVO', 'ACT.'):
-            plan = str(item.get('plan', '')).strip() or 'Sin Plan'
-            service_type = str(item.get('service_type', '')).strip().upper()
-            
-            if plan.upper() == 'TV' or service_type == 'IPTV':
+        status = cn.normalize_status(item.get('service_status', ''))
+        if status == 'ACTIVO':
+            is_tv, _ = cn.is_tv_or_iptv(item)
+            if is_tv:
                 continue
                 
-            if is_corp:
-                if service_type not in ['PYME', 'CORPORATIVO']:
-                    continue
-            elif not is_cons:
-                # This is residential (not corp, not cons)
-                if service_type in ['PYME', 'CORPORATIVO']:
-                    continue
+            client_is_corp = cn.is_corporate(item)
+            if is_corp and not client_is_corp:
+                continue
+            elif not is_cons and not is_corp and client_is_corp:
+                continue
+
+            plan = str(item.get('plan', '')).strip() or 'Sin Plan'
+            service_type = str(item.get('service_type', '')).strip().upper()
                     
             try:
                 amount = float(item.get('amount') or 0.0)
@@ -2726,7 +2848,7 @@ def build_plan_aggregates(users, is_corp=False, is_cons=False):
                 'Plan': plan,
                 'Tipo de servicio': service_type,
                 'Costo del plan': amount,
-                'Estado servicio': 'Act.',
+                'Estado servicio': 'ACTIVO',
                 'Saldo Actual': balance,
                 'Fecha de instalación': fecha_inst,
                 'Teléfono 1': telefono,
@@ -2866,16 +2988,15 @@ def get_metricas_crecimiento(request: Request, db: Session = Depends(get_db)):
     
     sectores = set()
     for item in list_old:
-        status = str(item.get('service_status', '')).strip().upper()
-        plan = str(item.get('plan', '')).strip().upper()
-        service_type = str(item.get('service_type', '')).strip().upper()
+        status = cn.normalize_status(item.get('service_status', ''))
         sector = str(item.get('sector', '')).strip()
         
         if sector and sector.lower() not in ["none", "null"]:
             sectores.add(sector)
         
         if status == 'ACTIVO':
-            if plan in ['IPTV', 'TV'] or service_type in ['IPTV', 'TV']:
+            is_tv, _ = cn.is_tv_or_iptv(item)
+            if is_tv:
                 activos_iptv += 1
             else:
                 activos_power += 1
@@ -3221,7 +3342,7 @@ def _get_clients_index():
     contracts_by_doc = defaultdict(list)
     client_meta_by_doc = {}
 
-    def _process_item(u, tipo_cliente):
+    def _process_item(u, tipo_cliente_default='Residencial'):
         doc = str(u.get('doc', '')).strip()
         if not doc:
             return
@@ -3232,7 +3353,8 @@ def _get_clients_index():
         
         sid = u.get('id_servicio')
         plan = (u.get('plan') or '').strip()
-        status = (u.get('service_status') or 'ACTIVO').strip().upper()
+        status = cn.normalize_status(u.get('service_status') or 'ACTIVO')
+        tipo_cliente = cn.classify_client_segment(u)
         addr = (u.get('address') or '').strip()
         urban = (u.get('urban') or '').strip()
         sector = (u.get('sector') or '').strip()

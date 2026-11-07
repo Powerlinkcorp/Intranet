@@ -992,13 +992,15 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap justify-center gap-4 w-full">
-                            <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                            <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[160px] max-w-[260px]">
                                 <p class="text-sm font-medium text-amber-700">Suspendidos residenciales</p>
                                 <p id="resumenSuspendidos" class="text-2xl font-bold text-amber-900">0</p>
+                                <p class="text-xs text-amber-700/80 mt-1">Cartera total: <span id="resumenSuspendidosTotal" class="font-bold">0</span></p>
                             </div>
-                            <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
+                            <div class="p-4 bg-amber-50 rounded-lg text-center flex-1 min-w-[160px] max-w-[260px]">
                                 <p class="text-sm font-medium text-amber-700">Suspendidos corporativos</p>
                                 <p id="resumenSuspendidosCorp" class="text-2xl font-bold text-amber-900">0</p>
+                                <p class="text-xs text-amber-700/80 mt-1">Cartera total: <span id="resumenSuspendidosTotalCorp" class="font-bold">0</span></p>
                             </div>
                             <div class="p-4 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
                                 <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Exonerados Regulares</p>
@@ -1011,6 +1013,18 @@
                             <div class="p-4 bg-sky-50 rounded-lg text-center flex-1 min-w-[150px] max-w-[250px]">
                                 <p class="text-sm font-medium text-sky-700">Exonerados Empleados (emp)</p>
                                 <p id="resumenExonEmp" class="text-2xl font-bold text-sky-900">0</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-4 w-full">
+                            <div class="p-3 bg-indigo-50/70 border border-indigo-100 rounded-lg text-center flex-1 min-w-[160px] max-w-[260px]">
+                                <p class="text-xs font-semibold text-indigo-700 uppercase tracking-wider"><i class="fa-solid fa-tv mr-1"></i> Contratos IPTV</p>
+                                <p id="resumenActivosIptv" class="text-xl font-bold text-indigo-900">0</p>
+                                <p class="text-[11px] text-indigo-600/80">Servicios activos</p>
+                            </div>
+                            <div class="p-3 bg-indigo-50/70 border border-indigo-100 rounded-lg text-center flex-1 min-w-[160px] max-w-[260px]">
+                                <p class="text-xs font-semibold text-indigo-700 uppercase tracking-wider"><i class="fa-solid fa-satellite-dish mr-1"></i> Contratos TV Fibra</p>
+                                <p id="resumenActivosTv" class="text-xl font-bold text-indigo-900">0</p>
+                                <p class="text-[11px] text-indigo-600/80">Servicios activos</p>
                             </div>
                         </div>
                     </div>
@@ -1047,15 +1061,27 @@
                                 </tr>
                                 <tr class="hover:bg-gray-50/30 transition-colors">
                                     <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos
-                                        residenciales</td>
+                                        residenciales (Cobranza)</td>
                                     <td class="py-2.5 px-4 text-right font-bold text-amber-900" id="listaSuspendidos">0
                                     </td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-800">Suspendidos
+                                        residenciales (Cartera Total)</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-amber-900" id="listaSuspendidosTotal">0
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
                                     <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-700">Suspendidos
-                                        corporativos</td>
+                                        corporativos (Cobranza)</td>
                                     <td class="py-2.5 px-4 text-right font-bold text-amber-900"
                                         id="listaSuspendidosCorp">0</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-amber-800">Suspendidos
+                                        corporativos (Cartera Total)</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-amber-900"
+                                        id="listaSuspendidosTotalCorp">0</td>
                                 </tr>
                                 <tr class="hover:bg-gray-50/30 transition-colors">
                                     <td class="py-2.5 px-4 text-left font-sans font-medium text-purple-700">Exonerados
@@ -1073,6 +1099,14 @@
                                     <td class="py-2.5 px-4 text-left font-sans font-medium text-sky-700">Exonerados
                                         Empleados (emp)</td>
                                     <td class="py-2.5 px-4 text-right font-bold text-sky-900" id="listaExonEmp">0</td>
+                                </tr>
+                                <tr class="hover:bg-indigo-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700"><i class="fa-solid fa-tv mr-1 text-xs"></i> Contratos IPTV Activos</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaActivosIptv">0</td>
+                                </tr>
+                                <tr class="hover:bg-indigo-50/30 transition-colors">
+                                    <td class="py-2.5 px-4 text-left font-sans font-medium text-indigo-700"><i class="fa-solid fa-satellite-dish mr-1 text-xs"></i> Contratos TV Fibra Activos</td>
+                                    <td class="py-2.5 px-4 text-right font-bold text-indigo-900" id="listaActivosTv">0</td>
                                 </tr>
                                 <tr class="bg-amber-50/80 dark:bg-amber-950/20 font-bold border-t-2 border-[#FFC107] transition-colors">
                                     <td class="py-3 px-4 text-left font-sans text-slate-900 dark:text-[#FFC107] text-base uppercase">
@@ -1293,7 +1327,7 @@
                                     </td>
                                 </tr>
                                 <tr class="bg-white border-b border-gray-100 hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium text-gray-900">Reconexiones</td>
+                                    <td class="px-6 py-4 font-medium text-gray-900">Instalaciones regulares</td>
                                     <td class="px-6 py-4 text-center" id="cf_inst_norm_qty">-</td>
                                     <td class="px-6 py-4 text-right font-medium text-emerald-600" id="cf_inst_norm_mnt">
                                         -</td>
@@ -1308,6 +1342,11 @@
                                     <td class="px-6 py-4 font-medium text-gray-900">Residenciales suspendidos</td>
                                     <td class="px-6 py-4 text-center" id="cf_susp_qty">-</td>
                                     <td class="px-6 py-4 text-right font-medium text-red-500" id="cf_susp_mnt">-</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-gray-900">Retiros definitivos</td>
+                                    <td class="px-6 py-4 text-center font-medium text-red-600" id="cf_retiros_qty">-</td>
+                                    <td class="px-6 py-4 text-right font-medium text-red-600" id="cf_retiros_mnt">-</td>
                                 </tr>
                             </tbody>
                             <tfoot class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
@@ -1980,6 +2019,18 @@
                 document.getElementById('resumenActivosCorp').innerText = t.activos_corp || 0;
                 document.getElementById('resumenSuspendidos').innerText = t.suspendidos;
                 document.getElementById('resumenSuspendidosCorp').innerText = t.suspendidos_corp || 0;
+                if (document.getElementById('resumenSuspendidosTotal')) {
+                    document.getElementById('resumenSuspendidosTotal').innerText = t.suspendidos_total || 0;
+                }
+                if (document.getElementById('resumenSuspendidosTotalCorp')) {
+                    document.getElementById('resumenSuspendidosTotalCorp').innerText = t.suspendidos_total_corp || 0;
+                }
+                if (document.getElementById('resumenActivosIptv')) {
+                    document.getElementById('resumenActivosIptv').innerText = t.activos_iptv || 0;
+                }
+                if (document.getElementById('resumenActivosTv')) {
+                    document.getElementById('resumenActivosTv').innerText = t.activos_tv || 0;
+                }
                 document.getElementById('resumenExonEmp').innerText = t.exonEmp;
                 document.getElementById('resumenExonReg').innerText = t.exonReg;
                 document.getElementById('resumenExonRegCorp').innerText = t.exonRegCorp || 0;
@@ -1988,10 +2039,14 @@
                 if (document.getElementById('listaActivos')) document.getElementById('listaActivos').innerText = t.activos;
                 if (document.getElementById('listaActivosCorp')) document.getElementById('listaActivosCorp').innerText = t.activos_corp || 0;
                 if (document.getElementById('listaSuspendidos')) document.getElementById('listaSuspendidos').innerText = t.suspendidos;
+                if (document.getElementById('listaSuspendidosTotal')) document.getElementById('listaSuspendidosTotal').innerText = t.suspendidos_total || 0;
                 if (document.getElementById('listaSuspendidosCorp')) document.getElementById('listaSuspendidosCorp').innerText = t.suspendidos_corp || 0;
+                if (document.getElementById('listaSuspendidosTotalCorp')) document.getElementById('listaSuspendidosTotalCorp').innerText = t.suspendidos_total_corp || 0;
                 if (document.getElementById('listaExonEmp')) document.getElementById('listaExonEmp').innerText = t.exonEmp;
                 if (document.getElementById('listaExonReg')) document.getElementById('listaExonReg').innerText = t.exonReg;
                 if (document.getElementById('listaExonRegCorp')) document.getElementById('listaExonRegCorp').innerText = t.exonRegCorp || 0;
+                if (document.getElementById('listaActivosIptv')) document.getElementById('listaActivosIptv').innerText = t.activos_iptv || 0;
+                if (document.getElementById('listaActivosTv')) document.getElementById('listaActivosTv').innerText = t.activos_tv || 0;
 
                 let sumListaTotal = (t.activos || 0) + (t.activos_corp || 0) + (t.suspendidos || 0) + (t.suspendidos_corp || 0) + (t.exonEmp || 0) + (t.exonReg || 0) + (t.exonRegCorp || 0);
                 if (document.getElementById('listaTotalGeneral')) document.getElementById('listaTotalGeneral').innerText = sumListaTotal;
@@ -2023,6 +2078,10 @@
                     document.getElementById('cf_downgrades_mnt').innerText = formatMnt(Math.abs(cf.downgrades_mnt));
                     document.getElementById('cf_susp_qty').innerText = formatQty(cf.susp_qty);
                     document.getElementById('cf_susp_mnt').innerText = formatMnt(Math.abs(cf.susp_mnt));
+                    if (document.getElementById('cf_retiros_qty')) {
+                        document.getElementById('cf_retiros_qty').innerText = formatQty(cf.retiros_qty);
+                        document.getElementById('cf_retiros_mnt').innerText = formatMnt(Math.abs(cf.retiros_mnt));
+                    }
 
                     document.getElementById('cf_tot_ini_qty').innerText = cf.cant_ayer.toLocaleString('es-ES');
                     document.getElementById('cf_tot_ini_mnt').innerHTML = formatAmountGlobal('$' + cf.ingreso_ayer.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));

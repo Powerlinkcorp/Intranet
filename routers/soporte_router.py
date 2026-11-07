@@ -33,6 +33,7 @@ def _now_caracas() -> datetime:
     return datetime.now(CARACAS_TZ)
 
 import threading
+import client_normalizer as cn
 from typing import List, Optional
 
 import requests
@@ -895,7 +896,7 @@ def _get_multi_clients_index():
             "urban": urban,
             "sector": sector,
             "plan": str(u.get("plan") or "Sin plan").strip(),
-            "estado_servicio": str(u.get("service_status") or "DESCONOCIDO").strip().upper(),
+            "estado_servicio": cn.normalize_status(u.get("service_status")),
             "tipo_servicio": service_type,
             "onu": str(onu_val),
             "vlan": str(u.get("vlan") or ""),

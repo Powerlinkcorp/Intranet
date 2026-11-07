@@ -4,6 +4,7 @@ import sys
 import argparse
 from datetime import datetime, timedelta
 import pandas as pd
+import client_normalizer as cn
 
 # Configure output encoding
 sys.stdout.reconfigure(encoding='utf-8')
@@ -1735,6 +1736,24 @@ def compare_and_report(yesterday, today, yesterday_name=None, today_name=None):
     df_yesterday.columns = [c.strip() for c in df_yesterday.columns]
     df_today.columns = [c.strip() for c in df_today.columns]
     
+    # Estandarización unificada de Estado de Servicio
+    if 'Estado servicio' in df_yesterday.columns:
+        df_yesterday['Estado servicio'] = df_yesterday['Estado servicio'].apply(cn.normalize_status)
+    if 'Estado servicio' in df_today.columns:
+        df_today['Estado servicio'] = df_today['Estado servicio'].apply(cn.normalize_status)
+
+    # Exclusión de Contratos TV / IPTV de la comparativa de clientes de Internet
+    def _is_tv_row(r):
+        p = str(r.get('Plan', '')).strip()
+        ts = str(r.get('Tipo de servicio', '')).strip()
+        is_tv, _ = cn.is_tv_or_iptv({'plan': p, 'service_type': ts})
+        return is_tv
+
+    if 'Plan' in df_yesterday.columns:
+        df_yesterday = df_yesterday[~df_yesterday.apply(_is_tv_row, axis=1)].copy()
+    if 'Plan' in df_today.columns:
+        df_today = df_today[~df_today.apply(_is_tv_row, axis=1)].copy()
+    
     # Ensure 'Costo del plan' is numeric
     if 'Costo del plan' in df_yesterday.columns:
         df_yesterday['Costo del plan'] = pd.to_numeric(df_yesterday['Costo del plan'], errors='coerce').fillna(0.0)
@@ -1757,22 +1776,28 @@ def compare_and_report(yesterday, today, yesterday_name=None, today_name=None):
     changes = m[m['Estado servicio_ayer'] != m['Estado servicio_hoy']].copy()
     
     # 2. Billing variations for existing clients
-    m['billing_ayer'] = m.apply(lambda r: float(r['Costo del plan_ayer']) if str(r['Estado servicio_ayer']).strip().upper() == 'ACTIVO' else 0.0, axis=1)
-    m['billing_hoy'] = m.apply(lambda r: float(r['Costo del plan_hoy']) if str(r['Estado servicio_hoy']).strip().upper() == 'ACTIVO' else 0.0, axis=1)
+    m['billing_ayer'] = m.apply(lambda r: float(r['Costo del plan_ayer']) if cn.normalize_status(r['Estado servicio_ayer']) == 'ACTIVO' else 0.0, axis=1)
+    m['billing_hoy'] = m.apply(lambda r: float(r['Costo del plan_hoy']) if cn.normalize_status(r['Estado servicio_hoy']) == 'ACTIVO' else 0.0, axis=1)
     m['variation'] = m['billing_hoy'] - m['billing_ayer']
     
     cost_changes = m[m['variation'] != 0.0].copy()
     
     def classify_cost_change(row):
-        st_ayer = str(row['Estado servicio_ayer']).strip().upper()
-        st_hoy = str(row['Estado servicio_hoy']).strip().upper()
+        st_ayer = cn.normalize_status(row['Estado servicio_ayer'])
+        st_hoy = cn.normalize_status(row['Estado servicio_hoy'])
         plan_ayer = str(row['Plan_ayer']).strip()
         plan_hoy = str(row['Plan_hoy']).strip()
         
         if st_ayer != 'ACTIVO' and st_hoy == 'ACTIVO':
             return 'Reconexión'
+        elif st_ayer == 'ACTIVO' and st_hoy == 'SUSPENDIDO':
+            return 'Suspensión'
+        elif st_ayer == 'ACTIVO' and st_hoy in ['RETIRADO', 'POR RETIRAR']:
+            return 'Retiro Definitivo'
+        elif st_ayer == 'ACTIVO' and st_hoy == 'EXONERADO':
+            return 'Pase a Exonerado'
         elif st_ayer == 'ACTIVO' and st_hoy != 'ACTIVO':
-            return 'Suspensión / Desactivación'
+            return 'Desactivación'
         elif st_ayer == 'ACTIVO' and st_hoy == 'ACTIVO':
             if plan_ayer != plan_hoy:
                 return 'Cambio de Plan'
@@ -1791,7 +1816,7 @@ def compare_and_report(yesterday, today, yesterday_name=None, today_name=None):
     new_clients = df_today[~df_today['ID Servicio'].isin(ids_yesterday)].copy()
     
     new_clients['billing_ayer'] = 0.0
-    new_clients['billing_hoy'] = new_clients.apply(lambda r: float(r['Costo del plan']) if str(r['Estado servicio']).strip().upper() == 'ACTIVO' else 0.0, axis=1)
+    new_clients['billing_hoy'] = new_clients.apply(lambda r: float(r['Costo del plan']) if cn.normalize_status(r['Estado servicio']) == 'ACTIVO' else 0.0, axis=1)
     new_clients['variation'] = new_clients['billing_hoy']
     
     new_billing_clients = new_clients[new_clients['variation'] != 0.0].copy()
@@ -1801,12 +1826,12 @@ def compare_and_report(yesterday, today, yesterday_name=None, today_name=None):
     ids_today = set(df_today['ID Servicio'])
     removed_clients = df_yesterday[~df_yesterday['ID Servicio'].isin(ids_today)].copy()
     
-    removed_clients['billing_ayer'] = removed_clients.apply(lambda r: float(r['Costo del plan']) if str(r['Estado servicio']).strip().upper() == 'ACTIVO' else 0.0, axis=1)
+    removed_clients['billing_ayer'] = removed_clients.apply(lambda r: float(r['Costo del plan']) if cn.normalize_status(r['Estado servicio']) == 'ACTIVO' else 0.0, axis=1)
     removed_clients['billing_hoy'] = 0.0
     removed_clients['variation'] = -removed_clients['billing_ayer']
     
     removed_billing_clients = removed_clients[removed_clients['variation'] != 0.0].copy()
-    removed_billing_clients['Tipo de Variación'] = 'Retiro / Eliminación'
+    removed_billing_clients['Tipo de Variación'] = 'Retiro Definitivo'
     
     # Combined variations
     variations_list = []
